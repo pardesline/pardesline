@@ -215,6 +215,20 @@ remote.view()  # link to the 3D viewer
   AI coding agents without an account.
 - Learned models (segmentation, registration) behind the same function names.
 
+## For AI coding agents
+
+The `skills/` folder holds eight Claude Code skills, grounded in the code and
+checked by the test suite (every module, method, parameter and dataset they
+mention must exist): `using-pardesline` (start here), `catalog-and-run`,
+`object-model`, `datasets-and-manifests`, `scanning-private-folders`,
+`medical-volumes`, `cloud-client`, `contributing-algorithms`. Install them as
+a plugin:
+
+```
+/plugin marketplace add pardesline/pardesline
+/plugin install pardesline@pardesline
+```
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Bug reports with the command, the log

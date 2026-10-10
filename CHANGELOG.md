@@ -48,6 +48,11 @@ First open-source release of the package. Licence: Apache-2.0.
   open questions; `pl.load(folder)` raises `NeedsConfirmation` until they are
   answered (in the call, in the saved draft, interactively, or `assume=True`).
 
+- **Skills for AI agents** under `skills/` (eight Claude Code skills) with a
+  plugin manifest, so `/plugin marketplace add pardesline/pardesline` teaches
+  an agent the package; `tests/test_skills.py` keeps them consistent with the
+  catalog, the datasets and the public API.
+
 ### Changed
 - The proprietary cloud client 0.1.0 is now the `pardesline.cloud`
   subpackage, re-licensed under Apache-2.0. The top-level helpers

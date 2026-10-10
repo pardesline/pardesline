@@ -85,7 +85,7 @@ path = "src/pardesline/_version.py"
 packages = ["src/pardesline"]
 
 [tool.hatch.build.targets.sdist]
-include = ["src/pardesline", "tests", "README.md", "CHANGELOG.md", "LICENSE", "NOTICE"]
+include = ["src/pardesline", "tests", "skills", "README.md", "CHANGELOG.md", "LICENSE", "NOTICE"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

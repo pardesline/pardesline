@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "pardesline",
+  "description": "PardesLine: 3D vision and medical imaging in one Python package, run locally. Skills that teach an agent the catalog, the object model, datasets by manifest and the cloud client.",
+  "owner": {
+    "name": "PardesLine",
+    "url": "https://github.com/pardesline/pardesline"
+  },
+  "plugins": [
+    {
+      "name": "pardesline",
+      "source": "./",
+      "description": "Skills for the pardesline package: run the 73 algorithms locally with validated parameters, chain them on typed objects that keep frame/units/labels/licence/provenance, load public datasets or private folders by manifest, work with medical volumes, use the optional cloud client, and extend the package.",
+      "version": "0.2.0a1",
+      "homepage": "https://github.com/pardesline/pardesline#readme",
+      "keywords": ["3d-vision", "medical-imaging", "point-cloud", "mesh", "dicom", "registration", "open3d", "pyvista", "simpleitk"]
+    }
+  ]
+}
