@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "name": "open3d_icp_demo",
+  "title": "Open3D ICP demo: three indoor point-cloud fragments",
+  "description": "The point clouds of Open3D registration tutorials (RGB-D reconstruction fragments). Pairs for RANSAC + ICP.",
+  "source": {
+    "scheme": "open3d",
+    "dataset": "DemoICPPointClouds"
+  },
+  "license": {
+    "source_url": "http://redwood-data.org/indoor/",
+    "note": "Redwood indoor RGB-D dataset fragments distributed by Open3D. Terms TO CONFIRM."
+  },
+  "citation": "Choi S., Zhou Q.-Y., Koltun V. Robust reconstruction of indoor scenes. CVPR 2015.",
+  "pairing": "scene",
+  "size_mb": 6,
+  "tags": [
+    "points",
+    "registration",
+    "indoor",
+    "demo"
+  ],
+  "roles": {
+    "source": {
+      "type": "points",
+      "description": "Fragment to align (moving)",
+      "units": "m",
+      "frame": "sensor"
+    },
+    "target": {
+      "type": "points",
+      "description": "Reference fragment (fixed)",
+      "units": "m",
+      "frame": "sensor"
+    }
+  },
+  "samples": [
+    {
+      "id": "pair_0_1",
+      "files": {
+        "source": "cloud_bin_0.pcd",
+        "target": "cloud_bin_1.pcd"
+      },
+      "fields": {
+        "scene": "livingroom"
+      }
+    },
+    {
+      "id": "pair_1_2",
+      "files": {
+        "source": "cloud_bin_1.pcd",
+        "target": "cloud_bin_2.pcd"
+      },
+      "fields": {
+        "scene": "livingroom"
+      }
+    }
+  ]
+}

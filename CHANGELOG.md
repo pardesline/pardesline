@@ -28,14 +28,34 @@ First open-source release of the package. Licence: Apache-2.0.
 - `pardesline.medical`: the SimpleITK service (volume I/O, DICOM series,
   rigid / affine / B-spline / demons registration, segmentation).
 
+- **Object model**: `PointCloud`, `Mesh`, `Volume`, `LabelMap`, `Transform`,
+  `Image` with `frame` (axes, units, affine, source), `labels`, `license` and
+  `provenance`; `with_frame` / `with_labels` / `with_license`; `save()` writes
+  a `.pardesline.json` sidecar that `load()` reads back. Volume headers give
+  LPS/mm and the affine; glTF is Y-up/m by specification; other formats stay
+  unknown until declared - never guessed.
+- **Conversions**: `Volume.segment()` -> `LabelMap`; `LabelMap.to_mesh(label)`
+  exact isosurface in world coordinates (in-process, direction cosines
+  applied); `Volume.to_mesh(isovalue)`; `Mesh.to_points()`; `PointCloud.to_mesh()`;
+  `align()` and `clean()` on clouds and volumes.
+- **Datasets**: manifest schema (source, licence, citation, roles, samples,
+  questions); `Dataset` / `Sample` with lazy fetch, `split()` by group,
+  `filter`, `take`, `sample`; sources `local`, `https` (SHA-512, mirrors,
+  tar/zip archives, cache), `hf://` (`[hf]` extra) and Open3D demo data.
+- **Bundled manifests**: `rire_brain`, `popi_lung_4dct`, `liver_tumor_patient01`,
+  `visible_human_head_mri`, `open3d_bunny`, `open3d_armadillo`, `open3d_icp_demo`.
+- **`pl.scan(folder)`** drafts a manifest for a private folder and lists its
+  open questions; `pl.load(folder)` raises `NeedsConfirmation` until they are
+  answered (in the call, in the saved draft, interactively, or `assume=True`).
+
 ### Changed
 - The proprietary cloud client 0.1.0 is now the `pardesline.cloud`
   subpackage, re-licensed under Apache-2.0. The top-level helpers
   (`pl.login`, `pl.upload`, `pl.share`, `pl.o3d`, ...) keep working.
 
 ### Not yet in this release
-- Dataset manifests and `pl.load("hf://...")`.
-- `pl.Object` with frames, units and labels; `to_mesh()` / `align()`.
+- Manifests for the large public hubs (OpenMind, MSD, Objaverse, KITTI).
+- Splats as a first-class kind.
 - The local MCP server.
 
 [Unreleased]: https://github.com/pardesline/pardesline/compare/v0.2.0a1...HEAD

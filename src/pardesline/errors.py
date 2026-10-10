@@ -10,7 +10,10 @@ from .cloud.errors import PardesLineError
 
 __all__ = [
     "CatalogError",
+    "FetchError",
+    "ManifestError",
     "MissingDependency",
+    "NeedsConfirmation",
     "ParameterError",
     "PardesLineError",
     "RunError",
@@ -62,3 +65,51 @@ class RunError(PardesLineError, RuntimeError):
         return f"{self.message}\n  command: {cmd}\n  log (last lines):\n" + "\n".join(
             f"    {line}" for line in tail.splitlines()
         )
+
+
+class ManifestError(PardesLineError, ValueError):
+    """A dataset manifest is missing, malformed or inconsistent."""
+
+    def __init__(self, message: str):
+        PardesLineError.__init__(self, message, code="manifest_error")
+
+
+class FetchError(PardesLineError, OSError):
+    """A dataset file could not be downloaded or failed its checksum."""
+
+    def __init__(self, message: str):
+        PardesLineError.__init__(self, message, code="fetch_error")
+
+
+class NeedsConfirmation(PardesLineError):
+    """A scanned folder has open questions (licence, units, labels...) that the
+    package will not guess. ``.manifest`` is the draft, ``.questions`` the
+    list; ``.draft_path`` is where it was saved, if it was."""
+
+    def __init__(self, manifest, draft_path=None):
+        self.manifest = manifest
+        self.questions = list(manifest.questions)
+        self.draft_path = draft_path
+        lines = [f"{manifest.name}: {len(self.questions)} question(s) before this folder can be loaded:"]
+        for q in self.questions:
+            lines.append(f"  - {q.field}: {q.message}")
+        lines.append("Answer in the call, e.g.")
+        example = ["pl.load(folder"]
+        if any(q.field == "license" for q in self.questions):
+            example.append("license='internal, no redistribution'")
+        units = [q.field.split(".")[1] for q in self.questions if q.field.endswith(".units")]
+        if units:
+            example.append("units={" + ", ".join(f"{r!r}: 'mm'" for r in units[:2]) + "}")
+        frames = [q.field.split(".")[1] for q in self.questions if q.field.endswith(".frame")]
+        if frames:
+            example.append("frame={" + ", ".join(f"{r!r}: 'Z-up'" for r in frames[:2]) + "}")
+        labels = [q.field.split(".")[1] for q in self.questions if q.field.endswith(".labels")]
+        if labels:
+            example.append("labels={" + ", ".join(f"{r!r}: {{1: 'organ'}}" for r in labels[:2]) + "}")
+        lines.append("  " + ", ".join(example) + ")")
+        lines.append(
+            "or edit the saved draft, or pass assume=True to proceed with unknowns, or interactive=True."
+        )
+        if draft_path:
+            lines.append(f"Draft saved: {draft_path}")
+        PardesLineError.__init__(self, "\n".join(lines), code="needs_confirmation")

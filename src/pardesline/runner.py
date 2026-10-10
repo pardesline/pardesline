@@ -1,7 +1,7 @@
 """Run one algorithm from the catalog as a subprocess, on this machine.
 
 Each op is an argparse script (``python -m pardesline.ops.<module>.<script>
---input … --output … [--flag value …]``). Running it in a child process keeps
+--input ... --output ... [--flag value ...]``). Running it in a child process keeps
 the exact contract the platform uses and isolates native-library crashes
 from the caller.
 """
@@ -184,7 +184,7 @@ def run(
     :class:`RunError`.
     """
     if "." in module and method is not None:
-        # run("mod.meth", input[, output]) — shift the positional arguments
+        # run("mod.meth", input[, output]) - shift the positional arguments
         if output is not None:
             raise ParameterError("run('module.method', input, output) takes at most two files.")
         module, method, input, output = module, None, method, input

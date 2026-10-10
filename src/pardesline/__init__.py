@@ -2,18 +2,22 @@
 
     import pardesline as pl
 
-    scan = pl.load("scan.ply")                       # a local point cloud
+    scan = pl.load("scan.ply")                       # a local point cloud (Object)
     surface = scan.downsample(voxel_size=0.01).poisson(depth=9)
-    surface.save("surface.ply")
+    surface.save("surface.ply")                      # + surface.ply.pardesline.json (frame, licence…)
+
+    ds = pl.load("rire_brain")                       # a dataset: manifest + fetched-on-access files
+    s = ds[0]; s.roles                               # ['ct', 'mr_t1']
+    moved = s.ct.align(s.mr_t1)                      # rigid registration, transform in moved.transform
+
+    ds = pl.load("/data/study_A", license="internal", units={"mesh": "mm"})   # your own folder
 
     pl.run("simpleitk_registration", "rigid", "ct.mha", moving="mr.mha")
-
     pl.catalog().describe("point_cloud_reconstruction.poisson")
 
-Everything under ``pl.run`` / ``pl.load`` executes on this machine. The
-cloud client (``pl.login``, ``pl.upload``, ``pl.share``, hosted compute and
-viewers) lives in ``pardesline.cloud`` and is also reachable from the top
-level for backward compatibility with 0.1.x.
+Everything under ``pl.run`` / ``pl.load`` executes on this machine. The cloud
+client (``pl.login``, ``pl.upload``, ``pl.share``, hosted compute, viewers)
+lives in ``pardesline.cloud`` and stays reachable from the top level.
 """
 
 from __future__ import annotations
@@ -22,36 +26,59 @@ from typing import Any
 
 from ._version import __version__
 from .catalog import Catalog, Method, Module, Parameter, load_catalog
+from .data import Dataset, Manifest, Sample, cache_dir, datasets, scan, set_cache_dir
+from .data import load as load
 from .errors import (
     CatalogError,
+    FetchError,
+    ManifestError,
     MissingDependency,
+    NeedsConfirmation,
     ParameterError,
     PardesLineError,
     RunError,
 )
-from .object import Object, load
+from .object import Frame, Image, LabelMap, License, Mesh, Object, PointCloud, Transform, Volume
 from .runner import RunResult, output_dir, run, set_output_dir
 
 __all__ = [
     "Catalog",
     "CatalogError",
+    "Dataset",
+    "FetchError",
+    "Frame",
+    "Image",
+    "LabelMap",
+    "License",
+    "Manifest",
+    "ManifestError",
+    "Mesh",
     "Method",
     "MissingDependency",
     "Module",
+    "NeedsConfirmation",
     "Object",
     "Parameter",
     "ParameterError",
     "PardesLineError",
+    "PointCloud",
     "RunError",
     "RunResult",
+    "Sample",
+    "Transform",
+    "Volume",
     "__version__",
+    "cache_dir",
     "catalog",
     "cloud",
+    "datasets",
     "describe",
     "load",
     "modules",
     "output_dir",
     "run",
+    "scan",
+    "set_cache_dir",
     "set_output_dir",
 ]
 
@@ -67,7 +94,10 @@ def modules() -> list[str]:
 
 
 def describe(what: str) -> str:
-    """``describe("module")`` or ``describe("module.method")``."""
+    """``describe("module")``, ``describe("module.method")`` or a dataset name."""
+    for m in datasets():
+        if m.name == what:
+            return m.describe()
     return load_catalog().describe(what)
 
 

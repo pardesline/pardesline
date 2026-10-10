@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "name": "open3d_armadillo",
+  "title": "Stanford armadillo (Open3D demo mesh)",
+  "description": "The Stanford armadillo as shipped by open3d.data.ArmadilloMesh.",
+  "source": {
+    "scheme": "open3d",
+    "dataset": "ArmadilloMesh"
+  },
+  "license": {
+    "source_url": "https://graphics.stanford.edu/data/3Dscanrep/",
+    "note": "Stanford 3D Scanning Repository: free to use with acknowledgement; commercial use TO CONFIRM with Stanford."
+  },
+  "citation": "Krishnamurthy V., Levoy M. Fitting smooth surfaces to dense polygon meshes. SIGGRAPH 1996.",
+  "pairing": "file",
+  "size_mb": 7,
+  "tags": [
+    "mesh",
+    "demo"
+  ],
+  "roles": {
+    "mesh": {
+      "type": "mesh",
+      "description": "Triangle mesh (units not stated by the file)"
+    }
+  },
+  "samples": [
+    {
+      "id": "armadillo",
+      "files": {
+        "mesh": "ArmadilloMesh.ply"
+      }
+    }
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "name": "popi_lung_4dct",
+  "title": "POPI-model: 4D-CT of one thorax, six breathing phases",
+  "description": "Point-validated Pixel-based Breathing Thorax Model (Leon Berard Cancer Center / CREATIS, Lyon). Six phases of one respiratory cycle; the phase 00 mask separates air, body and lungs. The reference deformable-registration exercise.",
+  "source": {
+    "scheme": "https",
+    "files": {
+      "POPI/meta/00-P.mhd": {
+        "sha512": "09fcb39c787eee3822040fcbf30d9c83fced4246c518a24ab14537af4b06ebd438e2f36be91e6e26f42a56250925cf1bfa0d2f2f2192ed2b98e6a9fb5f5069fc",
+        "url": "http://tux.creatis.insa-lyon.fr/~srit/POPI/Images/MetaImage/00-MetaImage.tar",
+        "archive": true
+      },
+      "POPI/meta/10-P.mhd": {
+        "sha512": "69644c7573a08c57ae4d57286e10e962c5e62472e1893f36bf3a2e8430ef4089fe4162375c3de73e00033114c5fa1653df49ffb3b38deaac8f1f3a8f6ff081b2",
+        "url": "http://tux.creatis.insa-lyon.fr/~srit/POPI/Images/MetaImage/10-MetaImage.tar",
+        "archive": true
+      },
+      "POPI/meta/20-P.mhd": {
+        "sha512": "5a8bdf4977d18d44fb4141e487211157bbdc50dab502e8dfea4d1f4178b28b71172d58332c8661f65349a5ed68c453620e113ce3bcc29b845eee3f9f9ca25e67",
+        "url": "http://tux.creatis.insa-lyon.fr/~srit/POPI/Images/MetaImage/20-MetaImage.tar",
+        "archive": true
+      },
+      "POPI/meta/30-P.mhd": {
+        "sha512": "8b7c1cbbb982a44d7c4cb7b794a7821693182b7c637b89956f5ce1ed2534e7dfae59e0654c421ecc538aa451dcdfc5a61a40ffe0d95e14598b9cddea66a6c88c",
+        "url": "http://tux.creatis.insa-lyon.fr/~srit/POPI/Images/MetaImage/30-MetaImage.tar",
+        "archive": true
+      },
+      "POPI/meta/40-P.mhd": {
+        "sha512": "ab87f2996592e5f9e3bff30503e54efb8dd48c41d4d8bee1915607b474a1252e3f04a3bcf76d96cad69ad22d3c9b4755cb95a68e28fcd86ebad8a7d86906384a",
+        "url": "http://tux.creatis.insa-lyon.fr/~srit/POPI/Images/MetaImage/40-MetaImage.tar",
+        "archive": true
+      },
+      "POPI/meta/50-P.mhd": {
+        "sha512": "5bf8f537a14bbb2140f9ce328938cd0d35373be22c33306d05db9b0745435b63bd803372e2dc4c6e0469d054248f21f7ed805def61a9dc46b3d1b3696d07bb46",
+        "url": "http://tux.creatis.insa-lyon.fr/~srit/POPI/Images/MetaImage/50-MetaImage.tar",
+        "archive": true
+      },
+      "POPI/masks/00-air-body-lungs.mhd": {
+        "sha512": "e20e93b316390ea53c59427a8ab770bb3ebda1f2e4c911382b753ec024d812de8a6c13d1919b77a1687c4f611acdb62ea92c05b2cc3ed065046fbdbe139538c8",
+        "url": "http://tux.creatis.insa-lyon.fr/~srit/POPI/Masks/00Mask-MetaImage.tar",
+        "archive": true
+      }
+    }
+  },
+  "license": {
+    "source_url": "https://www.creatis.insa-lyon.fr/rio/popi-model",
+    "note": "Free for research with citation of the POPI-model paper. Terms of use TO CONFIRM with the data owner before any redistribution."
+  },
+  "citation": "Vandemeulebroucke J., Sarrut D., Clarysse P. The POPI-model, a point-validated pixel-based breathing thorax model. ICCR 2007.",
+  "homepage": "https://www.creatis.insa-lyon.fr/rio/popi-model",
+  "pairing": "phase",
+  "size_mb": 500,
+  "tags": [
+    "medical",
+    "lung",
+    "ct",
+    "4d",
+    "deformable",
+    "registration",
+    "segmentation"
+  ],
+  "roles": {
+    "ct": {
+      "type": "volume",
+      "description": "Thorax CT at one breathing phase (MetaImage .mhd + .raw)",
+      "modality": "CT"
+    },
+    "mask": {
+      "type": "labels",
+      "description": "Air / body / lungs label map for phase 00 (value meaning inferred from the file name)",
+      "labels": {
+        "1": "body",
+        "2": "lungs"
+      },
+      "confidence": {
+        "labels": 0.7
+      }
+    }
+  },
+  "samples": [
+    {
+      "id": "phase_00",
+      "files": {
+        "ct": "POPI/meta/00-P.mhd",
+        "mask": "POPI/masks/00-air-body-lungs.mhd"
+      },
+      "fields": {
+        "patient": "popi_01",
+        "phase": "00"
+      }
+    },
+    {
+      "id": "phase_10",
+      "files": {
+        "ct": "POPI/meta/10-P.mhd"
+      },
+      "fields": {
+        "patient": "popi_01",
+        "phase": "10"
+      }
+    },
+    {
+      "id": "phase_20",
+      "files": {
+        "ct": "POPI/meta/20-P.mhd"
+      },
+      "fields": {
+        "patient": "popi_01",
+        "phase": "20"
+      }
+    },
+    {
+      "id": "phase_30",
+      "files": {
+        "ct": "POPI/meta/30-P.mhd"
+      },
+      "fields": {
+        "patient": "popi_01",
+        "phase": "30"
+      }
+    },
+    {
+      "id": "phase_40",
+      "files": {
+        "ct": "POPI/meta/40-P.mhd"
+      },
+      "fields": {
+        "patient": "popi_01",
+        "phase": "40"
+      }
+    },
+    {
+      "id": "phase_50",
+      "files": {
+        "ct": "POPI/meta/50-P.mhd"
+      },
+      "fields": {
+        "patient": "popi_01",
+        "phase": "50"
+      }
+    }
+  ]
+}

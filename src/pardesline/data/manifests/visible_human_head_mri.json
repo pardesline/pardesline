@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "name": "visible_human_head_mri",
+  "title": "Visible Human Project: MRI of the head",
+  "description": "Head MRI from the NLM Visible Human Project, as distributed with the SimpleITK notebooks. Small (2 MB), ideal for a first segmentation.",
+  "source": {
+    "scheme": "https",
+    "files": {
+      "vm_head_mri.mha": {
+        "sha512": "62a22a7cd91c9a91ccc8583ad98a29de83c72e95b652ba345b5697f1f84379fe43890faa38308cd9adf79e5365ffab1438ce3ba41b4423a3127870c27b0ebddf"
+      }
+    }
+  },
+  "license": {
+    "source_url": "https://www.nlm.nih.gov/research/visible/visible_human.html",
+    "note": "NLM Visible Human Project data; free since 2019 under NLM terms. Terms of use TO CONFIRM with the data owner before any redistribution."
+  },
+  "citation": "Ackerman M.J. The Visible Human Project. Proc. IEEE 86(3), 1998.",
+  "homepage": "https://www.nlm.nih.gov/research/visible/visible_human.html",
+  "pairing": "file",
+  "size_mb": 2,
+  "tags": [
+    "medical",
+    "head",
+    "mri"
+  ],
+  "roles": {
+    "mri": {
+      "type": "volume",
+      "description": "Head MRI",
+      "modality": "MR"
+    }
+  },
+  "samples": [
+    {
+      "id": "vm_head",
+      "files": {
+        "mri": "vm_head_mri.mha"
+      }
+    }
+  ]
+}

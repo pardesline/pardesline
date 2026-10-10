@@ -98,7 +98,7 @@ def test_registration_writes_sidecar(cloud_ply, out_dir):
     o3d.io.write_point_cloud(str(moving), pcd)
     fixed = pl.load(cloud_ply)
     aligned = fixed.icp(moving, voxel_size=0.05, max_iterations=100)
-    assert aligned.sidecar is not None and aligned.transform is not None
+    assert aligned.registration_sidecar is not None and aligned.transform is not None
     assert aligned.provenance[-1]["moving"] == str(moving)
 
 
@@ -107,7 +107,7 @@ def test_volume_segmentation_and_registration(volume_mha, out_dir):
     sitk = pytest.importorskip("SimpleITK")
     vol = pl.load(volume_mha)
     mask = vol.segment()
-    assert mask.kind == "volume"
+    assert mask.kind == "labels" and isinstance(mask, pl.LabelMap)
     arr = sitk.GetArrayFromImage(mask.to_sitk())
     assert arr.max() > 0 and 0 < np.count_nonzero(arr) < arr.size
 
@@ -118,7 +118,7 @@ def test_volume_segmentation_and_registration(volume_mha, out_dir):
     out_dir.mkdir(exist_ok=True)
     sitk.WriteImage(moved, str(moving))
     reg = vol.register(moving, num_iterations=30, metric="mean_squares")
-    assert reg.sidecar is not None
+    assert reg.registration_sidecar is not None
     sidecar = json.loads(reg.path.with_suffix(".json").read_text())
     assert "transform" in json.dumps(sidecar).lower()
 
@@ -128,3 +128,28 @@ def test_medical_api_imports():
     from pardesline import medical
 
     assert callable(medical.load_volume) and callable(medical.register_rigid)
+
+
+@pytest.mark.medical
+@pytest.mark.local
+def test_volume_frame_segment_and_exact_mesh(volume_mha, out_dir):
+    """Header → frame; threshold → LabelMap; label → exact surface in mm."""
+    vol = pl.load(volume_mha)
+    assert isinstance(vol, pl.Volume) and vol.frame.describe() == "LPS, mm (file)"
+    assert vol.info()["size"] == (32, 32, 32) and vol.frame.affine[0][0] == 1.0
+    mask = vol.segment(lower=100, upper=300)
+    assert isinstance(mask, pl.LabelMap) and mask.labels == {1: "foreground"}
+    assert mask.frame.axes == "LPS" and mask.license is vol.license
+    surf = mask.to_mesh()
+    assert isinstance(surf, pl.Mesh) and surf.units == "mm"
+    step = surf.provenance[-1]
+    assert step["op"] == "volume_to_mesh" and step["exact"] and step["label"] == 1 and step["n_faces"] > 100
+    pv_mesh = surf.to_pyvista()
+    center = pv_mesh.center
+    assert all(abs(c - 16.0) < 1.5 for c in center)  # sphere centred at voxel (16,16,16), spacing 1 mm
+    radius = ((pv_mesh.points - center) ** 2).sum(axis=1) ** 0.5
+    assert 8.5 < radius.mean() < 11.0  # radius ~10 voxels
+    with pytest.raises(ValueError, match="exactly one"):
+        vol.to_mesh()
+    iso = vol.to_mesh(isovalue=100.0)
+    assert iso.provenance[-1]["exact"] is False

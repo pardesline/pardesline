@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "name": "liver_tumor_patient01",
+  "title": "Liver tumour CT with three radiologists segmentations",
+  "description": "One abdominal CT and three independent manual segmentations of the tumour, from the SimpleITK segmentation-evaluation notebook. The inter-observer agreement exercise (Dice, Hausdorff).",
+  "source": {
+    "scheme": "https",
+    "files": {
+      "liverTumorSegmentations/Patient01Homo.mha": {
+        "sha512": "c57e6c51bdd9dd46034df3c01e3187d884526dbcfcf8e056221205bac1a09098142692a1bc76f3834a78a809570e64544dbec9b9d264747383ee71e20b21d054"
+      },
+      "liverTumorSegmentations/Patient01Homo_Rad01.mha": {
+        "sha512": "e94fb4d96e5cc5dca3c68fc67f63e895b8a71011f5343b4399e122b8f6a43ec5d5055f939299e3d9955e59cd841ebeb2d2395568c10ce29a597c518db784a337"
+      },
+      "liverTumorSegmentations/Patient01Homo_Rad02.mha": {
+        "sha512": "e055aff99a1c05ab90b84af048dd94d32236dcb4e4b8ce0a99ba3658fe85cc7c8505b806a92611bcf5ecf4cd0dbe6cafc336efdb9fe49753d1fc4aed174ed8ba"
+      },
+      "liverTumorSegmentations/Patient01Homo_Rad03.mha": {
+        "sha512": "89e4040e17aba2fae50e0b59b2043203ab33ce3ae6ef90af8ebc8c032a6aaee35084bf1e34ce1a390d157b8fadae2fa7694203a0886f54cc9da5293dbaa5d0e7"
+      }
+    }
+  },
+  "license": {
+    "source_url": "https://github.com/InsightSoftwareConsortium/SimpleITK-Notebooks",
+    "note": "Distributed with the SimpleITK notebooks (Apache-2.0 code; data terms not stated). Terms of use TO CONFIRM with the data owner before any redistribution."
+  },
+  "citation": "SimpleITK Notebooks, Insight Software Consortium.",
+  "pairing": "patient",
+  "size_mb": 2,
+  "tags": [
+    "medical",
+    "liver",
+    "ct",
+    "segmentation",
+    "inter-observer"
+  ],
+  "roles": {
+    "ct": {
+      "type": "volume",
+      "description": "Abdominal CT (8-bit, windowed)",
+      "modality": "CT"
+    },
+    "rad01": {
+      "type": "labels",
+      "description": "Tumour segmentation by radiologist 1",
+      "labels": {
+        "1": "tumor"
+      }
+    },
+    "rad02": {
+      "type": "labels",
+      "description": "Tumour segmentation by radiologist 2",
+      "labels": {
+        "1": "tumor"
+      }
+    },
+    "rad03": {
+      "type": "labels",
+      "description": "Tumour segmentation by radiologist 3",
+      "labels": {
+        "1": "tumor"
+      }
+    }
+  },
+  "samples": [
+    {
+      "id": "patient01",
+      "files": {
+        "ct": "liverTumorSegmentations/Patient01Homo.mha",
+        "rad01": "liverTumorSegmentations/Patient01Homo_Rad01.mha",
+        "rad02": "liverTumorSegmentations/Patient01Homo_Rad02.mha",
+        "rad03": "liverTumorSegmentations/Patient01Homo_Rad03.mha"
+      },
+      "fields": {
+        "patient": "patient01"
+      }
+    }
+  ]
+}

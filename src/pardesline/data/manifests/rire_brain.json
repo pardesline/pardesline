@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "name": "rire_brain",
+  "title": "RIRE training_001: CT and MR-T1 of one brain",
+  "description": "Multimodal brain pair from the Retrospective Image Registration Evaluation project, as distributed with the SimpleITK notebooks. The classic rigid CT/MR registration exercise.",
+  "source": {
+    "scheme": "https",
+    "files": {
+      "training_001_ct.mha": {
+        "sha512": "1b950bc42fddfcefc76b9203d5dd6c45960c4fa8dcb69b839d3d083270d3d4c9a9d378de3d3f914e432dc18fb44c9b9770d4db5580a70265f3e24e6cdb83015d"
+      },
+      "training_001_mr_T1.mha": {
+        "sha512": "3d15477962fef5851207964c381ffe77c586a6f70f2a373ecd3b6b4dc50d51dc6cd893eb1bedabcd382a96f0dafac893ae9e5a7c2b7333f9ff3f0c6b7016c7bc"
+      }
+    }
+  },
+  "license": {
+    "source_url": "https://rire.insight-journal.org/",
+    "note": "RIRE data are distributed for research evaluation of registration methods. Terms of use TO CONFIRM with the data owner before any redistribution."
+  },
+  "citation": "West J. et al. Comparison and evaluation of retrospective intermodality brain image registration techniques. J Comput Assist Tomogr 21(4), 1997.",
+  "homepage": "https://rire.insight-journal.org/",
+  "pairing": "patient",
+  "size_mb": 19,
+  "tags": [
+    "medical",
+    "brain",
+    "ct",
+    "mr",
+    "registration",
+    "multimodal"
+  ],
+  "roles": {
+    "ct": {
+      "type": "volume",
+      "description": "CT, the fixed reference",
+      "modality": "CT"
+    },
+    "mr_t1": {
+      "type": "volume",
+      "description": "MR T1-weighted, the moving volume",
+      "modality": "MR"
+    }
+  },
+  "samples": [
+    {
+      "id": "training_001",
+      "files": {
+        "ct": "training_001_ct.mha",
+        "mr_t1": "training_001_mr_T1.mha"
+      },
+      "fields": {
+        "patient": "training_001"
+      }
+    }
+  ]
+}

@@ -55,7 +55,11 @@ medical = [
     "SimpleITK>=2.3,<3",
     "pyvista>=0.43,<1",
 ]
-all = ["pardesline[local,medical]"]
+# Datasets hosted on the Hugging Face Hub (pl.load("hf://...")).
+hf = [
+    "huggingface_hub>=0.24,<3",
+]
+all = ["pardesline[local,medical,hf]"]
 dev = [
     "pytest>=8",
     "respx>=0.21",
@@ -90,6 +94,7 @@ markers = [
     "local: needs the [local] extra (Open3D, PyVista)",
     "medical: needs the [medical] extra (SimpleITK)",
     "slow: takes more than a few seconds",
+    "network: downloads real data (set PARDESLINE_NETWORK_TESTS=1 to run)",
 ]
 
 [tool.ruff]

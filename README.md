@@ -10,17 +10,23 @@ import pardesline as pl
 
 scan = pl.load("scan.ply")  # a local point cloud
 surface = scan.downsample(voxel_size=0.01).remove_outliers().normals().poisson(depth=9)
-surface.save("surface.ply")
+surface.save("surface.ply")  # + surface.ply.pardesline.json (frame, licence, provenance)
 
-# any of the 73 methods, by name, with validated parameters
-res = pl.run("simpleitk_registration", "rigid", "ct.mha", moving="mr.mha", num_iterations=200)
-print(res.output, res.sidecar)  # registered volume + transform JSON
+ds = pl.load("rire_brain")  # a dataset: manifest + files fetched on first access
+s = ds[0]  # roles: ct, mr_t1
+moved = s.ct.align(s.mr_t1)  # rigid CT/MR registration, transform in moved.transform
+
+mask = s.ct.segment(lower=200, upper=600)  # LabelMap, label 1
+bone = mask.to_mesh(label=1)  # exact surface, in LPS millimetres
+
+ds = pl.load("/data/study_A", license="internal", units={"mesh": "mm"})  # your own folder
 ```
 
-> **Status: 0.2.0 alpha.** Local execution, the catalog and the cloud client
-> are stable and tested on Linux, Windows and macOS. Dataset loaders
-> (`pl.load("hf://…")`), the typed object model with frames, units and labels,
-> and the local MCP server are the next milestones — see [Roadmap](#roadmap).
+> **Status: 0.2.0 alpha.** Local execution of the 73 algorithms, the typed
+> catalog, the object model (frames, units, labels, licence, provenance),
+> dataset manifests with seven bundled datasets and `pl.scan` for private
+> folders are in and tested on Linux, Windows and macOS. Next: more public
+> manifests (`hf://`), learned models, the local MCP server. See [Roadmap](#roadmap).
 
 ## Install
 
@@ -38,12 +44,14 @@ the core package also runs on 3.13.
 
 | | |
 |---|---|
-| **`pl.load(path)`** | Opens a local file as a typed `Object` (point cloud, mesh, volume, transform, image). |
-| **`obj.run("module.method", **params)`** | Runs any algorithm on it and returns a new `Object` with provenance. Friendly aliases: `downsample`, `remove_outliers`, `normals`, `poisson`, `ball_pivoting`, `decimate`, `smooth`, `to_points`, `icp`, `ransac`, `register`, `segment`. |
+| **`pl.load(path)`** | A local file as a typed `Object`: `PointCloud`, `Mesh`, `Volume`, `LabelMap`, `Transform`, `Image`. Volumes get their frame (LPS, mm, affine) from the header; glTF is Y-up metres by specification; formats that carry no unit stay *unknown* until you say. |
+| **`pl.load(dataset)`** | A `Dataset` from a bundled manifest (`rire_brain`, `popi_lung_4dct`, `liver_tumor_patient01`, `visible_human_head_mri`, `open3d_bunny`, `open3d_armadillo`, `open3d_icp_demo`), from your own manifest file, or from a folder via `pl.scan`. Files are fetched on first access, verified by SHA-512, cached. |
+| **`obj.run("module.method", **params)`** | Any algorithm; the result is a new `Object` that keeps the frame and licence and records the step. Aliases: `downsample`, `remove_outliers`, `normals`, `poisson`, `ball_pivoting`, `decimate`, `smooth`, `to_points`, `icp`, `ransac`, `register`, `segment`. |
+| **Conversions named after the job** | `Volume.segment()` -> `LabelMap`; `LabelMap.to_mesh(label)` exact boundary in world coordinates; `Volume.to_mesh(isovalue)`; `Mesh.to_points()`; `PointCloud.to_mesh()` (Poisson, lossy); `PointCloud.align(moving)`, `Volume.align(moving)`; `clean()`. |
 | **`pl.run(module, method, input, **params)`** | The same without the object wrapper. Returns output path, sidecar JSON, log and timing. |
 | **`pl.catalog()`** | Every module, method and parameter with type, default, range, choices and description. `pl.describe("point_cloud_reconstruction.poisson")`. |
-| **`obj.to_open3d()` / `to_pyvista()` / `to_sitk()`** | Hand the result to the library you already use. `pl.o3d`, `pl.pv`, `pl.sitk` are the real libraries when installed. |
-| **`pardesline` CLI** | `pardesline list`, `pardesline describe …`, `pardesline run module.method in.ply -o out.ply --voxel_size 0.02`. |
+| **`obj.to_open3d()` / `to_pyvista()` / `to_sitk()` / `to_numpy()`** | Hand the result to the library you already use. `pl.o3d`, `pl.pv`, `pl.sitk` are the real libraries when installed. |
+| **`pardesline` CLI** | `pardesline list`, `pardesline describe ...`, `pardesline run module.method in.ply -o out.ply --voxel_size 0.02`. |
 | **`pardesline.medical`** | Volume I/O (NIfTI, NRRD, MHA, VTI, DICOM series), rigid / affine / B-spline / demons registration, thresholding, watershed, connected components. |
 | **`pardesline.cloud`** | The hosted platform: upload, share in one line, run on GPU, open the browser viewers. Optional, needs an account. |
 
@@ -94,12 +102,60 @@ the output as `<output>.json` (`obj.transform`).
 The theory behind each module (with the formulas) is in the catalog too:
 `pl.catalog().module("sdf").theory`.
 
+## Datasets and manifests
+
+`pl.load` never knows a dataset; it knows a **manifest**: where the files
+come from (with checksums), under which licence, how files group into
+samples, and what each file cannot say by itself (frame, units, label
+meanings, array layout). Seven manifests ship with the package; `pl.datasets()`
+lists them, `pl.describe("popi_lung_4dct")` prints one.
+
+```python
+ds = pl.load("popi_lung_4dct")  # six breathing phases of one thorax CT + a mask
+ds.describe()  # licence, citation, roles, samples
+phase0 = ds["phase_00"]
+phase0.mask.labels  # {1: 'body', 2: 'lungs'}
+lungs = phase0.mask.to_mesh(label=2)  # exact surface, LPS mm
+moved = phase0.ct.align(ds["phase_50"].ct)
+
+train, test = ds.split(by="patient", fractions=(0.8, 0.2), seed=0)  # leakage-free
+```
+
+**Your own folder.** `pl.scan` drafts a manifest (samples, roles, what the
+headers say) and lists the questions it will not answer for you:
+
+```python
+pl.load("/data/study_A")
+# NeedsConfirmation: study_a: 4 question(s) before this folder can be loaded:
+#   - license: Who owns this data and under which terms may it be used?
+#   - roles.mesh.units: p01/la.stl: the format carries no unit. mm, m, ...?
+#   - roles.mask.labels: p01/seg.nii.gz looks like a label map. What does each value mean?
+#   ...
+# Draft saved: /data/study_A/pardesline.manifest.json
+
+ds = pl.load(
+    "/data/study_A",
+    license="internal, no redistribution",
+    units={"mesh": "mm"},
+    labels={"mask": {1: "left_atrium"}},
+)
+```
+
+Or edit the saved draft, or `interactive=True` to answer in the terminal, or
+`assume=True` to proceed with unknowns (and warnings). Licence terms of
+public datasets that could not be confirmed are marked `TO CONFIRM` in the
+manifest and in `ds.license.describe()`.
+
+Sources: `local` folders, `https` files with SHA-512 (and tar/zip archives),
+`hf://` repos through `huggingface_hub` (`pip install "pardesline[hf]"`, your
+own token for gated data), and Open3D demo data.
+
 ## Examples
 
 **Clean a LiDAR sweep and cluster the objects**
 
 ```python
-sweep = pl.load("sweep.las")
+sweep = pl.load("sweep.las").with_frame("sensor", "m")
 objects = sweep.run("ground_removal").run("object_clustering", eps=0.7, min_points=10)
 objects.to_open3d()
 ```
@@ -107,18 +163,19 @@ objects.to_open3d()
 **Register two CT volumes and check the result**
 
 ```python
-ct_day0 = pl.load("day0.nii")
+ct_day0 = pl.load("day0.nii")  # LPS, mm, affine from the header
 ct_day7 = pl.load("day7.nii")
-reg = ct_day0.register(ct_day7, metric="mattes_mutual_information", num_iterations=300)
+reg = ct_day0.align(ct_day7, metric="mattes_mutual_information", num_iterations=300)
 print(reg.transform["rotation_deg"], reg.transform["translation_mm"])
 diff = ct_day0.run("difference_analysis", moving=reg)
 ```
 
-**Mesh from a scan, then simplify for the web**
+**Segmentation to a printable surface**
 
 ```python
-mesh = pl.load("scan.ply").poisson(depth=10).decimate(target_reduction=0.8)
-mesh.save("web/scan.ply")
+mask = pl.load("ct.mha").segment(lower=200, upper=600)
+bone = mask.to_mesh(label=1).decimate(target_reduction=0.8)
+bone.save("bone.stl")  # + bone.stl.pardesline.json: LPS mm, licence, every step
 ```
 
 **Follow a long run**
@@ -150,13 +207,12 @@ remote.view()  # link to the 3D viewer
 
 ## Roadmap
 
-- **Datasets**: `pl.load("hf://org/name")`, `pl.load("sample://rire_ct_mr")`,
-  `pl.load("/my/folder")` with a manifest that carries licence, roles, frame
-  and units; `pl.scan` to draft one for a private folder.
-- **Object model**: frames, units, labels and provenance on every object;
-  `to_mesh()`, `align()`, `segment()` with the same names everywhere.
-- **Local MCP server**: `pardesline mcp` exposes the catalog to AI coding
-  agents without an account.
+- **More manifests**: the public 3D datasets people actually use (OpenMind,
+  NSCLC-Radiomics, MSD, AMOS, Objaverse subsets, KITTI...), with licence tiers:
+  permissive -> mirrored, non-commercial -> loader only, gated -> your own token.
+- **Splats** (`.splat`, `.spz`, glTF Gaussian-splat extension) as a first-class kind.
+- **Local MCP server**: `pardesline mcp` exposes the catalog and datasets to
+  AI coding agents without an account.
 - Learned models (segmentation, registration) behind the same function names.
 
 ## Contributing

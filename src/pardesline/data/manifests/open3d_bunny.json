@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "name": "open3d_bunny",
+  "title": "Stanford bunny (Open3D demo mesh)",
+  "description": "The Stanford bunny as shipped by open3d.data.BunnyMesh. The file carries no unit; the original scan is in metres (the bunny is about 15 cm long).",
+  "source": {
+    "scheme": "open3d",
+    "dataset": "BunnyMesh"
+  },
+  "license": {
+    "source_url": "https://graphics.stanford.edu/data/3Dscanrep/",
+    "note": "Stanford 3D Scanning Repository: free to use with acknowledgement; commercial use TO CONFIRM with Stanford."
+  },
+  "citation": "Turk G., Levoy M. Zippered polygon meshes from range images. SIGGRAPH 1994.",
+  "pairing": "file",
+  "size_mb": 3,
+  "tags": [
+    "mesh",
+    "demo"
+  ],
+  "roles": {
+    "mesh": {
+      "type": "mesh",
+      "description": "Triangle mesh",
+      "units": "m",
+      "frame": "Y-up",
+      "confidence": {
+        "units": 0.8,
+        "frame": 0.6
+      }
+    }
+  },
+  "samples": [
+    {
+      "id": "bunny",
+      "files": {
+        "mesh": "BunnyMesh.ply"
+      }
+    }
+  ]
+}
