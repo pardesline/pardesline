@@ -1,0 +1,1 @@
+"""PyVista Mesh Processing — Mesh geometry operations powered by PyVista/VTK: decimation, subdivision, smoothing (Laplacian, Taubin), cleaning, hole filling, normal computation, triangulation, and surface extraction."""

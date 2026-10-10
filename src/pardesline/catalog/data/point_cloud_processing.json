@@ -1,0 +1,132 @@
+{
+  "id": "point_cloud_processing",
+  "name": "Point Cloud Processing",
+  "order": 1,
+  "description": "Fundamental point cloud operations: downsampling, filtering, outlier removal. Essential preprocessing for all 3D computer vision pipelines.",
+  "category": "processing",
+  "icon": "cloud",
+  "input_formats": [
+    ".ply",
+    ".pcd",
+    ".txt",
+    ".xyz"
+  ],
+  "videos": [
+    {
+      "title": "Point Cloud Processing with Open3D (Loading, Visualizing, Sampling)",
+      "youtube_id": "D0TlEalWhVI"
+    },
+    {
+      "title": "3D Mesh, Point Cloud & Volume Processing with Open3D",
+      "youtube_id": "7PPFEOXewZE"
+    }
+  ],
+  "theory": {
+    "overview": "Point cloud processing encompasses the fundamental operations needed to prepare raw 3D data for downstream tasks. A point cloud $P = \\{p_1, \\ldots, p_n\\} \\subset \\mathbb{R}^3$ often contains noise, outliers, and redundant points.\n\nVoxel downsampling divides the space into a regular grid of cubes (voxels) with side length $v$ and replaces all points within each voxel by their centroid:\n$$\\bar{p}_k = \\frac{1}{|V_k|} \\sum_{p_i \\in V_k} p_i$$\n\nStatistical outlier removal computes the mean distance $\\mu_i$ from each point to its $k$ nearest neighbors and removes points where $\\mu_i > \\bar{\\mu} + \\alpha \\cdot \\sigma$.\n\nRadius outlier removal removes points that have fewer than $n_{\\min}$ neighbors within a sphere of radius $r$.",
+    "methods": {
+      "voxel_downsample": {
+        "title": "Voxel Downsampling",
+        "content": "Voxel downsampling partitions $\\mathbb{R}^3$ into a regular grid of cubes with side length $v$. For each non-empty voxel $V_k$, a representative point is computed as the centroid:\n\n$$\\bar{p}_k = \\frac{1}{|V_k|} \\sum_{p_i \\in V_k} p_i$$\n\nThis reduces the point count while providing uniform spatial sampling."
+      },
+      "statistical_outlier_removal": {
+        "title": "Statistical Outlier Removal",
+        "content": "For each point $p_i$, compute the mean distance to its $k$ nearest neighbors:\n$$\\mu_i = \\frac{1}{k} \\sum_{j=1}^{k} \\|p_i - p_{nn_j}\\|$$\n\nA point is classified as an outlier if $\\mu_i > \\bar{\\mu} + \\alpha \\cdot \\sigma$ where $\\alpha$ is the standard deviation multiplier."
+      },
+      "radius_outlier_removal": {
+        "title": "Radius Outlier Removal",
+        "content": "For each point $p_i$, count the number of neighbors within radius $r$. A point is removed if it has fewer than $n_{\\min}$ neighbors."
+      },
+      "mesh_to_pointcloud": {
+        "title": "Mesh to Point Cloud",
+        "content": "**1. Vertex Extraction**\nA triangle mesh $\\mathcal{M} = (V, F)$ consists of a vertex set $V = \\{v_1, \\ldots, v_n\\} \\subset \\mathbb{R}^3$ and a face set $F \\subset V \\times V \\times V$. Converting to a point cloud simply discards the connectivity $F$, retaining only the vertex positions:\n$$P = \\{v_i \\in \\mathbb{R}^3 : v_i \\in V\\}$$\n\n**2. Attribute Preservation**\nPer-vertex attributes (normals $\\vec{n}_i$, colors $c_i$) are preserved during conversion. Normals computed from mesh faces remain valid as point normals.\n\n**3. Use Cases**\nUseful as a preprocessing step when algorithms require point cloud input (e.g., registration, segmentation) but the source data is a mesh."
+      }
+    }
+  },
+  "methods": [
+    {
+      "id": "voxel_downsample",
+      "name": "Voxel Downsampling",
+      "script": "voxel_downsample.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "voxel_size",
+          "type": "float",
+          "default": 0.02,
+          "min": 0.001,
+          "max": 0.5,
+          "description": "Size of each voxel cube. Smaller = more detail."
+        }
+      ]
+    },
+    {
+      "id": "statistical_outlier_removal",
+      "name": "Statistical Outlier Removal",
+      "script": "statistical_outlier_removal.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "nb_neighbors",
+          "type": "int",
+          "default": 20,
+          "min": 5,
+          "max": 100,
+          "description": "Number of nearest neighbors to consider."
+        },
+        {
+          "name": "std_ratio",
+          "type": "float",
+          "default": 2.0,
+          "min": 0.5,
+          "max": 5.0,
+          "description": "Standard deviation multiplier threshold."
+        },
+        {
+          "name": "print_progress",
+          "type": "bool",
+          "default": false,
+          "description": "Print a progress bar during removal.",
+          "advanced": true
+        }
+      ]
+    },
+    {
+      "id": "radius_outlier_removal",
+      "name": "Radius Outlier Removal",
+      "script": "radius_outlier_removal.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "radius",
+          "type": "float",
+          "default": 0.05,
+          "min": 0.001,
+          "max": 1.0,
+          "description": "Search radius for counting neighbors."
+        },
+        {
+          "name": "min_neighbors",
+          "type": "int",
+          "default": 5,
+          "min": 1,
+          "max": 50,
+          "description": "Minimum neighbors required to keep a point."
+        },
+        {
+          "name": "print_progress",
+          "type": "bool",
+          "default": false,
+          "description": "Print a progress bar during removal.",
+          "advanced": true
+        }
+      ]
+    },
+    {
+      "id": "mesh_to_pointcloud",
+      "name": "Mesh to Point Cloud",
+      "script": "mesh_to_pointcloud.py",
+      "output_extension": ".ply",
+      "parameters": []
+    }
+  ]
+}

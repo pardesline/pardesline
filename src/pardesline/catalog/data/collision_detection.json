@@ -1,0 +1,89 @@
+{
+  "id": "collision_detection",
+  "name": "Collision Detection & Measurement",
+  "order": 13,
+  "description": "Detect and measure collisions between 3D geometries using SDF-based penetration analysis. Computes penetration depth, collision region, and bounding box intersection.",
+  "category": "collision",
+  "icon": "target",
+  "input_formats": [".ply", ".obj", ".stl", ".off"],
+  "videos": [
+    { "title": "Collision Detection with PyVista", "youtube_id": "iaAG6ACiNcY" }
+  ],
+  "theory": {
+    "overview": "Collision detection between 3D objects can be performed using Signed Distance Fields (SDF). Given a static mesh $S$ and a moving mesh $M$, we sample points on $M$ and compute their signed distance to $S$:\n\n$$d(p) = \\text{SDF}_S(p), \\quad p \\in M$$\n\nPoints where $d(p) < 0$ lie inside the static mesh, indicating collision. The penetration depth is:\n\n$$\\delta = \\max_{p \\in M} |\\min(d(p), 0)|$$\n\nThis approach is robust for arbitrary mesh geometries and provides continuous penetration measurements.",
+    "methods": {
+      "sdf_collision": {
+        "title": "SDF-Based Collision Detection",
+        "content": "Samples points uniformly on the input mesh surface, then creates a synthetic obstacle (sphere) and computes the SDF of the input points against the obstacle.\n\nPenetrating points satisfy $\\text{SDF}(p) < 0$. The collision region is visualized by coloring points by their signed distance: red (deep penetration) to blue (no contact)."
+      },
+      "penetration_depth": {
+        "title": "Penetration Depth Measurement",
+        "content": "Computes the maximum penetration depth between the input geometry and a synthetic obstacle:\n\n$$\\delta = |\\min_i \\text{SDF}(p_i)|$$\n\nAlso computes the bounding box of the collision region and outputs a combined point cloud showing the penetration zone with color-coded depth."
+      }
+    }
+  },
+  "methods": [
+    {
+      "id": "sdf_collision",
+      "name": "SDF-Based Collision Detection",
+      "script": "sdf_collision.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "obstacle_radius",
+          "type": "float",
+          "default": 0.5,
+          "min": 0.1,
+          "max": 5.0,
+          "description": "Radius of the synthetic obstacle sphere."
+        },
+        {
+          "name": "penetration_ratio",
+          "type": "float",
+          "default": 0.3,
+          "min": 0.05,
+          "max": 0.8,
+          "description": "Fraction of obstacle radius for penetration overlap."
+        },
+        {
+          "name": "num_samples",
+          "type": "int",
+          "default": 50000,
+          "min": 5000,
+          "max": 200000,
+          "description": "Number of surface sample points for SDF evaluation."
+        },
+        { "name": "obstacle_resolution", "type": "int", "default": 50, "min": 4, "max": 200, "description": "Sphere tessellation resolution for the synthetic obstacle mesh.", "advanced": true },
+        { "name": "obstacle_viz_points", "type": "int", "default": 5000, "min": 100, "max": 100000, "description": "Points sampled on the obstacle for visualization.", "advanced": true },
+        { "name": "colormap", "type": "string", "default": "coolwarm", "description": "Matplotlib colormap used to color points by signed distance.", "advanced": true }
+      ]
+    },
+    {
+      "id": "penetration_depth",
+      "name": "Penetration Depth Measurement",
+      "script": "penetration_depth.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "obstacle_radius",
+          "type": "float",
+          "default": 0.5,
+          "min": 0.1,
+          "max": 5.0,
+          "description": "Radius of the synthetic obstacle sphere."
+        },
+        {
+          "name": "overlap_distance",
+          "type": "float",
+          "default": 0.15,
+          "min": 0.01,
+          "max": 2.0,
+          "description": "Distance the obstacle overlaps with the input geometry."
+        },
+        { "name": "num_samples", "type": "int", "default": 50000, "min": 5000, "max": 200000, "description": "Number of surface sample points for SDF evaluation.", "advanced": true },
+        { "name": "obstacle_resolution", "type": "int", "default": 50, "min": 4, "max": 200, "description": "Sphere tessellation resolution for the synthetic obstacle mesh.", "advanced": true },
+        { "name": "colormap", "type": "string", "default": "hot", "description": "Matplotlib colormap used to color penetrating points by depth.", "advanced": true }
+      ]
+    }
+  ]
+}

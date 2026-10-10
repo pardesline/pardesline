@@ -1,0 +1,233 @@
+{
+  "id": "sdf",
+  "name": "Signed Distance Fields",
+  "order": 4,
+  "description": "Compute and visualize Signed Distance Fields from meshes. Foundation for implicit surface representations, marching cubes reconstruction, and neural SDFs.",
+  "category": "implicit",
+  "icon": "grid",
+  "input_formats": [
+    ".ply",
+    ".obj",
+    ".stl",
+    ".off"
+  ],
+  "videos": [
+    {
+      "title": "Signed Distance Field (SDF) for 3D Reconstruction",
+      "youtube_id": "Gxmd62wvMJA"
+    },
+    {
+      "title": "Collision Detection, SDF & Mesh Analysis with PyVista",
+      "youtube_id": "iaAG6ACiNcY"
+    }
+  ],
+  "theory": {
+    "overview": "A Signed Distance Field (SDF) is a scalar function $f: \\mathbb{R}^3 \\to \\mathbb{R}$ that returns the signed distance from any point $x$ to the closest surface point:\n\n$$f(x) = \\text{sign}(x) \\cdot \\min_{y \\in S} \\|x - y\\|$$\n\nwhere $f(x) < 0$ inside the surface, $f(x) > 0$ outside, and $f(x) = 0$ on the surface $S$ itself. The zero level-set $\\{x : f(x) = 0\\}$ implicitly defines the surface.\n\nSDFs have several key properties:\n- The gradient $\\nabla f(x)$ points in the direction of steepest distance increase\n- $\\|\\nabla f(x)\\| = 1$ almost everywhere (Eikonal equation)\n- Boolean operations become simple min/max on SDF values:\n$$\\text{Union:} \\min(f_A, f_B), \\quad \\text{Intersection:} \\max(f_A, f_B), \\quad \\text{Difference:} \\max(f_A, -f_B)$$",
+    "methods": {
+      "compute_sdf": {
+        "title": "SDF Computation & Marching Cubes",
+        "content": "**1. SDF Computation**\nThe SDF is computed using Open3D's RaycastingScene which casts rays to determine signed distance. Query points are placed on a regular 3D grid covering the mesh bounding box with padding.\n\nFor a grid with voxel size $v$ and padding $p$, the query points are:\n$$Q = \\{(x_0 + iv, y_0 + jv, z_0 + kv) : 0 \\leq i,j,k < N\\}$$\n\nwhere $(x_0, y_0, z_0)$ is the padded minimum bound.\n\n**2. Marching Cubes**\nThe surface is reconstructed at the zero-level set $\\{x : f(x) = 0\\}$ using the Marching Cubes algorithm (Lorensen & Cline, 1987). Each voxel cube is classified by the signs of its 8 corner SDF values, producing 256 possible configurations mapped to triangle meshes via a lookup table."
+      },
+      "occupancy_reconstruction": {
+        "title": "Occupancy-Based Reconstruction",
+        "content": "Occupancy testing determines whether query points lie inside or outside a watertight mesh. The occupancy function $o: \\mathbb{R}^3 \\to \\{0, 1\\}$ is:\n$$o(x) = \\begin{cases} 1 & \\text{if } x \\text{ is inside } S \\\\ 0 & \\text{otherwise} \\end{cases}$$\n\nThe boundary is extracted using marching cubes at iso-value 0.5."
+      },
+      "sdf_voxel_visualization": {
+        "title": "SDF Voxel Visualization",
+        "content": "**1. Signed Distance Function**\nThe SDF is sampled on a regular 3D grid of resolution $N^3$. For each voxel center $x_i$, the signed distance is computed:\n$$d_i = f(x_i) = \\text{sign}(x_i) \\cdot \\min_{y \\in S} \\|x_i - y\\|$$\n\n**2. Distance Clamping**\nSDF values are clamped to a user-defined range $[d_{\\min}, d_{\\max}]$ to focus on the near-surface region:\n$$\\hat{d}_i = \\text{clamp}(d_i, d_{\\min}, d_{\\max})$$\n\nThis truncation is the basis for Truncated SDFs (TSDFs), widely used in real-time 3D reconstruction (KinectFusion, Curless & Levoy 1996).\n\n**3. Colormap Encoding**\nThe clamped distances are normalized to $[0, 1]$ and mapped to a diverging colormap (coolwarm):\n- Blue ($d < 0$): interior of the surface\n- White ($d \\approx 0$): on or near the surface\n- Red ($d > 0$): exterior of the surface\n\n**4. Connection with Collision Detection**\nThe SDF provides constant-time collision queries: a point $x$ collides with the surface if $f(x) \\leq 0$. The penetration depth is $|f(x)|$ and the normal direction is $\\nabla f(x)$."
+      }
+    }
+  },
+  "methods": [
+    {
+      "id": "compute_sdf",
+      "name": "SDF Computation + Marching Cubes",
+      "script": "compute_sdf.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "voxel_size",
+          "type": "float",
+          "default": 0.01,
+          "min": 0.002,
+          "max": 0.05,
+          "description": "Voxel size for the SDF grid. Smaller = more detail but slower."
+        },
+        {
+          "name": "padding",
+          "type": "int",
+          "default": 5,
+          "min": 1,
+          "max": 20,
+          "description": "Number of padding voxels around the bounding box."
+        },
+        {
+          "name": "level",
+          "type": "float",
+          "default": 0.0,
+          "description": "Iso-level for surface extraction.",
+          "min": -0.05,
+          "max": 0.05,
+          "advanced": true
+        },
+        {
+          "name": "mc_step_size",
+          "type": "int",
+          "default": 1,
+          "description": "Marching-cubes voxel step (coarser = faster).",
+          "min": 1,
+          "max": 5,
+          "advanced": true
+        },
+        {
+          "name": "mc_method",
+          "type": "enum",
+          "default": "lewiner",
+          "description": "Marching-cubes algorithm variant.",
+          "options": [
+            "lewiner",
+            "lorensen"
+          ],
+          "advanced": true
+        },
+        {
+          "name": "mc_gradient_direction",
+          "type": "enum",
+          "default": "descent",
+          "description": "Surface-interior interpretation for normals.",
+          "options": [
+            "descent",
+            "ascent"
+          ],
+          "advanced": true
+        },
+        {
+          "name": "mc_allow_degenerate",
+          "type": "bool",
+          "default": true,
+          "description": "Allow degenerate output triangles.",
+          "advanced": true
+        }
+      ]
+    },
+    {
+      "id": "occupancy_reconstruction",
+      "name": "Occupancy-Based Reconstruction",
+      "script": "occupancy_reconstruction.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "voxel_size",
+          "type": "float",
+          "default": 0.01,
+          "min": 0.002,
+          "max": 0.05,
+          "description": "Voxel size for the occupancy grid."
+        },
+        {
+          "name": "padding",
+          "type": "int",
+          "default": 5,
+          "min": 1,
+          "max": 20,
+          "description": "Number of padding voxels around the bounding box."
+        },
+        {
+          "name": "level",
+          "type": "float",
+          "default": 0.5,
+          "description": "Iso-value for occupancy boundary.",
+          "min": 0.1,
+          "max": 0.9,
+          "advanced": true
+        },
+        {
+          "name": "mc_step_size",
+          "type": "int",
+          "default": 1,
+          "description": "Marching-cubes voxel step (coarser = faster).",
+          "min": 1,
+          "max": 5,
+          "advanced": true
+        },
+        {
+          "name": "mc_method",
+          "type": "enum",
+          "default": "lewiner",
+          "description": "Marching-cubes algorithm variant.",
+          "options": [
+            "lewiner",
+            "lorensen"
+          ],
+          "advanced": true
+        },
+        {
+          "name": "mc_gradient_direction",
+          "type": "enum",
+          "default": "descent",
+          "description": "Surface-interior interpretation for normals.",
+          "options": [
+            "descent",
+            "ascent"
+          ],
+          "advanced": true
+        },
+        {
+          "name": "mc_allow_degenerate",
+          "type": "bool",
+          "default": true,
+          "description": "Allow degenerate output triangles.",
+          "advanced": true
+        }
+      ]
+    },
+    {
+      "id": "sdf_voxel_visualization",
+      "name": "SDF Voxel Visualization",
+      "script": "sdf_voxel_visualization.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "resolution",
+          "type": "int",
+          "default": 32,
+          "min": 8,
+          "max": 128,
+          "description": "Grid resolution per axis. Higher = more detail. Total voxels = resolution^3."
+        },
+        {
+          "name": "min_clamp",
+          "type": "float",
+          "default": -0.1,
+          "min": -1.0,
+          "max": 0.0,
+          "description": "Minimum SDF clamp value (interior threshold)."
+        },
+        {
+          "name": "max_clamp",
+          "type": "float",
+          "default": 0.1,
+          "min": 0.0,
+          "max": 1.0,
+          "description": "Maximum SDF clamp value (exterior threshold)."
+        },
+        {
+          "name": "padding_factor",
+          "type": "float",
+          "default": 0.15,
+          "description": "Bbox padding as a fraction of the max extent.",
+          "min": 0.0,
+          "max": 1.0,
+          "advanced": true
+        },
+        {
+          "name": "colormap",
+          "type": "string",
+          "default": "coolwarm",
+          "description": "Matplotlib diverging colormap (coolwarm, bwr, seismic, RdBu).",
+          "advanced": true
+        }
+      ]
+    }
+  ]
+}

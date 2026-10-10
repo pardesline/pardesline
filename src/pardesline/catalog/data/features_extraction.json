@@ -1,0 +1,163 @@
+{
+  "id": "features_extraction",
+  "name": "Features Extraction",
+  "order": 12,
+  "description": "Extract geometric features from point clouds: normals, curvature, and FPFH descriptors for registration and analysis.",
+  "category": "features",
+  "icon": "search",
+  "input_formats": [".ply", ".pcd", ".txt", ".xyz"],
+  "videos": [
+    {
+      "title": "3D Point Cloud Features Extraction",
+      "youtube_id": "M6xnKm9eAgM"
+    },
+    {
+      "title": "Signals, 3D Point Clouds & Images: Features Analysis",
+      "youtube_id": "tqaTBRB2Q-s"
+    }
+  ],
+  "theory": {
+    "overview": "Geometric feature extraction computes descriptors that characterize the local or global shape of a point cloud.\n\nNormal estimation fits a local tangent plane to neighbors. Curvature is estimated from eigenvalues of the local covariance matrix. FPFH descriptors encode angular relationships between normals.",
+    "methods": {
+      "normal_estimation": {
+        "title": "Normal Estimation",
+        "content": "The normal $\\vec{n}_i$ is the eigenvector corresponding to the smallest eigenvalue of $\\mathbf{C}_i$. Normals are oriented consistently using tangent plane propagation."
+      },
+      "fpfh_features": {
+        "title": "FPFH Features",
+        "content": "Fast Point Feature Histograms encode angular relationships between normals into a 33-dimensional descriptor using three angular features $(\\alpha, \\phi, \\theta)$."
+      },
+      "curvature_estimation": {
+        "title": "Curvature Estimation",
+        "content": "Curvature $\\kappa_i = \\frac{\\lambda_0}{\\lambda_0 + \\lambda_1 + \\lambda_2}$. Near 0 = flat, near $1/3$ = high curvature."
+      }
+    }
+  },
+  "methods": [
+    {
+      "id": "normal_estimation",
+      "name": "Normal Estimation",
+      "script": "normal_estimation.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "radius",
+          "type": "float",
+          "default": 0.05,
+          "min": 0.005,
+          "max": 0.5,
+          "description": "Search radius for normal estimation."
+        },
+        {
+          "name": "max_nn",
+          "type": "int",
+          "default": 30,
+          "min": 10,
+          "max": 100,
+          "description": "Maximum nearest neighbors."
+        },
+        {
+          "name": "fast_normal_computation",
+          "type": "bool",
+          "default": true,
+          "description": "Use the faster (less accurate) covariance eigen solver in estimate_normals.",
+          "advanced": true
+        },
+        {
+          "name": "orient_k",
+          "type": "int",
+          "default": 0,
+          "min": 0,
+          "max": 100,
+          "description": "k neighbors for consistent tangent-plane orientation (0 = auto min(max_nn,15)).",
+          "advanced": true
+        }
+      ]
+    },
+    {
+      "id": "fpfh_features",
+      "name": "FPFH Feature Visualization",
+      "script": "fpfh_features.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "voxel_size",
+          "type": "float",
+          "default": 0.005,
+          "min": 0.001,
+          "max": 0.05,
+          "description": "Voxel size for downsampling before feature computation."
+        },
+        {
+          "name": "normal_radius_factor",
+          "type": "float",
+          "default": 2.0,
+          "min": 1.0,
+          "max": 10.0,
+          "description": "Normal search radius as a multiple of voxel_size.",
+          "advanced": true
+        },
+        {
+          "name": "normal_max_nn",
+          "type": "int",
+          "default": 30,
+          "min": 10,
+          "max": 200,
+          "description": "Maximum nearest neighbors for normal estimation.",
+          "advanced": true
+        },
+        {
+          "name": "feature_radius_factor",
+          "type": "float",
+          "default": 5.0,
+          "min": 1.0,
+          "max": 20.0,
+          "description": "FPFH search radius as a multiple of voxel_size.",
+          "advanced": true
+        },
+        {
+          "name": "feature_max_nn",
+          "type": "int",
+          "default": 100,
+          "min": 10,
+          "max": 500,
+          "description": "Maximum nearest neighbors for FPFH feature computation.",
+          "advanced": true
+        }
+      ]
+    },
+    {
+      "id": "curvature_estimation",
+      "name": "Curvature Estimation",
+      "script": "curvature_estimation.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "radius",
+          "type": "float",
+          "default": 0.05,
+          "min": 0.005,
+          "max": 0.5,
+          "description": "Search radius for curvature computation."
+        },
+        {
+          "name": "max_nn",
+          "type": "int",
+          "default": 30,
+          "min": 10,
+          "max": 100,
+          "description": "Maximum nearest neighbors."
+        },
+        {
+          "name": "normalize_percentile",
+          "type": "float",
+          "default": 99,
+          "min": 50,
+          "max": 100,
+          "description": "Percentile of curvature used as the color-normalization ceiling.",
+          "advanced": true
+        }
+      ]
+    }
+  ]
+}

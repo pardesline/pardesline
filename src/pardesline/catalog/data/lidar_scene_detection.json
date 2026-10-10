@@ -1,0 +1,151 @@
+{
+  "id": "lidar_scene_detection",
+  "name": "LiDAR Scene Analysis",
+  "order": 10,
+  "description": "Analyze LiDAR-style point clouds: height-based colorization, ground plane removal, and object clustering for autonomous driving and robotics applications.",
+  "category": "lidar",
+  "icon": "radar",
+  "input_formats": [
+    ".ply",
+    ".pcd",
+    ".txt",
+    ".xyz",
+    ".las"
+  ],
+  "videos": [
+    {
+      "title": "Autonomous Driving with Tesla & LiDAR Scene Analysis",
+      "youtube_id": "TVfmClvXL6Q"
+    },
+    {
+      "title": "LiDAR 3D Point Cloud: Full ML Pipeline & Bounding Box Detection",
+      "youtube_id": "jx_p_9LKOFo"
+    }
+  ],
+  "theory": {
+    "overview": "LiDAR (Light Detection and Ranging) sensors produce dense 3D point clouds of the environment. Processing these point clouds is fundamental to autonomous driving, robotics, and mapping.\n\nKey operations include:\n- **Height colorization**: Mapping the Z-coordinate to color for visual analysis\n- **Ground removal**: Fitting a plane to the ground surface and removing it\n- **Object clustering**: Grouping non-ground points into individual objects\n\nGround removal typically uses RANSAC to fit a plane $ax + by + cz + d = 0$ where the normal is approximately vertical ($c \\approx 1$). Non-ground points are then clustered using DBSCAN to identify individual objects.",
+    "methods": {
+      "height_colorization": {
+        "title": "Height-Based Colorization",
+        "content": "Points are colored based on their Z-coordinate (height) using a gradient:\n$$c_i = \\text{colormap}\\left(\\frac{z_i - z_{\\min}}{z_{\\max} - z_{\\min}}\\right)$$\n\nThis reveals terrain structure, building heights, and vegetation layers in the scene."
+      },
+      "ground_removal": {
+        "title": "Ground Plane Removal",
+        "content": "RANSAC fits a ground plane and removes points within a threshold:\n1. Fit plane $ax + by + cz + d = 0$ using RANSAC\n2. Compute distance $d_i = |ax_i + by_i + cz_i + d| / \\sqrt{a^2+b^2+c^2}$\n3. Remove points where $d_i < \\epsilon$ (ground points)"
+      },
+      "object_clustering": {
+        "title": "Object Clustering",
+        "content": "After ground removal, non-ground points are clustered using DBSCAN:\n1. Remove ground plane\n2. Apply DBSCAN with parameters $(\\epsilon, n_{\\min})$\n3. Each cluster represents a potential object\n4. Filter clusters by minimum size"
+      }
+    }
+  },
+  "methods": [
+    {
+      "id": "height_colorization",
+      "name": "Height Colorization",
+      "script": "height_colorization.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "colormap",
+          "type": "int",
+          "default": 0,
+          "min": 0,
+          "max": 3,
+          "description": "Colormap: 0=height gradient, 1=viridis, 2=plasma, 3=turbo"
+        }
+      ]
+    },
+    {
+      "id": "ground_removal",
+      "name": "Ground Plane Removal",
+      "script": "ground_removal.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "distance_threshold",
+          "type": "float",
+          "default": 0.3,
+          "min": 0.01,
+          "max": 2.0,
+          "description": "Distance threshold for ground plane inliers."
+        },
+        {
+          "name": "ransac_n",
+          "type": "int",
+          "default": 3,
+          "description": "Points sampled per RANSAC iteration.",
+          "advanced": true,
+          "min": 3,
+          "max": 10
+        },
+        {
+          "name": "num_iterations",
+          "type": "int",
+          "default": 1000,
+          "description": "RANSAC iterations.",
+          "advanced": true,
+          "min": 100,
+          "max": 10000
+        }
+      ]
+    },
+    {
+      "id": "object_clustering",
+      "name": "Object Clustering",
+      "script": "object_clustering.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "ground_threshold",
+          "type": "float",
+          "default": 0.3,
+          "min": 0.01,
+          "max": 2.0,
+          "description": "Distance threshold for ground removal before clustering."
+        },
+        {
+          "name": "cluster_eps",
+          "type": "float",
+          "default": 0.5,
+          "min": 0.1,
+          "max": 5.0,
+          "description": "DBSCAN epsilon for object clustering."
+        },
+        {
+          "name": "min_cluster_points",
+          "type": "int",
+          "default": 10,
+          "min": 3,
+          "max": 100,
+          "description": "Minimum points to form a cluster."
+        },
+        {
+          "name": "ransac_n",
+          "type": "int",
+          "default": 3,
+          "description": "Points sampled per RANSAC iteration.",
+          "advanced": true,
+          "min": 3,
+          "max": 10
+        },
+        {
+          "name": "num_iterations",
+          "type": "int",
+          "default": 1000,
+          "description": "Ground-plane RANSAC iterations.",
+          "advanced": true,
+          "min": 100,
+          "max": 10000
+        },
+        {
+          "name": "print_progress",
+          "type": "bool",
+          "default": false,
+          "description": "Print DBSCAN progress.",
+          "advanced": true
+        }
+      ]
+    }
+  ]
+}

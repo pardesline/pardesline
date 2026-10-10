@@ -1,0 +1,609 @@
+{
+  "id": "simpleitk_registration",
+  "name": "SimpleITK Registration",
+  "order": 18,
+  "description": "Medical image registration using SimpleITK. Rigid, affine, B-spline FFD, and demons deformable registration for CT/MR and other medical volumes.",
+  "category": "registration",
+  "icon": "crosshair",
+  "input_formats": [
+    ".vti",
+    ".mha",
+    ".nrrd",
+    ".nii",
+    ".dcm"
+  ],
+  "videos": [
+    {
+      "title": "CT/MRI Medical Image Registration with SimpleITK",
+      "youtube_id": "XBg9xnhSXbI"
+    }
+  ],
+  "theory": {
+    "overview": "Medical image registration seeks a spatial transformation $T: \\mathbb{R}^3 \\to \\mathbb{R}^3$ that aligns a moving image $I_M$ to a fixed image $I_F$. The optimal transformation minimizes a similarity metric:\n\n$$T^* = \\arg\\min_{T} \\mathcal{S}(I_F, I_M \\circ T) + \\lambda \\mathcal{R}(T)$$\n\nwhere $\\mathcal{S}$ is the similarity metric (e.g., Mutual Information for multi-modal, Mean Squared Error for mono-modal), $\\mathcal{R}(T)$ is a regularization term enforcing transformation smoothness, and $\\lambda$ controls the trade-off.\n\nSimpleITK implements a multi-resolution optimization framework with configurable metrics, interpolators, and optimizers for both rigid and deformable registration.",
+    "methods": {
+      "rigid": {
+        "title": "Rigid Registration",
+        "content": "**1. Rigid Transformation Model**\nA rigid transformation has 6 degrees of freedom — 3 rotation angles $(\\theta_x, \\theta_y, \\theta_z)$ and 3 translations $(t_x, t_y, t_z)$:\n$$T_{\\text{rigid}}(\\mathbf{x}) = R \\mathbf{x} + \\mathbf{t}$$\nwhere $R \\in SO(3)$ is the rotation matrix and $\\mathbf{t} \\in \\mathbb{R}^3$ is the translation vector.\n\n**2. Mattes Mutual Information**\nFor multi-modal registration (CT-MR), Mutual Information measures the statistical dependency between the two images:\n$$MI(I_F, I_M) = H(I_F) + H(I_M) - H(I_F, I_M)$$\nwhere $H$ denotes Shannon entropy and $H(I_F, I_M)$ is the joint entropy. Mattes' implementation uses a stochastic sampling strategy with 50 histogram bins.\n\n**3. Multi-Resolution Framework**\nThe optimization proceeds from coarse to fine resolution, avoiding local minima. At each level, the optimizer refines the parameters from the previous scale."
+      },
+      "affine": {
+        "title": "Affine Registration",
+        "content": "**1. Affine Transformation Model**\nAn affine transformation has 12 DOF — rotation, translation, scaling, and shearing:\n$$T_{\\text{affine}}(\\mathbf{x}) = A \\mathbf{x} + \\mathbf{t}$$\nwhere $A \\in \\mathbb{R}^{3 \\times 3}$ is a general invertible matrix (not restricted to $SO(3)$).\n\n**2. Degrees of Freedom**\nCompared to rigid (6 DOF), affine adds:\n- 3 scaling parameters: $s_x, s_y, s_z$\n- 3 shearing parameters: $k_{xy}, k_{xz}, k_{yz}$\n\nThis allows compensating for scanner calibration differences, growth between acquisitions, and anisotropic scaling."
+      },
+      "bspline": {
+        "title": "B-Spline Deformable Registration",
+        "content": "**1. Free-Form Deformation**\nThe displacement field is parameterized by a regular grid of $n_x \\times n_y \\times n_z$ control points $\\{\\phi_{i,j,k}\\}$. The deformation at any point $\\mathbf{x}$ is interpolated using cubic B-spline basis functions:\n$$T(\\mathbf{x}) = \\mathbf{x} + \\sum_{l=0}^{3} \\sum_{m=0}^{3} \\sum_{n=0}^{3} B_l(u) B_m(v) B_n(w) \\, \\phi_{i+l, j+m, k+n}$$\nwhere $(u, v, w)$ are the local coordinates within the control point cell.\n\n**2. Multi-Scale Refinement**\nRegistration proceeds from coarse grids (large `grid_spacing`) to fine grids, progressively capturing finer deformations. The LBFGSB optimizer handles the large number of parameters efficiently.\n\n**3. Regularization**\nThe bending energy of the B-spline ensures smooth deformations:\n$$\\mathcal{R}_{\\text{bend}} = \\int \\left\\| \\nabla^2 T(\\mathbf{x}) \\right\\|^2 d\\mathbf{x}$$"
+      },
+      "demons": {
+        "title": "Demons Deformable Registration",
+        "content": "**1. Optical Flow Formulation**\nDemons registration computes a dense displacement field $\\mathbf{u}(\\mathbf{x})$ by iteratively solving an optical flow equation. The update step for the displacement at each voxel is:\n$$\\Delta \\mathbf{u}(\\mathbf{x}) = \\frac{(I_M(\\mathbf{x} + \\mathbf{u}) - I_F(\\mathbf{x})) \\nabla I_F(\\mathbf{x})}{\\|\\nabla I_F(\\mathbf{x})\\|^2 + (I_M - I_F)^2}$$\n\n**2. Symmetric Forces**\nThe symmetric variant uses gradients from both images for improved convergence:\n$$\\Delta \\mathbf{u} = \\frac{(I_M - I_F)(\\nabla I_F + \\nabla I_M)}{\\|\\nabla I_F + \\nabla I_M\\|^2 + (I_M - I_F)^2}$$\n\n**3. Gaussian Smoothing**\nAfter each iteration, the displacement field is convolved with a Gaussian kernel of standard deviation $\\sigma$ (`standard_deviations` parameter) to enforce diffeomorphic-like smoothness."
+      },
+      "advanced_rigid": {
+        "title": "Advanced Rigid Registration (Two-Stage)",
+        "content": "**1. Two-Stage Composite Approach**\nFrom the reference implementation (modulesReg.py::registration_advanced), this method uses a two-stage approach: first, a geometry-based initial transform centers the images, then a second optimized Euler3D transform is applied. The final result is a CompositeTransform combining both stages.\n\n**2. Conservative Parameters**\nCompared to basic rigid registration:\n- Learning rate: 0.2 (vs 1.0) for more stable convergence\n- Sampling: 15% (vs 1%) for better metric estimation\n- Iterations: 200 (vs 100) for thorough optimization\n\n**3. Advantages**\nThe two-stage approach prevents the optimizer from getting stuck in local minima near the initial position, and the higher sampling percentage produces smoother metric landscapes."
+      },
+      "difference_analysis": {
+        "title": "Difference Image Analysis",
+        "content": "**1. Registration Quality Assessment**\nAfter registration, the absolute difference image $D = |I_F - I_M^{\\text{reg}}|$ reveals regions of misalignment. Low values indicate good alignment; high values indicate residual error.\n\n**2. Thresholding**\nBinary thresholding on the difference image extracts voxels with significant misalignment:\n$$M(\\mathbf{x}) = \\begin{cases} 1 & \\text{if } \\tau_L \\leq D(\\mathbf{x}) \\leq \\tau_U \\\\ 0 & \\text{otherwise} \\end{cases}$$\n\n**3. Statistics**\nMean, max, and standard deviation of the difference image quantify overall registration accuracy. The percentage of high-difference voxels provides a single summary metric."
+      }
+    }
+  },
+  "dual_input": true,
+  "dual_input_label": "Moving Volume",
+  "methods": [
+    {
+      "id": "rigid",
+      "name": "Rigid Registration",
+      "script": "rigid_registration.py",
+      "output_extension": ".vti",
+      "parameters": [
+        {
+          "name": "learning_rate",
+          "type": "float",
+          "default": 1.0,
+          "min": 0.1,
+          "max": 5.0,
+          "description": "Gradient descent learning rate."
+        },
+        {
+          "name": "num_iterations",
+          "type": "int",
+          "default": 100,
+          "min": 10,
+          "max": 500,
+          "description": "Maximum number of optimizer iterations."
+        },
+        {
+          "name": "sampling_percentage",
+          "type": "float",
+          "default": 0.01,
+          "min": 0.005,
+          "max": 0.5,
+          "description": "Metric sampling percentage (0.01 = 1%)."
+        },
+        {
+          "name": "initializer",
+          "type": "enum",
+          "default": "GEOMETRY",
+          "description": "Centered-initializer mode (geometric center vs center-of-mass).",
+          "options": [
+            "GEOMETRY",
+            "MOMENTS"
+          ],
+          "advanced": true
+        },
+        {
+          "name": "metric",
+          "type": "enum",
+          "default": "mattes_mutual_information",
+          "description": "Similarity metric.",
+          "options": [
+            "mattes_mutual_information",
+            "mean_squares",
+            "correlation",
+            "joint_histogram_mi"
+          ],
+          "advanced": true
+        },
+        {
+          "name": "number_of_histogram_bins",
+          "type": "int",
+          "default": 50,
+          "description": "Mattes MI histogram bins.",
+          "min": 10,
+          "max": 256,
+          "advanced": true
+        },
+        {
+          "name": "sampling_strategy",
+          "type": "enum",
+          "default": "RANDOM",
+          "description": "Metric sampling strategy.",
+          "options": [
+            "NONE",
+            "REGULAR",
+            "RANDOM"
+          ],
+          "advanced": true
+        },
+        {
+          "name": "interpolator",
+          "type": "enum",
+          "default": "LINEAR",
+          "description": "Resampling interpolator during optimization.",
+          "options": [
+            "LINEAR",
+            "NEAREST",
+            "BSPLINE"
+          ],
+          "advanced": true
+        },
+        {
+          "name": "convergence_minimum_value",
+          "type": "float",
+          "default": 1e-06,
+          "description": "Gradient-descent convergence threshold.",
+          "min": 1e-08,
+          "max": 0.001,
+          "advanced": true
+        },
+        {
+          "name": "convergence_window_size",
+          "type": "int",
+          "default": 10,
+          "description": "Gradient-descent convergence window.",
+          "min": 3,
+          "max": 50,
+          "advanced": true
+        },
+        {
+          "name": "shrink_factors",
+          "type": "list",
+          "default": "4,2,1",
+          "description": "Multi-resolution shrink factors per level (comma-separated).",
+          "advanced": true
+        },
+        {
+          "name": "smoothing_sigmas",
+          "type": "list",
+          "default": "2,1,0",
+          "description": "Gaussian smoothing sigma per level (comma-separated).",
+          "advanced": true
+        },
+        {
+          "name": "smoothing_sigmas_in_physical_units",
+          "type": "bool",
+          "default": true,
+          "description": "Interpret sigmas in mm vs voxels.",
+          "advanced": true
+        },
+        {
+          "name": "optimizer_scales_from_physical_shift",
+          "type": "bool",
+          "default": true,
+          "description": "Auto-estimate per-parameter optimizer scales.",
+          "advanced": true
+        }
+      ]
+    },
+    {
+      "id": "advanced_rigid",
+      "name": "Advanced Rigid (2-Stage)",
+      "script": "advanced_rigid_registration.py",
+      "output_extension": ".vti",
+      "parameters": [
+        {
+          "name": "learning_rate",
+          "type": "float",
+          "default": 0.2,
+          "min": 0.05,
+          "max": 2.0,
+          "description": "Gradient descent learning rate (lower = more stable)."
+        },
+        {
+          "name": "num_iterations",
+          "type": "int",
+          "default": 200,
+          "min": 50,
+          "max": 500,
+          "description": "Maximum optimizer iterations per stage."
+        },
+        {
+          "name": "sampling_percentage",
+          "type": "float",
+          "default": 0.15,
+          "min": 0.01,
+          "max": 0.5,
+          "description": "Metric sampling percentage (0.15 = 15%)."
+        },
+        {
+          "name": "exhaustive_steps_per_axis",
+          "type": "int",
+          "default": 12,
+          "description": "Rotation-search steps per axis (phase 1).",
+          "min": 4,
+          "max": 24,
+          "advanced": true
+        },
+        {
+          "name": "metric",
+          "type": "enum",
+          "default": "mattes_mutual_information",
+          "description": "Similarity metric.",
+          "options": [
+            "mattes_mutual_information",
+            "mean_squares",
+            "correlation",
+            "joint_histogram_mi"
+          ],
+          "advanced": true
+        },
+        {
+          "name": "number_of_histogram_bins",
+          "type": "int",
+          "default": 50,
+          "description": "Mattes MI histogram bins.",
+          "min": 10,
+          "max": 256,
+          "advanced": true
+        },
+        {
+          "name": "sampling_strategy",
+          "type": "enum",
+          "default": "RANDOM",
+          "description": "Metric sampling strategy.",
+          "options": [
+            "NONE",
+            "REGULAR",
+            "RANDOM"
+          ],
+          "advanced": true
+        },
+        {
+          "name": "interpolator",
+          "type": "enum",
+          "default": "LINEAR",
+          "description": "Resampling interpolator during optimization.",
+          "options": [
+            "LINEAR",
+            "NEAREST",
+            "BSPLINE"
+          ],
+          "advanced": true
+        },
+        {
+          "name": "convergence_minimum_value",
+          "type": "float",
+          "default": 1e-06,
+          "description": "Gradient-descent convergence threshold.",
+          "min": 1e-08,
+          "max": 0.001,
+          "advanced": true
+        },
+        {
+          "name": "convergence_window_size",
+          "type": "int",
+          "default": 10,
+          "description": "Gradient-descent convergence window.",
+          "min": 3,
+          "max": 50,
+          "advanced": true
+        },
+        {
+          "name": "shrink_factors",
+          "type": "list",
+          "default": "4,2,1",
+          "description": "Multi-resolution shrink factors per level (comma-separated).",
+          "advanced": true
+        },
+        {
+          "name": "smoothing_sigmas",
+          "type": "list",
+          "default": "2,1,0",
+          "description": "Gaussian smoothing sigma per level (comma-separated).",
+          "advanced": true
+        },
+        {
+          "name": "smoothing_sigmas_in_physical_units",
+          "type": "bool",
+          "default": true,
+          "description": "Interpret sigmas in mm vs voxels.",
+          "advanced": true
+        },
+        {
+          "name": "optimizer_scales_from_physical_shift",
+          "type": "bool",
+          "default": true,
+          "description": "Auto-estimate per-parameter optimizer scales.",
+          "advanced": true
+        }
+      ]
+    },
+    {
+      "id": "affine",
+      "name": "Affine Registration",
+      "script": "affine_registration.py",
+      "output_extension": ".vti",
+      "parameters": [
+        {
+          "name": "learning_rate",
+          "type": "float",
+          "default": 1.0,
+          "min": 0.1,
+          "max": 5.0,
+          "description": "Gradient descent learning rate."
+        },
+        {
+          "name": "num_iterations",
+          "type": "int",
+          "default": 100,
+          "min": 10,
+          "max": 500,
+          "description": "Maximum number of optimizer iterations."
+        },
+        {
+          "name": "sampling_percentage",
+          "type": "float",
+          "default": 0.01,
+          "min": 0.005,
+          "max": 0.5,
+          "description": "Metric sampling percentage (0.01 = 1%)."
+        },
+        {
+          "name": "initializer",
+          "type": "enum",
+          "default": "GEOMETRY",
+          "description": "Centered-initializer mode (geometric center vs center-of-mass).",
+          "options": [
+            "GEOMETRY",
+            "MOMENTS"
+          ],
+          "advanced": true
+        },
+        {
+          "name": "metric",
+          "type": "enum",
+          "default": "mattes_mutual_information",
+          "description": "Similarity metric.",
+          "options": [
+            "mattes_mutual_information",
+            "mean_squares",
+            "correlation",
+            "joint_histogram_mi"
+          ],
+          "advanced": true
+        },
+        {
+          "name": "number_of_histogram_bins",
+          "type": "int",
+          "default": 50,
+          "description": "Mattes MI histogram bins.",
+          "min": 10,
+          "max": 256,
+          "advanced": true
+        },
+        {
+          "name": "sampling_strategy",
+          "type": "enum",
+          "default": "RANDOM",
+          "description": "Metric sampling strategy.",
+          "options": [
+            "NONE",
+            "REGULAR",
+            "RANDOM"
+          ],
+          "advanced": true
+        },
+        {
+          "name": "interpolator",
+          "type": "enum",
+          "default": "LINEAR",
+          "description": "Resampling interpolator during optimization.",
+          "options": [
+            "LINEAR",
+            "NEAREST",
+            "BSPLINE"
+          ],
+          "advanced": true
+        },
+        {
+          "name": "convergence_minimum_value",
+          "type": "float",
+          "default": 1e-06,
+          "description": "Gradient-descent convergence threshold.",
+          "min": 1e-08,
+          "max": 0.001,
+          "advanced": true
+        },
+        {
+          "name": "convergence_window_size",
+          "type": "int",
+          "default": 10,
+          "description": "Gradient-descent convergence window.",
+          "min": 3,
+          "max": 50,
+          "advanced": true
+        },
+        {
+          "name": "shrink_factors",
+          "type": "list",
+          "default": "4,2,1",
+          "description": "Multi-resolution shrink factors per level (comma-separated).",
+          "advanced": true
+        },
+        {
+          "name": "smoothing_sigmas",
+          "type": "list",
+          "default": "2,1,0",
+          "description": "Gaussian smoothing sigma per level (comma-separated).",
+          "advanced": true
+        },
+        {
+          "name": "smoothing_sigmas_in_physical_units",
+          "type": "bool",
+          "default": true,
+          "description": "Interpret sigmas in mm vs voxels.",
+          "advanced": true
+        },
+        {
+          "name": "optimizer_scales_from_physical_shift",
+          "type": "bool",
+          "default": true,
+          "description": "Auto-estimate per-parameter optimizer scales.",
+          "advanced": true
+        }
+      ]
+    },
+    {
+      "id": "bspline",
+      "name": "B-Spline Deformable",
+      "script": "bspline_registration.py",
+      "output_extension": ".vti",
+      "parameters": [
+        {
+          "name": "grid_spacing",
+          "type": "float",
+          "default": 50.0,
+          "min": 10.0,
+          "max": 100.0,
+          "description": "Control point grid spacing in mm."
+        },
+        {
+          "name": "num_iterations",
+          "type": "int",
+          "default": 100,
+          "min": 20,
+          "max": 300,
+          "description": "LBFGSB optimizer iterations."
+        },
+        {
+          "name": "bspline_order",
+          "type": "int",
+          "default": 3,
+          "description": "B-spline basis order.",
+          "min": 1,
+          "max": 3,
+          "advanced": true
+        },
+        {
+          "name": "mesh_coarsening_factor",
+          "type": "int",
+          "default": 4,
+          "description": "Extra coarsening divisor applied to the control-point mesh.",
+          "min": 1,
+          "max": 8,
+          "advanced": true
+        },
+        {
+          "name": "sampling_percentage",
+          "type": "float",
+          "default": 0.01,
+          "description": "Fraction of voxels sampled by the metric.",
+          "min": 0.005,
+          "max": 0.5,
+          "advanced": true
+        },
+        {
+          "name": "interpolator",
+          "type": "enum",
+          "default": "LINEAR",
+          "description": "Resampling interpolator.",
+          "options": [
+            "LINEAR",
+            "NEAREST",
+            "BSPLINE"
+          ],
+          "advanced": true
+        },
+        {
+          "name": "gradient_convergence_tolerance",
+          "type": "float",
+          "default": 1e-05,
+          "description": "LBFGSB gradient convergence tolerance.",
+          "min": 1e-07,
+          "max": 0.001,
+          "advanced": true
+        },
+        {
+          "name": "max_number_of_corrections",
+          "type": "int",
+          "default": 5,
+          "description": "LBFGSB stored corrections (memory).",
+          "min": 1,
+          "max": 20,
+          "advanced": true
+        },
+        {
+          "name": "cost_function_convergence_factor",
+          "type": "float",
+          "default": 10000000.0,
+          "description": "LBFGSB cost-function convergence factor.",
+          "min": 10.0,
+          "max": 1000000000000.0,
+          "advanced": true
+        },
+        {
+          "name": "scale_factors",
+          "type": "list",
+          "default": "1,2,4",
+          "description": "B-spline multi-resolution scale factors (comma-separated).",
+          "advanced": true
+        }
+      ]
+    },
+    {
+      "id": "demons",
+      "name": "Demons Deformable",
+      "script": "demons_registration.py",
+      "output_extension": ".vti",
+      "parameters": [
+        {
+          "name": "num_iterations",
+          "type": "int",
+          "default": 20,
+          "min": 5,
+          "max": 100,
+          "description": "Number of demons iterations."
+        },
+        {
+          "name": "standard_deviations",
+          "type": "float",
+          "default": 2.0,
+          "min": 0.5,
+          "max": 5.0,
+          "description": "Displacement field smoothing sigma."
+        },
+        {
+          "name": "smooth_displacement_field",
+          "type": "bool",
+          "default": true,
+          "description": "Smooth the total displacement field each iteration.",
+          "advanced": true
+        }
+      ]
+    },
+    {
+      "id": "difference_analysis",
+      "name": "Difference Analysis",
+      "script": "difference_analysis.py",
+      "output_extension": ".vti",
+      "parameters": [
+        {
+          "name": "lower_threshold",
+          "type": "float",
+          "default": 50.0,
+          "min": 0.0,
+          "max": 500.0,
+          "description": "Lower threshold for highlighting high-difference regions."
+        },
+        {
+          "name": "upper_threshold",
+          "type": "float",
+          "default": 400.0,
+          "min": 100.0,
+          "max": 3000.0,
+          "description": "Upper threshold for difference analysis."
+        }
+      ]
+    }
+  ]
+}

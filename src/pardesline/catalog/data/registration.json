@@ -1,0 +1,494 @@
+{
+  "id": "registration",
+  "name": "Point Cloud Registration",
+  "order": 6,
+  "description": "Align point clouds into a common coordinate frame using RANSAC-based global registration and ICP local refinement.",
+  "category": "registration",
+  "icon": "crosshair",
+  "input_formats": [
+    ".ply",
+    ".pcd",
+    ".txt",
+    ".xyz"
+  ],
+  "dual_input": true,
+  "dual_input_label": "Moving Cloud",
+  "videos": [
+    {
+      "title": "Point Cloud Rigid Registration: RANSAC & ICP",
+      "youtube_id": "gv6VWirNH3I"
+    }
+  ],
+  "theory": {
+    "overview": "Point cloud registration finds the optimal rigid transformation $T = (\\mathbf{R}, \\mathbf{t})$ that aligns a source point cloud $P$ to a target $Q$:\n\n$$T^* = \\arg\\min_{\\mathbf{R}, \\mathbf{t}} \\sum_{i=1}^{N} \\|\\mathbf{R} p_i + \\mathbf{t} - q_{c(i)}\\|^2$$\n\nGlobal registration methods like RANSAC + FPFH features provide initial alignment before ICP refinement.",
+    "methods": {
+      "ransac_global": {
+        "title": "RANSAC Global Registration",
+        "content": "RANSAC-based registration uses FPFH feature matching to establish correspondences, then estimates the best transformation from random subsets."
+      },
+      "icp_refinement": {
+        "title": "ICP Refinement",
+        "content": "Iterative Closest Point alternates between finding correspondences via nearest-neighbor search and solving for $(\\mathbf{R}, \\mathbf{t})$ using SVD."
+      },
+      "ransac_icp_pipeline": {
+        "title": "RANSAC + ICP Full Pipeline",
+        "content": "Complete pipeline: apply a known transformation, then recover it using RANSAC global alignment followed by ICP local refinement."
+      }
+    }
+  },
+  "methods": [
+    {
+      "id": "ransac_global",
+      "name": "RANSAC Global Registration",
+      "script": "ransac_global.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "voxel_size",
+          "type": "float",
+          "default": 0.5,
+          "min": 0,
+          "max": 0.9,
+          "description": "Voxel size for downsampling. 0 = auto-detect (1.3% of bbox diagonal, matches Open3D tutorial)."
+        },
+        {
+          "name": "normal_radius_factor",
+          "type": "float",
+          "default": 2.0,
+          "description": "Normal-estimation radius as a multiple of voxel_size.",
+          "min": 1.0,
+          "max": 5.0,
+          "advanced": true
+        },
+        {
+          "name": "normal_max_nn",
+          "type": "int",
+          "default": 30,
+          "description": "Max neighbors for normal estimation.",
+          "min": 10,
+          "max": 100,
+          "advanced": true
+        },
+        {
+          "name": "fpfh_radius_factor",
+          "type": "float",
+          "default": 5.0,
+          "description": "FPFH feature radius as a multiple of voxel_size.",
+          "min": 2.0,
+          "max": 10.0,
+          "advanced": true
+        },
+        {
+          "name": "fpfh_max_nn",
+          "type": "int",
+          "default": 100,
+          "description": "Max neighbors for the FPFH histogram.",
+          "min": 30,
+          "max": 300,
+          "advanced": true
+        },
+        {
+          "name": "distance_threshold_factor",
+          "type": "float",
+          "default": 1.5,
+          "description": "RANSAC max correspondence distance as a multiple of voxel_size.",
+          "min": 0.5,
+          "max": 3.0,
+          "advanced": true
+        },
+        {
+          "name": "mutual_filter",
+          "type": "bool",
+          "default": true,
+          "description": "Use RANSAC mutual nearest-neighbor filtering.",
+          "advanced": true
+        },
+        {
+          "name": "ransac_with_scaling",
+          "type": "bool",
+          "default": false,
+          "description": "Estimate a scale factor in the RANSAC transform.",
+          "advanced": true
+        },
+        {
+          "name": "ransac_n",
+          "type": "int",
+          "default": 3,
+          "description": "Correspondences sampled per RANSAC iteration.",
+          "min": 3,
+          "max": 6,
+          "advanced": true
+        },
+        {
+          "name": "edge_length_threshold",
+          "type": "float",
+          "default": 0.9,
+          "description": "Edge-length similarity threshold for RANSAC checker.",
+          "min": 0.0,
+          "max": 1.0,
+          "advanced": true
+        },
+        {
+          "name": "ransac_max_iteration",
+          "type": "int",
+          "default": 100000,
+          "description": "Max RANSAC iterations.",
+          "min": 1000,
+          "max": 4000000,
+          "advanced": true
+        },
+        {
+          "name": "ransac_confidence",
+          "type": "float",
+          "default": 0.999,
+          "description": "RANSAC early-stop confidence.",
+          "min": 0.9,
+          "max": 0.9999,
+          "advanced": true
+        }
+      ]
+    },
+    {
+      "id": "icp_refinement",
+      "name": "ICP Refinement",
+      "script": "icp_refinement.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "voxel_size",
+          "type": "float",
+          "default": 0.5,
+          "min": 0,
+          "max": 0.9,
+          "description": "Voxel size for downsampling. 0 = auto-detect (1.3% of bbox diagonal, matches Open3D tutorial)."
+        },
+        {
+          "name": "max_iterations",
+          "type": "int",
+          "default": 2000,
+          "min": 100,
+          "max": 10000,
+          "description": "Maximum ICP iterations."
+        },
+        {
+          "name": "icp_estimation_method",
+          "type": "enum",
+          "default": "point_to_plane",
+          "description": "ICP estimation method (point-to-point remains the automatic fallback).",
+          "options": [
+            "point_to_plane",
+            "point_to_point"
+          ],
+          "advanced": true
+        },
+        {
+          "name": "relative_fitness",
+          "type": "float",
+          "default": 1e-06,
+          "description": "ICP stop threshold on fitness change.",
+          "min": 1e-08,
+          "max": 0.001,
+          "advanced": true
+        },
+        {
+          "name": "relative_rmse",
+          "type": "float",
+          "default": 1e-06,
+          "description": "ICP stop threshold on RMSE change.",
+          "min": 1e-08,
+          "max": 0.001,
+          "advanced": true
+        },
+        {
+          "name": "icp_threshold_factor",
+          "type": "float",
+          "default": 1.5,
+          "description": "Downsampled-ICP correspondence distance as a multiple of voxel_size.",
+          "min": 0.5,
+          "max": 4.0,
+          "advanced": true
+        },
+        {
+          "name": "refine_threshold_factor",
+          "type": "float",
+          "default": 0.4,
+          "description": "Full-res refinement correspondence distance as a multiple of voxel_size.",
+          "min": 0.2,
+          "max": 2.0,
+          "advanced": true
+        },
+        {
+          "name": "normal_radius_factor",
+          "type": "float",
+          "default": 2.0,
+          "description": "Normal-estimation radius as a multiple of voxel_size.",
+          "min": 1.0,
+          "max": 5.0,
+          "advanced": true
+        },
+        {
+          "name": "normal_max_nn",
+          "type": "int",
+          "default": 30,
+          "description": "Max neighbors for normal estimation.",
+          "min": 10,
+          "max": 100,
+          "advanced": true
+        },
+        {
+          "name": "fpfh_radius_factor",
+          "type": "float",
+          "default": 5.0,
+          "description": "Pre-pass FPFH radius as a multiple of voxel_size.",
+          "min": 2.0,
+          "max": 10.0,
+          "advanced": true
+        },
+        {
+          "name": "fpfh_max_nn",
+          "type": "int",
+          "default": 100,
+          "description": "Max neighbors for pre-pass FPFH.",
+          "min": 30,
+          "max": 300,
+          "advanced": true
+        },
+        {
+          "name": "ransac_distance_factor",
+          "type": "float",
+          "default": 1.5,
+          "description": "Pre-pass RANSAC correspondence distance as a multiple of voxel_size.",
+          "min": 0.5,
+          "max": 3.0,
+          "advanced": true
+        },
+        {
+          "name": "mutual_filter",
+          "type": "bool",
+          "default": true,
+          "description": "Use RANSAC mutual filtering in the pre-pass.",
+          "advanced": true
+        },
+        {
+          "name": "ransac_with_scaling",
+          "type": "bool",
+          "default": false,
+          "description": "Estimate scale in the pre-pass RANSAC.",
+          "advanced": true
+        },
+        {
+          "name": "ransac_n",
+          "type": "int",
+          "default": 3,
+          "description": "Correspondences per pre-pass RANSAC iteration.",
+          "min": 3,
+          "max": 6,
+          "advanced": true
+        },
+        {
+          "name": "edge_length_threshold",
+          "type": "float",
+          "default": 0.9,
+          "description": "Edge-length similarity threshold (pre-pass).",
+          "min": 0.0,
+          "max": 1.0,
+          "advanced": true
+        },
+        {
+          "name": "ransac_max_iteration",
+          "type": "int",
+          "default": 100000,
+          "description": "Max pre-pass RANSAC iterations.",
+          "min": 1000,
+          "max": 4000000,
+          "advanced": true
+        },
+        {
+          "name": "ransac_confidence",
+          "type": "float",
+          "default": 0.999,
+          "description": "Pre-pass RANSAC confidence.",
+          "min": 0.9,
+          "max": 0.9999,
+          "advanced": true
+        },
+        {
+          "name": "ransac_seed_fitness",
+          "type": "float",
+          "default": 0.3,
+          "description": "Min RANSAC fitness to seed ICP (else center-of-mass init).",
+          "min": 0.0,
+          "max": 1.0,
+          "advanced": true
+        }
+      ]
+    },
+    {
+      "id": "ransac_icp_pipeline",
+      "name": "RANSAC + ICP Pipeline",
+      "script": "ransac_icp_pipeline.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "voxel_size",
+          "type": "float",
+          "default": 0.5,
+          "min": 0,
+          "max": 0.9,
+          "description": "Voxel size for downsampling. 0 = auto-detect (1.3% of bbox diagonal, matches Open3D tutorial)."
+        },
+        {
+          "name": "rotation_degrees",
+          "type": "float",
+          "default": 45.0,
+          "min": 5.0,
+          "max": 90.0,
+          "description": "Synthetic rotation for DEMO MODE only (when no moving cloud is connected). Ignored in real registration.",
+          "demo_only": true
+        },
+        {
+          "name": "normal_radius_factor",
+          "type": "float",
+          "default": 2.0,
+          "description": "Normal-estimation radius as a multiple of voxel_size.",
+          "min": 1.0,
+          "max": 5.0,
+          "advanced": true
+        },
+        {
+          "name": "normal_max_nn",
+          "type": "int",
+          "default": 30,
+          "description": "Max neighbors for normal estimation.",
+          "min": 10,
+          "max": 100,
+          "advanced": true
+        },
+        {
+          "name": "fpfh_radius_factor",
+          "type": "float",
+          "default": 5.0,
+          "description": "FPFH feature radius as a multiple of voxel_size.",
+          "min": 2.0,
+          "max": 10.0,
+          "advanced": true
+        },
+        {
+          "name": "fpfh_max_nn",
+          "type": "int",
+          "default": 100,
+          "description": "Max neighbors for the FPFH histogram.",
+          "min": 30,
+          "max": 300,
+          "advanced": true
+        },
+        {
+          "name": "distance_threshold_factor",
+          "type": "float",
+          "default": 1.5,
+          "description": "RANSAC max correspondence distance as a multiple of voxel_size.",
+          "min": 0.5,
+          "max": 3.0,
+          "advanced": true
+        },
+        {
+          "name": "mutual_filter",
+          "type": "bool",
+          "default": true,
+          "description": "Use RANSAC mutual nearest-neighbor filtering.",
+          "advanced": true
+        },
+        {
+          "name": "ransac_with_scaling",
+          "type": "bool",
+          "default": false,
+          "description": "Estimate a scale factor in the RANSAC transform.",
+          "advanced": true
+        },
+        {
+          "name": "ransac_n",
+          "type": "int",
+          "default": 3,
+          "description": "Correspondences sampled per RANSAC iteration.",
+          "min": 3,
+          "max": 6,
+          "advanced": true
+        },
+        {
+          "name": "edge_length_threshold",
+          "type": "float",
+          "default": 0.9,
+          "description": "Edge-length similarity threshold for RANSAC checker.",
+          "min": 0.0,
+          "max": 1.0,
+          "advanced": true
+        },
+        {
+          "name": "ransac_max_iteration",
+          "type": "int",
+          "default": 100000,
+          "description": "Max RANSAC iterations.",
+          "min": 1000,
+          "max": 4000000,
+          "advanced": true
+        },
+        {
+          "name": "ransac_confidence",
+          "type": "float",
+          "default": 0.999,
+          "description": "RANSAC early-stop confidence.",
+          "min": 0.9,
+          "max": 0.9999,
+          "advanced": true
+        },
+        {
+          "name": "icp_threshold_factor",
+          "type": "float",
+          "default": 0.4,
+          "description": "ICP correspondence distance as a multiple of voxel_size.",
+          "min": 0.2,
+          "max": 2.0,
+          "advanced": true
+        },
+        {
+          "name": "icp_estimation_method",
+          "type": "enum",
+          "default": "point_to_plane",
+          "description": "ICP estimation method (point-to-point remains the automatic fallback).",
+          "options": [
+            "point_to_plane",
+            "point_to_point"
+          ],
+          "advanced": true
+        },
+        {
+          "name": "icp_max_iteration",
+          "type": "int",
+          "default": 30,
+          "description": "Max ICP iterations.",
+          "min": 1,
+          "max": 2000,
+          "advanced": true
+        },
+        {
+          "name": "icp_relative_fitness",
+          "type": "float",
+          "default": 1e-06,
+          "description": "ICP stop threshold on fitness change.",
+          "min": 1e-08,
+          "max": 0.001,
+          "advanced": true
+        },
+        {
+          "name": "icp_relative_rmse",
+          "type": "float",
+          "default": 1e-06,
+          "description": "ICP stop threshold on RMSE change.",
+          "min": 1e-08,
+          "max": 0.001,
+          "advanced": true
+        }
+      ]
+    }
+  ]
+}

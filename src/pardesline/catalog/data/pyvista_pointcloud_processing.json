@@ -1,0 +1,108 @@
+{
+  "id": "pyvista_pointcloud_processing",
+  "name": "PyVista Point Cloud Processing",
+  "order": 15,
+  "description": "Point cloud and mesh filtering operations via PyVista: thresholding, clipping by plane/box, random sampling, and scalar-based point extraction.",
+  "category": "processing",
+  "icon": "cloud",
+  "input_formats": [".ply", ".pcd", ".vtk", ".vtu", ".obj", ".stl"],
+  "videos": [
+    {
+      "title": "Point Cloud Processing with Open3D (Loading, Visualizing, Sampling)",
+      "youtube_id": "D0TlEalWhVI"
+    },
+    {
+      "title": "3D Mesh, Point Cloud & Volume Processing with Open3D",
+      "youtube_id": "7PPFEOXewZE"
+    }
+  ],
+  "theory": {
+    "overview": "PyVista provides spatial and scalar filtering for point data:\n\n**Threshold** keeps points/cells within a scalar range.\n**Clip** removes geometry on one side of a plane.\n**Clip Box** crops to a bounding box.\n**Random Sampling** reduces data by random selection.\n**Extract Points** selects points matching scalar criteria.",
+    "methods": {
+      "pv_threshold": { "title": "Scalar Threshold", "content": "Keeps cells whose scalar values satisfy $l \\leq s_i \\leq u$ for lower bound $l$ and upper bound $u$." },
+      "pv_clip_plane": { "title": "Clip by Plane", "content": "Removes all geometry on the negative side of the plane $\\mathbf{n} \\cdot (\\mathbf{x} - \\mathbf{o}) = 0$." },
+      "pv_clip_box": { "title": "Clip by Box", "content": "Keeps geometry inside the axis-aligned box $[x_{min}, x_{max}] \\times [y_{min}, y_{max}] \\times [z_{min}, z_{max}]$." },
+      "pv_random_sample": { "title": "Random Sampling", "content": "Uniformly samples a fraction $f$ of the input points without replacement." },
+      "pv_extract_points": { "title": "Extract Points by Scalar", "content": "Selects points whose scalar values lie within a specified range, producing a filtered point cloud." }
+    }
+  },
+  "methods": [
+    {
+      "id": "pv_threshold",
+      "name": "Threshold by Scalar",
+      "script": "threshold.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "lower", "type": "float", "default": 0.0, "min": -1e10, "max": 1e10, "description": "Lower scalar bound." },
+        { "name": "upper", "type": "float", "default": 1.0, "min": -1e10, "max": 1e10, "description": "Upper scalar bound." },
+        { "name": "scalars", "type": "string", "default": "", "description": "Scalar array name (empty = active scalars)." },
+        { "name": "invert", "type": "bool", "default": false, "description": "Invert the threshold (keep values OUTSIDE the range).", "advanced": true },
+        { "name": "continuous", "type": "bool", "default": false, "description": "Use continuous cell range: include cells whose scalar range overlaps [lower, upper].", "advanced": true },
+        { "name": "preference", "type": "enum", "default": "cell", "options": ["cell", "point"], "description": "Whether to threshold on cell or point scalars when both exist.", "advanced": true },
+        { "name": "all_scalars", "type": "bool", "default": false, "description": "Require all points of a cell to satisfy the criterion (else any point).", "advanced": true },
+        { "name": "component_mode", "type": "enum", "default": "all", "options": ["all", "any", "component"], "description": "For multi-component scalars: test all components, any component, or a single one.", "advanced": true },
+        { "name": "component", "type": "int", "default": 0, "min": 0, "max": 100, "description": "Component index to threshold when component_mode='component'.", "advanced": true }
+      ]
+    },
+    {
+      "id": "pv_clip_plane",
+      "name": "Clip by Plane",
+      "script": "clip_plane.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "origin_x", "type": "float", "default": 0.0, "min": -1e10, "max": 1e10, "description": "Plane origin X." },
+        { "name": "origin_y", "type": "float", "default": 0.0, "min": -1e10, "max": 1e10, "description": "Plane origin Y." },
+        { "name": "origin_z", "type": "float", "default": 0.0, "min": -1e10, "max": 1e10, "description": "Plane origin Z." },
+        { "name": "normal_x", "type": "float", "default": 1.0, "min": -1.0, "max": 1.0, "description": "Plane normal X." },
+        { "name": "normal_y", "type": "float", "default": 0.0, "min": -1.0, "max": 1.0, "description": "Plane normal Y." },
+        { "name": "normal_z", "type": "float", "default": 0.0, "min": -1.0, "max": 1.0, "description": "Plane normal Z." },
+        { "name": "invert", "type": "bool", "default": true, "description": "Which side to keep. True (default) keeps the side the normal points away from.", "advanced": true },
+        { "name": "value", "type": "float", "default": 0.0, "min": -1e10, "max": 1e10, "description": "Scalar offset of the clip plane along the normal.", "advanced": true },
+        { "name": "crinkle", "type": "bool", "default": false, "description": "Keep whole cells crossed by the plane instead of cutting them (crinkle clip).", "advanced": true }
+      ]
+    },
+    {
+      "id": "pv_clip_box",
+      "name": "Clip by Box",
+      "script": "clip_box.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "x_min", "type": "float", "default": -0.5, "min": -1e10, "max": 1e10, "description": "Box X minimum." },
+        { "name": "x_max", "type": "float", "default": 0.5, "min": -1e10, "max": 1e10, "description": "Box X maximum." },
+        { "name": "y_min", "type": "float", "default": -0.5, "min": -1e10, "max": 1e10, "description": "Box Y minimum." },
+        { "name": "y_max", "type": "float", "default": 0.5, "min": -1e10, "max": 1e10, "description": "Box Y maximum." },
+        { "name": "z_min", "type": "float", "default": -0.5, "min": -1e10, "max": 1e10, "description": "Box Z minimum." },
+        { "name": "z_max", "type": "float", "default": 0.5, "min": -1e10, "max": 1e10, "description": "Box Z maximum." },
+        { "name": "invert", "type": "bool", "default": false, "description": "Invert the box selection (keep geometry OUTSIDE the box).", "advanced": true },
+        { "name": "merge_points", "type": "bool", "default": true, "description": "Merge coincident points in the clipped output.", "advanced": true },
+        { "name": "crinkle", "type": "bool", "default": false, "description": "Keep whole cells crossed by the box instead of cutting them (crinkle clip).", "advanced": true }
+      ]
+    },
+    {
+      "id": "pv_random_sample",
+      "name": "Random Sampling",
+      "script": "random_sample.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "fraction", "type": "float", "default": 0.5, "min": 0.01, "max": 1.0, "description": "Fraction of points to keep (0-1)." },
+        { "name": "replace", "type": "bool", "default": false, "description": "Sample with replacement (allows duplicate picks).", "advanced": true },
+        { "name": "seed", "type": "int", "default": -1, "min": -1, "max": 2147483647, "description": "RNG seed for reproducibility; -1 = no seeding (non-deterministic, original behavior).", "advanced": true },
+        { "name": "adjacent_cells", "type": "bool", "default": true, "description": "Include cells that contain at least one selected point (else only fully-selected cells).", "advanced": true },
+        { "name": "include_cells", "type": "bool", "default": true, "description": "Carry cells through to the output (else points only).", "advanced": true }
+      ]
+    },
+    {
+      "id": "pv_extract_points",
+      "name": "Extract Points by Scalar",
+      "script": "extract_points.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "scalars", "type": "string", "default": "", "description": "Scalar array name (empty = active scalars)." },
+        { "name": "lower", "type": "float", "default": 0.0, "min": -1e10, "max": 1e10, "description": "Lower bound for extraction." },
+        { "name": "upper", "type": "float", "default": 1.0, "min": -1e10, "max": 1e10, "description": "Upper bound for extraction." },
+        { "name": "adjacent_cells", "type": "bool", "default": true, "description": "Include cells that contain at least one selected point (else only fully-selected cells).", "advanced": true },
+        { "name": "include_cells", "type": "bool", "default": true, "description": "Carry cells through to the output (else points only).", "advanced": true }
+      ]
+    }
+  ]
+}

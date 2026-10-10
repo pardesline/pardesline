@@ -1,0 +1,49 @@
+{
+  "id": "mesh_processing",
+  "name": "Mesh Processing",
+  "order": 2,
+  "description": "Triangle mesh operations: subdivision, simplification, and conversion to point clouds via uniform or Poisson-disk sampling.",
+  "category": "processing",
+  "icon": "mesh",
+  "input_formats": [".ply", ".obj", ".stl", ".off"],
+  "videos": [
+    {
+      "title": "3D Mesh, Point Cloud & Volume Processing with Open3D",
+      "youtube_id": "7PPFEOXewZE"
+    },
+    {
+      "title": "Mesh, Voxels & Volumes: Binary Erosion and Marching Cubes",
+      "youtube_id": "3OZzJfNn9Ks"
+    }
+  ],
+  "theory": {
+    "overview": "Mesh processing operates on triangle meshes $\\mathcal{M} = (V, F)$. Key operations include:\n\n**Subdivision** increases mesh resolution by splitting triangles. Midpoint subdivision inserts new vertices at edge midpoints, quadrupling the face count per iteration.\n\n**Simplification** reduces complexity using Quadric Error Metrics (QEM) which iteratively collapses edges minimizing $\\Delta(v) = v^T Q v$.\n\n**Mesh-to-Point-Cloud sampling** converts surfaces to point sets via uniform or Poisson-disk sampling.",
+    "methods": {
+      "subdivision": { "title": "Mesh Subdivision", "content": "Midpoint subdivision splits each edge at its midpoint creating 4 new triangles from each original. After $k$ iterations: $|F| \\cdot 4^k$ faces." },
+      "simplification": { "title": "Mesh Simplification (QEM)", "content": "Quadric Error Metrics decimation collapses edges in order of increasing cost $v^T (Q_a + Q_b) v$ until the target triangle count is reached." },
+      "mesh_to_pcd_uniform": { "title": "Uniform Surface Sampling", "content": "Points are sampled uniformly, each triangle receiving samples proportional to its area $A_i$." },
+      "mesh_to_pcd_poisson_disk": { "title": "Poisson-Disk Sampling", "content": "Blue-noise sampling where no two samples are closer than minimum distance $r$, producing more uniform coverage." }
+    }
+  },
+  "methods": [
+    { "id": "subdivision", "name": "Mesh Subdivision", "script": "subdivision.py", "output_extension": ".ply", "parameters": [
+      { "name": "iterations", "type": "int", "default": 1, "min": 1, "max": 4, "description": "Number of subdivision iterations." }
+    ]},
+    { "id": "simplification", "name": "Mesh Simplification", "script": "simplification.py", "output_extension": ".ply", "parameters": [
+      { "name": "target_triangles", "type": "int", "default": 5000, "min": 100, "max": 100000, "description": "Target number of triangles." },
+      { "name": "maximum_error", "type": "float", "default": 1e30, "min": 0.0, "max": 1e30, "description": "Advisory maximum quadric error allowed per edge collapse (very large = unbounded, matches default behavior).", "advanced": true },
+      { "name": "boundary_weight", "type": "float", "default": 1.0, "min": 0.0, "max": 100.0, "description": "Weight applied to boundary edges during decimation.", "advanced": true }
+    ]},
+    { "id": "mesh_to_pcd_uniform", "name": "Uniform Sampling (Mesh to PCD)", "script": "mesh_to_pcd_uniform.py", "output_extension": ".ply", "parameters": [
+      { "name": "num_points", "type": "int", "default": 5000, "min": 100, "max": 100000, "description": "Number of points to sample." },
+      { "name": "use_triangle_normal", "type": "bool", "default": false, "description": "Assign each sampled point the normal of its source triangle instead of an interpolated vertex normal.", "advanced": true },
+      { "name": "seed", "type": "int", "default": -1, "min": -1, "max": 2147483647, "description": "Random seed for sampling (-1 = nondeterministic).", "advanced": true }
+    ]},
+    { "id": "mesh_to_pcd_poisson_disk", "name": "Poisson-Disk Sampling", "script": "mesh_to_pcd_poisson_disk.py", "output_extension": ".ply", "parameters": [
+      { "name": "num_points", "type": "int", "default": 5000, "min": 100, "max": 100000, "description": "Approximate number of points." },
+      { "name": "init_factor", "type": "int", "default": 5, "min": 1, "max": 20, "description": "Initial uniform-sample oversampling factor before elimination.", "advanced": true },
+      { "name": "use_triangle_normal", "type": "bool", "default": false, "description": "Assign each sampled point the normal of its source triangle instead of an interpolated vertex normal.", "advanced": true },
+      { "name": "seed", "type": "int", "default": -1, "min": -1, "max": 2147483647, "description": "Random seed for sampling (-1 = nondeterministic).", "advanced": true }
+    ]}
+  ]
+}

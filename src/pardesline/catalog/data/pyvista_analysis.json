@@ -1,0 +1,94 @@
+{
+  "id": "pyvista_analysis",
+  "name": "PyVista Analysis",
+  "order": 17,
+  "description": "Geometric analysis and attribute computation via PyVista: curvature estimation, distance computation, glyph generation, vector magnitude, and scalar statistics.",
+  "category": "features",
+  "icon": "search",
+  "input_formats": [".ply", ".obj", ".stl", ".vtk", ".vtu"],
+  "videos": [
+    {
+      "title": "Signals, 3D Point Clouds & Images: Features Analysis",
+      "youtube_id": "tqaTBRB2Q-s"
+    },
+    {
+      "title": "3D Point Cloud Features Extraction",
+      "youtube_id": "M6xnKm9eAgM"
+    }
+  ],
+  "theory": {
+    "overview": "PyVista analysis tools compute derived geometric quantities:\n\n**Curvature** estimates surface curvature (mean, Gaussian, min, max) at each vertex.\n**Distance** computes point-to-surface distances between two meshes.\n**Glyphs** visualize vector fields by placing oriented symbols at data points.\n**Vector Magnitude** computes $\\|\\mathbf{v}\\|$ for each vector in a field.\n**Scalar Statistics** provides summary statistics of scalar arrays.",
+    "methods": {
+      "pv_curvature": { "title": "Surface Curvature", "content": "Curvature types: mean $H = \\frac{\\kappa_1 + \\kappa_2}{2}$, Gaussian $K = \\kappa_1 \\kappa_2$, maximum $\\kappa_1$, minimum $\\kappa_2$." },
+      "pv_distance": { "title": "Point-to-Surface Distance", "content": "Computes the closest-point distance from each vertex to a reference surface using a KD-tree." },
+      "pv_glyph": { "title": "Glyph Generation", "content": "Creates oriented arrow glyphs at each point, scaled by a factor and oriented along a vector field." },
+      "pv_vector_magnitude": { "title": "Vector Magnitude", "content": "Computes $\\|\\mathbf{v}_i\\| = \\sqrt{v_{ix}^2 + v_{iy}^2 + v_{iz}^2}$ for each vector and stores as a scalar." },
+      "pv_scalar_stats": { "title": "Scalar Statistics", "content": "Computes min, max, mean, median, std, and stores a normalized version of the scalar array." },
+      "pv_extract_feature_edges": { "title": "Feature Edge Extraction", "content": "Extracts edges where the surface normal changes sharply. A feature edge is identified when the dihedral angle between adjacent faces exceeds the threshold. Also detects boundary edges (single-face adjacency) and non-manifold edges (three or more face adjacency)." }
+    }
+  },
+  "methods": [
+    {
+      "id": "pv_curvature",
+      "name": "Compute Curvature",
+      "script": "curvature.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "curvature_type", "type": "string", "default": "mean", "description": "Curvature type: mean, gaussian, maximum, or minimum." }
+      ]
+    },
+    {
+      "id": "pv_distance",
+      "name": "Compute Distance",
+      "script": "distance.py",
+      "output_extension": ".ply",
+      "parameters": []
+    },
+    {
+      "id": "pv_glyph",
+      "name": "Glyph Generation",
+      "script": "glyph.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "scale_factor", "type": "float", "default": 0.01, "min": 0.0001, "max": 1.0, "description": "Scale factor for glyph size." },
+        { "name": "vector_name", "type": "string", "default": "Normals", "description": "Vector array to orient glyphs (e.g. Normals)." },
+        { "name": "scale", "type": "bool", "default": false, "description": "Scale glyphs by scalar/vector magnitude.", "advanced": true },
+        { "name": "tolerance", "type": "float", "default": -1.0, "min": -1.0, "max": 1.0, "description": "Merge tolerance as fraction of bbox (-1 = auto/None).", "advanced": true },
+        { "name": "absolute", "type": "bool", "default": false, "description": "Interpret tolerance as an absolute distance.", "advanced": true },
+        { "name": "clamping", "type": "bool", "default": false, "description": "Clamp glyph scaling to the rng range.", "advanced": true }
+      ]
+    },
+    {
+      "id": "pv_vector_magnitude",
+      "name": "Vector Magnitude",
+      "script": "vector_magnitude.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "vector_name", "type": "string", "default": "Normals", "description": "Name of the vector array to compute magnitude for." }
+      ]
+    },
+    {
+      "id": "pv_scalar_stats",
+      "name": "Scalar Statistics",
+      "script": "scalar_stats.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "scalars", "type": "string", "default": "", "description": "Scalar array name (empty = first available)." }
+      ]
+    },
+    {
+      "id": "pv_extract_feature_edges",
+      "name": "Extract Feature Edges",
+      "script": "extract_feature_edges.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "feature_angle", "type": "float", "default": 30.0, "min": 0.0, "max": 180.0, "description": "Dihedral angle threshold for feature edge detection (degrees)." },
+        { "name": "boundary_edges", "type": "string", "default": "true", "description": "Include boundary edges (true/false)." },
+        { "name": "non_manifold_edges", "type": "string", "default": "true", "description": "Include non-manifold edges (true/false)." },
+        { "name": "manifold_edges", "type": "string", "default": "false", "description": "Include regular manifold edges (true/false)." },
+        { "name": "feature_edges", "type": "bool", "default": true, "description": "Include feature (sharp dihedral-angle) edges.", "advanced": true },
+        { "name": "clear_data", "type": "bool", "default": false, "description": "Drop point/cell data arrays from the output edges.", "advanced": true }
+      ]
+    }
+  ]
+}

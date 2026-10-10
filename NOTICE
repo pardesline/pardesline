@@ -1,0 +1,8 @@
+PardesLine
+Copyright 2026 PardesLine
+
+This product includes software developed by PardesLine (https://pardesline.com).
+
+The `pardesline.ops` algorithms build on Open3D (MIT), PyVista (MIT),
+VTK (BSD-3-Clause), SimpleITK (Apache-2.0), NumPy (BSD-3-Clause) and
+loguru (MIT). Each of these libraries keeps its own licence.

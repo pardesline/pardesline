@@ -1,0 +1,73 @@
+{
+  "id": "voxel_to_mesh",
+  "name": "Voxelization & Volume",
+  "order": 3,
+  "description": "Convert meshes and point clouds to voxel grids. Perform volumetric operations like binary erosion and marching cubes reconstruction.",
+  "category": "conversion",
+  "icon": "box",
+  "input_formats": [".ply", ".obj", ".stl", ".off"],
+  "videos": [
+    {
+      "title": "Mesh & Point Cloud to Volume (Voxelization)",
+      "youtube_id": "3OZzJfNn9Ks"
+    }
+  ],
+  "theory": {
+    "overview": "Voxelization discretizes a 3D space into a regular grid of cubic cells (voxels). Each voxel stores a scalar value (occupancy, SDF, density). The inverse process extracts a surface mesh from this volumetric representation.\n\nMarching Cubes is the standard iso-surface extraction algorithm. For each cube in the voxel grid, it classifies vertices as inside or outside the iso-surface based on their scalar values relative to an iso-value $\\tau$.\n\nBinary erosion shrinks a solid by removing boundary voxels using a structuring element.",
+    "methods": {
+      "voxelization": {
+        "title": "Mesh Voxelization",
+        "content": "Voxelization converts a triangle mesh into a 3D occupancy grid. Open3D creates a VoxelGrid by testing which voxels intersect the mesh surface. The voxel size $v$ controls the resolution of the grid."
+      },
+      "binary_erosion": {
+        "title": "Binary Erosion + Reconstruction",
+        "content": "Binary erosion shrinks a solid by removing boundary voxels. For a volume $V$ and structuring element $B$:\n$$V \\ominus B = \\{x : B_x \\subseteq V\\}$$\nThe eroded volume is then reconstructed back to a mesh using marching cubes at iso-value 0.5."
+      }
+    }
+  },
+  "methods": [
+    {
+      "id": "voxelization",
+      "name": "Mesh Voxelization",
+      "script": "voxelization.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "voxel_size",
+          "type": "float",
+          "default": 0.01,
+          "min": 0.002,
+          "max": 0.05,
+          "description": "Size of each voxel cube. Smaller = more detail."
+        }
+      ]
+    },
+    {
+      "id": "binary_erosion",
+      "name": "Binary Erosion + Reconstruction",
+      "script": "binary_erosion.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "voxel_size",
+          "type": "float",
+          "default": 0.01,
+          "min": 0.002,
+          "max": 0.05,
+          "description": "Voxel size for the occupancy grid."
+        },
+        {
+          "name": "erosion_iterations",
+          "type": "int",
+          "default": 1,
+          "min": 1,
+          "max": 5,
+          "description": "Number of erosion iterations."
+        },
+        { "name": "erosion_connectivity", "type": "int", "default": 1, "min": 1, "max": 3, "description": "Connectivity of the 3D structuring element (1=faces, 2=+edges, 3=+corners).", "advanced": true },
+        { "name": "iso_level", "type": "float", "default": 0.5, "min": 0.0, "max": 1.0, "description": "Marching-cubes iso-surface level.", "advanced": true },
+        { "name": "padding_voxels", "type": "int", "default": 5, "min": 0, "max": 50, "description": "Padding added around the bounding box, expressed in voxels.", "advanced": true }
+      ]
+    }
+  ]
+}

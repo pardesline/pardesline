@@ -1,0 +1,125 @@
+{
+  "id": "lidar_camera_fusion",
+  "name": "LiDAR-Camera Fusion",
+  "order": 11,
+  "description": "Sensor fusion operations: distance-based colorization, region-of-interest extraction, and multi-resolution analysis for combined LiDAR and camera processing.",
+  "category": "lidar",
+  "icon": "radar",
+  "input_formats": [
+    ".ply",
+    ".pcd",
+    ".txt",
+    ".xyz",
+    ".las"
+  ],
+  "videos": [
+    {
+      "title": "3D LiDAR Features Extraction & Machine Learning for Cars",
+      "youtube_id": "IAztEc-KYx0"
+    },
+    {
+      "title": "LiDAR 3D Point Cloud: Full ML Pipeline & Bounding Box Detection",
+      "youtube_id": "jx_p_9LKOFo"
+    }
+  ],
+  "theory": {
+    "overview": "LiDAR-Camera fusion combines 3D point cloud data with 2D imagery. A 3D point $P = (X,Y,Z)$ projects to pixel $(u,v)$ via:\n$$\\begin{pmatrix} u \\\\ v \\\\ 1 \\end{pmatrix} = \\frac{1}{Z} K [R|t] \\begin{pmatrix} X \\\\ Y \\\\ Z \\\\ 1 \\end{pmatrix}$$",
+    "methods": {
+      "intensity_colorization": {
+        "title": "Distance Colorization",
+        "content": "Points colored by distance from origin using a selected colormap."
+      },
+      "roi_extraction": {
+        "title": "ROI Extraction",
+        "content": "Extract a sub-volume defined by axis-aligned percentage bounds."
+      },
+      "multi_resolution": {
+        "title": "Multi-Resolution Downsampling",
+        "content": "Near regions use fine voxels, far regions use coarse voxels."
+      }
+    }
+  },
+  "methods": [
+    {
+      "id": "intensity_colorization",
+      "name": "Distance Colorization",
+      "script": "intensity_colorization.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "colormap",
+          "type": "int",
+          "default": 0,
+          "min": 0,
+          "max": 3,
+          "description": "0=jet, 1=viridis, 2=inferno, 3=coolwarm"
+        }
+      ]
+    },
+    {
+      "id": "roi_extraction",
+      "name": "Region of Interest Extraction",
+      "script": "roi_extraction.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "x_range",
+          "type": "float",
+          "default": 0.5,
+          "min": 0.0,
+          "max": 1.0,
+          "description": "% of X-range to keep (centered)."
+        },
+        {
+          "name": "y_range",
+          "type": "float",
+          "default": 0.5,
+          "min": 0.0,
+          "max": 1.0,
+          "description": "% of Y-range to keep (centered)."
+        },
+        {
+          "name": "z_range",
+          "type": "float",
+          "default": 0.8,
+          "min": 0.0,
+          "max": 1.0,
+          "description": "% of Z-range to keep (centered)."
+        }
+      ]
+    },
+    {
+      "id": "multi_resolution",
+      "name": "Multi-Resolution Downsampling",
+      "script": "multi_resolution.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "levels",
+          "type": "int",
+          "default": 3,
+          "min": 1,
+          "max": 5,
+          "description": "Number of resolution levels."
+        },
+        {
+          "name": "base_voxel_size",
+          "type": "float",
+          "default": 0.01,
+          "min": 0.001,
+          "max": 0.5,
+          "description": "Finest voxel size (level 0)."
+        },
+        {
+          "name": "voxel_growth_factor",
+          "type": "float",
+          "default": 2.0,
+          "description": "Per-level voxel-size multiplier base (voxel = base * factor**level).",
+          "advanced": true,
+          "min": 1.1,
+          "max": 10.0
+        }
+      ]
+    }
+  ]
+}

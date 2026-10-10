@@ -1,0 +1,110 @@
+{
+  "id": "pyvista_volume_processing",
+  "name": "PyVista Volume Processing",
+  "order": 16,
+  "description": "Volumetric and grid processing via PyVista: isosurface extraction (contouring), slicing, thresholding, geometry extraction, and cell filtering.",
+  "category": "conversion",
+  "icon": "grid",
+  "input_formats": [".vti", ".vtk", ".vtu", ".ply", ".obj", ".stl"],
+  "videos": [
+    {
+      "title": "Mesh, Voxels & Volumes: Binary Erosion and Marching Cubes",
+      "youtube_id": "3OZzJfNn9Ks"
+    },
+    {
+      "title": "Signed Distance Field (SDF) for 3D Reconstruction",
+      "youtube_id": "Gxmd62wvMJA"
+    }
+  ],
+  "theory": {
+    "overview": "PyVista volume processing wraps VTK filters for extracting information from volumetric and grid datasets:\n\n**Contour/Isosurface** extracts surfaces at scalar isovalues using marching cubes.\n**Slice** creates a cross-section along any plane.\n**Threshold** selects cells within a scalar range.\n**Extract Geometry** converts a volume to its surface representation.\n**Extract Cells** selects cells by type.",
+    "methods": {
+      "pv_contour": { "title": "Isosurface Contour", "content": "Marching cubes extracts a surface mesh at scalar isovalue $c$: $\\{\\mathbf{x} : f(\\mathbf{x}) = c\\}$." },
+      "pv_slice": { "title": "Slice", "content": "Intersects the dataset with a plane $\\mathbf{n} \\cdot (\\mathbf{x} - \\mathbf{o}) = 0$ to produce a cross-section." },
+      "pv_slice_orthogonal": { "title": "Orthogonal Slices", "content": "Creates three orthogonal slices through the dataset at specified X, Y, Z positions." },
+      "pv_threshold_volume": { "title": "Volume Threshold", "content": "Selects cells with scalar values in $[l, u]$, preserving the volumetric structure." },
+      "pv_extract_geometry": { "title": "Extract Geometry", "content": "Extracts the boundary surface of a volume as a polygonal mesh." },
+      "pv_extract_cells": { "title": "Extract Cells by Type", "content": "Selects cells matching a specified cell type (tetrahedral, hexahedral, etc.)." }
+    }
+  },
+  "methods": [
+    {
+      "id": "pv_contour",
+      "name": "Isosurface Contour",
+      "script": "contour.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "n_contours", "type": "int", "default": 5, "min": 1, "max": 50, "description": "Number of isosurface levels." },
+        { "name": "scalars", "type": "string", "default": "", "description": "Scalar array name (empty = active scalars)." },
+        { "name": "compute_normals", "type": "bool", "default": false, "description": "Compute point normals on the output surface.", "advanced": true },
+        { "name": "compute_gradients", "type": "bool", "default": false, "description": "Compute gradients at the isosurface.", "advanced": true },
+        { "name": "compute_scalars", "type": "bool", "default": true, "description": "Preserve the contoured scalar on the output.", "advanced": true },
+        { "name": "method", "type": "enum", "default": "contour", "options": ["contour", "marching_cubes", "flying_edges"], "description": "Contouring algorithm.", "advanced": true },
+        { "name": "preference", "type": "enum", "default": "point", "options": ["point", "cell"], "description": "Prefer point or cell scalars.", "advanced": true }
+      ]
+    },
+    {
+      "id": "pv_slice",
+      "name": "Slice",
+      "script": "slice.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "normal_x", "type": "float", "default": 1.0, "min": -1.0, "max": 1.0, "description": "Slice normal X." },
+        { "name": "normal_y", "type": "float", "default": 0.0, "min": -1.0, "max": 1.0, "description": "Slice normal Y." },
+        { "name": "normal_z", "type": "float", "default": 0.0, "min": -1.0, "max": 1.0, "description": "Slice normal Z." },
+        { "name": "origin_x", "type": "float", "default": 0.0, "min": -1e10, "max": 1e10, "description": "Slice origin X (0 = center)." },
+        { "name": "origin_y", "type": "float", "default": 0.0, "min": -1e10, "max": 1e10, "description": "Slice origin Y (0 = center)." },
+        { "name": "origin_z", "type": "float", "default": 0.0, "min": -1e10, "max": 1e10, "description": "Slice origin Z (0 = center)." },
+        { "name": "generate_triangles", "type": "bool", "default": false, "description": "Triangulate the slice output.", "advanced": true },
+        { "name": "contour", "type": "bool", "default": false, "description": "Generate contour edges of the slice.", "advanced": true }
+      ]
+    },
+    {
+      "id": "pv_slice_orthogonal",
+      "name": "Orthogonal Slices",
+      "script": "slice_orthogonal.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "x", "type": "float", "default": 0.0, "min": -1e10, "max": 1e10, "description": "X position for YZ slice (0 = center)." },
+        { "name": "y", "type": "float", "default": 0.0, "min": -1e10, "max": 1e10, "description": "Y position for XZ slice (0 = center)." },
+        { "name": "z", "type": "float", "default": 0.0, "min": -1e10, "max": 1e10, "description": "Z position for XY slice (0 = center)." },
+        { "name": "generate_triangles", "type": "bool", "default": false, "description": "Triangulate the slice output.", "advanced": true },
+        { "name": "contour", "type": "bool", "default": false, "description": "Generate contour edges of the slices.", "advanced": true }
+      ]
+    },
+    {
+      "id": "pv_threshold_volume",
+      "name": "Volume Threshold",
+      "script": "threshold_volume.py",
+      "output_extension": ".vtu",
+      "parameters": [
+        { "name": "lower", "type": "float", "default": 0.0, "min": -1e10, "max": 1e10, "description": "Lower scalar bound." },
+        { "name": "upper", "type": "float", "default": 1.0, "min": -1e10, "max": 1e10, "description": "Upper scalar bound." },
+        { "name": "scalars", "type": "string", "default": "", "description": "Scalar array name (empty = active scalars).", "advanced": true },
+        { "name": "invert", "type": "bool", "default": false, "description": "Invert the threshold selection.", "advanced": true },
+        { "name": "continuous", "type": "bool", "default": false, "description": "Use continuous cell range for thresholding.", "advanced": true },
+        { "name": "preference", "type": "enum", "default": "cell", "options": ["cell", "point"], "description": "Prefer cell or point scalars.", "advanced": true },
+        { "name": "all_scalars", "type": "bool", "default": false, "description": "Require all scalar components to satisfy the range.", "advanced": true }
+      ]
+    },
+    {
+      "id": "pv_extract_geometry",
+      "name": "Extract Geometry",
+      "script": "extract_geometry.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "extent", "type": "string", "default": "", "description": "Optional crop extent 'xmin,xmax,ymin,ymax,zmin,zmax' (empty = full dataset).", "advanced": true }
+      ]
+    },
+    {
+      "id": "pv_extract_cells",
+      "name": "Extract Cells by Type",
+      "script": "extract_cells.py",
+      "output_extension": ".vtu",
+      "parameters": [
+        { "name": "cell_type", "type": "string", "default": "tetrahedral", "description": "Cell type to extract: tetrahedral, hexahedral, wedge, pyramid, triangle, quad." },
+        { "name": "invert", "type": "bool", "default": false, "description": "Invert selection (extract all cells NOT of this type).", "advanced": true }
+      ]
+    }
+  ]
+}

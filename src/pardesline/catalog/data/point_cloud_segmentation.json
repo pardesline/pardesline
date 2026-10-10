@@ -1,0 +1,103 @@
+{
+  "id": "point_cloud_segmentation",
+  "name": "Point Cloud Segmentation",
+  "order": 8,
+  "description": "Segment a point cloud into meaningful regions using geometric methods: RANSAC plane fitting and DBSCAN clustering.",
+  "category": "segmentation",
+  "icon": "layers",
+  "input_formats": [".ply", ".pcd", ".txt", ".xyz"],
+  "videos": [
+    {
+      "title": "PointNet Point Cloud Segmentation & Stereo Depth Estimation",
+      "youtube_id": "0W7s22CxH34"
+    }
+  ],
+  "theory": {
+    "overview": "Point cloud segmentation partitions a set of 3D points $P = \\{p_1, \\ldots, p_n\\}$ into disjoint subsets corresponding to semantic or geometric regions.\n\nRANSAC-based plane fitting iteratively fits a plane model $\\vec{n} \\cdot \\vec{x} + d = 0$ to random point subsets.\n\nDBSCAN groups points based on density: a point is a core point if it has at least $n_{\\min}$ neighbors within radius $\\epsilon$.",
+    "methods": {
+      "ransac_plane": {
+        "title": "RANSAC Plane Segmentation",
+        "content": "RANSAC iteratively fits a plane model and identifies inliers within distance threshold $\\epsilon$. Plane inliers are colored distinctly from outliers."
+      },
+      "dbscan_clustering": {
+        "title": "DBSCAN Clustering",
+        "content": "DBSCAN groups points based on density. Given parameters $(\\epsilon, n_{\\min})$, connected core points form clusters. Each cluster gets a unique color."
+      }
+    }
+  },
+  "methods": [
+    {
+      "id": "ransac_plane",
+      "name": "RANSAC Plane Segmentation",
+      "script": "ransac_plane.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "distance_threshold",
+          "type": "float",
+          "default": 0.01,
+          "min": 0.001,
+          "max": 0.1,
+          "description": "Maximum distance from point to plane for inlier."
+        },
+        {
+          "name": "num_iterations",
+          "type": "int",
+          "default": 1000,
+          "min": 100,
+          "max": 10000,
+          "description": "Number of RANSAC iterations."
+        },
+        {
+          "name": "ransac_n",
+          "type": "int",
+          "default": 3,
+          "min": 3,
+          "max": 10,
+          "description": "Number of points sampled to estimate each plane candidate.",
+          "advanced": true
+        },
+        {
+          "name": "probability",
+          "type": "float",
+          "default": 0.99999999,
+          "min": 0,
+          "max": 1,
+          "description": "Expected probability of finding the best plane (early-stop confidence).",
+          "advanced": true
+        }
+      ]
+    },
+    {
+      "id": "dbscan_clustering",
+      "name": "DBSCAN Clustering",
+      "script": "dbscan_clustering.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "eps",
+          "type": "float",
+          "default": 0.02,
+          "min": 0.001,
+          "max": 0.5,
+          "description": "Maximum distance between two points in same cluster."
+        },
+        {
+          "name": "min_points",
+          "type": "int",
+          "default": 10,
+          "min": 3,
+          "max": 100,
+          "description": "Minimum points to form a cluster."
+        },
+        {
+          "name": "print_progress",
+          "type": "bool",
+          "default": false,
+          "description": "Print an Open3D progress bar during clustering.",
+          "advanced": true
+        }
+      ]
+    }
+  ]
+}

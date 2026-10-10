@@ -1,0 +1,114 @@
+{
+  "id": "point_cloud_reconstruction",
+  "name": "Surface Reconstruction",
+  "order": 5,
+  "description": "Convert a point cloud into a surface mesh using various reconstruction algorithms: Convex Hull, Alpha Shape, Ball Pivoting, Poisson.",
+  "category": "reconstruction",
+  "icon": "cube",
+  "input_formats": [".ply", ".pcd", ".txt", ".xyz"],
+  "videos": [
+    {
+      "title": "Surface Reconstruction (Convex Hull, Alpha, Ball Pivoting, Poisson)",
+      "youtube_id": "aaxzXQsILYs"
+    }
+  ],
+  "theory": {
+    "overview": "Surface reconstruction converts a discrete set of 3D points $P = \\{p_1, p_2, \\ldots, p_n\\} \\subset \\mathbb{R}^3$ into a continuous surface $S$, typically represented as a triangle mesh $\\mathcal{M} = (V, F)$.\n\nThe reconstruction problem is inherently ill-posed: infinitely many surfaces can interpolate a finite point set. Each algorithm introduces different priors:\n- Convexity (Convex Hull)\n- Scale-dependent connectivity ($\\alpha$-shapes, Ball Pivoting)\n- Smoothness (Poisson reconstruction)\n\nThe quality of reconstruction depends on point density, noise level, and the presence of oriented normals $\\{\\vec{n}_i\\}$ at each sample point.",
+    "methods": {
+      "poisson": {
+        "title": "Poisson Surface Reconstruction",
+        "content": "**1. Indicator Function**\nGiven oriented point samples $(p_i, \\vec{n}_i)$, the Poisson approach defines a vector field $\\vec{V}$ from the normals and seeks an indicator function $\\chi: \\mathbb{R}^3 \\to \\mathbb{R}$ whose gradient approximates $\\vec{V}$:\n$$\\nabla \\chi \\approx \\vec{V}$$\n\n**2. Poisson Equation**\nApplying divergence to both sides yields the Poisson equation:\n$$\\Delta \\chi = \\nabla \\cdot \\vec{V}$$\nThis is solved using an adaptive octree of depth $d$ (the `depth` parameter), where higher depth captures finer geometric detail.\n\n**3. Surface Extraction**\nThe iso-surface is extracted at an appropriate level of $\\chi$ using marching cubes. The `scale` parameter controls the extent of the reconstruction volume relative to the bounding box of the input samples."
+      },
+      "convex_hull": {
+        "title": "Convex Hull",
+        "content": "**1. Definition**\nThe convex hull $\\text{CH}(P)$ is the smallest convex polytope containing all points:\n$$\\text{CH}(P) = \\left\\{ \\sum_{i=1}^{n} \\lambda_i p_i : \\lambda_i \\geq 0, \\sum_i \\lambda_i = 1 \\right\\}$$\n\n**2. Complexity**\nComputed in $O(n \\log n)$ using the Quickhull algorithm. The output mesh has at most $2n - 4$ triangular faces.\n\n**3. Limitations**\nCannot represent concavities — the result is always a convex polytope. Best suited for convex objects or as a bounding approximation."
+      },
+      "alpha_shape": {
+        "title": "Alpha Shape",
+        "content": "**1. Generalized Hull**\nAlpha shapes generalize convex hulls by introducing a scale parameter $\\alpha > 0$. A Delaunay simplex (triangle) is included in the alpha shape if it can be circumscribed by a sphere of radius $r \\leq 1/\\alpha$.\n\n**2. Scale Behavior**\n- $\\alpha \\to 0$: the alpha shape approaches the point set itself\n- $\\alpha \\to \\infty$: the alpha shape approaches the convex hull\n- Intermediate $\\alpha$: captures concavities at scale $\\sim 1/\\alpha$\n\n**3. Topological Properties**\nAlpha shapes can produce surfaces with holes, disconnected components, and non-manifold edges depending on point density and $\\alpha$ value."
+      },
+      "ball_pivoting": {
+        "title": "Ball Pivoting Algorithm",
+        "content": "**1. Algorithm**\nBall Pivoting (Bernardini et al., 1999) rolls a ball of radius $\\rho$ over the point cloud. Starting from a seed triangle formed by three mutually tangent points, the ball pivots around each edge, adding triangles when it contacts a new point.\n\n**2. Multi-Scale Reconstruction**\nUsing multiple radii $\\{\\rho, 2\\rho, 4\\rho\\}$ captures geometry at different scales. The `radius_factor` parameter sets $\\rho$ as a multiple of the average nearest-neighbor distance:\n$$\\rho = f \\cdot \\bar{d}_{\\text{nn}}$$\n\n**3. Requirements**\nRequires oriented normals $\\vec{n}_i$ to determine the inside/outside of the surface. Works best with uniformly sampled, noise-free point clouds."
+      }
+    }
+  },
+  "methods": [
+    {
+      "id": "poisson",
+      "name": "Poisson Surface Reconstruction",
+      "script": "poisson.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "depth",
+          "type": "int",
+          "default": 9,
+          "min": 4,
+          "max": 13,
+          "description": "Octree depth. Higher = more detail but slower."
+        },
+        {
+          "name": "scale",
+          "type": "float",
+          "default": 1.1,
+          "min": 0.5,
+          "max": 2.0,
+          "description": "Ratio between reconstruction cube and samples bounding cube."
+        },
+        { "name": "width", "type": "float", "default": 0.0, "min": 0.0, "max": 1.0, "description": "Target finest octree cell width; 0 uses depth instead.", "advanced": true },
+        { "name": "linear_fit", "type": "bool", "default": false, "description": "Use linear interpolation to estimate iso-vertex positions.", "advanced": true },
+        { "name": "n_threads", "type": "int", "default": -1, "min": -1, "max": 64, "description": "Number of threads (-1 = all available).", "advanced": true },
+        { "name": "density_quantile", "type": "float", "default": 0.01, "min": 0.0, "max": 1.0, "description": "Density quantile below which low-support vertices are removed as noise.", "advanced": true },
+        { "name": "normal_radius", "type": "float", "default": 0.1, "min": 0.001, "max": 10.0, "description": "Search radius for normal estimation when the cloud has no normals.", "advanced": true },
+        { "name": "normal_max_nn", "type": "int", "default": 30, "min": 1, "max": 200, "description": "Max neighbours for normal estimation when the cloud has no normals.", "advanced": true },
+        { "name": "normal_orient_k", "type": "int", "default": 15, "min": 1, "max": 200, "description": "k for consistent tangent-plane normal orientation.", "advanced": true }
+      ]
+    },
+    {
+      "id": "convex_hull",
+      "name": "Convex Hull",
+      "script": "convex_hull.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "joggle_inputs", "type": "bool", "default": false, "description": "Randomly perturb inputs to avoid QHull errors on coplanar/degenerate points.", "advanced": true }
+      ]
+    },
+    {
+      "id": "alpha_shape",
+      "name": "Alpha Shape",
+      "script": "alpha_shape.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "alpha",
+          "type": "float",
+          "default": 0.03,
+          "min": 0.005,
+          "max": 0.5,
+          "description": "Alpha parameter. Smaller = tighter fit (more detail). Larger = smoother."
+        }
+      ]
+    },
+    {
+      "id": "ball_pivoting",
+      "name": "Ball Pivoting",
+      "script": "ball_pivoting.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "radius_factor",
+          "type": "float",
+          "default": 2.0,
+          "min": 0.5,
+          "max": 10.0,
+          "description": "Ball radius as factor of average point spacing. Uses multiple radii (1x, 2x, 4x)."
+        },
+        { "name": "radii_multipliers", "type": "list", "default": "1,2,4", "description": "CSV of base-radius multipliers defining the multi-scale ball set.", "advanced": true },
+        { "name": "normal_radius", "type": "float", "default": 0.1, "min": 0.001, "max": 10.0, "description": "Search radius for normal estimation when the cloud has no normals.", "advanced": true },
+        { "name": "normal_max_nn", "type": "int", "default": 30, "min": 1, "max": 200, "description": "Max neighbours for normal estimation when the cloud has no normals.", "advanced": true },
+        { "name": "normal_orient_k", "type": "int", "default": 15, "min": 1, "max": 200, "description": "k for consistent tangent-plane normal orientation.", "advanced": true }
+      ]
+    }
+  ]
+}

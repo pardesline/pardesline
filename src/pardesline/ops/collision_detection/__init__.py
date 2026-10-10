@@ -1,0 +1,1 @@
+"""Collision Detection & Measurement — Detect and measure collisions between 3D geometries using SDF-based penetration analysis. Computes penetration depth, collision region, and bounding box intersection."""

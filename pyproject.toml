@@ -1,0 +1,114 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pardesline"
+dynamic = ["version"]
+description = "3D vision and medical imaging in one package: 73 algorithms on point clouds, meshes and volumes, run locally or in the PardesLine cloud."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Jonathan Tabet" }]
+maintainers = [{ name = "PardesLine" }]
+keywords = [
+    "3d", "point-cloud", "mesh", "volume", "medical-imaging", "dicom",
+    "registration", "segmentation", "open3d", "pyvista", "simpleitk", "lidar",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Healthcare Industry",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Typing :: Typed",
+]
+# Core: catalog, object model, runner and the cloud client. No native libraries.
+dependencies = [
+    "httpx>=0.27,<1",
+    "pydantic>=2,<3",
+    "loguru>=0.7,<1",
+    "numpy>=1.24,<3",
+]
+
+[project.optional-dependencies]
+# Point clouds, meshes, SDF, LiDAR, stereo (Open3D 0.19 ships wheels for 3.10–3.12).
+local = [
+    "open3d>=0.18,<0.20",
+    "pyvista>=0.43,<1",
+    "scipy>=1.10,<2",
+    "scikit-image>=0.21,<1",
+    "matplotlib>=3.7,<4",
+    "pycpd>=2,<3",
+]
+# Volumes, DICOM series, registration and segmentation (VTI/VTU volumes go through PyVista).
+medical = [
+    "SimpleITK>=2.3,<3",
+    "pyvista>=0.43,<1",
+]
+all = ["pardesline[local,medical]"]
+dev = [
+    "pytest>=8",
+    "respx>=0.21",
+    "ruff>=0.5",
+    "build>=1",
+]
+
+[project.urls]
+Homepage = "https://pardesline.com"
+Documentation = "https://github.com/pardesline/pardesline#readme"
+Repository = "https://github.com/pardesline/pardesline"
+Changelog = "https://github.com/pardesline/pardesline/blob/main/CHANGELOG.md"
+Issues = "https://github.com/pardesline/pardesline/issues"
+Platform = "https://appbeta.pardesline.com"
+
+[project.scripts]
+pardesline = "pardesline.cli:main"
+
+[tool.hatch.version]
+path = "src/pardesline/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pardesline"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/pardesline", "tests", "README.md", "CHANGELOG.md", "LICENSE", "NOTICE"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = [
+    "local: needs the [local] extra (Open3D, PyVista)",
+    "medical: needs the [medical] extra (SimpleITK)",
+    "slow: takes more than a few seconds",
+]
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+# Migrated code is kept byte-identical to its source of truth (the platform's
+# modules/ scripts and the 0.1.0 client) until the platform depends on this
+# package. Lint and format apply to the new code only.
+exclude = [
+    "src/pardesline/ops",
+    "src/pardesline/cloud",
+    "src/pardesline/medical/_service.py",
+    "src/pardesline/medical/pyvista_adapter.py",
+    "tests/cloud",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+ignore = ["RUF012"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["pardesline"]

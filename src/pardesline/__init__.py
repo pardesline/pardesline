@@ -1,0 +1,137 @@
+"""PardesLine — 3D vision and medical imaging, locally or in the cloud.
+
+    import pardesline as pl
+
+    scan = pl.load("scan.ply")                       # a local point cloud
+    surface = scan.downsample(voxel_size=0.01).poisson(depth=9)
+    surface.save("surface.ply")
+
+    pl.run("simpleitk_registration", "rigid", "ct.mha", moving="mr.mha")
+
+    pl.catalog().describe("point_cloud_reconstruction.poisson")
+
+Everything under ``pl.run`` / ``pl.load`` executes on this machine. The
+cloud client (``pl.login``, ``pl.upload``, ``pl.share``, hosted compute and
+viewers) lives in ``pardesline.cloud`` and is also reachable from the top
+level for backward compatibility with 0.1.x.
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
+from ._version import __version__
+from .catalog import Catalog, Method, Module, Parameter, load_catalog
+from .errors import (
+    CatalogError,
+    MissingDependency,
+    ParameterError,
+    PardesLineError,
+    RunError,
+)
+from .object import Object, load
+from .runner import RunResult, output_dir, run, set_output_dir
+
+__all__ = [
+    "Catalog",
+    "CatalogError",
+    "Method",
+    "MissingDependency",
+    "Module",
+    "Object",
+    "Parameter",
+    "ParameterError",
+    "PardesLineError",
+    "RunError",
+    "RunResult",
+    "__version__",
+    "catalog",
+    "cloud",
+    "describe",
+    "load",
+    "modules",
+    "output_dir",
+    "run",
+    "set_output_dir",
+]
+
+
+def catalog() -> Catalog:
+    """The bundled catalog of modules, methods and parameters."""
+    return load_catalog()
+
+
+def modules() -> list[str]:
+    """Module ids, in platform order."""
+    return [m.id for m in load_catalog()]
+
+
+def describe(what: str) -> str:
+    """``describe("module")`` or ``describe("module.method")``."""
+    return load_catalog().describe(what)
+
+
+# ---- cloud client, lazily -----------------------------------------------
+# 0.1.x exposed the cloud helpers at the top level. They still work, without
+# importing the HTTP client until first use.
+_CLOUD_NAMES = frozenset(
+    {
+        "Client",
+        "RemoteObject",
+        "AuthError",
+        "Conflict",
+        "Forbidden",
+        "GpuAddonRequired",
+        "NotFound",
+        "PlatformLocked",
+        "QuotaExceeded",
+        "RateLimited",
+        "TooLarge",
+        "TransferError",
+        "login",
+        "logout",
+        "whoami",
+        "me",
+        "upload",
+        "upload_bytes",
+        "send",
+        "read",
+        "download",
+        "share",
+        "inbox",
+        "list_files",
+        "delete",
+        "view",
+        "view_registration",
+        "gpu",
+    }
+)
+
+# pl.o3d / pl.pv / pl.sitk / pl.np: the real library when it is installed,
+# otherwise the cloud-executed mirror from 0.1.x.
+_LIB_NAMES = {"o3d": "open3d", "pv": "pyvista", "sitk": "SimpleITK", "np": "numpy"}
+
+
+def __getattr__(name: str) -> Any:
+    if name == "cloud":
+        from . import cloud
+
+        return cloud
+    if name in _CLOUD_NAMES:
+        from . import cloud
+
+        return getattr(cloud, name)
+    if name in _LIB_NAMES:
+        import importlib
+
+        try:
+            return importlib.import_module(_LIB_NAMES[name])
+        except ImportError:
+            from . import cloud
+
+            return getattr(cloud, name)
+    raise AttributeError(f"module 'pardesline' has no attribute {name!r}")
+
+
+def __dir__() -> list[str]:
+    return sorted(set(__all__) | _CLOUD_NAMES | set(_LIB_NAMES))

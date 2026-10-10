@@ -1,0 +1,146 @@
+{
+  "id": "pyvista_mesh_processing",
+  "name": "PyVista Mesh Processing",
+  "order": 14,
+  "description": "Mesh geometry operations powered by PyVista/VTK: decimation, subdivision, smoothing (Laplacian, Taubin), cleaning, hole filling, normal computation, triangulation, and surface extraction.",
+  "category": "processing",
+  "icon": "mesh",
+  "input_formats": [".ply", ".obj", ".stl", ".vtk", ".vtu"],
+  "videos": [
+    {
+      "title": "3D Mesh, Point Cloud & Volume Processing with Open3D",
+      "youtube_id": "7PPFEOXewZE"
+    },
+    {
+      "title": "Mesh, Voxels & Volumes: Binary Erosion and Marching Cubes",
+      "youtube_id": "3OZzJfNn9Ks"
+    }
+  ],
+  "theory": {
+    "overview": "PyVista wraps VTK filters for mesh geometry processing. Operations include:\n\n**Decimation** reduces triangle count using quadric error metrics.\n**Subdivision** refines meshes by splitting triangles (linear, butterfly, loop).\n**Smoothing** removes noise via Laplacian $\\mathbf{v}_i' = \\mathbf{v}_i + \\lambda \\Delta \\mathbf{v}_i$ or Taubin's $\\lambda|\\mu$ scheme.\n**Cleaning** merges duplicate points and removes degenerate cells.\n**Triangulation** converts polygonal cells to triangles.",
+    "methods": {
+      "pv_decimate": { "title": "Mesh Decimation", "content": "Reduces mesh complexity by collapsing edges based on quadric error metrics. Target reduction is a fraction $r \\in [0,1)$ of triangles to remove." },
+      "pv_subdivide": { "title": "Mesh Subdivision", "content": "Refines mesh by splitting triangles. Linear splits at midpoints; butterfly and loop use interpolation for smoother results." },
+      "pv_smooth_laplacian": { "title": "Laplacian Smoothing", "content": "Iteratively moves each vertex toward the centroid of its neighbors: $\\mathbf{v}_i' = \\mathbf{v}_i + \\lambda \\frac{1}{|N_i|} \\sum_{j \\in N_i}(\\mathbf{v}_j - \\mathbf{v}_i)$." },
+      "pv_smooth_taubin": { "title": "Taubin Smoothing", "content": "Alternates shrinking ($\\lambda > 0$) and inflating ($\\mu < 0$) steps to smooth without volume shrinkage. Pass-band controls the cutoff frequency." },
+      "pv_clean": { "title": "Clean Mesh", "content": "Merges coincident points, removes degenerate cells, and strips unused points within the specified tolerance." },
+      "pv_fill_holes": { "title": "Fill Holes", "content": "Identifies boundary edges and fills holes smaller than the specified size by generating new triangular faces." },
+      "pv_compute_normals": { "title": "Compute Normals", "content": "Computes point and cell normals from triangle geometry. Consistency flips normals to face outward." },
+      "pv_triangulate": { "title": "Triangulate", "content": "Converts all polygonal cells (quads, n-gons) into triangles for uniform processing." },
+      "pv_extract_surface": { "title": "Extract Surface", "content": "Extracts the outer surface of a volumetric or unstructured grid as a polygonal mesh." }
+    }
+  },
+  "methods": [
+    {
+      "id": "pv_decimate",
+      "name": "Decimate Mesh",
+      "script": "decimate.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "target_reduction", "type": "float", "default": 0.5, "min": 0.01, "max": 0.99, "description": "Fraction of triangles to remove (0.5 = remove 50%)." },
+        { "name": "volume_preservation", "type": "bool", "default": false, "description": "Constrain decimation to preserve mesh volume (slower, less shrinkage).", "advanced": true },
+        { "name": "attribute_error", "type": "bool", "default": false, "description": "Include scalar/attribute error in the decimation cost metric.", "advanced": true },
+        { "name": "normals", "type": "bool", "default": false, "description": "Include normals deviation in the decimation cost metric.", "advanced": true },
+        { "name": "boundary_constraints", "type": "bool", "default": false, "description": "Use legacy boundary-edge-length weighting for boundary quadric constraints.", "advanced": true }
+      ]
+    },
+    {
+      "id": "pv_subdivide",
+      "name": "Subdivide Mesh",
+      "script": "subdivide.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "n_subdivisions", "type": "int", "default": 1, "min": 1, "max": 4, "description": "Number of subdivision iterations." },
+        { "name": "algorithm", "type": "string", "default": "linear", "description": "Subdivision algorithm: linear, butterfly, or loop." }
+      ]
+    },
+    {
+      "id": "pv_smooth_laplacian",
+      "name": "Laplacian Smooth",
+      "script": "smooth_laplacian.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "n_iterations", "type": "int", "default": 20, "min": 1, "max": 500, "description": "Number of smoothing iterations." },
+        { "name": "relaxation_factor", "type": "float", "default": 0.01, "min": 0.001, "max": 1.0, "description": "Step size per iteration (higher = more smoothing)." },
+        { "name": "convergence", "type": "float", "default": 0.0, "min": 0.0, "max": 1.0, "description": "Convergence threshold; smaller = more iterations. 0 disables early stop.", "advanced": true },
+        { "name": "edge_angle", "type": "float", "default": 15.0, "min": 0.0, "max": 180.0, "description": "Edge angle (deg) for interior edge features when feature_smoothing is on.", "advanced": true },
+        { "name": "feature_angle", "type": "float", "default": 45.0, "min": 0.0, "max": 180.0, "description": "Feature angle (deg) for sharp-feature detection when feature_smoothing is on.", "advanced": true },
+        { "name": "boundary_smoothing", "type": "bool", "default": true, "description": "Allow boundary (edge) vertices to move during smoothing.", "advanced": true },
+        { "name": "feature_smoothing", "type": "bool", "default": false, "description": "Smooth along detected sharp features rather than freezing them.", "advanced": true }
+      ]
+    },
+    {
+      "id": "pv_smooth_taubin",
+      "name": "Taubin Smooth",
+      "script": "smooth_taubin.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "n_iterations", "type": "int", "default": 20, "min": 1, "max": 500, "description": "Number of smoothing iterations." },
+        { "name": "pass_band", "type": "float", "default": 0.1, "min": 0.001, "max": 2.0, "description": "Pass-band value controlling cutoff frequency." },
+        { "name": "edge_angle", "type": "float", "default": 15.0, "min": 0.0, "max": 180.0, "description": "Edge angle (deg) for interior edge features when feature_smoothing is on.", "advanced": true },
+        { "name": "feature_angle", "type": "float", "default": 45.0, "min": 0.0, "max": 180.0, "description": "Feature angle (deg) for sharp-feature detection when feature_smoothing is on.", "advanced": true },
+        { "name": "boundary_smoothing", "type": "bool", "default": true, "description": "Allow boundary (edge) vertices to move during smoothing.", "advanced": true },
+        { "name": "feature_smoothing", "type": "bool", "default": false, "description": "Smooth along detected sharp features rather than freezing them.", "advanced": true },
+        { "name": "non_manifold_smoothing", "type": "bool", "default": false, "description": "Also smooth non-manifold vertices.", "advanced": true },
+        { "name": "normalize_coordinates", "type": "bool", "default": false, "description": "Normalize coordinates before smoothing for better numerical stability.", "advanced": true }
+      ]
+    },
+    {
+      "id": "pv_clean",
+      "name": "Clean Mesh",
+      "script": "clean.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "tolerance", "type": "float", "default": 0.0, "min": 0.0, "max": 1.0, "description": "Merge tolerance (0 = exact duplicates only)." },
+        { "name": "point_merging", "type": "bool", "default": true, "description": "Merge coincident points within tolerance.", "advanced": true },
+        { "name": "absolute", "type": "bool", "default": true, "description": "Interpret tolerance as an absolute distance (else fraction of bounding box).", "advanced": true },
+        { "name": "lines_to_points", "type": "bool", "default": true, "description": "Convert degenerate lines (zero length) to points.", "advanced": true },
+        { "name": "polys_to_lines", "type": "bool", "default": true, "description": "Convert degenerate polygons to lines.", "advanced": true },
+        { "name": "strips_to_polys", "type": "bool", "default": true, "description": "Convert degenerate triangle strips to polygons.", "advanced": true }
+      ]
+    },
+    {
+      "id": "pv_fill_holes",
+      "name": "Fill Holes",
+      "script": "fill_holes.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "hole_size", "type": "float", "default": 100.0, "min": 1.0, "max": 10000.0, "description": "Maximum hole size to fill." }
+      ]
+    },
+    {
+      "id": "pv_compute_normals",
+      "name": "Compute Normals",
+      "script": "compute_normals.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "flip_normals", "type": "int", "default": 0, "min": 0, "max": 1, "description": "Flip all normals (0=no, 1=yes)." },
+        { "name": "consistency", "type": "int", "default": 1, "min": 0, "max": 1, "description": "Enforce consistent normal orientation (0=no, 1=yes)." },
+        { "name": "cell_normals", "type": "bool", "default": true, "description": "Compute per-cell (face) normals.", "advanced": true },
+        { "name": "point_normals", "type": "bool", "default": true, "description": "Compute per-point (vertex) normals.", "advanced": true },
+        { "name": "split_vertices", "type": "bool", "default": false, "description": "Split vertices along sharp edges (creates duplicate points at hard edges).", "advanced": true },
+        { "name": "auto_orient_normals", "type": "bool", "default": false, "description": "Automatically orient normals outward (assumes a closed manifold).", "advanced": true },
+        { "name": "non_manifold_traversal", "type": "bool", "default": true, "description": "Prevent orientation propagation across non-manifold edges.", "advanced": true },
+        { "name": "feature_angle", "type": "float", "default": 30.0, "min": 0.0, "max": 180.0, "description": "Feature angle (deg) used when split_vertices is on.", "advanced": true }
+      ]
+    },
+    {
+      "id": "pv_triangulate",
+      "name": "Triangulate",
+      "script": "triangulate.py",
+      "output_extension": ".ply",
+      "parameters": []
+    },
+    {
+      "id": "pv_extract_surface",
+      "name": "Extract Surface",
+      "script": "extract_surface.py",
+      "output_extension": ".ply",
+      "parameters": [
+        { "name": "pass_pointid", "type": "bool", "default": true, "description": "Keep original point ids as a 'vtkOriginalPointIds' array on the surface.", "advanced": true },
+        { "name": "pass_cellid", "type": "bool", "default": true, "description": "Keep original cell ids as a 'vtkOriginalCellIds' array on the surface.", "advanced": true },
+        { "name": "nonlinear_subdivision", "type": "int", "default": 1, "min": 0, "max": 4, "description": "Subdivision level for nonlinear (higher-order) cells; 1 matches the default.", "advanced": true }
+      ]
+    }
+  ]
+}

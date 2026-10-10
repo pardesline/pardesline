@@ -1,0 +1,276 @@
+{
+  "id": "simpleitk_segmentation",
+  "name": "SimpleITK Segmentation",
+  "order": 19,
+  "description": "Medical image segmentation using SimpleITK. Automatic thresholding, region growing, watershed, and connected components for organ/tissue segmentation.",
+  "category": "segmentation",
+  "icon": "layers",
+  "input_formats": [
+    ".vti",
+    ".mha",
+    ".nrrd",
+    ".nii"
+  ],
+  "videos": [
+    {
+      "title": "CT/MRI Medical Image Processing with SimpleITK",
+      "youtube_id": "XBg9xnhSXbI"
+    },
+    {
+      "title": "Introduction to 3D Computer Vision",
+      "youtube_id": "nEOeiYpRc0E"
+    }
+  ],
+  "theory": {
+    "overview": "Segmentation partitions a medical image $I: \\Omega \\to \\mathbb{R}$ into disjoint regions $\\{R_1, R_2, \\ldots, R_k\\}$ such that $\\bigcup_{i} R_i = \\Omega$ and $R_i \\cap R_j = \\emptyset$ for $i \\neq j$.\n\nEach region corresponds to an anatomical structure (organ, bone, lesion). The segmentation can be expressed as a labeling function:\n$$L(\\mathbf{x}) = \\arg\\max_{c \\in \\{1, \\ldots, k\\}} P(c \\mid I(\\mathbf{x}))$$\n\nSimpleITK provides methods ranging from global thresholding (Otsu) to topological segmentation (watershed), each suited to different imaging scenarios.",
+    "methods": {
+      "otsu_threshold": {
+        "title": "Otsu Automatic Thresholding",
+        "content": "**1. Between-Class Variance Maximization**\nOtsu's method finds the optimal threshold $t^*$ that maximizes the between-class variance $\\sigma_B^2(t)$ for a bimodal intensity histogram:\n$$t^* = \\arg\\max_t \\sigma_B^2(t) = \\arg\\max_t \\, \\omega_0(t) \\omega_1(t) [\\mu_0(t) - \\mu_1(t)]^2$$\nwhere $\\omega_0, \\omega_1$ are the class probabilities and $\\mu_0, \\mu_1$ are the class means for intensities below and above threshold $t$.\n\n**2. Segmentation**\nThe binary output is:\n$$L(\\mathbf{x}) = \\begin{cases} 1 & \\text{if } I(\\mathbf{x}) > t^* \\\\ 0 & \\text{otherwise} \\end{cases}$$"
+      },
+      "manual_threshold": {
+        "title": "Manual Binary Threshold",
+        "content": "**1. Range Thresholding**\nA simple but effective segmentation using user-specified intensity bounds $[l, u]$:\n$$L(\\mathbf{x}) = \\begin{cases} 1 & \\text{if } l \\leq I(\\mathbf{x}) \\leq u \\\\ 0 & \\text{otherwise} \\end{cases}$$\n\n**2. Hounsfield Units**\nFor CT images, intensities are calibrated in Hounsfield Units (HU):\n- Air: $-1000$ HU\n- Water: $0$ HU\n- Soft tissue: $+40$ to $+80$ HU\n- Bone: $+300$ to $+3000$ HU\n\nThis allows reproducible thresholds across scanners."
+      },
+      "connected_components": {
+        "title": "Connected Component Labeling",
+        "content": "**1. Labeling Algorithm**\nAfter binary thresholding, connected component analysis assigns a unique label $l_i$ to each maximal connected region. Two voxels are connected if they share a face (6-connectivity) or edge (26-connectivity).\n\n**2. Size Filtering**\nSmall components (noise) are removed by discarding regions with fewer than `min_size` voxels:\n$$R_i' = \\begin{cases} R_i & \\text{if } |R_i| \\geq n_{\\min} \\\\ \\emptyset & \\text{otherwise} \\end{cases}$$\nwhere $|R_i|$ denotes the voxel count of region $R_i$."
+      },
+      "watershed": {
+        "title": "Watershed Segmentation",
+        "content": "**1. Distance Transform**\nFrom a binary mask $B$, the Euclidean distance transform computes:\n$$D(\\mathbf{x}) = \\min_{\\mathbf{y} \\in \\partial B} \\|\\mathbf{x} - \\mathbf{y}\\|_2$$\nLocal maxima of $D$ serve as seed points for the watershed.\n\n**2. Watershed Algorithm**\nThe watershed treats $-D(\\mathbf{x})$ as a topographic surface. Starting from seed points (local minima of $-D$), regions are grown by immersion — flooding the surface from each seed and building dams where floods from different seeds meet.\n\n**3. Pipeline**\nThe full pipeline is:\n1. Binary threshold: $B = \\{\\mathbf{x} : I(\\mathbf{x}) > t\\}$\n2. Morphological opening: remove small noise\n3. Distance transform: $D(\\mathbf{x})$\n4. Seed generation: local maxima of $D$ with radius $r$\n5. Watershed: flood from seeds to produce labels"
+      }
+    }
+  },
+  "methods": [
+    {
+      "id": "otsu_threshold",
+      "name": "Otsu Automatic Threshold",
+      "script": "otsu_threshold.py",
+      "output_extension": ".vti",
+      "parameters": [
+        {
+          "name": "number_of_histogram_bins",
+          "type": "int",
+          "default": 128,
+          "description": "Histogram bins for the Otsu criterion.",
+          "min": 16,
+          "max": 512,
+          "advanced": true
+        },
+        {
+          "name": "inside_value",
+          "type": "int",
+          "default": 1,
+          "description": "Foreground label.",
+          "min": 0,
+          "max": 255,
+          "advanced": true
+        },
+        {
+          "name": "outside_value",
+          "type": "int",
+          "default": 0,
+          "description": "Background label.",
+          "min": 0,
+          "max": 255,
+          "advanced": true
+        }
+      ]
+    },
+    {
+      "id": "manual_threshold",
+      "name": "Manual Binary Threshold",
+      "script": "manual_threshold.py",
+      "output_extension": ".vti",
+      "parameters": [
+        {
+          "name": "lower",
+          "type": "float",
+          "default": 100.0,
+          "min": -1000.0,
+          "max": 3000.0,
+          "description": "Lower intensity threshold."
+        },
+        {
+          "name": "upper",
+          "type": "float",
+          "default": 1000.0,
+          "min": -1000.0,
+          "max": 3000.0,
+          "description": "Upper intensity threshold."
+        },
+        {
+          "name": "inside_value",
+          "type": "int",
+          "default": 1,
+          "description": "Foreground label.",
+          "min": 0,
+          "max": 255,
+          "advanced": true
+        },
+        {
+          "name": "outside_value",
+          "type": "int",
+          "default": 0,
+          "description": "Background label.",
+          "min": 0,
+          "max": 255,
+          "advanced": true
+        }
+      ]
+    },
+    {
+      "id": "connected_components",
+      "name": "Connected Component Analysis",
+      "script": "connected_components.py",
+      "output_extension": ".vti",
+      "parameters": [
+        {
+          "name": "threshold",
+          "type": "float",
+          "default": 100.0,
+          "min": -1000.0,
+          "max": 3000.0,
+          "description": "Intensity threshold before labeling."
+        },
+        {
+          "name": "min_size",
+          "type": "int",
+          "default": 15,
+          "min": 1,
+          "max": 1000,
+          "description": "Minimum object size in voxels."
+        },
+        {
+          "name": "upper_threshold",
+          "type": "float",
+          "default": 255.0,
+          "description": "Upper bound for binarization.",
+          "min": -1000.0,
+          "max": 3000.0,
+          "advanced": true
+        },
+        {
+          "name": "fully_connected",
+          "type": "bool",
+          "default": false,
+          "description": "26-connectivity (True) vs 6-connectivity (False).",
+          "advanced": true
+        },
+        {
+          "name": "inside_value",
+          "type": "int",
+          "default": 1,
+          "description": "Foreground label.",
+          "min": 0,
+          "max": 255,
+          "advanced": true
+        },
+        {
+          "name": "outside_value",
+          "type": "int",
+          "default": 0,
+          "description": "Background label.",
+          "min": 0,
+          "max": 255,
+          "advanced": true
+        }
+      ]
+    },
+    {
+      "id": "watershed",
+      "name": "Watershed Segmentation",
+      "script": "watershed.py",
+      "output_extension": ".vti",
+      "parameters": [
+        {
+          "name": "threshold",
+          "type": "float",
+          "default": 100.0,
+          "min": -1000.0,
+          "max": 3000.0,
+          "description": "Initial binary threshold."
+        },
+        {
+          "name": "seed_radius",
+          "type": "float",
+          "default": 10.0,
+          "min": 1.0,
+          "max": 50.0,
+          "description": "Seed generation radius in mm."
+        },
+        {
+          "name": "min_object_size",
+          "type": "int",
+          "default": 15,
+          "min": 1,
+          "max": 1000,
+          "description": "Minimum object size after watershed."
+        },
+        {
+          "name": "upper_threshold",
+          "type": "float",
+          "default": 255.0,
+          "description": "Upper bound for initial binarization.",
+          "min": -1000.0,
+          "max": 3000.0,
+          "advanced": true
+        },
+        {
+          "name": "opening_radius",
+          "type": "list",
+          "default": "10,10,10",
+          "description": "BinaryOpening radius per axis (comma-separated).",
+          "advanced": true
+        },
+        {
+          "name": "closing_radius",
+          "type": "list",
+          "default": "10,10,10",
+          "description": "BinaryClosing radius per axis (comma-separated).",
+          "advanced": true
+        },
+        {
+          "name": "distance_inside_is_positive",
+          "type": "bool",
+          "default": false,
+          "description": "SignedMaurerDistanceMap insideIsPositive.",
+          "advanced": true
+        },
+        {
+          "name": "distance_squared",
+          "type": "bool",
+          "default": false,
+          "description": "SignedMaurerDistanceMap squaredDistance.",
+          "advanced": true
+        },
+        {
+          "name": "mark_watershed_line",
+          "type": "bool",
+          "default": true,
+          "description": "Draw watershed dam lines between basins.",
+          "advanced": true
+        },
+        {
+          "name": "inside_value",
+          "type": "int",
+          "default": 1,
+          "description": "Foreground label.",
+          "min": 0,
+          "max": 255,
+          "advanced": true
+        },
+        {
+          "name": "outside_value",
+          "type": "int",
+          "default": 0,
+          "description": "Background label.",
+          "min": 0,
+          "max": 255,
+          "advanced": true
+        }
+      ]
+    }
+  ]
+}

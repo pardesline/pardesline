@@ -1,0 +1,136 @@
+{
+  "id": "deformable_registration",
+  "name": "Deformable Registration",
+  "order": 7,
+  "description": "Non-rigid point cloud alignment using Coherent Point Drift (CPD) and Gaussian deformation fields. Handles elastic deformations between shapes.",
+  "category": "registration",
+  "icon": "crosshair",
+  "input_formats": [
+    ".ply",
+    ".pcd",
+    ".txt",
+    ".xyz"
+  ],
+  "videos": [
+    {
+      "title": "Deformable Registration (Coherent Point Drift)",
+      "youtube_id": "H5HCKN5Iph8"
+    }
+  ],
+  "theory": {
+    "overview": "Deformable registration finds a non-rigid transformation that aligns a source shape to a target. CPD models source points as GMM centroids and fits them via EM optimization.\n\nThe displacement function is:\n$$\\mathbf{v}(\\mathbf{x}) = \\sum_{m=1}^{M} w_m \\phi(\\|\\mathbf{x} - \\mathbf{y}_m\\|)$$\nwhere $\\phi$ is a Gaussian kernel and $w_m$ are optimized coefficients.",
+    "methods": {
+      "cpd_deformable": {
+        "title": "Coherent Point Drift",
+        "content": "CPD treats alignment as probability density estimation. The E-step computes correspondence probabilities, the M-step updates the transformation with regularization:\n$$E(W) = \\frac{1}{2\\sigma^2} \\sum_n \\|T(y_n) - x_n\\|^2 + \\frac{\\lambda}{2} \\text{tr}(W^T G W)$$"
+      },
+      "gaussian_deformation": {
+        "title": "Gaussian Pressure Deformation",
+        "content": "A localized Gaussian deformation:\n$$\\mathbf{d}(\\mathbf{p}) = d_{\\max} \\cdot \\exp\\left(-\\frac{\\|\\mathbf{p} - \\mathbf{c}\\|^2}{2\\sigma^2}\\right) \\cdot \\hat{\\mathbf{n}}$$"
+      }
+    }
+  },
+  "methods": [
+    {
+      "id": "cpd_deformable",
+      "name": "CPD Deformable Registration",
+      "script": "cpd_deformable.py",
+      "output_extension": ".ply",
+      "dual_input": true,
+      "parameters": [
+        {
+          "name": "max_iterations",
+          "type": "int",
+          "default": 100,
+          "min": 10,
+          "max": 500,
+          "description": "Maximum EM iterations."
+        },
+        {
+          "name": "tolerance",
+          "type": "float",
+          "default": 0.001,
+          "min": 0.0001,
+          "max": 0.01,
+          "description": "Convergence tolerance."
+        },
+        {
+          "name": "beta",
+          "type": "float",
+          "default": 100.0,
+          "description": "CPD Gaussian-kernel width (smoothness).",
+          "advanced": true,
+          "min": 0.1,
+          "max": 200.0
+        },
+        {
+          "name": "lambda_val",
+          "type": "float",
+          "default": 2.0,
+          "description": "CPD regularization weight.",
+          "advanced": true,
+          "min": 0.1,
+          "max": 20.0
+        },
+        {
+          "name": "w",
+          "type": "float",
+          "default": 0.0,
+          "description": "Outlier/noise weight.",
+          "advanced": true,
+          "min": 0.0,
+          "max": 0.99
+        },
+        {
+          "name": "low_rank",
+          "type": "bool",
+          "default": false,
+          "description": "Use low-rank Gaussian-kernel acceleration.",
+          "advanced": true
+        },
+        {
+          "name": "num_eig",
+          "type": "int",
+          "default": 100,
+          "description": "Eigenvectors when low_rank=True.",
+          "advanced": true,
+          "min": 10,
+          "max": 500
+        }
+      ]
+    },
+    {
+      "id": "gaussian_deformation",
+      "name": "Gaussian Pressure Deformation",
+      "script": "gaussian_deformation.py",
+      "output_extension": ".ply",
+      "parameters": [
+        {
+          "name": "displacement",
+          "type": "float",
+          "default": 0.02,
+          "min": 0.001,
+          "max": 0.1,
+          "description": "Maximum displacement at pressure center."
+        },
+        {
+          "name": "radius",
+          "type": "float",
+          "default": 0.1,
+          "min": 0.01,
+          "max": 0.5,
+          "description": "Radius of influence."
+        },
+        {
+          "name": "sigma_factor",
+          "type": "float",
+          "default": 0.5,
+          "description": "Gaussian falloff sigma as a fraction of radius.",
+          "advanced": true,
+          "min": 0.05,
+          "max": 1.0
+        }
+      ]
+    }
+  ]
+}
