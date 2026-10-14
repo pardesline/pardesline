@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use pardesline in your work, please cite it as below."
+title: "pardesline: 3D vision and medical imaging in one Python package"
+authors:
+  - family-names: Tabet
+    given-names: Jonathan
+version: 0.2.0
+date-released: 2026-10-14
+license: Apache-2.0
+repository-code: "https://github.com/pardesline/pardesline"
+url: "https://pardesline.com"
+keywords:
+  - 3D vision
+  - medical imaging
+  - point clouds
+  - meshes
+  - DICOM
+  - registration
+  - segmentation
+  - datasets
+  - Model Context Protocol

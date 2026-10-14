@@ -1,479 +1,108 @@
-# PardesLine
+<p align="center">
+  <img src="https://raw.githubusercontent.com/pardesline/pardesline/main/docs/showcase/posters.gif" width="820" alt="pardesline: ten 3D vision and medical imaging pipelines">
+</p>
 
-[![PyPI](https://img.shields.io/pypi/v/pardesline.svg)](https://pypi.org/project/pardesline/)
-[![Python](https://img.shields.io/pypi/pyversions/pardesline.svg)](https://pypi.org/project/pardesline/)
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![CI](https://github.com/pardesline/pardesline/actions/workflows/ci.yml/badge.svg)](https://github.com/pardesline/pardesline/actions/workflows/ci.yml)
+<h1 align="center">pardesline</h1>
 
-**3D vision and medical imaging in one Python package.** 73 algorithms on point
-clouds, meshes and volumes, with a typed catalog of 371 parameters, 43 public
-datasets loadable in one line, and Open3D, SimpleITK and PyVista reachable
-through one typed object — on your machine with `pip install pardesline`, the
-same code that powers the [PardesLine platform](https://appbeta.pardesline.com).
+<p align="center"><b>3D vision and medical imaging in one Python package.</b><br>
+73 algorithms on point clouds, meshes and volumes · 43 public datasets loadable in one line · Open3D, SimpleITK and PyVista behind one typed object · an MCP server that gives all of it to AI agents.</p>
 
-This repository **is the PardesLine Python SDK**: the `pardesline` package on
-PyPI. Everything local is Apache-2.0 and needs no account; the hosted platform
-(sharing, GPU, viewers) is an optional client inside it, `pardesline.cloud`.
+<p align="center">
+<a href="https://pypi.org/project/pardesline/"><img src="https://img.shields.io/pypi/v/pardesline.svg" alt="PyPI"></a>
+<a href="https://pypi.org/project/pardesline/"><img src="https://img.shields.io/pypi/pyversions/pardesline.svg" alt="Python"></a>
+<a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License"></a>
+<a href="https://github.com/pardesline/pardesline/actions/workflows/ci.yml"><img src="https://github.com/pardesline/pardesline/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+</p>
+
+```bash
+pip install "pardesline[all]"      # Open3D, PyVista, SimpleITK, Hugging Face, MCP server  (Python 3.10-3.12)
+```
 
 ```python
 import pardesline as pl
 
-scan = pl.load("scan.ply")  # a local point cloud
-surface = scan.downsample(voxel_size=0.01).remove_outliers().normals().poisson(depth=9)
-surface.save("surface.ply")  # + surface.ply.pardesline.json (frame, licence, provenance)
+ds = pl.load("msd_task02_heart")  # 30 cardiac MRIs; nothing downloaded until you touch a sample
+s = ds.filter(split="Tr")[0]  # roles: mri, mask - licence and citation attached
+atrium = s.mask.to_mesh(label=1)  # exact left-atrium surface, LPS millimetres
+atrium.decimate(target_reduction=0.5).save(
+    "atrium.stl"
+)  # + atrium.stl.pardesline.json: frame, licence, every step
 
-ds = pl.load("msd_task02_heart")  # 30 cardiac MRIs, read case by case out of the MSD tar (HTTP Range)
-s = ds.filter(split="Tr")[0]  # roles: mri, mask
-atrium = s.mask.to_mesh(label=1)  # exact left-atrium surface, LPS millimetres, licence attached
-
-ds = pl.load("hf://farrell236/NSCLC-Radiomics-NIFTI")  # a Hugging Face repo: 422 lung CTs + masks
-ds["LUNG1-001"].mask.labels  # {1: 'esophagus', 2: 'gtv', 3: 'heart', ...}
-
-ct = pl.load("tcia://Pancreas-CT")[0].ct  # a TCIA collection: DICOM series fetched on access
-liver = pl.load("totalsegmentator_ct")[0].liver.to_mesh()  # one of 117 organ masks, 1 228 CTs
-t1 = pl.load("s3://openneuro.org/ds000228")[0].t1w  # any OpenNeuro dataset from its public bucket
-
-sweep = pl.load("kitti_raw_2011_09_26_drive_0001")[0].lidar  # a KITTI .bin read through its layout
-sweep.run("ground_removal").run("object_clustering", eps=0.7, min_points=10)
-
-ds = pl.load("/data/study_A", license="internal", units={"mesh": "mm"})  # your own folder
-ds.export("/data/study_A_standard")  # standard files + sidecars + manifest
+ct = pl.load("tcia://Pancreas-CT")[0].ct  # a DICOM series from The Cancer Imaging Archive
+moved = ct.align(pl.load("day7.nii.gz"))  # rigid registration; moved.transform holds the 4x4
+ct.to_sitk()
+atrium.to_open3d()
+atrium.to_pyvista()  # the libraries you already use, one call away
 ```
 
-> **Status: 0.2.0.** Local execution of the 73 algorithms, the typed
-> catalog, the object model (frames, units, labels, licence, provenance),
-> 43 bundled dataset manifests (35 medical: DICOM, NIfTI, MetaImage, npz,
-> STL meshes, Gaussian splats), `pl.load` for any Hugging Face repo, public
-> S3 bucket or TCIA collection with the same questions as a private folder,
-> raw-array layouts, `pl.scan` and the local MCP server (`pardesline mcp`) are
-> in and tested on Linux, Windows and macOS. Next: splats as a first-class
-> kind, learned models. See [Roadmap](#roadmap).
+This repository is the PardesLine Python SDK (the `pardesline` package on
+PyPI). Everything local is Apache-2.0 and needs no account; the hosted
+platform (sharing, GPU, viewers) is an optional client inside it.
+
+## What you can do with it
+
+| | | Read more |
+|---|---|---|
+| **Load any dataset in one line** | MSD, AMOS, TotalSegmentator, LUNA16, IXI, VerSe, TCIA collections, OpenNeuro, KITTI, Objaverse, Hugging Face repos... 43 manifests. Files are fetched lazily (HTTP Range into 24 GB archives), verified, cached; the licence travels with the data. Your own folder: `pl.scan` asks what it cannot know, never guesses. | [docs/datasets.md](docs/datasets.md) |
+| **Work on one typed object** | `PointCloud`, `Mesh`, `Volume`, `LabelMap` know their frame, units, labels, licence and provenance. `segment()`, `to_mesh()`, `to_points()`, `align()`, `clean()`: conversions are exact or say they are not. | [docs/catalog.md](docs/catalog.md) |
+| **Run 73 algorithms, locally or on the GPU cloud** | registration (RANSAC, ICP, CPD, rigid / affine / B-spline / demons), reconstruction, segmentation, SDF, LiDAR, mesh and volume processing; parameters validated before anything runs; same names on your laptop and on the platform. | [docs/catalog.md](docs/catalog.md) · [docs/running-modes.md](docs/running-modes.md) |
+| **Use Open3D, SimpleITK, PyVista directly** | `obj.to_open3d()`, `obj.to_sitk()`, `obj.to_pyvista()`, `pl.o3d` / `pl.sitk` / `pl.pv`; without the libraries installed the same names run on the cloud. | [docs/running-modes.md](docs/running-modes.md) |
+| **Give it to an AI agent** | `pardesline mcp`: datasets, algorithms and twenty skills as tools for Claude, Gemini, Cursor, Codex and any MCP client. No account. | [docs/mcp.md](docs/mcp.md) |
+| **Learn the domain** | eleven expert skills with runnable scripts: registration, segmentation models, PointNet, DINOv3, JEPA, VAE anomaly detection, Gaussian splatting, metrics. | [skills/](skills/) · [showcase](docs/showcase/README.md) |
+
+## How it works
+
+```mermaid
+flowchart LR
+    A["Source<br/>hf:// · s3:// · tcia:// · zip/tar by Range · your folder"] -->|manifest: roles, frame, units, labels, licence| B["Dataset<br/>samples, split by patient"]
+    B -->|fetch on access| C["Object<br/>PointCloud · Mesh · Volume · LabelMap"]
+    C -->|73 algorithms, conversions| C
+    C -->|to_open3d · to_sitk · to_pyvista| D["Open3D · SimpleITK · PyVista"]
+    C -->|save| E["standard file + .pardesline.json<br/>frame, labels, licence, provenance"]
+    F["AI agent<br/>Claude · Gemini · Cursor · Codex"] -->|MCP tools + skills| B
+    F --> C
+```
 
 ## Showcase
 
-Ten pipelines, each a poster, a snippet, an expert skill and an MCP tool:
-[docs/showcase](docs/showcase/README.md).
+Ten real pipelines, each with a poster, the snippet, the expert skill and the
+MCP tool: **[docs/showcase](docs/showcase/README.md)**.
 
-<table>
-<tr>
-<td align="center"><a href="docs/showcase/README.md#1-point-clouds-meshes-voxels-gaussian-splats-which-representation"><img src="docs/showcase/3d-representations.jpeg" width="260" alt="3D representations"><br><b>Points, meshes, voxels, splats</b></a></td>
-<td align="center"><a href="docs/showcase/README.md#2-ransac--icp-point-cloud-registration"><img src="docs/showcase/ransac-icp-bunny.jpeg" width="260" alt="RANSAC + ICP"><br><b>RANSAC + ICP registration</b></a></td>
-<td align="center"><a href="docs/showcase/README.md#3-rigid-ct--mri-registration-with-simpleitk"><img src="docs/showcase/ct-mr-rigid-registration.jpeg" width="260" alt="CT/MR registration"><br><b>CT / MRI rigid registration</b></a></td>
-</tr>
-<tr>
-<td align="center"><a href="docs/showcase/README.md#4-from-a-labelled-atlas-to-a-segmented-3d-ultrasound-heart"><img src="docs/showcase/atlas-label-transfer-ultrasound.jpeg" width="260" alt="Atlas label transfer"><br><b>Atlas to 3D-ultrasound heart</b></a></td>
-<td align="center"><a href="docs/showcase/README.md#5-pointnet-segmentation-of-cbct-point-clouds"><img src="docs/showcase/pointnet-cbct-segmentation.jpeg" width="260" alt="PointNet CBCT"><br><b>PointNet on CBCT points</b></a></td>
-<td align="center"><a href="docs/showcase/README.md#6-dinov2-to-dinov3-why-dense-features-stopped-collapsing"><img src="docs/showcase/dinov3-gram-anchoring.jpeg" width="260" alt="DINOv3 Gram anchoring"><br><b>DINOv3 dense features</b></a></td>
-</tr>
-<tr>
-<td align="center"><a href="docs/showcase/README.md#7-frozen-dinov3--faster-r-cnn-on-echocardiography"><img src="docs/showcase/dinov3-faster-rcnn-echo.jpeg" width="260" alt="DINOv3 Faster R-CNN echo"><br><b>Frozen DINOv3 + Faster R-CNN</b></a></td>
-<td align="center"><a href="docs/showcase/README.md#8-beyond-reconstruction-jepa-predicts-in-latent-space"><img src="docs/showcase/jepa-latent-prediction.jpeg" width="260" alt="JEPA"><br><b>JEPA pretraining</b></a></td>
-<td align="center"><a href="docs/showcase/README.md#9-from-a-point-cloud-to-3d-gaussian-splats"><img src="docs/showcase/points-to-gaussian-splats.jpeg" width="260" alt="Gaussian splats"><br><b>Points to Gaussian splats</b></a></td>
-</tr>
-<tr>
-<td align="center"><a href="docs/showcase/README.md#10-unsupervised-caries-detection-with-a-variational-autoencoder"><img src="docs/showcase/vae-dental-anomaly.jpeg" width="260" alt="VAE anomaly detection"><br><b>VAE anomaly detection</b></a></td>
-<td align="center" colspan="2"><b>How it fits together</b><br>Load a dataset in one line → a typed object (frame, units, labels, licence) → 73 algorithms and the native libraries → results with provenance. The same package answers an AI agent through <code>pardesline mcp</code>: datasets, algorithms and these skills as tools.</td>
-</tr>
-</table>
+<p align="center"><a href="docs/showcase/README.md"><img src="https://raw.githubusercontent.com/pardesline/pardesline/main/docs/showcase/mosaic.jpg" width="900" alt="The ten posters"></a></p>
 
-## Install
-
-```bash
-pip install "pardesline[all]"        # everything: Open3D, PyVista, SimpleITK, huggingface_hub, MCP server
-pip install "pardesline[local]"      # point clouds, meshes, SDF, LiDAR (Open3D, PyVista)
-pip install "pardesline[medical]"    # volumes, DICOM, registration, segmentation (SimpleITK, PyVista)
-pip install "pardesline[hf]"         # datasets hosted on the Hugging Face Hub
-pip install "pardesline[mcp]"        # the local MCP server for AI agents
-pip install pardesline               # catalog, object model, manifests and cloud client only
-```
-
-Python 3.10 – 3.12 for the native extras (Open3D 0.19 has no 3.13 wheels);
-the core package also runs on 3.13.
-
-## One package, three ways to run the same code
-
-| Mode | What runs where | Needs | Install |
-|---|---|---|---|
-| **Local** | the 73 algorithms, the object model, the datasets and the MCP server on your machine; Open3D, SimpleITK and PyVista installed next to the package | no account, no network except the dataset downloads you ask for | `pip install "pardesline[all]"` |
-| **Cloud** | the same 73 algorithms on the hosted GPU platform, plus sharing, browser viewers, image-to-3D | a PardesLine account (`pl.login()`) | `pip install pardesline` |
-| **Mixed** | your pipeline written once; each call runs locally when the library is installed, remotely otherwise | both | either |
-
-The algorithm names, the parameters and the object model are identical in
-the three modes: `scan.downsample(voxel_size=0.02)` is the same line on a
-laptop without a GPU and on the platform.
-
-### Open3D, SimpleITK and PyVista: direct access, or through the cloud
-
-The native libraries are not hidden behind the package; they are part of it.
-
-```python
-import pardesline as pl
-
-scan = pl.load("scan.ply")  # a typed Object with frame, units, licence, provenance
-pcd = scan.to_open3d()  # open3d.geometry.PointCloud (or TriangleMesh)
-poly = scan.to_pyvista()  # pyvista.PolyData
-img = pl.load("ct.mha").to_sitk()  # SimpleITK.Image - DICOM folders accepted
-arr = scan.to_numpy()  # points (N, 3), vertices, or voxels (z, y, x)
-
-pl.o3d, pl.pv, pl.sitk, pl.np  # the real libraries, when they are installed
-```
-
-- With `[local]` / `[medical]` installed, `pl.o3d` **is** `open3d`, `pl.sitk`
-  **is** `SimpleITK`, `pl.pv` **is** `pyvista`: write ordinary Open3D or
-  SimpleITK code on the objects pardesline loaded, and hand the results back
-  (`os.fspath(obj)` is the file path, so every library reader accepts an Object).
-- Without them, after `pl.login()`, the same four names become the **cloud
-  mirrors** of the 0.1 client: the call is recorded and executed on the
-  platform, the result comes back when you ask for it (`.numpy()`,
-  `.to_file()`). No Open3D, VTK or ITK to install, no 3D environment to set
-  up - the use case
-  [pardesline-use-cases/01](https://github.com/1904jonathan/pardesline-use-cases)
-  runs a full registration + label transfer + Poisson pipeline that way.
-- Either way the object keeps its frame, units, labels and licence, and
-  records every step it went through (`obj.provenance`).
-
-## What you get
-
-| | |
-|---|---|
-| **`pl.load(path)`** | A local file as a typed `Object`: `PointCloud`, `Mesh`, `Volume`, `LabelMap`, `Transform`, `Image`. Volumes get their frame (LPS, mm, affine) from the header; glTF is Y-up metres by specification; formats that carry no unit stay *unknown* until you say. |
-| **`pl.load(dataset)`** | A `Dataset` from one of the 43 bundled manifests (`pardesline datasets`), from `hf://org/name[/folder]`, `s3://bucket/prefix`, `tcia://Collection`, from your own manifest file, or from a folder via `pl.scan`. Files are fetched on first access (per file from the Hub or a bucket, member by member out of remote archives, series by series from TCIA, SHA-512-verified downloads), cached. |
-| **`pl.load("sweep.bin", layout=...)`** | A raw `.npy` / `.npz` / `.bin` array as a `PointCloud` or a grid, through a declared layout (dtype, shape, columns, key). Never guessed; materialised once as PLY / MetaImage so every algorithm runs on it. |
-| **`ds.export(folder)`** | A standard copy of any dataset: PLY / MetaImage / NIfTI files, one `.pardesline.json` sidecar each (frame, units, labels, licence, provenance) and a local manifest. |
-| **`obj.run("module.method", **params)`** | Any algorithm; the result is a new `Object` that keeps the frame and licence and records the step. Aliases: `downsample`, `remove_outliers`, `normals`, `poisson`, `ball_pivoting`, `decimate`, `smooth`, `to_points`, `icp`, `ransac`, `register`, `segment`. |
-| **Conversions named after the job** | `Volume.segment()` -> `LabelMap`; `LabelMap.to_mesh(label)` exact boundary in world coordinates; `Volume.to_mesh(isovalue)`; `Mesh.to_points()`; `PointCloud.to_mesh()` (Poisson, lossy); `PointCloud.align(moving)`, `Volume.align(moving)`; `clean()`. |
-| **`pl.run(module, method, input, **params)`** | The same without the object wrapper. Returns output path, sidecar JSON, log and timing. |
-| **`pl.catalog()`** | Every module, method and parameter with type, default, range, choices and description. `pl.describe("point_cloud_reconstruction.poisson")`. |
-| **`obj.to_open3d()` / `to_pyvista()` / `to_sitk()` / `to_numpy()`** | Hand the result to the library you already use. `pl.o3d`, `pl.pv`, `pl.sitk` are the real libraries when installed. |
-| **`pardesline` CLI** | `pardesline list`, `pardesline describe ...`, `pardesline run module.method in.ply -o out.ply --voxel_size 0.02`, `pardesline datasets`, `pardesline fetch amos22 --take 2`, `pardesline export msd_task02_heart ./heart --take 2`. |
-| **`pardesline.medical`** | Volume I/O (NIfTI, NRRD, MHA, VTI, DICOM series), rigid / affine / B-spline / demons registration, thresholding, watershed, connected components. |
-| **`pardesline.cloud`** | The hosted platform: upload, share in one line, run on GPU, open the browser viewers. Optional, needs an account. |
-
-Every algorithm is also a plain command with the same contract the platform uses:
-
-```bash
-python -m pardesline.ops.point_cloud_processing.voxel_downsample --input scan.ply --output small.ply --voxel_size 0.02
-```
-
-Parameters are checked **before** anything runs — unknown names, wrong types,
-out-of-range values and missing second inputs fail with a message that lists
-what is accepted:
-
-```
-ParameterError: point_cloud_processing.voxel_downsample: unknown parameter(s) voxel.
-Did you mean: voxel -> voxel_size?. Accepted: voxel_size.
-```
-
-## The catalog
-
-| Module | Methods | Input |
-|---|---|---|
-| `point_cloud_processing` | voxel_downsample, statistical_outlier_removal, radius_outlier_removal, mesh_to_pointcloud | .ply, .pcd, .txt, .xyz |
-| `mesh_processing` | subdivision, simplification, mesh_to_pcd_uniform, mesh_to_pcd_poisson_disk | .ply, .obj, .stl, .off |
-| `voxel_to_mesh` | voxelization, binary_erosion | .ply, .obj, .stl, .off |
-| `sdf` | compute_sdf, occupancy_reconstruction, sdf_voxel_visualization | .ply, .obj, .stl, .off |
-| `point_cloud_reconstruction` | poisson, convex_hull, alpha_shape, ball_pivoting | .ply, .pcd, .txt, .xyz |
-| `registration` | ransac_global, icp_refinement, ransac_icp_pipeline | .ply, .pcd, .txt, .xyz |
-| `deformable_registration` | cpd_deformable, gaussian_deformation | .ply, .pcd, .txt, .xyz |
-| `point_cloud_segmentation` | ransac_plane, dbscan_clustering | .ply, .pcd, .txt, .xyz |
-| `stereo_3d_reconstruction` | depth_colorization, depth_filter | .ply, .pcd, .txt, .xyz |
-| `lidar_scene_detection` | height_colorization, ground_removal, object_clustering | .ply, .pcd, .txt, .xyz, .las |
-| `lidar_camera_fusion` | intensity_colorization, roi_extraction, multi_resolution | .ply, .pcd, .txt, .xyz, .las |
-| `features_extraction` | normal_estimation, fpfh_features, curvature_estimation | .ply, .pcd, .txt, .xyz |
-| `collision_detection` | sdf_collision, penetration_depth | .ply, .obj, .stl, .off |
-| `pyvista_mesh_processing` | pv_decimate, pv_subdivide, pv_smooth_laplacian, pv_smooth_taubin, pv_clean, pv_fill_holes, pv_compute_normals, pv_triangulate, pv_extract_surface | .ply, .obj, .stl, .vtk, .vtu |
-| `pyvista_pointcloud_processing` | pv_threshold, pv_clip_plane, pv_clip_box, pv_random_sample, pv_extract_points | .ply, .pcd, .vtk, .vtu, .obj, .stl |
-| `pyvista_volume_processing` | pv_contour, pv_slice, pv_slice_orthogonal, pv_threshold_volume, pv_extract_geometry, pv_extract_cells | .vti, .vtk, .vtu, .ply, .obj, .stl |
-| `pyvista_analysis` | pv_curvature, pv_distance, pv_glyph, pv_vector_magnitude, pv_scalar_stats, pv_extract_feature_edges | .ply, .obj, .stl, .vtk, .vtu |
-| `simpleitk_registration` | rigid, advanced_rigid, affine, bspline, demons, difference_analysis | .vti, .mha, .nrrd, .nii, .dcm |
-| `simpleitk_segmentation` | otsu_threshold, manual_threshold, connected_components, watershed | .vti, .mha, .nrrd, .nii |
-
-Registration methods take two inputs: `input` is the fixed reference, `moving`
-is the one that gets transformed. They write the estimated transform next to
-the output as `<output>.json` (`obj.transform`).
-
-`pl.catalog().describe("simpleitk_registration.rigid")` prints every parameter.
-The theory behind each module (with the formulas) is in the catalog too:
-`pl.catalog().module("sdf").theory`.
-
-## Datasets and manifests
-
-`pl.load` never knows a dataset; it knows a **manifest**: where the files
-come from (with checksums or a Hub revision), under which licence, how files
-group into samples, and what each file cannot say by itself (frame, units,
-label meanings, array layout). Forty-three manifests ship with the package;
-`pl.datasets()` / `pardesline datasets` list them, `pl.describe(name)` prints
-one. Every public source below was listed and one file fetched from it on
-2026-10-13/14; the licence column is what the source states.
-
-**Medical volumes: CT, MRI, PET, ultrasound (NIfTI, MetaImage, npz)**
-
-| Dataset | What | Source | Licence |
-|---|---|---|---|
-| `msd_task01_braintumour` ... `msd_task10_colon` | the ten Medical Segmentation Decathlon tasks (2 633 CT/MRI with labels: brain tumour, heart, liver, hippocampus, prostate, lung, pancreas, hepatic vessels, spleen, colon) | one tar per task on S3, read by Range | CC-BY-SA-4.0 |
-| `amos22` | 600 abdominal CT/MRI, 15 organs | zip64 on Zenodo, read by Range (24 GB) | CC-BY-SA-4.0 |
-| `totalsegmentator_ct` | 1 228 CTs, 117 structures as one mask role each (`s.liver`, `s.vertebrae_l3`...) | zip on Zenodo, read by Range (24 GB) | CC-BY-4.0 |
-| `totalsegmentator_mri` | 298 MRIs, 56 structures | zip on Zenodo, read by Range | CC-BY-NC-SA-2.0 |
-| `luna16` | 888 thorax CTs for nodule detection (MetaImage + raw) | ten zips on Zenodo, read by Range | CC-BY-4.0 |
-| `ixi_brain_mri` | ~600 healthy brains, T1 / T2 / PD / MRA | four tars at Imperial College, read by Range | CC-BY-SA-3.0 |
-| `verse19_spine` | 160 spine CTs, 28-class vertebra masks, centroids | three zips on S3, read by Range | CC-BY-SA-4.0 |
-| `spider_lumbar_mri` | 447 lumbar MRIs, vertebra / disc / canal masks | two zips on Zenodo, read by Range | CC-BY-4.0 |
-| `hf_openmind` | OpenMind head MRI, one OpenNeuro study at a time (114k images in all) | `hf://MIC-DKFZ/OpenMind` | CC-BY-4.0 |
-| `hf_nsclc_radiomics` | 422 lung CTs with tumour and organ masks (TCIA, NIfTI) | `hf://farrell236/NSCLC-Radiomics-NIFTI` | CC-BY-3.0 |
-| `hf_kits23` | 489 kidney-tumour CTs, kidney / tumour / cyst | `hf://neheller/KiTS-Challenge-Imaging` | CC-BY-NC-SA-4.0 |
-| `hf_abdomenatlas_mini` | abdominal CTs with nine organ masks (first 100 of 5 195) | `hf://AbdomenAtlas/AbdomenAtlas1.0Mini`, gated | CC-BY-NC-SA-4.0 |
-| `hf_ct_rate_valid` | chest CTs paired with radiology reports (first 20 of 50 188) | `hf://ibrahimhamamci/CT-RATE`, gated | CC-BY-NC-SA-4.0 |
-| `hf_biomedsegfm_3d_val` | 2 144 CT / MRI / PET / 3-D ultrasound / microscopy volumes as npz | `hf://junma/CVPR-BiomedSegFM` | CC-BY-NC-SA-4.0 |
-| `openneuro_ds000228` | T1w MRI of 155 children and adults; any OpenNeuro dataset via `s3://openneuro.org/dsXXXXXX` | public S3 bucket | PDDL / CC0 |
-| `rire_brain`, `popi_lung_4dct`, `liver_tumor_patient01`, `visible_human_head_mri` | the SimpleITK notebook excerpts | https + SHA-512 | research use, terms to confirm |
-
-**DICOM series**
-
-| Dataset | What | Source | Licence |
-|---|---|---|---|
-| `tcia_pancreas_ct` | 82 abdominal CTs (NIH) | TCIA, NBIA API | CC-BY-3.0 |
-| `tcia_lidc_idri` | 1 018 thorax CTs + DICOM SEG | TCIA, NBIA API | CC-BY-3.0 |
-| `tcia_nsclc_radiomics_dicom` | 422 planning CTs + RTSTRUCT + SEG | TCIA, NBIA API | CC-BY-3.0 |
-| `tcia_prostate_3t` | 64 T2 prostate MRIs | TCIA, NBIA API | CC-BY-3.0 |
-| `chaos_abdomen` | 20 CT + 20 MR (T1 in/out-phase, T2 SPIR) as DICOM series | zip on Zenodo, read by Range | CC-BY-NC-SA-4.0 |
-
-Any of the 156 public TCIA collections: `pl.load("tcia://Collection[/CT,MR]")`.
-
-**Anatomical meshes, splats and point clouds**
-
-| Dataset | What | Source | Licence |
-|---|---|---|---|
-| `medshapenet` | 106 101 anatomical and instrument shapes as STL (`ds.filter(structure="liver")`) | public URL index | CC-BY-4.0, per source |
-| `c3vd_endoscopy_splats` | ten colonoscopy scenes as Gaussian splats + point clouds | zip on Zenodo, read by Range | CC-BY-4.0 (C3VD NC) |
-| `hf_3d_arena` | 29 image-to-3D generators x 100 images, meshes and splats | `hf://3d-arena/3d-arena` | MIT |
-| `hf_objaverse_glb_shard` | 5 000 glTF objects (one shard) | `hf://allenai/objaverse` | ODC-By, per-object CC |
-| `open3d_bunny`, `open3d_armadillo`, `open3d_icp_demo` | Open3D demo data | `open3d.data` | terms to confirm |
-
-**Driving and LiDAR**
-
-| Dataset | What | Source | Licence |
-|---|---|---|---|
-| `kitti_raw_2011_09_26_drive_0001` | 108 Velodyne sweeps + stereo images | zip on S3, read by Range | CC-BY-NC-SA-3.0 |
-| `hf_kitti360_gs_subset` | 16 KITTI-360 chunks: points + Gaussian-splat arrays | `hf://GaussianWorld/...` | CC-BY-NC-SA-3.0 |
-| `hf_uniocc_carla_mini` | LiDAR, cameras and occupancy grids (CARLA) | `hf://tasl-lab/uniocc` | MIT |
-
-Access is lazy by design. Indexing the MSD heart tar costs 32 KB (61
-headers), the KITTI zip 157 KB, the 24 GB AMOS zip64 145 KB and the 145k-entry
-TotalSegmentator zip 14 MB; a case then costs its own size. Hub manifests scope
-their listing to the folders they need and a listing is capped at 20 000
-files: listing OpenMind whole (266 721 files) takes 15 minutes and is
-rate-limited for anonymous clients. Gated repositories (AbdomenAtlas, CT-RATE)
-need your own Hub token after you accept their terms; restricted TCIA
-collections answer 401 and are left to the NBIA Data Retriever. The package
-never scripts past a click-through.
-
-```python
-ds = pl.load("popi_lung_4dct")  # six breathing phases of one thorax CT + a mask
-ds.describe()  # licence, citation, roles, samples
-phase0 = ds["phase_00"]
-phase0.mask.labels  # {1: 'body', 2: 'lungs'}
-lungs = phase0.mask.to_mesh(label=2)  # exact surface, LPS mm
-moved = phase0.ct.align(ds["phase_50"].ct)
-
-train, test = ds.split(by="patient", fractions=(0.8, 0.2), seed=0)  # leakage-free
-```
-
-**Your own folder.** `pl.scan` drafts a manifest (samples, roles, what the
-headers say) and lists the questions it will not answer for you:
-
-```python
-pl.load("/data/study_A")
-# NeedsConfirmation: study_a: 4 question(s) before this folder can be loaded:
-#   - license: Who owns this data and under which terms may it be used?
-#   - roles.mesh.units: p01/la.stl: the format carries no unit. mm, m, ...?
-#   - roles.mask.labels: p01/seg.nii.gz looks like a label map. What does each value mean?
-#   ...
-# Draft saved: /data/study_A/pardesline.manifest.json
-
-ds = pl.load(
-    "/data/study_A",
-    license="internal, no redistribution",
-    units={"mesh": "mm"},
-    labels={"mask": {1: "left_atrium"}},
-)
-```
-
-Or edit the saved draft, or `interactive=True` to answer in the terminal, or
-`assume=True` to proceed with unknowns (and warnings). Licence terms of
-public datasets that could not be confirmed are marked `TO CONFIRM` in the
-manifest and in `ds.license.describe()`.
-
-**Any Hugging Face repo, public bucket or TCIA collection.**
-`pl.load("hf://org/name/sub/folder")`, `pl.load("s3://bucket/prefix")` and
-`pl.load("tcia://Collection/CT")` use the bundled manifest when there is one,
-otherwise list the source, draft a manifest and ask the same questions
-(licence from the Hub card or the archive's policy, units, labels, and the
-layout of raw arrays). When nothing is left to ask, the dataset loads directly:
-
-```python
-pl.load("hf://acme/scans/raw")
-# NeedsConfirmation: hf_acme_scans: 1 question(s) ...
-#   - roles.scan.layout: raw/p01/scan.bin is a raw array. What is in it? ...
-ds = pl.load(
-    "hf://acme/scans/raw",
-    types={"scan": "points"},
-    layout={"scan": {"dtype": "float32", "shape": "(N,4)", "columns": ["x", "y", "z", "i"]}},
-    units={"scan": "m"},
-    frame={"scan": "sensor"},
-)
-```
-
-Sources: `local` folders; `https` files with SHA-512 or md5 (and tar/zip
-downloads); `hf` repos through `huggingface_hub` (`pip install
-"pardesline[hf]"`, your own token for gated data and for higher rate limits);
-`archive`: one or several remote zips or tars read member by member with HTTP
-Range requests (zip64 included, index cached; one verified download when the
-server ignores ranges); `s3`: a public bucket listed anonymously; `tcia`: a
-collection of The Cancer Imaging Archive through the NBIA API, one DICOM
-series per entry; `urllist`: a text index with one download URL per line;
-Open3D demo data. A DICOM series is a folder entry: fetching it brings every
-file; a MetaImage header brings its `.raw`.
-
-## Examples
-
-**Clean a LiDAR sweep and cluster the objects**
-
-```python
-sweep = pl.load("sweep.las").with_frame("sensor", "m")
-objects = sweep.run("ground_removal").run("object_clustering", eps=0.7, min_points=10)
-objects.to_open3d()
-```
-
-**Register two CT volumes and check the result**
-
-```python
-ct_day0 = pl.load("day0.nii")  # LPS, mm, affine from the header
-ct_day7 = pl.load("day7.nii")
-reg = ct_day0.align(ct_day7, metric="mattes_mutual_information", num_iterations=300)
-print(reg.transform["rotation_deg"], reg.transform["translation_mm"])
-diff = ct_day0.run("difference_analysis", moving=reg)
-```
-
-**Segmentation to a printable surface**
-
-```python
-mask = pl.load("ct.mha").segment(lower=200, upper=600)
-bone = mask.to_mesh(label=1).decimate(target_reduction=0.8)
-bone.save("bone.stl")  # + bone.stl.pardesline.json: LPS mm, licence, every step
-```
-
-**Follow a long run**
-
-```python
-res = pl.run(
-    "simpleitk_registration",
-    "bspline",
-    "a.mha",
-    moving="b.mha",
-    on_progress=lambda pct: print(f"{pct}%"),
-    on_log=print,
-    timeout=1800,
-)
-```
-
-## Cloud (optional)
-
-The hosted platform adds sharing, GPU methods (image → 3D, 2D AI), browser
-viewers and a node editor. The 0.1.x client is unchanged, under `pardesline.cloud`
-and at the top level; `pl.o3d` / `pl.pv` / `pl.sitk` become its server-side
-mirrors when the libraries are not installed locally (see
-[One package, three ways to run the same code](#one-package-three-ways-to-run-the-same-code)):
-
-```python
-pl.login()  # email + one-time code
-remote = pl.upload(surface)  # an Object or a path
-pl.share(remote, to="colleague@lab.org")
-remote.view()  # link to the 3D viewer
-```
-
-## Roadmap
-
-- **More manifests**: BraTS (Synapse DUA), ShapeNetCore (gated), the
-  nuScenes-derived UniOcc splits, VerSe 2020, the remaining TCIA CT/MR
-  collections as a generated set; a PardesLine org on the Hub mirroring the
-  permissive ones.
-- **Splats** (`.splat`, `.spz`, glTF Gaussian-splat extension, the KITTI-360
-  array sets) as a first-class kind with its own conversions.
-- Learned models (segmentation, registration) behind the same function names.
-
-## For AI agents: the MCP server
-
-`pardesline mcp` exposes the datasets, the object model and the 73 algorithms
-to any Model Context Protocol client, on the user's machine, without an
-account. Twelve tools (`list_datasets`, `describe_dataset`, `list_samples`,
-`load_sample`, `scan_dataset`, `confirm_dataset`, `export_dataset`,
-`list_methods`, `describe_method`, `run_method`, `describe_object`, `to_mesh`),
-three resources and a `start_here` prompt. Questions the package will not
-guess (licence, units, array layout) come back as JSON for the agent to relay
-to the human.
+## For AI agents
 
 ```bash
 pip install "pardesline[mcp]"
-pardesline mcp                                            # stdio
-pardesline mcp --transport streamable-http --port 8765    # http://127.0.0.1:8765/mcp
+pardesline mcp                       # stdio: Claude Code (`claude mcp add pardesline -- pardesline mcp`), Claude Desktop, Cursor, Gemini CLI, Codex
 ```
 
-| Client | Configuration |
-|---|---|
-| Claude Code | `claude mcp add pardesline -- pardesline mcp` (the repo ships a `.mcp.json`) |
-| Claude Desktop, Cursor | `"mcpServers": {"pardesline": {"command": "pardesline", "args": ["mcp"]}}` |
-| Gemini CLI | the same block in `~/.gemini/settings.json` |
-| Codex CLI | `[mcp_servers.pardesline] command = "pardesline" args = ["mcp"]` in `~/.codex/config.toml` |
+Tools: `list_datasets`, `describe_dataset`, `list_samples`, `load_sample`,
+`scan_dataset`, `confirm_dataset`, `export_dataset`, `list_methods`,
+`describe_method`, `run_method`, `describe_object`, `to_mesh`, `list_skills`,
+`get_skill`. Questions the package will not guess (licence, units, array
+layout) come back as JSON for the agent to relay to the human. Client
+configurations and the full contract: [docs/mcp.md](docs/mcp.md).
 
-If `pardesline` is not on your PATH, the command is `python -m pardesline.mcp_server`.
+## Documentation
 
-The `skills/` folder holds twenty skills, grounded in the code and checked
-by the test suite (every module, method, parameter and dataset they mention
-must exist). Nine teach the package: `using-pardesline` (start here),
-`catalog-and-run`, `object-model`, `datasets-and-manifests`,
-`scanning-private-folders`, `medical-volumes`, `cloud-client`, `mcp-server`,
-`contributing-algorithms`. Eleven are **expert guides with reference scripts**
-for the domains the package serves, written for engineers who build the
-pipelines, and served to any MCP client through `list_skills` / `get_skill`:
+- [Datasets and manifests](docs/datasets.md): the 43 bundled datasets, any Hugging Face / S3 / TCIA source, private folders, the manifest schema.
+- [The catalog and the object model](docs/catalog.md): the 73 algorithms with their parameters, conversions, examples, the CLI.
+- [Running modes](docs/running-modes.md): local, cloud, mixed; Open3D / SimpleITK / PyVista direct or mirrored.
+- [MCP server](docs/mcp.md): tools, resources, client setup.
+- [Showcase](docs/showcase/README.md) and the [expert skills](skills/).
+- [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Citation](CITATION.cff)
 
-| Skill | What it carries | Runnable script |
-|---|---|---|
-| `3d-representations` | points vs meshes vs voxels vs splats: memory, architectures, the conversion matrix and its pitfalls | - |
-| `point-cloud-registration` | RANSAC + FPFH + ICP, every parameter from one voxel size, metrics that lie, CPD | `registration_eval.py` (pose error on a known transform) |
-| `multimodal-rigid-registration` | CT/MR with Mattes MI in SimpleITK: initialiser, optimizer scales, pyramid, validation by TRE | `rigid_ct_mr.py` (RIRE pair, metric trace, checkerboard) |
-| `atlas-label-transfer` | labelled atlas -> unlabelled scan: registration, nearest-structure labels, per-label surfaces and volumes | `atlas_label_transfer.py` (99 % label agreement on a synthetic scan) |
-| `pointnet-segmentation` | PointNet / PointNet++ step by step, data contract, training recipe | `make_point_dataset.py` (label maps -> labelled clouds), `pointnet_seg.py` (PyTorch) |
-| `dinov3-dense-features` | Gram anchoring, frozen backbones, ViTDet pyramid + Faster R-CNN, medical transfer limits | `dinov3_features.py`, `dinov3_faster_rcnn.py` |
-| `jepa-pretraining` | latent prediction instead of reconstruction, 3-D tokenisation, masking, collapse diagnostics | `jepa3d_pretrain.py` (3-D ViT, EMA target, block masks) |
-| `vae-anomaly-detection` | normal-only training, residual maps, thresholds, honest limits | `vae_anomaly.py` (train / score / AUROC) |
-| `gaussian-splatting` | the primitive, the five-step initialisation, PLY layout, training, medical uses | `points_to_gaussians.py` (any cloud -> 3DGS PLY) |
-| `medical-segmentation-models` | nnU-Net, TotalSegmentator, transformers, preprocessing, inference, evaluation | `prepare_nnunet_dataset.py` (any dataset -> nnU-Net raw) |
-| `evaluation-metrics-3d` | Dice / HD95 / NSD, chamfer / F-score, TRE, folding, AP, AUROC, PSNR, and how to report them | `metrics3d.py` |
+## Status and roadmap
 
-Install them as a plugin (it also registers the MCP server):
-
-```
-/plugin marketplace add pardesline/pardesline
-/plugin install pardesline@pardesline
-```
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md). Bug reports with the command, the log
-and your library versions are the most useful thing you can send.
+0.2.0: local execution, object model, 43 datasets, MCP server, 20 skills;
+tested on Linux, Windows and macOS. Next: Gaussian splats as a first-class
+kind, learned models behind the same function names, more manifests (BraTS,
+VerSe 2020, the remaining TCIA collections), a PardesLine organisation on
+Hugging Face mirroring the permissive datasets.
 
 ## Licence
 
 Apache License 2.0. Open3D, PyVista, VTK, SimpleITK, NumPy and the other
-dependencies keep their own licences (see [NOTICE](NOTICE)).
-
-## Citation
-
-```bibtex
-@software{pardesline,
-  author = {Tabet, Jonathan},
-  title  = {PardesLine: 3D vision and medical imaging in one Python package},
-  year   = {2026},
-  url    = {https://github.com/pardesline/pardesline}
-}
-```
+dependencies keep their own licences (see [NOTICE](NOTICE)). Datasets keep
+theirs: `ds.license.describe()` says which.

@@ -6,9 +6,18 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+- README rewritten as a short front page: animated poster carousel, the
+  promise in three lines, install, a 30-second example, a Mermaid diagram of
+  how the pieces fit, the showcase, the MCP tools. The detailed sections moved
+  to `docs/datasets.md`, `docs/catalog.md`, `docs/running-modes.md`,
+  `docs/mcp.md` (text unchanged).
+
 ### Added
 - `docs/showcase/`: the ten pipeline posters with, for each, the snippet, the
-  expert skill and the MCP tool; a showcase grid at the top of the README.
+  expert skill and the MCP tool; `posters.gif` (carousel), `mosaic.jpg`,
+  `social-preview.png` for the repository card; `docs/index.html`, a landing
+  page with a real carousel for GitHub Pages; `CITATION.cff`.
 
 ## [0.2.0] — 2026-10-14
 

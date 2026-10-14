@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pardesline</title>
+<meta name="description" content="3D vision and medical imaging in one Python package: 73 algorithms, 43 datasets in one line, Open3D / SimpleITK / PyVista, an MCP server for AI agents.">
+<style>
+  :root { --bg:#0e1117; --panel:#161b22; --fg:#e6edf3; --muted:#9da7b3; --accent:#58a6ff; --ok:#7ee787; --line:#30363d; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.55 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .wrap { max-width:1100px; margin:0 auto; padding:0 20px; }
+  header { padding:56px 0 24px; }
+  h1 { font-size:56px; margin:0; letter-spacing:-1px; }
+  .tag { font-size:22px; color:var(--fg); margin:8px 0 6px; }
+  .facts { color:var(--accent); font-size:17px; }
+  pre, code { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+  pre { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:14px 16px; overflow:auto; font-size:14px; }
+  .install { color:var(--ok); font-size:20px; margin:18px 0 0; }
+  .carousel { position:relative; background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden; margin:28px 0 8px; }
+  .track { display:flex; transition:transform .45s ease; }
+  .slide { min-width:100%; display:grid; grid-template-columns: 1.4fr 1fr; gap:0; }
+  .slide img { width:100%; height:560px; object-fit:contain; background:#0b0e13; }
+  .slide .text { padding:28px 26px; display:flex; flex-direction:column; justify-content:center; }
+  .slide h2 { margin:0 0 10px; font-size:24px; }
+  .slide p { color:var(--muted); margin:0 0 14px; }
+  .slide pre { margin:0 0 12px; }
+  .nav { position:absolute; top:50%; transform:translateY(-50%); background:rgba(14,17,23,.75); border:1px solid var(--line); color:var(--fg); width:44px; height:44px; border-radius:50%; cursor:pointer; font-size:22px; }
+  .nav.prev { left:12px; } .nav.next { right:12px; }
+  .dots { text-align:center; margin:6px 0 30px; }
+  .dots button { width:10px; height:10px; border-radius:50%; border:0; margin:0 4px; background:#3a4150; cursor:pointer; }
+  .dots button.on { background:var(--accent); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; margin:12px 0 40px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:18px; }
+  .card h3 { margin:0 0 8px; font-size:17px; }
+  .card p { color:var(--muted); margin:0; font-size:15px; }
+  footer { color:var(--muted); border-top:1px solid var(--line); padding:24px 0 48px; margin-top:20px; font-size:14px; }
+  @media (max-width:800px) { .slide { grid-template-columns:1fr; } .slide img { height:360px; } h1 { font-size:40px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>pardesline</h1>
+    <div class="tag">3D vision and medical imaging in one Python package</div>
+    <div class="facts">73 algorithms · 43 datasets loadable in one line · Open3D / SimpleITK / PyVista · an MCP server for AI agents</div>
+    <div class="install"><code>pip install "pardesline[all]"</code></div>
+    <p><a href="https://github.com/pardesline/pardesline">GitHub</a> · <a href="https://pypi.org/project/pardesline/">PyPI</a> · <a href="https://github.com/pardesline/pardesline/blob/main/docs/showcase/README.md">Showcase</a> · <a href="https://github.com/pardesline/pardesline/blob/main/docs/mcp.md">MCP server</a> · Apache-2.0</p>
+  </header>
+
+  <div class="carousel" id="carousel">
+    <div class="track" id="track"></div>
+    <button class="nav prev" aria-label="previous" onclick="go(-1)">&#8249;</button>
+    <button class="nav next" aria-label="next" onclick="go(1)">&#8250;</button>
+  </div>
+  <div class="dots" id="dots"></div>
+
+  <pre><code>import pardesline as pl
+
+ds = pl.load("msd_task02_heart")                 # 30 cardiac MRIs, nothing downloaded yet
+s = ds.filter(split="Tr")[0]                     # roles: mri, mask - licence attached
+atrium = s.mask.to_mesh(label=1)                 # exact left-atrium surface, LPS millimetres
+atrium.decimate(target_reduction=0.5).save("atrium.stl")
+
+ct = pl.load("tcia://Pancreas-CT")[0].ct         # a DICOM series from The Cancer Imaging Archive
+moved = ct.align(pl.load("other.nii.gz"))        # rigid registration, transform in moved.transform
+ct.to_sitk(), atrium.to_open3d(), atrium.to_pyvista()   # the libraries you already use</code></pre>
+
+  <div class="grid">
+    <div class="card"><h3>Any dataset in one line</h3><p>MSD, AMOS, TotalSegmentator, LUNA16, IXI, TCIA collections, OpenNeuro, Hugging Face repos, KITTI... 43 manifests, lazy access by HTTP Range, licence and citation attached. Your own folder through <code>pl.scan</code>.</p></div>
+    <div class="card"><h3>One typed object</h3><p>Point clouds, meshes, volumes, label maps that know their frame, units, labels, licence and provenance. Conversions are exact or say they are not.</p></div>
+    <div class="card"><h3>73 algorithms, local or cloud</h3><p>Registration, reconstruction, segmentation, SDF, LiDAR, SimpleITK volumes; validated parameters; the same names on your machine and on the hosted GPU.</p></div>
+    <div class="card"><h3>For AI agents</h3><p><code>pardesline mcp</code> gives Claude, Gemini, Cursor or Codex the datasets, the algorithms and twenty expert skills as MCP tools. No account.</p></div>
+  </div>
+
+  <footer>PardesLine · Jonathan Tabet · posters and code under the repository licence.</footer>
+</div>
+
+<script>
+const SLIDES = [
+  ["showcase/3d-representations.jpeg", "Point clouds, meshes, voxels, Gaussian splats", "Which representation for which task, and how to convert without losing the frame, the units or the labels.", "mask.to_mesh(label=1).to_points(num_points=4096)"],
+  ["showcase/ransac-icp-bunny.jpeg", "RANSAC + ICP registration", "Global alignment on FPFH features, point-to-plane refinement, every parameter from one voxel size.", "aligned = fixed.align(moving)  # fitness, inlier RMSE, 4x4"],
+  ["showcase/ct-mr-rigid-registration.jpeg", "CT / MRI rigid registration", "Mattes mutual information, centred Euler transform, multi-resolution pyramid, validated by TRE.", "s.ct.align(s.mr_t1, metric=\"mattes_mutual_information\")"],
+  ["showcase/atlas-label-transfer-ultrasound.jpeg", "Labelled atlas to segmented 3D-ultrasound heart", "Register the atlas, transfer labels by nearest structure, Poisson surfaces, volumes in mL.", "python skills/atlas-label-transfer/scripts/atlas_label_transfer.py"],
+  ["showcase/pointnet-cbct-segmentation.jpeg", "PointNet on CBCT point clouds", "T-Net, shared MLP, global feature, per-point softmax; labelled clouds from any label map.", "python skills/pointnet-segmentation/scripts/make_point_dataset.py msd_task04_hippocampus --out ./hippo"],
+  ["showcase/dinov3-gram-anchoring.jpeg", "DINOv3 dense features", "Gram anchoring keeps patch features coherent at scale; a frozen backbone is a production design.", "python skills/dinov3-dense-features/scripts/dinov3_features.py ./frames --out ./feats"],
+  ["showcase/dinov3-faster-rcnn-echo.jpeg", "Frozen DINOv3 + Faster R-CNN", "A natural-image backbone already sees the heart; a 25 M-parameter head learns to name effusion.", "python skills/dinov3-dense-features/scripts/dinov3_faster_rcnn.py train ..."],
+  ["showcase/jepa-latent-prediction.jpeg", "JEPA pretraining", "Predict embeddings, not pixels: structure without the noise. 3-D reference trainer on any dataset.", "python skills/jepa-pretraining/scripts/jepa3d_pretrain.py --dataset totalsegmentator_ct"],
+  ["showcase/points-to-gaussian-splats.jpeg", "Point cloud to Gaussian splats", "Five steps per point and a valid covariance; a PLY that any 3DGS viewer opens.", "python skills/gaussian-splatting/scripts/points_to_gaussians.py open3d_bunny out.ply"],
+  ["showcase/vae-dental-anomaly.jpeg", "VAE anomaly detection", "Train on healthy teeth only; the residual map exposes the cavity. AUROC on held-out cases.", "python skills/vae-anomaly-detection/scripts/vae_anomaly.py train --normal ./healthy"],
+];
+const track = document.getElementById("track"), dots = document.getElementById("dots");
+let i = 0, timer = null;
+SLIDES.forEach((s, k) => {
+  const d = document.createElement("div"); d.className = "slide";
+  d.innerHTML = `<img src="${s[0]}" alt="${s[1]}" loading="lazy"><div class="text"><h2>${s[1]}</h2><p>${s[2]}</p><pre><code>${s[3].replace(/</g,"&lt;")}</code></pre><span style="color:var(--muted);font-size:13px">${k+1} / ${SLIDES.length}</span></div>`;
+  track.appendChild(d);
+  const b = document.createElement("button"); b.onclick = () => show(k); dots.appendChild(b);
+});
+function show(k) { i = (k + SLIDES.length) % SLIDES.length; track.style.transform = `translateX(-${i*100}%)`; [...dots.children].forEach((b, j) => b.classList.toggle("on", j === i)); restart(); }
+function go(d) { show(i + d); }
+function restart() { clearInterval(timer); timer = setInterval(() => show(i + 1), 6000); }
+document.addEventListener("keydown", e => { if (e.key === "ArrowRight") go(1); if (e.key === "ArrowLeft") go(-1); });
+show(0);
+</script>
+</body>
+</html>
