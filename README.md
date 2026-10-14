@@ -6,9 +6,14 @@
 [![CI](https://github.com/pardesline/pardesline/actions/workflows/ci.yml/badge.svg)](https://github.com/pardesline/pardesline/actions/workflows/ci.yml)
 
 **3D vision and medical imaging in one Python package.** 73 algorithms on point
-clouds, meshes and volumes, with a typed catalog of 371 parameters, that run on
-your machine with `pip install pardesline` — the same code that powers the
-[PardesLine platform](https://appbeta.pardesline.com).
+clouds, meshes and volumes, with a typed catalog of 371 parameters, 43 public
+datasets loadable in one line, and Open3D, SimpleITK and PyVista reachable
+through one typed object — on your machine with `pip install pardesline`, the
+same code that powers the [PardesLine platform](https://appbeta.pardesline.com).
+
+This repository **is the PardesLine Python SDK**: the `pardesline` package on
+PyPI. Everything local is Apache-2.0 and needs no account; the hosted platform
+(sharing, GPU, viewers) is an optional client inside it, `pardesline.cloud`.
 
 ```python
 import pardesline as pl
@@ -47,9 +52,9 @@ ds.export("/data/study_A_standard")  # standard files + sidecars + manifest
 ## Install
 
 ```bash
-pip install "pardesline[all]"        # everything: Open3D, PyVista, SimpleITK, huggingface_hub
+pip install "pardesline[all]"        # everything: Open3D, PyVista, SimpleITK, huggingface_hub, MCP server
 pip install "pardesline[local]"      # point clouds, meshes, SDF, LiDAR (Open3D, PyVista)
-pip install "pardesline[medical]"    # volumes, DICOM, registration, segmentation (SimpleITK)
+pip install "pardesline[medical]"    # volumes, DICOM, registration, segmentation (SimpleITK, PyVista)
 pip install "pardesline[hf]"         # datasets hosted on the Hugging Face Hub
 pip install "pardesline[mcp]"        # the local MCP server for AI agents
 pip install pardesline               # catalog, object model, manifests and cloud client only
@@ -57,6 +62,48 @@ pip install pardesline               # catalog, object model, manifests and clou
 
 Python 3.10 – 3.12 for the native extras (Open3D 0.19 has no 3.13 wheels);
 the core package also runs on 3.13.
+
+## One package, three ways to run the same code
+
+| Mode | What runs where | Needs | Install |
+|---|---|---|---|
+| **Local** | the 73 algorithms, the object model, the datasets and the MCP server on your machine; Open3D, SimpleITK and PyVista installed next to the package | no account, no network except the dataset downloads you ask for | `pip install "pardesline[all]"` |
+| **Cloud** | the same 73 algorithms on the hosted GPU platform, plus sharing, browser viewers, image-to-3D | a PardesLine account (`pl.login()`) | `pip install pardesline` |
+| **Mixed** | your pipeline written once; each call runs locally when the library is installed, remotely otherwise | both | either |
+
+The algorithm names, the parameters and the object model are identical in
+the three modes: `scan.downsample(voxel_size=0.02)` is the same line on a
+laptop without a GPU and on the platform.
+
+### Open3D, SimpleITK and PyVista: direct access, or through the cloud
+
+The native libraries are not hidden behind the package; they are part of it.
+
+```python
+import pardesline as pl
+
+scan = pl.load("scan.ply")           # a typed Object with frame, units, licence, provenance
+pcd  = scan.to_open3d()              # open3d.geometry.PointCloud (or TriangleMesh)
+poly = scan.to_pyvista()             # pyvista.PolyData
+img  = pl.load("ct.mha").to_sitk()   # SimpleITK.Image - DICOM folders accepted
+arr  = scan.to_numpy()               # points (N, 3), vertices, or voxels (z, y, x)
+
+pl.o3d, pl.pv, pl.sitk, pl.np        # the real libraries, when they are installed
+```
+
+- With `[local]` / `[medical]` installed, `pl.o3d` **is** `open3d`, `pl.sitk`
+  **is** `SimpleITK`, `pl.pv` **is** `pyvista`: write ordinary Open3D or
+  SimpleITK code on the objects pardesline loaded, and hand the results back
+  (`os.fspath(obj)` is the file path, so every library reader accepts an Object).
+- Without them, after `pl.login()`, the same four names become the **cloud
+  mirrors** of the 0.1 client: the call is recorded and executed on the
+  platform, the result comes back when you ask for it (`.numpy()`,
+  `.to_file()`). No Open3D, VTK or ITK to install, no 3D environment to set
+  up - the use case
+  [pardesline-use-cases/01](https://github.com/1904jonathan/pardesline-use-cases)
+  runs a full registration + label transfer + Poisson pipeline that way.
+- Either way the object keeps its frame, units, labels and licence, and
+  records every step it went through (`obj.provenance`).
 
 ## What you get
 
@@ -306,7 +353,9 @@ res = pl.run(
 
 The hosted platform adds sharing, GPU methods (image → 3D, 2D AI), browser
 viewers and a node editor. The 0.1.x client is unchanged, under `pardesline.cloud`
-and at the top level:
+and at the top level; `pl.o3d` / `pl.pv` / `pl.sitk` become its server-side
+mirrors when the libraries are not installed locally (see
+[One package, three ways to run the same code](#one-package-three-ways-to-run-the-same-code)):
 
 ```python
 pl.login()  # email + one-time code
@@ -351,11 +400,29 @@ pardesline mcp --transport streamable-http --port 8765    # http://127.0.0.1:876
 
 If `pardesline` is not on your PATH, the command is `python -m pardesline.mcp_server`.
 
-The `skills/` folder holds nine Claude Code skills, grounded in the code and
-checked by the test suite (every module, method, parameter and dataset they
-mention must exist): `using-pardesline` (start here), `catalog-and-run`,
-`object-model`, `datasets-and-manifests`, `scanning-private-folders`,
-`medical-volumes`, `cloud-client`, `mcp-server`, `contributing-algorithms`.
+The `skills/` folder holds twenty skills, grounded in the code and checked
+by the test suite (every module, method, parameter and dataset they mention
+must exist). Nine teach the package: `using-pardesline` (start here),
+`catalog-and-run`, `object-model`, `datasets-and-manifests`,
+`scanning-private-folders`, `medical-volumes`, `cloud-client`, `mcp-server`,
+`contributing-algorithms`. Eleven are **expert guides with reference scripts**
+for the domains the package serves, written for engineers who build the
+pipelines, and served to any MCP client through `list_skills` / `get_skill`:
+
+| Skill | What it carries | Runnable script |
+|---|---|---|
+| `3d-representations` | points vs meshes vs voxels vs splats: memory, architectures, the conversion matrix and its pitfalls | - |
+| `point-cloud-registration` | RANSAC + FPFH + ICP, every parameter from one voxel size, metrics that lie, CPD | `registration_eval.py` (pose error on a known transform) |
+| `multimodal-rigid-registration` | CT/MR with Mattes MI in SimpleITK: initialiser, optimizer scales, pyramid, validation by TRE | `rigid_ct_mr.py` (RIRE pair, metric trace, checkerboard) |
+| `atlas-label-transfer` | labelled atlas -> unlabelled scan: registration, nearest-structure labels, per-label surfaces and volumes | `atlas_label_transfer.py` (99 % label agreement on a synthetic scan) |
+| `pointnet-segmentation` | PointNet / PointNet++ step by step, data contract, training recipe | `make_point_dataset.py` (label maps -> labelled clouds), `pointnet_seg.py` (PyTorch) |
+| `dinov3-dense-features` | Gram anchoring, frozen backbones, ViTDet pyramid + Faster R-CNN, medical transfer limits | `dinov3_features.py`, `dinov3_faster_rcnn.py` |
+| `jepa-pretraining` | latent prediction instead of reconstruction, 3-D tokenisation, masking, collapse diagnostics | `jepa3d_pretrain.py` (3-D ViT, EMA target, block masks) |
+| `vae-anomaly-detection` | normal-only training, residual maps, thresholds, honest limits | `vae_anomaly.py` (train / score / AUROC) |
+| `gaussian-splatting` | the primitive, the five-step initialisation, PLY layout, training, medical uses | `points_to_gaussians.py` (any cloud -> 3DGS PLY) |
+| `medical-segmentation-models` | nnU-Net, TotalSegmentator, transformers, preprocessing, inference, evaluation | `prepare_nnunet_dataset.py` (any dataset -> nnU-Net raw) |
+| `evaluation-metrics-3d` | Dice / HD95 / NSD, chamfer / F-score, TRE, folding, AP, AUROC, PSNR, and how to report them | `metrics3d.py` |
+
 Install them as a plugin (it also registers the MCP server):
 
 ```

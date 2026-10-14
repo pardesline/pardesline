@@ -1,7 +1,7 @@
 {
   "name": "pardesline",
   "version": "0.2.0a1",
-  "description": "Skills for the open-source pardesline Python package: 73 catalogued 3D-vision and medical-imaging algorithms run locally, the typed object model (frames, units, labels, licence, provenance), datasets loaded by manifest, scanning private folders, SimpleITK volumes, the optional cloud client, the local MCP server (`pardesline mcp`) and how to contribute.",
+  "description": "Skills for the open-source pardesline Python package: 73 catalogued 3D-vision and medical-imaging algorithms run locally, the typed object model (frames, units, labels, licence, provenance), 43 datasets loaded by manifest (Hugging Face, S3, TCIA, remote archives), scanning private folders, SimpleITK volumes, the optional cloud client, the local MCP server (`pardesline mcp`), how to contribute, and eleven expert guides with reference scripts: 3D representations, point-cloud and multimodal registration, atlas label transfer, PointNet, DINOv3, JEPA, VAE anomaly detection, Gaussian splatting, medical segmentation models, 3D evaluation metrics.",
   "author": {
     "name": "PardesLine",
     "url": "https://github.com/pardesline/pardesline"
@@ -11,16 +11,24 @@
   "license": "Apache-2.0",
   "keywords": [
     "3d-vision",
-    "medical-imaging",
-    "point-cloud",
-    "mesh",
+    "datasets",
+    "deep-learning",
     "dicom",
+    "dinov3",
+    "gaussian-splatting",
+    "jepa",
+    "mcp",
+    "medical-imaging",
+    "mesh",
+    "nnunet",
+    "open3d",
+    "point-cloud",
+    "pointnet",
+    "pyvista",
     "registration",
     "segmentation",
-    "open3d",
-    "pyvista",
     "simpleitk",
-    "datasets"
+    "vae"
   ],
   "mcpServers": {
     "pardesline": {

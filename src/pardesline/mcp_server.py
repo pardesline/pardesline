@@ -37,6 +37,8 @@ __all__ = ["build_server", "main"]
 
 INSTRUCTIONS = f"""pardesline {__version__}: 3D vision and medical imaging on this machine.
 
+Before designing a pipeline, read the matching expert skill: list_skills() then get_skill(name)
+(registration, segmentation, PointNet, DINOv3, JEPA, VAE anomaly detection, Gaussian splatting, metrics...).
 Start with list_datasets (43 bundled: MSD, TotalSegmentator, LUNA16, TCIA, OpenNeuro, KITTI...),
 or point at any source: "hf://org/name/folder", "s3://bucket/prefix", "tcia://Collection/CT",
 a local folder. describe_dataset tells roles, licence and citation; list_samples pages the
@@ -317,6 +319,62 @@ def impl_run_method(
     }
 
 
+def skills_dir() -> Path:
+    """Where the expert skills live: inside the installed package, or the repo's skills/ folder."""
+    here = Path(__file__).resolve().parent
+    for candidate in (here / "skills", here.parent.parent / "skills"):
+        if candidate.is_dir() and any(candidate.glob("*/SKILL.md")):
+            return candidate
+    raise PardesLineError("the skills folder was not found next to the package", code="skills_missing")
+
+
+def _skill_frontmatter(text: str) -> dict[str, str]:
+    out: dict[str, str] = {}
+    if not text.startswith("---"):
+        return out
+    head = text[3:].split("\n---", 1)[0]
+    key = None
+    for line in head.splitlines():
+        if line.startswith(("name:", "description:")):
+            key, _, val = line.partition(":")
+            out[key.strip()] = val.strip().lstrip(">-").strip()
+        elif key == "description" and line.startswith(" "):
+            out[key] = (out[key] + " " + line.strip()).strip()
+    return out
+
+
+def impl_list_skills() -> dict:
+    root = skills_dir()
+    skills = []
+    for skill in sorted(root.glob("*/SKILL.md")):
+        fm = _skill_frontmatter(skill.read_text(encoding="utf-8"))
+        files = sorted(
+            str(p.relative_to(skill.parent)).replace(os.sep, "/")
+            for p in skill.parent.rglob("*")
+            if p.is_file() and p.name != "SKILL.md" and "__pycache__" not in p.parts
+        )
+        skills.append({"name": skill.parent.name, "description": fm.get("description", ""), "files": files})
+    return {
+        "count": len(skills),
+        "skills": skills,
+        "how": "get_skill(name) returns SKILL.md; get_skill(name, file) one of its files",
+    }
+
+
+def impl_get_skill(name: str, file: str | None = None) -> dict:
+    root = skills_dir()
+    folder = (root / name).resolve()
+    if not folder.is_dir() or root.resolve() not in folder.parents:
+        raise PardesLineError(f"no skill {name!r}; list_skills() names them", code="skill_missing")
+    target = (folder / (file or "SKILL.md")).resolve()
+    if folder not in target.parents and target != folder:
+        raise PardesLineError("file must be inside the skill folder", code="skill_missing")
+    if not target.is_file():
+        raise PardesLineError(f"skill {name!r} has no file {file!r}", code="skill_missing")
+    text = target.read_text(encoding="utf-8", errors="replace")
+    return {"skill": name, "file": file or "SKILL.md", "content": text, "chars": len(text)}
+
+
 def impl_describe_object(path: str, layout: dict[str, Any] | None = None, kind: str | None = None) -> dict:
     import pardesline as pl
 
@@ -470,6 +528,36 @@ def build_server(name: str = "pardesline"):
         map (LPS millimetres), isovalue=v for the level set of a grey-level volume. Exactly one of
         the two."""
         return await _call(impl_to_mesh, path, label, isovalue, output_path)
+
+    @server.tool()
+    async def list_skills() -> dict:
+        """The expert skills shipped with pardesline (3D representations, point-cloud
+        registration, multimodal rigid registration, atlas label transfer, PointNet
+        segmentation, DINOv3 dense features, JEPA pretraining, VAE anomaly detection, Gaussian
+        splatting, medical segmentation models, 3-D evaluation metrics, datasets, the object
+        model...). Each has a SKILL.md and runnable scripts. Read one with get_skill before
+        designing a pipeline in its domain."""
+        return await _call(impl_list_skills)
+
+    @server.tool()
+    async def get_skill(name: str, file: str | None = None) -> dict:
+        """Return a skill's SKILL.md (the expert guide: theory, parameters, pitfalls, pardesline
+        calls) or one of its files (file="scripts/xxx.py"): the reference implementations are
+        meant to be copied and adapted."""
+        return await _call(impl_get_skill, name, file)
+
+    @server.resource("pardesline://skills")
+    def skills_resource() -> str:
+        """The expert skills as a JSON index."""
+        return json.dumps(_json_safe(impl_list_skills()), indent=1)
+
+    @server.resource("pardesline://skill/{name}")
+    def skill_resource(name: str) -> str:
+        """One skill's SKILL.md."""
+        try:
+            return impl_get_skill(name)["content"]
+        except PardesLineError as exc:
+            return json.dumps(_error(exc))
 
     @server.resource("pardesline://datasets")
     def datasets_resource() -> str:

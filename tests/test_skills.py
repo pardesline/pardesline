@@ -25,6 +25,18 @@ EXPECTED = {
     "cloud-client",
     "contributing-algorithms",
     "mcp-server",
+    # expert skills: theory, parameters, pitfalls and reference scripts per domain
+    "3d-representations",
+    "point-cloud-registration",
+    "multimodal-rigid-registration",
+    "atlas-label-transfer",
+    "pointnet-segmentation",
+    "dinov3-dense-features",
+    "jepa-pretraining",
+    "vae-anomaly-detection",
+    "gaussian-splatting",
+    "medical-segmentation-models",
+    "evaluation-metrics-3d",
 }
 MODULE_IDS = set(pl.modules())
 

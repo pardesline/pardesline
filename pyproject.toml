@@ -88,6 +88,10 @@ path = "src/pardesline/_version.py"
 [tool.hatch.build.targets.wheel]
 packages = ["src/pardesline"]
 
+# The expert skills ship inside the wheel so `pardesline mcp` can serve them to any agent.
+[tool.hatch.build.targets.wheel.force-include]
+"skills" = "pardesline/skills"
+
 [tool.hatch.build.targets.sdist]
 include = ["src/pardesline", "tests", "skills", "README.md", "CHANGELOG.md", "LICENSE", "NOTICE"]
 
@@ -118,6 +122,10 @@ exclude = [
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
 ignore = ["RUF012"]
+
+[tool.ruff.lint.per-file-ignores]
+# Reference scripts shipped with the skills favour readable one-liners over the 110-column rule.
+"skills/**/*.py" = ["E501", "B905", "B007", "SIM115", "RUF005", "RUF007", "RUF046", "RUF059", "F401", "F841", "E741", "UP"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["pardesline"]

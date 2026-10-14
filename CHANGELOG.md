@@ -7,6 +7,16 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- **Eleven expert skills with reference scripts**, served by the MCP server
+  (`list_skills`, `get_skill`, `pardesline://skill/{name}`) and shipped in the
+  wheel: 3-D representations, point-cloud registration (RANSAC + FPFH + ICP,
+  CPD), multimodal rigid registration (SimpleITK Mattes MI), atlas label
+  transfer, PointNet segmentation, DINOv3 dense features (Gram anchoring,
+  frozen backbone + Faster R-CNN), JEPA pretraining (3-D ViT reference),
+  VAE anomaly detection, Gaussian splatting (points -> 3DGS PLY), medical
+  segmentation models (nnU-Net export) and 3-D evaluation metrics. The
+  NumPy / Open3D / SimpleITK scripts run on the bundled datasets; the PyTorch
+  ones are reference implementations.
 - **Local MCP server** (`pardesline mcp`, extra `[mcp]`): twelve tools
   (datasets, samples, scan / confirm, export, catalog, run, describe_object,
   to_mesh), three resources and a `start_here` prompt over stdio or

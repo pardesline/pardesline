@@ -163,3 +163,16 @@ def test_stdio_roundtrip_with_a_real_client(tmp_path):
     text = json.dumps(payload)
     assert "voxel_size" in text
     assert "list_datasets" in prompt.messages[0].content.text
+
+
+def test_skills_are_served(server):
+    out = call(server, "list_skills")
+    names = {s["name"] for s in out["skills"]}
+    assert {"using-pardesline", "datasets-and-manifests", "mcp-server"} <= names
+    assert all(len(s["description"]) > 100 for s in out["skills"])
+    one = call(server, "get_skill", name="datasets-and-manifests")
+    assert one["content"].startswith("---") and "pl.load" in one["content"]
+    err = call(server, "get_skill", name="../pyproject.toml")
+    assert err["error"] == "PardesLineError"
+    err = call(server, "get_skill", name="mcp-server", file="../../pyproject.toml")
+    assert err["error"] == "PardesLineError"

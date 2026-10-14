@@ -53,6 +53,13 @@ ds = pl.load("rire_brain")  # Dataset: samples with typed roles, fetched on acce
 | write a manifest, answer the scan's questions | `pl.scan(folder)`, `pl.load(folder, license=..., units=..., labels=...)` | scanning-private-folders |
 | share a result, run on the hosted GPU, open a browser viewer | `pl.login()`, `pl.upload`, `pl.share`, `pardesline.cloud` | cloud-client |
 | give an AI agent (Claude, Gemini, Cursor, Codex) the datasets and algorithms through MCP | `pardesline mcp`, `.mcp.json`, tools `load_sample`, `scan_dataset`, `run_method` | mcp-server |
+| choose a 3D representation, convert between them | conversion matrix, memory, pitfalls | 3d-representations |
+| align two clouds or an atlas and judge the result | RANSAC + FPFH + ICP parameters, metrics, CPD | point-cloud-registration, atlas-label-transfer |
+| register CT with MRI (or PET, CBCT) | Mattes MI, initialiser, pyramid, TRE | multimodal-rigid-registration |
+| train or use a segmentation model on volumes or points | nnU-Net export, TotalSegmentator, PointNet data contract | medical-segmentation-models, pointnet-segmentation |
+| use foundation-model features, pretrain without labels, detect anomalies | frozen DINOv3 heads, JEPA, VAE residual maps | dinov3-dense-features, jepa-pretraining, vae-anomaly-detection |
+| write or read Gaussian splats | points -> 3DGS, PLY layout, training | gaussian-splatting |
+| report a result honestly | Dice / HD95 / NSD / chamfer / TRE / AUROC, per-case statistics | evaluation-metrics-3d |
 | add an algorithm or a manifest to the package | `src/pardesline/ops/<module>/`, `catalog/data/<module>.json`, `data/manifests/` | contributing-algorithms |
 
 ## Rules the package enforces (do not fight them, explain them)
