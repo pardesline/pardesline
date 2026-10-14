@@ -16,7 +16,7 @@ keywords = [
     "registration", "segmentation", "open3d", "pyvista", "simpleitk", "lidar",
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Healthcare Industry",

@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-10-14
+
+First stable release of the open package: everything below is on top of 0.2.0a1.
+
 ### Added
 - **Eleven expert skills with reference scripts**, served by the MCP server
   (`list_skills`, `get_skill`, `pardesline://skill/{name}`) and shipped in the
@@ -120,5 +124,6 @@ First open-source release of the package. Licence: Apache-2.0.
 - Splats as a first-class kind.
 - The local MCP server.
 
-[Unreleased]: https://github.com/pardesline/pardesline/compare/v0.2.0a1...HEAD
+[Unreleased]: https://github.com/pardesline/pardesline/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/pardesline/pardesline/compare/v0.2.0a1...v0.2.0
 [0.2.0a1]: https://github.com/pardesline/pardesline/releases/tag/v0.2.0a1

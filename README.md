@@ -40,7 +40,7 @@ ds = pl.load("/data/study_A", license="internal", units={"mesh": "mm"})  # your 
 ds.export("/data/study_A_standard")  # standard files + sidecars + manifest
 ```
 
-> **Status: 0.2.0 alpha.** Local execution of the 73 algorithms, the typed
+> **Status: 0.2.0.** Local execution of the 73 algorithms, the typed
 > catalog, the object model (frames, units, labels, licence, provenance),
 > 43 bundled dataset manifests (35 medical: DICOM, NIfTI, MetaImage, npz,
 > STL meshes, Gaussian splats), `pl.load` for any Hugging Face repo, public
