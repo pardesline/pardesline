@@ -34,3 +34,5 @@ jobs:
           name: dist
           path: dist/
       - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true  # 0.2.0 was uploaded with twine; a release of an already-published version must not fail
