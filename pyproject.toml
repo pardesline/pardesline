@@ -59,7 +59,11 @@ medical = [
 hf = [
     "huggingface_hub>=0.24,<3",
 ]
-all = ["pardesline[local,medical,hf]"]
+# The local MCP server (`pardesline mcp`) for Claude, Gemini, Cursor, Codex and any MCP client.
+mcp = [
+    "mcp>=1.2,<2",
+]
+all = ["pardesline[local,medical,hf,mcp]"]
 dev = [
     "pytest>=8",
     "respx>=0.21",

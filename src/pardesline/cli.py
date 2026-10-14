@@ -8,6 +8,7 @@
     pardesline describe msd_task02_heart
     pardesline fetch msd_task02_heart --take 2
     pardesline export msd_task02_heart ./heart --take 2
+    pardesline mcp [--transport streamable-http --port 8765]
     pardesline version
 
 Cloud commands (login, upload, send, inbox, ls, download, share, whoami,
@@ -138,6 +139,10 @@ def main(argv: list[str] | None = None) -> int:
         from .cloud.cli import main as cloud_main
 
         return cloud_main(argv)
+    if argv and argv[0] == "mcp":
+        from .mcp_server import main as mcp_main
+
+        return mcp_main(argv[1:])
 
     p = argparse.ArgumentParser(
         prog="pardesline",
@@ -184,6 +189,7 @@ def main(argv: list[str] | None = None) -> int:
     rp.add_argument("--timeout", type=float, default=600, help="Seconds before the run is killed")
     rp.add_argument("-q", "--quiet", action="store_true", help="Do not echo the algorithm log")
 
+    sub.add_parser("mcp", help="Run the MCP server (stdio by default) for AI agents: pardesline mcp --help")
     sub.add_parser("version", help="Print the version")
 
     args, extra = p.parse_known_args(argv)

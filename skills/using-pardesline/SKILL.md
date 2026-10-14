@@ -9,7 +9,7 @@ description: >-
   and an optional cloud client. Load this first whenever the user wants to process,
   convert, register, segment or load 3D data in Python with pardesline, then route to
   the other pardesline skills (catalog-and-run, object-model, datasets-and-manifests,
-  scanning-private-folders, medical-volumes, cloud-client, contributing-algorithms).
+  scanning-private-folders, medical-volumes, cloud-client, mcp-server, contributing-algorithms).
 ---
 
 # Using pardesline
@@ -52,6 +52,7 @@ ds = pl.load("rire_brain")  # Dataset: samples with typed roles, fetched on acce
 | read a raw `.npy` / `.bin` array, standardise a dataset | `pl.load("sweep.bin", layout={...})`, `ds.export(folder)`, `pardesline export` | object-model, datasets-and-manifests |
 | write a manifest, answer the scan's questions | `pl.scan(folder)`, `pl.load(folder, license=..., units=..., labels=...)` | scanning-private-folders |
 | share a result, run on the hosted GPU, open a browser viewer | `pl.login()`, `pl.upload`, `pl.share`, `pardesline.cloud` | cloud-client |
+| give an AI agent (Claude, Gemini, Cursor, Codex) the datasets and algorithms through MCP | `pardesline mcp`, `.mcp.json`, tools `load_sample`, `scan_dataset`, `run_method` | mcp-server |
 | add an algorithm or a manifest to the package | `src/pardesline/ops/<module>/`, `catalog/data/<module>.json`, `data/manifests/` | contributing-algorithms |
 
 ## Rules the package enforces (do not fight them, explain them)

@@ -1,7 +1,7 @@
 {
   "name": "pardesline",
   "version": "0.2.0a1",
-  "description": "Skills for the open-source pardesline Python package: 73 catalogued 3D-vision and medical-imaging algorithms run locally, the typed object model (frames, units, labels, licence, provenance), datasets loaded by manifest, scanning private folders, SimpleITK volumes, the optional cloud client and how to contribute.",
+  "description": "Skills for the open-source pardesline Python package: 73 catalogued 3D-vision and medical-imaging algorithms run locally, the typed object model (frames, units, labels, licence, provenance), datasets loaded by manifest, scanning private folders, SimpleITK volumes, the optional cloud client, the local MCP server (`pardesline mcp`) and how to contribute.",
   "author": {
     "name": "PardesLine",
     "url": "https://github.com/pardesline/pardesline"
@@ -9,5 +9,25 @@
   "homepage": "https://github.com/pardesline/pardesline#readme",
   "repository": "https://github.com/pardesline/pardesline",
   "license": "Apache-2.0",
-  "keywords": ["3d-vision", "medical-imaging", "point-cloud", "mesh", "dicom", "registration", "segmentation", "open3d", "pyvista", "simpleitk", "datasets"]
+  "keywords": [
+    "3d-vision",
+    "medical-imaging",
+    "point-cloud",
+    "mesh",
+    "dicom",
+    "registration",
+    "segmentation",
+    "open3d",
+    "pyvista",
+    "simpleitk",
+    "datasets"
+  ],
+  "mcpServers": {
+    "pardesline": {
+      "command": "pardesline",
+      "args": [
+        "mcp"
+      ]
+    }
+  }
 }

@@ -40,8 +40,9 @@ ds.export("/data/study_A_standard")  # standard files + sidecars + manifest
 > 43 bundled dataset manifests (35 medical: DICOM, NIfTI, MetaImage, npz,
 > STL meshes, Gaussian splats), `pl.load` for any Hugging Face repo, public
 > S3 bucket or TCIA collection with the same questions as a private folder,
-> raw-array layouts and `pl.scan` are in and tested on Linux, Windows and macOS. Next: splats as a first-class
-> kind, learned models, the local MCP server. See [Roadmap](#roadmap).
+> raw-array layouts, `pl.scan` and the local MCP server (`pardesline mcp`) are
+> in and tested on Linux, Windows and macOS. Next: splats as a first-class
+> kind, learned models. See [Roadmap](#roadmap).
 
 ## Install
 
@@ -50,6 +51,7 @@ pip install "pardesline[all]"        # everything: Open3D, PyVista, SimpleITK, h
 pip install "pardesline[local]"      # point clouds, meshes, SDF, LiDAR (Open3D, PyVista)
 pip install "pardesline[medical]"    # volumes, DICOM, registration, segmentation (SimpleITK)
 pip install "pardesline[hf]"         # datasets hosted on the Hugging Face Hub
+pip install "pardesline[mcp]"        # the local MCP server for AI agents
 pip install pardesline               # catalog, object model, manifests and cloud client only
 ```
 
@@ -321,18 +323,40 @@ remote.view()  # link to the 3D viewer
   permissive ones.
 - **Splats** (`.splat`, `.spz`, glTF Gaussian-splat extension, the KITTI-360
   array sets) as a first-class kind with its own conversions.
-- **Local MCP server**: `pardesline mcp` exposes the catalog and datasets to
-  AI coding agents without an account.
 - Learned models (segmentation, registration) behind the same function names.
 
-## For AI coding agents
+## For AI agents: the MCP server
 
-The `skills/` folder holds eight Claude Code skills, grounded in the code and
+`pardesline mcp` exposes the datasets, the object model and the 73 algorithms
+to any Model Context Protocol client, on the user's machine, without an
+account. Twelve tools (`list_datasets`, `describe_dataset`, `list_samples`,
+`load_sample`, `scan_dataset`, `confirm_dataset`, `export_dataset`,
+`list_methods`, `describe_method`, `run_method`, `describe_object`, `to_mesh`),
+three resources and a `start_here` prompt. Questions the package will not
+guess (licence, units, array layout) come back as JSON for the agent to relay
+to the human.
+
+```bash
+pip install "pardesline[mcp]"
+pardesline mcp                                            # stdio
+pardesline mcp --transport streamable-http --port 8765    # http://127.0.0.1:8765/mcp
+```
+
+| Client | Configuration |
+|---|---|
+| Claude Code | `claude mcp add pardesline -- pardesline mcp` (the repo ships a `.mcp.json`) |
+| Claude Desktop, Cursor | `"mcpServers": {"pardesline": {"command": "pardesline", "args": ["mcp"]}}` |
+| Gemini CLI | the same block in `~/.gemini/settings.json` |
+| Codex CLI | `[mcp_servers.pardesline] command = "pardesline" args = ["mcp"]` in `~/.codex/config.toml` |
+
+If `pardesline` is not on your PATH, the command is `python -m pardesline.mcp_server`.
+
+The `skills/` folder holds nine Claude Code skills, grounded in the code and
 checked by the test suite (every module, method, parameter and dataset they
 mention must exist): `using-pardesline` (start here), `catalog-and-run`,
 `object-model`, `datasets-and-manifests`, `scanning-private-folders`,
-`medical-volumes`, `cloud-client`, `contributing-algorithms`. Install them as
-a plugin:
+`medical-volumes`, `cloud-client`, `mcp-server`, `contributing-algorithms`.
+Install them as a plugin (it also registers the MCP server):
 
 ```
 /plugin marketplace add pardesline/pardesline

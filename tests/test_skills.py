@@ -24,6 +24,7 @@ EXPECTED = {
     "medical-volumes",
     "cloud-client",
     "contributing-algorithms",
+    "mcp-server",
 }
 MODULE_IDS = set(pl.modules())
 

@@ -7,6 +7,13 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- **Local MCP server** (`pardesline mcp`, extra `[mcp]`): twelve tools
+  (datasets, samples, scan / confirm, export, catalog, run, describe_object,
+  to_mesh), three resources and a `start_here` prompt over stdio or
+  streamable HTTP, for Claude, Gemini, Cursor, Codex and any MCP client,
+  without an account. Questions come back as JSON for the agent to relay; the
+  repo ships a `.mcp.json` and the plugin declares the server. New skill
+  `mcp-server`.
 - **Medical 3D datasets, one line each.** 27 new manifests: the ten Medical
   Segmentation Decathlon tasks, TotalSegmentator CT (117 structures) and MRI
   (56), LUNA16, IXI, VerSe 2019, SPIDER, CHAOS (DICOM), four TCIA collections
