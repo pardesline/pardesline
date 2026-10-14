@@ -79,16 +79,16 @@ ct.to_sitk(), atrium.to_open3d(), atrium.to_pyvista()   # the libraries you alre
 
 <script>
 const SLIDES = [
-  ["showcase/3d-representations.jpeg", "Point clouds, meshes, voxels, Gaussian splats", "Which representation for which task, and how to convert without losing the frame, the units or the labels.", "mask.to_mesh(label=1).to_points(num_points=4096)"],
-  ["showcase/ransac-icp-bunny.jpeg", "RANSAC + ICP registration", "Global alignment on FPFH features, point-to-plane refinement, every parameter from one voxel size.", "aligned = fixed.align(moving)  # fitness, inlier RMSE, 4x4"],
-  ["showcase/ct-mr-rigid-registration.jpeg", "CT / MRI rigid registration", "Mattes mutual information, centred Euler transform, multi-resolution pyramid, validated by TRE.", "s.ct.align(s.mr_t1, metric=\"mattes_mutual_information\")"],
-  ["showcase/atlas-label-transfer-ultrasound.jpeg", "Labelled atlas to segmented 3D-ultrasound heart", "Register the atlas, transfer labels by nearest structure, Poisson surfaces, volumes in mL.", "python skills/atlas-label-transfer/scripts/atlas_label_transfer.py"],
-  ["showcase/pointnet-cbct-segmentation.jpeg", "PointNet on CBCT point clouds", "T-Net, shared MLP, global feature, per-point softmax; labelled clouds from any label map.", "python skills/pointnet-segmentation/scripts/make_point_dataset.py msd_task04_hippocampus --out ./hippo"],
+  ["showcase/jepa-latent-prediction.jpeg", "JEPA pretraining", "Predict embeddings, not pixels: structure without the noise. 3-D reference trainer on any dataset.", "python skills/jepa-pretraining/scripts/jepa3d_pretrain.py --dataset totalsegmentator_ct"],
   ["showcase/dinov3-gram-anchoring.jpeg", "DINOv3 dense features", "Gram anchoring keeps patch features coherent at scale; a frozen backbone is a production design.", "python skills/dinov3-dense-features/scripts/dinov3_features.py ./frames --out ./feats"],
   ["showcase/dinov3-faster-rcnn-echo.jpeg", "Frozen DINOv3 + Faster R-CNN", "A natural-image backbone already sees the heart; a 25 M-parameter head learns to name effusion.", "python skills/dinov3-dense-features/scripts/dinov3_faster_rcnn.py train ..."],
-  ["showcase/jepa-latent-prediction.jpeg", "JEPA pretraining", "Predict embeddings, not pixels: structure without the noise. 3-D reference trainer on any dataset.", "python skills/jepa-pretraining/scripts/jepa3d_pretrain.py --dataset totalsegmentator_ct"],
   ["showcase/points-to-gaussian-splats.jpeg", "Point cloud to Gaussian splats", "Five steps per point and a valid covariance; a PLY that any 3DGS viewer opens.", "python skills/gaussian-splatting/scripts/points_to_gaussians.py open3d_bunny out.ply"],
+  ["showcase/3d-representations.jpeg", "Point clouds, meshes, voxels, Gaussian splats", "Which representation for which task, and how to convert without losing the frame, the units or the labels.", "mask.to_mesh(label=1).to_points(num_points=4096)"],
+  ["showcase/atlas-label-transfer-ultrasound.jpeg", "Labelled atlas to segmented 3D-ultrasound heart", "Register the atlas, transfer labels by nearest structure, Poisson surfaces, volumes in mL.", "python skills/atlas-label-transfer/scripts/atlas_label_transfer.py"],
+  ["showcase/pointnet-cbct-segmentation.jpeg", "PointNet on CBCT point clouds", "T-Net, shared MLP, global feature, per-point softmax; labelled clouds from any label map.", "python skills/pointnet-segmentation/scripts/make_point_dataset.py msd_task04_hippocampus --out ./hippo"],
   ["showcase/vae-dental-anomaly.jpeg", "VAE anomaly detection", "Train on healthy teeth only; the residual map exposes the cavity. AUROC on held-out cases.", "python skills/vae-anomaly-detection/scripts/vae_anomaly.py train --normal ./healthy"],
+  ["showcase/ct-mr-rigid-registration.jpeg", "CT / MRI rigid registration", "Mattes mutual information, centred Euler transform, multi-resolution pyramid, validated by TRE.", "s.ct.align(s.mr_t1, metric=\"mattes_mutual_information\")"],
+  ["showcase/ransac-icp-bunny.jpeg", "RANSAC + ICP registration", "Global alignment on FPFH features, point-to-plane refinement, every parameter from one voxel size.", "aligned = fixed.align(moving)  # fitness, inlier RMSE, 4x4"],
 ];
 const track = document.getElementById("track"), dots = document.getElementById("dots");
 let i = 0, timer = null;

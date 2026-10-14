@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="docs/showcase/posters.gif" width="820" alt="pardesline: ten 3D vision and medical imaging pipelines">
-</p>
-
 <h1 align="center">pardesline</h1>
 
 <p align="center"><b>3D vision and medical imaging in one Python package.</b><br>
@@ -12,6 +8,11 @@
 <a href="https://pypi.org/project/pardesline/"><img src="https://img.shields.io/pypi/pyversions/pardesline.svg" alt="Python"></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License"></a>
 <a href="https://github.com/pardesline/pardesline/actions/workflows/ci.yml"><img src="https://github.com/pardesline/pardesline/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+</p>
+
+<p align="center">
+  <a href="docs/showcase/README.md"><img src="docs/showcase/posters.gif" width="560" alt="Ten 3D vision and medical imaging pipelines built with pardesline"></a><br>
+  <sub>Ten pipelines, one package: <a href="docs/showcase/README.md">the showcase</a> has the snippet, the skill and the MCP tool for each.</sub>
 </p>
 
 ```bash
@@ -68,7 +69,7 @@ flowchart LR
 Ten real pipelines, each with a poster, the snippet, the expert skill and the
 MCP tool: **[docs/showcase](docs/showcase/README.md)**.
 
-<p align="center"><a href="docs/showcase/README.md"><img src="docs/showcase/mosaic.jpg" width="900" alt="The ten posters"></a></p>
+<p align="center"><a href="docs/showcase/README.md"><img src="docs/showcase/mosaic.jpg" width="760" alt="The ten posters"></a></p>
 
 ## For AI agents
 
