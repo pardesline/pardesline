@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/pardesline/pardesline/main/docs/showcase/posters.gif" width="820" alt="pardesline: ten 3D vision and medical imaging pipelines">
+  <img src="docs/showcase/posters.gif" width="820" alt="pardesline: ten 3D vision and medical imaging pipelines">
 </p>
 
 <h1 align="center">pardesline</h1>
@@ -68,7 +68,7 @@ flowchart LR
 Ten real pipelines, each with a poster, the snippet, the expert skill and the
 MCP tool: **[docs/showcase](docs/showcase/README.md)**.
 
-<p align="center"><a href="docs/showcase/README.md"><img src="https://raw.githubusercontent.com/pardesline/pardesline/main/docs/showcase/mosaic.jpg" width="900" alt="The ten posters"></a></p>
+<p align="center"><a href="docs/showcase/README.md"><img src="docs/showcase/mosaic.jpg" width="900" alt="The ten posters"></a></p>
 
 ## For AI agents
 
