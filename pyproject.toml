@@ -67,7 +67,7 @@ all = ["pardesline[local,medical,hf,mcp]"]
 dev = [
     "pytest>=8",
     "respx>=0.21",
-    "ruff>=0.5",
+    "ruff>=0.17,<0.18",
     "build>=1",
 ]
 

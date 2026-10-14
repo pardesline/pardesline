@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- `docs/showcase/`: the ten pipeline posters with, for each, the snippet, the
+  expert skill and the MCP tool; a showcase grid at the top of the README.
+
 ## [0.2.0] — 2026-10-14
 
 First stable release of the open package: everything below is on top of 0.2.0a1.

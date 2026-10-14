@@ -49,6 +49,33 @@ ds.export("/data/study_A_standard")  # standard files + sidecars + manifest
 > in and tested on Linux, Windows and macOS. Next: splats as a first-class
 > kind, learned models. See [Roadmap](#roadmap).
 
+## Showcase
+
+Ten pipelines, each a poster, a snippet, an expert skill and an MCP tool:
+[docs/showcase](docs/showcase/README.md).
+
+<table>
+<tr>
+<td align="center"><a href="docs/showcase/README.md#1-point-clouds-meshes-voxels-gaussian-splats-which-representation"><img src="docs/showcase/3d-representations.jpeg" width="260" alt="3D representations"><br><b>Points, meshes, voxels, splats</b></a></td>
+<td align="center"><a href="docs/showcase/README.md#2-ransac--icp-point-cloud-registration"><img src="docs/showcase/ransac-icp-bunny.jpeg" width="260" alt="RANSAC + ICP"><br><b>RANSAC + ICP registration</b></a></td>
+<td align="center"><a href="docs/showcase/README.md#3-rigid-ct--mri-registration-with-simpleitk"><img src="docs/showcase/ct-mr-rigid-registration.jpeg" width="260" alt="CT/MR registration"><br><b>CT / MRI rigid registration</b></a></td>
+</tr>
+<tr>
+<td align="center"><a href="docs/showcase/README.md#4-from-a-labelled-atlas-to-a-segmented-3d-ultrasound-heart"><img src="docs/showcase/atlas-label-transfer-ultrasound.jpeg" width="260" alt="Atlas label transfer"><br><b>Atlas to 3D-ultrasound heart</b></a></td>
+<td align="center"><a href="docs/showcase/README.md#5-pointnet-segmentation-of-cbct-point-clouds"><img src="docs/showcase/pointnet-cbct-segmentation.jpeg" width="260" alt="PointNet CBCT"><br><b>PointNet on CBCT points</b></a></td>
+<td align="center"><a href="docs/showcase/README.md#6-dinov2-to-dinov3-why-dense-features-stopped-collapsing"><img src="docs/showcase/dinov3-gram-anchoring.jpeg" width="260" alt="DINOv3 Gram anchoring"><br><b>DINOv3 dense features</b></a></td>
+</tr>
+<tr>
+<td align="center"><a href="docs/showcase/README.md#7-frozen-dinov3--faster-r-cnn-on-echocardiography"><img src="docs/showcase/dinov3-faster-rcnn-echo.jpeg" width="260" alt="DINOv3 Faster R-CNN echo"><br><b>Frozen DINOv3 + Faster R-CNN</b></a></td>
+<td align="center"><a href="docs/showcase/README.md#8-beyond-reconstruction-jepa-predicts-in-latent-space"><img src="docs/showcase/jepa-latent-prediction.jpeg" width="260" alt="JEPA"><br><b>JEPA pretraining</b></a></td>
+<td align="center"><a href="docs/showcase/README.md#9-from-a-point-cloud-to-3d-gaussian-splats"><img src="docs/showcase/points-to-gaussian-splats.jpeg" width="260" alt="Gaussian splats"><br><b>Points to Gaussian splats</b></a></td>
+</tr>
+<tr>
+<td align="center"><a href="docs/showcase/README.md#10-unsupervised-caries-detection-with-a-variational-autoencoder"><img src="docs/showcase/vae-dental-anomaly.jpeg" width="260" alt="VAE anomaly detection"><br><b>VAE anomaly detection</b></a></td>
+<td align="center" colspan="2"><b>How it fits together</b><br>Load a dataset in one line → a typed object (frame, units, labels, licence) → 73 algorithms and the native libraries → results with provenance. The same package answers an AI agent through <code>pardesline mcp</code>: datasets, algorithms and these skills as tools.</td>
+</tr>
+</table>
+
 ## Install
 
 ```bash
@@ -82,13 +109,13 @@ The native libraries are not hidden behind the package; they are part of it.
 ```python
 import pardesline as pl
 
-scan = pl.load("scan.ply")           # a typed Object with frame, units, licence, provenance
-pcd  = scan.to_open3d()              # open3d.geometry.PointCloud (or TriangleMesh)
-poly = scan.to_pyvista()             # pyvista.PolyData
-img  = pl.load("ct.mha").to_sitk()   # SimpleITK.Image - DICOM folders accepted
-arr  = scan.to_numpy()               # points (N, 3), vertices, or voxels (z, y, x)
+scan = pl.load("scan.ply")  # a typed Object with frame, units, licence, provenance
+pcd = scan.to_open3d()  # open3d.geometry.PointCloud (or TriangleMesh)
+poly = scan.to_pyvista()  # pyvista.PolyData
+img = pl.load("ct.mha").to_sitk()  # SimpleITK.Image - DICOM folders accepted
+arr = scan.to_numpy()  # points (N, 3), vertices, or voxels (z, y, x)
 
-pl.o3d, pl.pv, pl.sitk, pl.np        # the real libraries, when they are installed
+pl.o3d, pl.pv, pl.sitk, pl.np  # the real libraries, when they are installed
 ```
 
 - With `[local]` / `[medical]` installed, `pl.o3d` **is** `open3d`, `pl.sitk`
