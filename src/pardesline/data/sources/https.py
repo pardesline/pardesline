@@ -35,6 +35,16 @@ def sha512_of(path: Path) -> str:
     return h.hexdigest()
 
 
+def _matches(path: Path, spec: FileSpec) -> bool:
+    if spec.sha512:
+        return sha512_of(path) == spec.sha512
+    h = hashlib.md5()
+    with path.open("rb") as fp:
+        for block in iter(lambda: fp.read(_CHUNK), b""):
+            h.update(block)
+    return h.hexdigest() == spec.md5
+
+
 def _safe_extract(archive: Path, into: Path) -> None:
     """Extract without letting a member escape ``into``."""
     into = into.resolve()
@@ -89,7 +99,7 @@ class HttpsSource:
         target = self.cache / relpath
         if target.exists():
             # Archive members are verified at download time only (the hash is the archive's).
-            if spec.archive or sha512_of(target) == spec.sha512:
+            if spec.archive or _matches(target, spec):
                 return target
             logger.warning("cached {} has a different hash; downloading again", relpath)
             target.unlink()
@@ -102,7 +112,8 @@ class HttpsSource:
                 errors.append(f"{url}: {exc}")
                 continue
             if spec.archive:
-                _safe_extract(tmp, target.parent)
+                into = target.parent if spec.archive_root is None else (self.cache / spec.archive_root)
+                _safe_extract(tmp, into)
                 tmp.unlink(missing_ok=True)
                 if not target.exists():
                     raise FetchError(
@@ -115,7 +126,7 @@ class HttpsSource:
         raise FetchError(f"could not fetch {relpath!r}:\n  " + "\n  ".join(errors))
 
     def _download(self, url: str, spec: FileSpec) -> Path:
-        h = hashlib.sha512()
+        h = hashlib.sha512() if spec.sha512 else hashlib.md5()
         fd, tmp_name = tempfile.mkstemp(prefix="pardesline-", dir=self.cache)
         tmp = Path(tmp_name)
         logger.info("downloading {}", url)
@@ -139,7 +150,10 @@ class HttpsSource:
         except FetchError:
             tmp.unlink(missing_ok=True)
             raise
-        if h.hexdigest() != spec.sha512:
+        if h.hexdigest() != (spec.sha512 or spec.md5):
             tmp.unlink(missing_ok=True)
-            raise FetchError("SHA-512 mismatch — the file is not the one the manifest describes")
+            raise FetchError(
+                f"{'SHA-512' if spec.sha512 else 'MD5'} mismatch - "
+                "the file is not the one the manifest describes"
+            )
         return tmp

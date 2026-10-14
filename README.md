@@ -1,5 +1,10 @@
 # PardesLine
 
+[![PyPI](https://img.shields.io/pypi/v/pardesline.svg)](https://pypi.org/project/pardesline/)
+[![Python](https://img.shields.io/pypi/pyversions/pardesline.svg)](https://pypi.org/project/pardesline/)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![CI](https://github.com/pardesline/pardesline/actions/workflows/ci.yml/badge.svg)](https://github.com/pardesline/pardesline/actions/workflows/ci.yml)
+
 **3D vision and medical imaging in one Python package.** 73 algorithms on point
 clouds, meshes and volumes, with a typed catalog of 371 parameters, that run on
 your machine with `pip install pardesline` — the same code that powers the
@@ -12,29 +17,36 @@ scan = pl.load("scan.ply")  # a local point cloud
 surface = scan.downsample(voxel_size=0.01).remove_outliers().normals().poisson(depth=9)
 surface.save("surface.ply")  # + surface.ply.pardesline.json (frame, licence, provenance)
 
-ds = pl.load("rire_brain")  # a dataset: manifest + files fetched on first access
-s = ds[0]  # roles: ct, mr_t1
-moved = s.ct.align(s.mr_t1)  # rigid CT/MR registration, transform in moved.transform
+ds = pl.load("msd_task02_heart")  # 30 cardiac MRIs, read case by case out of the MSD tar (HTTP Range)
+s = ds.filter(split="Tr")[0]  # roles: mri, mask
+atrium = s.mask.to_mesh(label=1)  # exact left-atrium surface, LPS millimetres, licence attached
 
-mask = s.ct.segment(lower=200, upper=600)  # LabelMap, label 1
-bone = mask.to_mesh(label=1)  # exact surface, in LPS millimetres
+ds = pl.load("hf://farrell236/NSCLC-Radiomics-NIFTI")  # a Hugging Face repo: 422 lung CTs + masks
+ds["LUNG1-001"].mask.labels  # {1: 'esophagus', 2: 'gtv', 3: 'heart', ...}
+
+sweep = pl.load("kitti_raw_2011_09_26_drive_0001")[0].lidar  # a KITTI .bin read through its layout
+sweep.run("ground_removal").run("object_clustering", eps=0.7, min_points=10)
 
 ds = pl.load("/data/study_A", license="internal", units={"mesh": "mm"})  # your own folder
+ds.export("/data/study_A_standard")  # standard files + sidecars + manifest
 ```
 
 > **Status: 0.2.0 alpha.** Local execution of the 73 algorithms, the typed
 > catalog, the object model (frames, units, labels, licence, provenance),
-> dataset manifests with seven bundled datasets and `pl.scan` for private
-> folders are in and tested on Linux, Windows and macOS. Next: more public
-> manifests (`hf://`), learned models, the local MCP server. See [Roadmap](#roadmap).
+> 16 bundled dataset manifests (Hugging Face repos, remote archives read by
+> HTTP Range, small excerpts), `pl.load("hf://...")` for any Hub repo with
+> the same questions as a private folder, raw-array layouts and `pl.scan`
+> are in and tested on Linux, Windows and macOS. Next: splats as a first-class
+> kind, learned models, the local MCP server. See [Roadmap](#roadmap).
 
 ## Install
 
 ```bash
-pip install "pardesline[all]"        # everything: Open3D, PyVista, SimpleITK
+pip install "pardesline[all]"        # everything: Open3D, PyVista, SimpleITK, huggingface_hub
 pip install "pardesline[local]"      # point clouds, meshes, SDF, LiDAR (Open3D, PyVista)
 pip install "pardesline[medical]"    # volumes, DICOM, registration, segmentation (SimpleITK)
-pip install pardesline               # catalog + object model + cloud client only
+pip install "pardesline[hf]"         # datasets hosted on the Hugging Face Hub
+pip install pardesline               # catalog, object model, manifests and cloud client only
 ```
 
 Python 3.10 – 3.12 for the native extras (Open3D 0.19 has no 3.13 wheels);
@@ -45,13 +57,15 @@ the core package also runs on 3.13.
 | | |
 |---|---|
 | **`pl.load(path)`** | A local file as a typed `Object`: `PointCloud`, `Mesh`, `Volume`, `LabelMap`, `Transform`, `Image`. Volumes get their frame (LPS, mm, affine) from the header; glTF is Y-up metres by specification; formats that carry no unit stay *unknown* until you say. |
-| **`pl.load(dataset)`** | A `Dataset` from a bundled manifest (`rire_brain`, `popi_lung_4dct`, `liver_tumor_patient01`, `visible_human_head_mri`, `open3d_bunny`, `open3d_armadillo`, `open3d_icp_demo`), from your own manifest file, or from a folder via `pl.scan`. Files are fetched on first access, verified by SHA-512, cached. |
+| **`pl.load(dataset)`** | A `Dataset` from one of the 16 bundled manifests (`pardesline datasets`), from `hf://org/name[/folder]`, from your own manifest file, or from a folder via `pl.scan`. Files are fetched on first access (per file from the Hub, member by member out of remote archives, SHA-512-verified downloads), cached. |
+| **`pl.load("sweep.bin", layout=...)`** | A raw `.npy` / `.npz` / `.bin` array as a `PointCloud` or a grid, through a declared layout (dtype, shape, columns, key). Never guessed; materialised once as PLY / MetaImage so every algorithm runs on it. |
+| **`ds.export(folder)`** | A standard copy of any dataset: PLY / MetaImage / NIfTI files, one `.pardesline.json` sidecar each (frame, units, labels, licence, provenance) and a local manifest. |
 | **`obj.run("module.method", **params)`** | Any algorithm; the result is a new `Object` that keeps the frame and licence and records the step. Aliases: `downsample`, `remove_outliers`, `normals`, `poisson`, `ball_pivoting`, `decimate`, `smooth`, `to_points`, `icp`, `ransac`, `register`, `segment`. |
 | **Conversions named after the job** | `Volume.segment()` -> `LabelMap`; `LabelMap.to_mesh(label)` exact boundary in world coordinates; `Volume.to_mesh(isovalue)`; `Mesh.to_points()`; `PointCloud.to_mesh()` (Poisson, lossy); `PointCloud.align(moving)`, `Volume.align(moving)`; `clean()`. |
 | **`pl.run(module, method, input, **params)`** | The same without the object wrapper. Returns output path, sidecar JSON, log and timing. |
 | **`pl.catalog()`** | Every module, method and parameter with type, default, range, choices and description. `pl.describe("point_cloud_reconstruction.poisson")`. |
 | **`obj.to_open3d()` / `to_pyvista()` / `to_sitk()` / `to_numpy()`** | Hand the result to the library you already use. `pl.o3d`, `pl.pv`, `pl.sitk` are the real libraries when installed. |
-| **`pardesline` CLI** | `pardesline list`, `pardesline describe ...`, `pardesline run module.method in.ply -o out.ply --voxel_size 0.02`. |
+| **`pardesline` CLI** | `pardesline list`, `pardesline describe ...`, `pardesline run module.method in.ply -o out.ply --voxel_size 0.02`, `pardesline datasets`, `pardesline fetch amos22 --take 2`, `pardesline export msd_task02_heart ./heart --take 2`. |
 | **`pardesline.medical`** | Volume I/O (NIfTI, NRRD, MHA, VTI, DICOM series), rigid / affine / B-spline / demons registration, thresholding, watershed, connected components. |
 | **`pardesline.cloud`** | The hosted platform: upload, share in one line, run on GPU, open the browser viewers. Optional, needs an account. |
 
@@ -105,10 +119,30 @@ The theory behind each module (with the formulas) is in the catalog too:
 ## Datasets and manifests
 
 `pl.load` never knows a dataset; it knows a **manifest**: where the files
-come from (with checksums), under which licence, how files group into
-samples, and what each file cannot say by itself (frame, units, label
-meanings, array layout). Seven manifests ship with the package; `pl.datasets()`
-lists them, `pl.describe("popi_lung_4dct")` prints one.
+come from (with checksums or a Hub revision), under which licence, how files
+group into samples, and what each file cannot say by itself (frame, units,
+label meanings, array layout). Sixteen manifests ship with the package;
+`pl.datasets()` / `pardesline datasets` list them, `pl.describe(name)` prints one.
+
+| Dataset | What | Source | Licence |
+|---|---|---|---|
+| `msd_task02_heart` | 20 + 10 cardiac MRIs, left atrium labelled | tar on S3, read by Range (456 MB) | CC-BY-SA-4.0 |
+| `amos22` | 600 abdominal CT/MRI, 15 organs | zip64 on Zenodo, read by Range (24 GB) | CC-BY-SA-4.0 |
+| `kitti_raw_2011_09_26_drive_0001` | 108 Velodyne sweeps + stereo images | zip on S3, read by Range (459 MB) | CC-BY-NC-SA-3.0 |
+| `hf_openmind` | OpenMind head MRI, one OpenNeuro study at a time | `hf://MIC-DKFZ/OpenMind` | CC-BY-4.0 |
+| `hf_nsclc_radiomics` | 422 lung CTs with tumour and organ masks (TCIA) | `hf://farrell236/NSCLC-Radiomics-NIFTI` | CC-BY-3.0 |
+| `hf_objaverse_glb_shard` | 5 000 glTF objects (one shard) | `hf://allenai/objaverse` | ODC-By, per-object CC |
+| `hf_3d_arena` | 29 image-to-3D generators x 100 images, meshes and splats | `hf://3d-arena/3d-arena` | MIT |
+| `hf_uniocc_carla_mini` | LiDAR, cameras and occupancy grids (CARLA) | `hf://tasl-lab/uniocc` | MIT |
+| `hf_kitti360_gs_subset` | 16 KITTI-360 chunks: points + Gaussian-splat arrays | `hf://GaussianWorld/...` | CC-BY-NC-SA-3.0 |
+| `rire_brain`, `popi_lung_4dct`, `liver_tumor_patient01`, `visible_human_head_mri` | the SimpleITK notebook excerpts | https + SHA-512 | research use, terms to confirm |
+| `open3d_bunny`, `open3d_armadillo`, `open3d_icp_demo` | Open3D demo data | `open3d.data` | terms to confirm |
+
+Access is lazy by design. Indexing the MSD tar costs 32 KB (61 headers), the
+KITTI zip 157 KB and the 24 GB AMOS zip64 145 KB; a case then costs its own
+size (measured 2026-10-13). Hub manifests scope their listing to the folders
+they need and a listing is capped at 20 000 files: listing OpenMind whole
+(266 721 files) takes 15 minutes and is rate-limited for anonymous clients.
 
 ```python
 ds = pl.load("popi_lung_4dct")  # six breathing phases of one thorax CT + a mask
@@ -146,9 +180,30 @@ Or edit the saved draft, or `interactive=True` to answer in the terminal, or
 public datasets that could not be confirmed are marked `TO CONFIRM` in the
 manifest and in `ds.license.describe()`.
 
-Sources: `local` folders, `https` files with SHA-512 (and tar/zip archives),
-`hf://` repos through `huggingface_hub` (`pip install "pardesline[hf]"`, your
-own token for gated data), and Open3D demo data.
+**Any Hugging Face repo.** `pl.load("hf://org/name/sub/folder")` uses the
+bundled manifest when there is one, otherwise lists the folder, drafts a
+manifest and asks the same questions (licence from the Hub card, units,
+labels, and the layout of raw arrays):
+
+```python
+pl.load("hf://acme/scans/raw")
+# NeedsConfirmation: hf_acme_scans: 1 question(s) ...
+#   - roles.scan.layout: raw/p01/scan.bin is a raw array. What is in it? ...
+ds = pl.load(
+    "hf://acme/scans/raw",
+    types={"scan": "points"},
+    layout={"scan": {"dtype": "float32", "shape": "(N,4)", "columns": ["x", "y", "z", "i"]}},
+    units={"scan": "m"},
+    frame={"scan": "sensor"},
+)
+```
+
+Sources: `local` folders; `https` files with SHA-512 or md5 (and tar/zip
+downloads); `hf` repos through `huggingface_hub` (`pip install
+"pardesline[hf]"`, your own token for gated data and for higher rate limits);
+`archive`: one remote zip or tar read member by member with HTTP Range
+requests (zip64 included, index cached; falls back to one verified download
+when the server ignores ranges); Open3D demo data.
 
 ## Examples
 
@@ -207,10 +262,11 @@ remote.view()  # link to the 3D viewer
 
 ## Roadmap
 
-- **More manifests**: the public 3D datasets people actually use (OpenMind,
-  NSCLC-Radiomics, MSD, AMOS, Objaverse subsets, KITTI...), with licence tiers:
-  permissive -> mirrored, non-commercial -> loader only, gated -> your own token.
-- **Splats** (`.splat`, `.spz`, glTF Gaussian-splat extension) as a first-class kind.
+- **More manifests**: the other MSD tasks, TotalSegmentator, KiTS23 (NC),
+  ShapeNetCore (gated), nuScenes-derived UniOcc splits; a PardesLine org on
+  the Hub mirroring the permissive ones.
+- **Splats** (`.splat`, `.spz`, glTF Gaussian-splat extension, the KITTI-360
+  array sets) as a first-class kind with its own conversions.
 - **Local MCP server**: `pardesline mcp` exposes the catalog and datasets to
   AI coding agents without an account.
 - Learned models (segmentation, registration) behind the same function names.

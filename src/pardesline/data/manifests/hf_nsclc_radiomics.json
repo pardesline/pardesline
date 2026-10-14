@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "name": "hf_nsclc_radiomics",
+  "title": "NSCLC-Radiomics (TCIA) as NIfTI: 422 lung-cancer CTs with organ and tumour segmentations",
+  "description": "The Lung1 cohort of NSCLC-Radiomics (Aerts et al.), converted from TCIA DICOM + DICOM-SEG to NIfTI by farrell236. Per patient one CT and the available structures: primary tumour (GTV-1), left and right lung, heart, oesophagus, spinal cord, plus a combined label map built by the repo's combine_segmentations.py (label values below come from that script).",
+  "source": {
+    "scheme": "hf",
+    "repo_id": "farrell236/NSCLC-Radiomics-NIFTI",
+    "paths": [
+      "NSCLC-Radiomics-NIFTI"
+    ]
+  },
+  "license": {
+    "spdx": "CC-BY-3.0",
+    "commercial": true,
+    "source_url": "https://www.cancerimagingarchive.net/collection/nsclc-radiomics/",
+    "redistribution": "allowed",
+    "note": "CC BY 3.0 on the Hub card and on the TCIA collection page; cite the data, the publication and TCIA (checked 2026-10-13)."
+  },
+  "citation": "Aerts H.J.W.L., Wee L., Rios Velazquez E., et al. Data From NSCLC-Radiomics (version 4). The Cancer Imaging Archive, 2019. doi:10.7937/K9/TCIA.2015.PF0M9REI. Aerts H.J.W.L. et al. Decoding tumour phenotype by noninvasive imaging using a quantitative radiomics approach. Nat Commun 5:4006, 2014.",
+  "homepage": "https://huggingface.co/datasets/farrell236/NSCLC-Radiomics-NIFTI",
+  "pairing": "id",
+  "size_mb": 12000,
+  "tags": [
+    "medical",
+    "ct",
+    "lung",
+    "thorax",
+    "segmentation",
+    "oncology",
+    "nifti",
+    "hf",
+    "tcia"
+  ],
+  "roles": {
+    "ct": {
+      "type": "volume",
+      "description": "Thorax CT (NIfTI, LPS mm from the header)",
+      "pattern": "NSCLC-Radiomics-NIFTI/{id}/image.nii.gz",
+      "modality": "CT"
+    },
+    "mask": {
+      "type": "labels",
+      "description": "Combined label map (values from combine_segmentations.py in the repo)",
+      "pattern": "NSCLC-Radiomics-NIFTI/{id}/segmentation.nii.gz",
+      "labels": {
+        "1": "esophagus",
+        "2": "gtv",
+        "3": "heart",
+        "4": "lung_left",
+        "5": "lung_right",
+        "6": "spinal_cord"
+      }
+    },
+    "gtv": {
+      "type": "labels",
+      "description": "Primary gross tumour volume",
+      "pattern": "NSCLC-Radiomics-NIFTI/{id}/seg-GTV-1.nii.gz",
+      "labels": {
+        "1": "gtv"
+      }
+    },
+    "lung_left": {
+      "type": "labels",
+      "pattern": "NSCLC-Radiomics-NIFTI/{id}/seg-Lung-Left.nii.gz",
+      "labels": {
+        "1": "lung_left"
+      }
+    },
+    "lung_right": {
+      "type": "labels",
+      "pattern": "NSCLC-Radiomics-NIFTI/{id}/seg-Lung-Right.nii.gz",
+      "labels": {
+        "1": "lung_right"
+      }
+    },
+    "heart": {
+      "type": "labels",
+      "pattern": "NSCLC-Radiomics-NIFTI/{id}/seg-Heart.nii.gz",
+      "labels": {
+        "1": "heart"
+      }
+    },
+    "esophagus": {
+      "type": "labels",
+      "pattern": "NSCLC-Radiomics-NIFTI/{id}/seg-Esophagus.nii.gz",
+      "labels": {
+        "1": "esophagus"
+      }
+    },
+    "spinal_cord": {
+      "type": "labels",
+      "pattern": "NSCLC-Radiomics-NIFTI/{id}/seg-Spinal-Cord.nii.gz",
+      "labels": {
+        "1": "spinal_cord"
+      }
+    }
+  }
+}

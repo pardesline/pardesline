@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "name": "msd_task02_heart",
+  "title": "Medical Segmentation Decathlon, Task02 Heart: left-atrium segmentation on 30 cardiac MRIs",
+  "description": "Twenty training MRIs with the left atrium labelled (King's College London) and ten unlabelled test MRIs, read member by member out of the official 456 MB tar on S3 (HTTP Range; the 61 headers cost 32 KB, each volume its own size). The reference cardiac-segmentation exercise: mask.to_mesh(label=1) gives the atrium surface in LPS millimetres. ds.filter(split='Tr') keeps the labelled cases.",
+  "source": {
+    "scheme": "archive",
+    "url": "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task02_Heart.tar",
+    "format": "tar",
+    "prefix": "Task02_Heart"
+  },
+  "license": {
+    "spdx": "CC-BY-SA-4.0",
+    "commercial": true,
+    "source_url": "http://medicaldecathlon.com/",
+    "redistribution": "allowed",
+    "note": "CC-BY-SA 4.0 as stated in the archive's dataset.json (checked 2026-10-13); share-alike applies to derived data."
+  },
+  "citation": "Antonelli M., Reinke A., Bakas S., et al. The Medical Segmentation Decathlon. Nat Commun 13:4128, 2022. Simpson A.L. et al. A large annotated medical image dataset for the development and evaluation of segmentation algorithms. arXiv:1902.09063, 2019.",
+  "homepage": "http://medicaldecathlon.com/",
+  "pairing": "id",
+  "size_mb": 456,
+  "tags": [
+    "medical",
+    "mri",
+    "heart",
+    "cardiac",
+    "left-atrium",
+    "segmentation",
+    "nifti",
+    "msd"
+  ],
+  "roles": {
+    "mri": {
+      "type": "volume",
+      "description": "Cardiac MRI (NIfTI, LPS mm from the header); split Tr = labelled, Ts = test",
+      "pattern": "Task02_Heart/images{split}/{id}.nii.gz",
+      "modality": "MR"
+    },
+    "mask": {
+      "type": "labels",
+      "description": "Left-atrium label map (training cases only)",
+      "pattern": "Task02_Heart/labelsTr/{id}.nii.gz",
+      "labels": {
+        "1": "left_atrium"
+      }
+    }
+  }
+}

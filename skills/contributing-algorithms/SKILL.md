@@ -25,7 +25,8 @@ src/pardesline/
   catalog/               Catalog, Module, Method, Parameter + data/<module>.json (19 files, the 73 methods)
   runner.py              pl.run: validation, subprocess, log/progress capture, RunResult
   object/                Object classes, frame.py (Frame, License, format defaults), convert.py (in-process conversions)
-  data/                  manifest.py (pydantic schema), dataset.py, scan.py, cache.py, sources/{local,https,hf,open3d}.py, manifests/*.json
+  data/                  manifest.py (pydantic schema incl. Layout), dataset.py (+ export), scan.py (folders and hub listings), cache.py, sources/{local,https,hf,archive,open3d}.py, manifests/*.json
+  object/arrays.py       raw .npy/.npz/.bin decoding through a layout; pure-NumPy PLY writer; grid -> MetaImage
   ops/<module>/*.py      the 73 scripts, byte-identical to the hosted platform's modules/*/scripts
   medical/               _service.py + pyvista_adapter.py (the platform's SimpleITK service), public re-exports
   cloud/                 the 0.1.0 cloud client, verbatim
@@ -64,14 +65,25 @@ fork here and document it in CHANGELOG.
 
 ## Adding a bundled dataset
 
-1. `src/pardesline/data/manifests/<name>.json` with explicit `samples`,
-   `license` (SPDX if known, `source_url`, `note` ending in `TO CONFIRM` when
-   the terms were not established), `citation`, `size_mb`, `tags`.
-2. `https` files need the SHA-512 of the download (`sha512sum`); archives
-   need `archive: true` and the member path as the key. `hf` sources need the
-   `layout` of any `.npy/.bin` role.
-3. `tests/test_manifest.py` validates every bundled manifest offline; add a
-   network test in `tests/test_network.py` (`PARDESLINE_NETWORK_TESTS=1`).
+1. `src/pardesline/data/manifests/<name>.json`: explicit `samples` for a
+   small `https` / `open3d` excerpt, or a `pattern` per role for a hub repo
+   or a remote archive; `license` (SPDX id, `commercial`, `source_url`,
+   `note` ending in `TO CONFIRM` when the terms were not established),
+   `citation`, `size_mb`, `tags`. Names: `hf_*` for Hub repos, otherwise the
+   dataset's usual short name.
+2. `https` files need the SHA-512 (or the upstream md5) of the download;
+   archives need `archive: true` and the member path as the key.
+   `hf` sources **must** scope the listing with `paths` (a whole 100k-file
+   repo is rate-limited before it is listed); check the real tree with
+   `HfApi().list_repo_tree(repo, path_in_repo=..., repo_type="dataset")`.
+   `archive` sources need a `url` whose server honours Range requests (probe
+   with a `Range: bytes=0-0` GET -> 206) and a `prefix`.
+   Any `.npy/.npz/.bin` role needs its `layout`; verify it on one real file.
+   Record in the description what was measured (index size, fetch time).
+3. `tests/test_manifest.py` validates every bundled manifest offline
+   (patterns, layouts, licence id, `paths` for hf); add a network test in
+   `tests/test_network.py` (`PARDESLINE_NETWORK_TESTS=1`) that lists the
+   dataset and fetches its smallest member.
 4. Mention it in README (Datasets), CHANGELOG and the datasets skill.
 
 ## Tests

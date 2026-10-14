@@ -4,6 +4,10 @@
     pardesline describe point_cloud_reconstruction[.poisson]
     pardesline run point_cloud_processing.voxel_downsample scan.ply -o small.ply --voxel_size 0.02
     pardesline run simpleitk_registration.rigid ct.mha --moving mr.mha -o registered.vti
+    pardesline datasets [--tag medical] [--scheme hf]
+    pardesline describe msd_task02_heart
+    pardesline fetch msd_task02_heart --take 2
+    pardesline export msd_task02_heart ./heart --take 2
     pardesline version
 
 Cloud commands (login, upload, send, inbox, ls, download, share, whoami,
@@ -58,7 +62,53 @@ def _cmd_list(args: argparse.Namespace) -> int:
 
 
 def _cmd_describe(args: argparse.Namespace) -> int:
+    from .data import datasets
+
+    for m in datasets():
+        if m.name == args.what:
+            print(m.describe())
+            return 0
     print(load_catalog().describe(args.what))
+    return 0
+
+
+def _cmd_datasets(args: argparse.Namespace) -> int:
+    from .data import datasets
+
+    rows = datasets(tag=args.tag, scheme=args.scheme)
+    if not rows:
+        print("no bundled dataset matches")
+        return 0
+    print(f"{'name':<34} {'source':<8} {'licence':<18} {'size':>8}  title")
+    for m in rows:
+        size = f"{m.size_mb:.0f} MB" if m.size_mb else "?"
+        lic = m.license.spdx or "unknown"
+        if m.license.commercial is False:
+            lic += " (NC)"
+        print(f"{m.name:<34} {m.source.scheme:<8} {lic:<18} {size:>8}  {m.title or ''}")
+    return 0
+
+
+def _open_dataset(args: argparse.Namespace):
+    from .data import load
+
+    ds = load(args.dataset, assume=getattr(args, "assume", False))
+    if getattr(args, "take", None):
+        ds = ds.take(args.take)
+    return ds
+
+
+def _cmd_fetch(args: argparse.Namespace) -> int:
+    ds = _open_dataset(args)
+    n = ds.fetch_all()
+    print(f"{ds.name}: {n} file(s) of {len(ds)} sample(s) in the cache")
+    return 0
+
+
+def _cmd_export(args: argparse.Namespace) -> int:
+    ds = _open_dataset(args)
+    m = ds.export(args.folder, overwrite=args.overwrite)
+    print(f"{ds.name}: {len(m.samples or [])} sample(s) written to {args.folder} (pardesline.manifest.json)")
     return 0
 
 
@@ -101,8 +151,26 @@ def main(argv: list[str] | None = None) -> int:
     lp.add_argument("--ext", help="Only modules accepting this extension (e.g. .ply)")
     lp.add_argument("--category", help="Only this category")
 
-    dp = sub.add_parser("describe", help="Show a module or a method with its parameters")
-    dp.add_argument("what", help="module or module.method")
+    dp = sub.add_parser("describe", help="Show a module, a method with its parameters, or a bundled dataset")
+    dp.add_argument("what", help="module, module.method or dataset name")
+
+    dsp = sub.add_parser("datasets", help="List the bundled dataset manifests")
+    dsp.add_argument("--tag", help="Only datasets with this tag (medical, lidar, mesh...)")
+    dsp.add_argument("--scheme", help="Only this source scheme (https, hf, archive, open3d)")
+
+    fp = sub.add_parser("fetch", help="Download the files of a dataset into the cache")
+    fp.add_argument("dataset", help="Bundled name, hf://org/name[/folder], or a manifest file")
+    fp.add_argument("--take", type=int, help="Only the first N samples")
+    fp.add_argument("--assume", action="store_true", help="Load a draft with its unknowns")
+
+    ep = sub.add_parser(
+        "export", help="Write a dataset as standard files (PLY, MetaImage...) with sidecars and a manifest"
+    )
+    ep.add_argument("dataset", help="Bundled name, hf://org/name[/folder], a folder or a manifest file")
+    ep.add_argument("folder", help="Destination folder")
+    ep.add_argument("--take", type=int, help="Only the first N samples")
+    ep.add_argument("--assume", action="store_true", help="Load a draft with its unknowns")
+    ep.add_argument("--overwrite", action="store_true", help="Replace files already there")
 
     rp = sub.add_parser(
         "run",
@@ -126,13 +194,19 @@ def main(argv: list[str] | None = None) -> int:
             return _cmd_describe(args)
         if args.cmd == "run":
             return _cmd_run(args, extra)
+        if args.cmd == "datasets":
+            return _cmd_datasets(args)
+        if args.cmd == "fetch":
+            return _cmd_fetch(args)
+        if args.cmd == "export":
+            return _cmd_export(args)
         if args.cmd == "version":
             print(__version__)
             return 0
     except PardesLineError as e:
         print(f"error: {e}", file=sys.stderr)
         return 1
-    except FileNotFoundError as e:
+    except (FileNotFoundError, FileExistsError) as e:
         print(f"error: {e}", file=sys.stderr)
         return 1
     except KeyboardInterrupt:

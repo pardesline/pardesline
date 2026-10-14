@@ -17,10 +17,11 @@ from pathlib import Path
 from loguru import logger
 
 from ..object import ITK_VOLUME_EXTS, extension_of, kind_of
+from ..object.arrays import is_array_file
 from ..object.frame import FORMAT_FRAMES
 from .manifest import LicenseSpec, Manifest, Question, Role, SampleSpec, SourceSpec
 
-__all__ = ["DRAFT_NAME", "scan"]
+__all__ = ["DRAFT_NAME", "scan", "scan_listing"]
 
 DRAFT_NAME = "pardesline.manifest.json"
 _LABEL_HINT = re.compile(r"(mask|seg|label|gt|ground|annot|roi)", re.I)
@@ -33,6 +34,7 @@ _KIND_TO_ROLE_TYPE = {
     "volume": "volume",
     "image": "image",
     "transform": "transform",
+    "array": "attribute",  # a raw array: type and layout must be declared
 }
 _ROLE_RENAMES = {
     "images": "image",
@@ -53,24 +55,51 @@ def _sanitize(name: str) -> str:
 
 def _data_entries(root: Path) -> list[tuple[str, str]]:
     """(relpath, kind) for every data file; a DICOM folder is one 'volume' entry."""
-    entries: list[tuple[str, str]] = []
-    dicom_dirs: set[Path] = set()
+    listing = []
     for p in sorted(root.rglob("*")):
         rel = p.relative_to(root)
         if any(part.startswith(".") for part in rel.parts):
             continue
         if p.is_file():
-            if p.suffix.lower() in _DICOM_EXTS:
-                dicom_dirs.add(p.parent)
-                continue
-            if p.parent in dicom_dirs:
-                continue
-            k = kind_of(p)
-            if k in _KIND_TO_ROLE_TYPE and extension_of(p) not in _AMBIGUOUS_EXTS:
-                entries.append((rel.as_posix(), k))
+            listing.append(rel.as_posix())
+    return _entries_from_listing(listing)
+
+
+def _entries_from_listing(listing: list[str]) -> list[tuple[str, str]]:
+    """Same, from relative paths (a local tree or a hub repo listing)."""
+    entries: list[tuple[str, str]] = []
+    dicom_dirs: set[str] = set()
+    for rel in sorted(listing):
+        name = rel.rsplit("/", 1)[-1]
+        if name.startswith(".") or name.startswith("._"):
+            continue
+        parent = rel.rsplit("/", 1)[0] if "/" in rel else "."
+        if Path(name).suffix.lower() in _DICOM_EXTS:
+            dicom_dirs.add(parent)
+            continue
+        k = kind_of(rel)
+        if k in _KIND_TO_ROLE_TYPE and extension_of(rel) not in _AMBIGUOUS_EXTS:
+            entries.append((rel, k))
+    entries = [
+        (rel, k) for rel, k in entries if (rel.rsplit("/", 1)[0] if "/" in rel else ".") not in dicom_dirs
+    ]
     for d in sorted(dicom_dirs):
-        entries.append((d.relative_to(root).as_posix() if d != root else ".", "volume"))
+        entries.append((d, "volume"))
     return entries
+
+
+def _common_dir(rels: list[str]) -> str:
+    """The folder prefix shared by every path (``"raw/"``), or ``""``."""
+    parts = [r.split("/")[:-1] for r in rels if r != "."]
+    if not parts or any(r == "." for r in rels):
+        return ""
+    common: list[str] = []
+    for level in zip(*parts, strict=False):
+        if len(set(level)) == 1:
+            common.append(level[0])
+        else:
+            break
+    return "/".join(common) + "/" if common else ""
 
 
 def _group(entries: list[tuple[str, str]]) -> tuple[dict[str, list[tuple[str, str]]], str, float]:
@@ -155,7 +184,70 @@ def scan(folder: str | Path, *, name: str | None = None, read_headers: bool = Tr
     entries = _data_entries(root)
     if not entries:
         raise FileNotFoundError(f"no 3D data found under {root} (point clouds, meshes, volumes, DICOM).")
-    groups, pairing, pairing_conf = _group(entries)
+    return _draft(
+        entries,
+        name=name or _sanitize(root.name) or "dataset",
+        title=root.name,
+        description=f"Scanned from {root}",
+        source=SourceSpec(scheme="local", root=str(root)),
+        license=LicenseSpec(),
+        header_root=root if read_headers else None,
+    )
+
+
+def scan_listing(
+    listing: list[str],
+    *,
+    name: str,
+    source: SourceSpec,
+    title: str | None = None,
+    description: str | None = None,
+    license: LicenseSpec | None = None,
+) -> Manifest:
+    """Draft a manifest from a file listing that is not on disk (a Hugging
+    Face repo): same grouping and the same questions, no header reading."""
+    entries = _entries_from_listing(listing)
+    if not entries:
+        raise FileNotFoundError(
+            f"{name}: no 3D data in the listing (point clouds, meshes, volumes, DICOM, arrays)."
+        )
+    return _draft(
+        entries,
+        name=name,
+        title=title,
+        description=description,
+        source=source,
+        license=license or LicenseSpec(),
+        header_root=None,
+    )
+
+
+def _draft(
+    entries: list[tuple[str, str]],
+    *,
+    name: str,
+    title: str | None,
+    description: str | None,
+    source: SourceSpec,
+    license: LicenseSpec,
+    header_root: Path | None,
+) -> Manifest:
+    root = header_root
+    read_headers = header_root is not None
+    common = _common_dir([rel for rel, _k in entries])
+    stripped = [(rel[len(common) :] if rel != "." else rel, k) for rel, k in entries]
+    groups, pairing, pairing_conf = _group(stripped)
+    flat = all("/" not in rel for rel, _k in stripped)
+    kinds = {k for _rel, k in stripped}
+    if common and pairing == "file" and flat and (len(stripped) == 1 or len(kinds) > 1):
+        # one shared folder holding files of different kinds (ct + mask + mesh) or a single
+        # file: the folder is the sample, the files are its roles. Same-kind files stay
+        # one sample each (a folder of meshes).
+        sid = _sanitize(common.rstrip("/").split("/")[-1])
+        groups, pairing, pairing_conf = {sid: list(stripped)}, "folder", 0.7
+    groups = {
+        sid: [(common + rel if rel != "." else rel, k) for rel, k in items] for sid, items in groups.items()
+    }
 
     roles: dict[str, Role] = {}
     samples: list[SampleSpec] = []
@@ -164,12 +256,12 @@ def scan(folder: str | Path, *, name: str | None = None, read_headers: bool = Tr
         used: set[str] = set()
         files: dict[str, str] = {}
         for rel, kind in items:
-            rname = _role_name(rel, kind, sid, pairing, used)
+            rname = _role_name(rel[len(common) :] if rel != "." else rel, kind, sid, pairing, used)
             files[rname] = rel
             if rname not in roles:
                 is_label = kind == "volume" and bool(_LABEL_HINT.search(rel))
                 rtype = "labels" if is_label else _KIND_TO_ROLE_TYPE[kind]
-                ext = extension_of(root / rel) if rel != "." else ".dcm"
+                ext = extension_of(rel) if rel != "." and "." in rel.rsplit("/", 1)[-1] else ".dcm"
                 role = Role(type=rtype, description=f"{kind} files like {rel}", confidence={})
                 if ext in FORMAT_FRAMES:
                     role.frame, role.units = FORMAT_FRAMES[ext].axes, FORMAT_FRAMES[ext].units
@@ -181,15 +273,17 @@ def scan(folder: str | Path, *, name: str | None = None, read_headers: bool = Tr
                 role_examples[rname] = rel
         samples.append(SampleSpec(id=_sanitize(sid) if pairing != "file" else sid, files=files))
 
-    questions: list[Question] = [
-        Question(
-            field="license",
-            message=(
-                "Who owns this data and under which terms may it be used? "
-                "(e.g. 'internal, no redistribution', 'CC-BY-4.0')"
-            ),
+    questions: list[Question] = []
+    if license.spdx is None:
+        questions.append(
+            Question(
+                field="license",
+                message=(
+                    "Who owns this data and under which terms may it be used? "
+                    "(e.g. 'internal, no redistribution', 'CC-BY-4.0')"
+                ),
+            )
         )
-    ]
     if pairing_conf < 0.8 and len(samples) > 1:
         questions.append(
             Question(
@@ -199,6 +293,19 @@ def scan(folder: str | Path, *, name: str | None = None, read_headers: bool = Tr
             )
         )
     for rname, role in roles.items():
+        if is_array_file(role_examples[rname]):
+            questions.append(
+                Question(
+                    field=f"roles.{rname}.layout",
+                    message=(
+                        f"{role_examples[rname]} is a raw array. What is in it? "
+                        "Give the type and layout, e.g. "
+                        f"types={{{rname!r}: 'points'}}, layout={{{rname!r}: {{'dtype': 'float32', "
+                        "'shape': '(N,4)', 'columns': ['x','y','z','reflectance']}}"
+                    ),
+                )
+            )
+            continue
         if role.type in ("points", "mesh", "volume", "labels") and not role.units:
             questions.append(
                 Question(
@@ -225,7 +332,7 @@ def scan(folder: str | Path, *, name: str | None = None, read_headers: bool = Tr
                     ),
                 )
             )
-        elif role.type == "volume" and read_headers:
+        elif role.type == "volume" and read_headers and root is not None:
             try:
                 from ..object.convert import read_volume_header
 
@@ -242,11 +349,11 @@ def scan(folder: str | Path, *, name: str | None = None, read_headers: bool = Tr
                 logger.debug("header of {} not read: {}", role_examples[rname], exc)
 
     manifest = Manifest(
-        name=name or _sanitize(root.name) or "dataset",
-        title=root.name,
-        description=f"Scanned from {root}",
-        source=SourceSpec(scheme="local", root=str(root)),
-        license=LicenseSpec(),
+        name=name,
+        title=title,
+        description=description,
+        source=source,
+        license=license,
         pairing=pairing,
         roles=roles,
         samples=samples,

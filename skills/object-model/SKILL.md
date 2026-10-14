@@ -2,7 +2,7 @@
 name: object-model
 description: >-
   `pl.Object` and its subclasses (PointCloud, Mesh, Volume, LabelMap, Transform,
-  Image): what a loaded 3D file knows about itself (kind by extension, `frame` with
+  Image, RawArray for .npy/.npz/.bin read through a declared layout): what a loaded 3D file knows about itself (kind by extension, `frame` with
   axes/units/affine and who stated it, `labels`, `license`, `provenance`, header
   `info()`), the rules for what is read from a file versus declared (`with_frame`,
   `with_labels`, `with_license`), the `.pardesline.json` sidecar written by `save()`,
@@ -35,7 +35,32 @@ ct.license.describe()  # "unknown licence" until declared
 | `LabelMap` | labels | any volume with `labels` declared, a `kind: labels` sidecar, a `labels` role, or `Volume.segment()` / `as_labels()` |
 | `Transform` | transform | .tfm .h5 .hdf5 .mat |
 | `Image` | image | .png .jpg .tif .bmp |
+| `RawArray` | array | .npy .npz .bin .raw: numbers without meaning until a `layout` says what they are (see below) |
 | `Object` | file | anything else |
+
+## Raw arrays: a layout, never a guess
+
+```python
+raw = pl.load("sweep.bin")  # RawArray; .to_numpy() / ops raise until a layout is declared
+sweep = raw.as_points(dtype="float32", shape="(N,4)", columns=["x", "y", "z", "reflectance"])  # PointCloud
+sweep = pl.load("sweep.bin", layout={"dtype": "float32", "shape": "(N,4)", "columns": [...]})  # same
+grid = pl.load(
+    "occ.npz", layout={"key": "occ_label", "shape": "(200,200,16)", "spacing": [0.4] * 3}, kind="labels"
+)
+occ = raw.as_volume(labels={1: "car"}, key="occ_label", shape="(200,200,16)")  # LabelMap
+```
+
+`shape` `"(N,k)"` means points (columns name x, y, z and attributes),
+`"(a,b,c)"` a dense grid (x, y, z order; `spacing` / `origin` in the role's
+units, else unit spacing with a warning); `dtype` is required for headerless
+`.bin`; `key` picks the array in an `.npz`; `scale` rescales colours. The
+layout is kept in `obj.layout`, saved in the sidecar, and `with_layout(...)`
+amends it. Before any op or hand-off the array is **materialised once** into
+a standard file through the layout (PLY for points, MetaImage for grids):
+`obj._op_input()`, `to_open3d()`, `to_sitk()`, `info()` use it, and
+`obj.save("sweep.ply")` writes that standard file instead of the raw one.
+A `.bin` with a wrong layout fails with "do not split into rows" or "does not
+match layout.shape", never with silent garbage.
 
 ## Frame: file > format > manifest > user, never a guess
 
@@ -75,7 +100,9 @@ outputs expose `obj.transform` (parsed `<output>.json`) and
 
 `obj.save(dest)` copies the file (plus `.raw` sibling for `.mhd`, plus the
 registration `.json`) and writes `<dest>.pardesline.json` with kind, frame,
-labels, licence, role and provenance. `pl.load(dest)` reads it back, so the
+labels, layout, licence, role and provenance. A raw array saved under a
+standard extension (`.ply`, `.mha`) is decoded through its layout; a DICOM
+folder saved as `.mha` is written as one volume. `pl.load(dest)` reads it back, so the
 frame and labels survive a round trip. `dest` ending with `/` or an existing
 folder keeps the file name. `sidecar=False` skips it.
 

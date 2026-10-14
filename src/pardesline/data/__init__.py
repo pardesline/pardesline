@@ -1,9 +1,12 @@
 """``pl.load``: one call for a file, a folder, a bundled dataset or a hub repo.
 
 pl.load("scan.ply")                      -> Object
+pl.load("scan.bin", layout={...})        -> PointCloud read through its layout
 pl.load("rire_brain")                    -> Dataset (bundled manifest, files fetched on access)
 pl.load("sample://popi_lung_4dct")       -> same
-pl.load("hf://org/name")                 -> Dataset, if a manifest for that repo is bundled or given
+pl.load("hf://org/name")                 -> Dataset from the bundled manifest of that repo,
+                                            or a draft with questions (like a private folder)
+pl.load("hf://org/name/sub/folder")      -> same, listing only that folder of the repo
 pl.load("my_dataset.manifest.json")      -> Dataset from your own manifest
 pl.load("/data/study_A")                 -> Dataset after pl.scan; raises NeedsConfirmation
                                            until licence/units/labels are answered
@@ -12,6 +15,7 @@ pl.load("/data/study_A")                 -> Dataset after pl.scan; raises NeedsC
 from __future__ import annotations
 
 import os
+import re
 from functools import lru_cache
 from importlib import resources
 from pathlib import Path
@@ -19,17 +23,19 @@ from typing import Any
 
 from loguru import logger
 
-from ..errors import ManifestError, NeedsConfirmation
+from ..errors import FetchError, ManifestError, NeedsConfirmation
 from ..object import Object, wrap
 from .cache import cache_dir, set_cache_dir
 from .dataset import Dataset, Sample
-from .manifest import Manifest, Role
-from .scan import DRAFT_NAME, scan
+from .manifest import Layout, LicenseSpec, Manifest, Role, SourceSpec
+from .scan import DRAFT_NAME, scan_listing
+from .scan import scan as scan_folder
 from .sources import open_source
 
 __all__ = [
     "DRAFT_NAME",
     "Dataset",
+    "Layout",
     "Manifest",
     "Object",
     "Role",
@@ -38,9 +44,43 @@ __all__ = [
     "datasets",
     "load",
     "load_manifest",
+    "parse_hf_ref",
     "scan",
     "set_cache_dir",
 ]
+
+_KIND_ALIASES = {
+    "points": "pointcloud",
+    "pointcloud": "pointcloud",
+    "point_cloud": "pointcloud",
+    "splat": "pointcloud",
+    "mesh": "mesh",
+    "volume": "volume",
+    "labels": "labels",
+    "labelmap": "labels",
+    "image": "image",
+    "transform": "transform",
+}
+
+# Hub card licence ids -> SPDX-style ids used in manifests.
+_HF_LICENSES = {
+    "cc-by-4.0": "CC-BY-4.0",
+    "cc-by-3.0": "CC-BY-3.0",
+    "cc-by-sa-4.0": "CC-BY-SA-4.0",
+    "cc-by-sa-3.0": "CC-BY-SA-3.0",
+    "cc-by-nc-4.0": "CC-BY-NC-4.0",
+    "cc-by-nc-sa-4.0": "CC-BY-NC-SA-4.0",
+    "cc-by-nc-sa-3.0": "CC-BY-NC-SA-3.0",
+    "cc-by-nc-nd-4.0": "CC-BY-NC-ND-4.0",
+    "cc0-1.0": "CC0-1.0",
+    "mit": "MIT",
+    "apache-2.0": "Apache-2.0",
+    "bsd-3-clause": "BSD-3-Clause",
+    "odc-by": "ODC-By-1.0",
+    "odbl": "ODbL-1.0",
+    "gpl-3.0": "GPL-3.0-only",
+    "lgpl-3.0": "LGPL-3.0-only",
+}
 
 
 @lru_cache(maxsize=1)
@@ -54,9 +94,43 @@ def _bundled() -> dict[str, Manifest]:
     return out
 
 
-def datasets() -> list[Manifest]:
-    """The manifests bundled with the package (``pl.load(name)`` works on each)."""
-    return list(_bundled().values())
+def datasets(*, tag: str | None = None, scheme: str | None = None) -> list[Manifest]:
+    """The manifests bundled with the package (``pl.load(name)`` works on
+    each). ``tag="medical"`` or ``scheme="hf"`` filter the list."""
+    out = list(_bundled().values())
+    if tag:
+        out = [m for m in out if tag in m.tags]
+    if scheme:
+        out = [m for m in out if m.source.scheme == scheme]
+    return out
+
+
+def parse_hf_ref(text: str) -> tuple[str, str | None]:
+    """``hf://org/name/sub/folder`` -> ``("org/name", "sub/folder")``."""
+    body = text[len("hf://") :].strip("/")
+    if body.startswith("datasets/"):
+        body = body[len("datasets/") :]
+    parts = body.split("/")
+    if len(parts) < 2 or not parts[0] or not parts[1]:
+        raise ManifestError(f"{text!r}: a Hub reference is hf://<org>/<name>[/<sub/folder>]")
+    repo = "/".join(parts[:2])
+    sub = "/".join(parts[2:]) or None
+    return repo, sub
+
+
+def _bundled_for_repo(repo: str, sub: str | None) -> Manifest | None:
+    """The bundled manifest of a Hub repo; with a sub-folder, the one that
+    already lists it, else the first for the repo re-scoped to that folder."""
+    candidates = [m for m in _bundled().values() if m.source.scheme == "hf" and m.source.repo_id == repo]
+    if not candidates:
+        return None
+    if sub:
+        for m in candidates:
+            if m.source.paths and any(sub == p or sub.startswith(p + "/") for p in m.source.paths):
+                return m
+        m = candidates[0]
+        return m.model_copy(update={"source": m.source.model_copy(update={"paths": [sub]})})
+    return candidates[0]
 
 
 def load_manifest(ref: str | os.PathLike) -> tuple[Manifest, Path | None]:
@@ -66,14 +140,14 @@ def load_manifest(ref: str | os.PathLike) -> tuple[Manifest, Path | None]:
     if text.startswith("sample://"):
         text = text[len("sample://") :]
     if text.startswith("hf://"):
-        repo = text[len("hf://") :].strip("/")
-        for m in _bundled().values():
-            if m.source.scheme == "hf" and m.source.repo_id == repo:
-                return m, None
+        repo, sub = parse_hf_ref(text)
+        m = _bundled_for_repo(repo, sub)
+        if m is not None:
+            return m, None
         raise ManifestError(
-            f"No manifest for hf://{repo} yet. pl.load needs one to know the roles, layout and licence. "
-            "Write one (see docs/manifests.md) and pass it: pl.load('hf://...', manifest='path.json'), "
-            "or contribute it to the repository."
+            f"No bundled manifest for hf://{repo}. pl.load('hf://{repo}') drafts one from the repo listing "
+            "and asks what it cannot establish (licence, units, array layouts); or write one and pass it: "
+            "pl.load('hf://...', manifest='path.json')."
         )
     p = Path(text).expanduser()
     if p.is_file() and p.suffix.lower() == ".json":
@@ -92,15 +166,20 @@ def _per_role(m: Manifest, key: str, val: Any) -> dict[str, Any]:
         keys = list(val)
         if key == "labels" and keys and all(isinstance(k, int) or str(k).isdigit() for k in keys):
             return {r: val for r, spec in m.roles.items() if spec.type in ("labels", "volume")}
+        if key in ("layout", "types") and keys and all(k in m.roles for k in keys):
+            return dict(val)
         unknown = [k for k in keys if k not in m.roles]
         if unknown:
             raise ManifestError(f"{key}: unknown role(s) {unknown}; roles: {list(m.roles)}")
         return dict(val)
+    if key in ("layout", "types"):
+        raise ManifestError(f"{key} must be given per role: {key}={{'role': ...}}")
     return dict.fromkeys(m.roles, val)
 
 
 def _apply_answers(m: Manifest, answers: dict[str, Any]) -> Manifest:
-    """Fill a draft from keyword answers: license=, units=, frame=, labels=, pairing=."""
+    """Fill a draft from keyword answers: license=, units=, frame=, labels=,
+    pairing=, types=, layout=."""
     data = m.model_dump(mode="json", exclude_none=True)
     answered: set[str] = set()
     if (lic := answers.get("license")) is not None:
@@ -113,7 +192,7 @@ def _apply_answers(m: Manifest, answers: dict[str, Any]) -> Manifest:
     if (pairing := answers.get("pairing")) is not None:
         data["pairing"] = pairing
         answered.add("pairing")
-    for key in ("units", "frame", "labels"):
+    for key in ("types", "layout", "units", "frame", "labels"):
         val = answers.get(key)
         if val is None:
             continue
@@ -129,6 +208,12 @@ def _apply_answers(m: Manifest, answers: dict[str, Any]) -> Manifest:
                     data["roles"][role]["labels"] = {str(k): str(n) for k, n in v.items()}
                     if data["roles"][role]["type"] == "volume":
                         data["roles"][role]["type"] = "labels"
+            elif key == "types":
+                data["roles"][role]["type"] = str(v)
+            elif key == "layout":
+                data["roles"][role]["layout"] = (
+                    v.model_dump(exclude_none=True) if isinstance(v, Layout) else dict(v)
+                )
             else:
                 data["roles"][role][key] = v
             answered.add(f"roles.{role}.{key}")
@@ -165,9 +250,153 @@ def _ask_interactively(m: Manifest) -> Manifest:
                             k, v = re.split(r"[:=]", part, maxsplit=1)
                             val[int(k.strip())] = v.strip().strip("'\"")
                 answers.setdefault("labels", {})[role] = val
+            elif key == "layout":
+                print("  (layouts are easier to give in code: layout={'role': {...}}; skipped)")
             else:
                 answers.setdefault(key, {})[role] = reply
     return _apply_answers(m, answers)
+
+
+def _finish_draft(
+    m: Manifest,
+    *,
+    draft_path: Path | None,
+    answers: dict[str, Any],
+    interactive: bool,
+    assume: bool,
+    save_draft: bool,
+    manifest_dir: Path | None,
+) -> Dataset:
+    """The four asking modes, shared by private folders and un-manifested hub repos."""
+    if answers:
+        m = _apply_answers(m, answers)
+    if m.is_draft and interactive:
+        m = _ask_interactively(m)
+    if m.is_draft and not assume:
+        saved = None
+        if save_draft and draft_path is not None:
+            try:
+                saved = m.save(draft_path)
+            except OSError as exc:
+                logger.debug("could not save the draft: {}", exc)
+        raise NeedsConfirmation(m, saved)
+    if m.is_draft:
+        for q in m.questions:
+            logger.warning("{}: assumed unknown - {}", q.field, q.message)
+    return Dataset(m, open_source(m.source, m, manifest_dir=manifest_dir))
+
+
+def _hf_card_license(repo: str) -> LicenseSpec:
+    """The licence the Hub card declares (one API call); unknown when absent."""
+    try:
+        from huggingface_hub import HfApi
+
+        info = HfApi().dataset_info(repo)
+        card = info.card_data.to_dict() if info.card_data else {}
+        lic = card.get("license")
+        if isinstance(lic, list):
+            lic = lic[0] if lic else None
+    except Exception as exc:  # the listing is what matters; the card is a hint
+        logger.debug("hf://{}: card not read ({})", repo, exc)
+        return LicenseSpec(source_url=f"https://huggingface.co/datasets/{repo}")
+    if not lic or str(lic).lower() in ("other", "unknown", "none"):
+        return LicenseSpec(
+            source_url=f"https://huggingface.co/datasets/{repo}",
+            note=(
+                "the Hub card declares no usable licence id; "
+                "the terms come from the upstream source [TO CONFIRM]"
+            ),
+        )
+    low = str(lic).lower()
+    spdx = _HF_LICENSES.get(low, str(lic))
+    return LicenseSpec(
+        spdx=spdx,
+        commercial=None if "nc" not in low.split("-") else False,
+        source_url=f"https://huggingface.co/datasets/{repo}",
+        note="as declared on the Hub card; the upstream terms prevail [TO CONFIRM]",
+    )
+
+
+def scan_hf(ref: str, *, max_files: int = 20000) -> Manifest:
+    """Draft a manifest for a Hub repo (or one of its folders) from its file
+    listing: ``pl.scan("hf://org/name/sub/folder")``. Needs ``[hf]``."""
+    repo, sub = parse_hf_ref(ref)
+    source = SourceSpec(scheme="hf", repo_id=repo, paths=[sub] if sub else None, max_files=max_files)
+    listing = open_source(source, Manifest.model_construct(name="draft")).list()
+    if listing is None:
+        raise FetchError(f"hf://{repo} cannot be listed")
+    name = re.sub(r"[^a-z0-9_]+", "_", f"hf_{repo}".lower()).strip("_")
+    return scan_listing(
+        listing,
+        name=name,
+        source=source,
+        title=f"hf://{repo}" + (f"/{sub}" if sub else ""),
+        description=f"Drafted by pl.scan from the file listing of https://huggingface.co/datasets/{repo}",
+        license=_hf_card_license(repo),
+    )
+
+
+def scan(ref: str | os.PathLike, **kwargs: Any) -> Manifest:
+    """Draft a manifest for a private folder or a Hub repo and list the
+    questions it will not answer by guessing."""
+    text = str(ref)
+    if text.startswith("hf://"):
+        return scan_hf(text, **kwargs)
+    return scan_folder(ref, **kwargs)
+
+
+def _draft_path_for_hf(repo: str, sub: str | None) -> Path:
+    folder = cache_dir() / "drafts"
+    folder.mkdir(parents=True, exist_ok=True)
+    tail = re.sub(r"[^A-Za-z0-9_.-]+", "_", repo + (f"_{sub}" if sub else ""))
+    return folder / f"{tail}.manifest.json"
+
+
+def _load_hf(
+    text: str,
+    *,
+    manifest: str | os.PathLike | None,
+    answers: dict[str, Any],
+    interactive: bool,
+    assume: bool,
+    save_draft: bool,
+) -> Dataset:
+    repo, sub = parse_hf_ref(text)
+    if manifest is not None:
+        m, mdir = Manifest.load(manifest), Path(manifest).parent
+        if m.source.scheme != "hf" or m.source.repo_id != repo:
+            raise ManifestError(
+                f"the manifest describes {m.source.scheme}://{m.source.repo_id}, not hf://{repo}"
+            )
+        if sub:
+            m = m.model_copy(update={"source": m.source.model_copy(update={"paths": [sub]})})
+        return Dataset(m, open_source(m.source, m, manifest_dir=mdir))
+    m = _bundled_for_repo(repo, sub)
+    if m is not None and not answers:
+        try:
+            return Dataset(m, open_source(m.source, m))
+        except ManifestError as exc:
+            if not sub or "matches the role patterns" not in str(exc):
+                raise
+            logger.info(
+                "hf://{}/{}: the bundled manifest {} describes other folders; drafting one for this folder.",
+                repo,
+                sub,
+                m.name,
+            )
+            m = None
+    draft_path = _draft_path_for_hf(repo, sub)
+    if m is None:
+        m = Manifest.load(draft_path) if draft_path.is_file() else scan_hf(text)
+    return _finish_draft(
+        m,
+        draft_path=draft_path,
+        answers=answers,
+        interactive=interactive,
+        assume=assume,
+        save_draft=save_draft,
+        manifest_dir=None,
+    )
 
 
 def load(
@@ -177,30 +406,46 @@ def load(
     assume: bool = False,
     interactive: bool = False,
     save_draft: bool = True,
+    layout: Layout | dict[str, Any] | None = None,
+    kind: str | None = None,
     **answers: Any,
 ) -> Object | Dataset:
     """Open a file as an :class:`Object` or a dataset as a :class:`Dataset`.
 
-    For a folder without a confirmed manifest, ``pl.scan`` drafts one. Then:
-    strict (default) raises :class:`NeedsConfirmation` listing the open
-    questions and saves the draft next to the data; ``assume=True`` loads
-    with unknowns left unknown (and warns); ``interactive=True`` asks in the
-    terminal; keyword answers (``license=..., units=..., frame=..., labels=...,
-    pairing=...``) fill the draft directly.
+    A raw array file (``.npy``, ``.npz``, ``.bin``) needs ``layout=`` (dtype,
+    shape, columns / key) and takes ``kind=`` ("points", "volume", "labels");
+    with a layout and no kind, a ``(N,k)`` shape is points and a ``(a,b,c)``
+    shape is a grid.
+
+    For a folder without a confirmed manifest - or a Hub repo without a
+    bundled one - ``pl.scan`` drafts a manifest. Then: strict (default)
+    raises :class:`NeedsConfirmation` listing the open questions and saves
+    the draft; ``assume=True`` loads with unknowns left unknown (and warns);
+    ``interactive=True`` asks in the terminal; keyword answers
+    (``license=, units=, frame=, labels=, pairing=, types=, layout=``) fill
+    the draft directly.
     """
     text = str(ref)
+    p = Path(text).expanduser() if "://" not in text else None
+    if layout is not None and not (p is not None and p.is_file()):
+        answers["layout"] = layout  # per-role answer for a dataset draft
+    if text.startswith("hf://"):
+        return _load_hf(
+            text,
+            manifest=manifest,
+            answers=answers,
+            interactive=interactive,
+            assume=assume,
+            save_draft=save_draft,
+        )
     if "://" in text or manifest is not None:
         if manifest is not None:
             m, mdir = Manifest.load(manifest), Path(manifest).parent
-            if text.startswith("hf://") and m.source.scheme == "hf":
-                repo = text[len("hf://") :].strip("/")
-                if m.source.repo_id != repo:
-                    raise ManifestError(f"the manifest describes hf://{m.source.repo_id}, not hf://{repo}")
         else:
             m, mdir = load_manifest(text)
         return Dataset(m, open_source(m.source, m, manifest_dir=mdir))
 
-    p = Path(text).expanduser()
+    assert p is not None
     if p.is_file():
         if p.suffix.lower() == ".json" and not p.name.endswith(".pardesline.json"):
             try:
@@ -210,7 +455,7 @@ def load(
                     f"{p} is a JSON file but not a manifest; a 3D file was expected."
                 ) from None
             return Dataset(m, open_source(m.source, m, manifest_dir=mdir))
-        return wrap(p)
+        return _load_file(p, layout=layout, kind=kind)
     if p.is_dir():
         draft_path = p / DRAFT_NAME
         if draft_path.is_file():
@@ -218,23 +463,16 @@ def load(
             if m.source.scheme == "local" and m.source.root in (None, ".", str(p), str(p.resolve())):
                 m = m.model_copy(update={"source": m.source.model_copy(update={"root": str(p.resolve())})})
         else:
-            m = scan(p)
-        if answers:
-            m = _apply_answers(m, answers)
-        if m.is_draft and interactive:
-            m = _ask_interactively(m)
-        if m.is_draft and not assume:
-            saved = None
-            if save_draft:
-                try:
-                    saved = m.save(draft_path)
-                except OSError as exc:
-                    logger.debug("could not save the draft next to the data: {}", exc)
-            raise NeedsConfirmation(m, saved)
-        if m.is_draft:
-            for q in m.questions:
-                logger.warning("{}: assumed unknown - {}", q.field, q.message)
-        return Dataset(m, open_source(m.source, m, manifest_dir=p))
+            m = scan_folder(p)
+        return _finish_draft(
+            m,
+            draft_path=draft_path,
+            answers=answers,
+            interactive=interactive,
+            assume=assume,
+            save_draft=save_draft,
+            manifest_dir=p,
+        )
     if text in _bundled():
         m = _bundled()[text]
         return Dataset(m, open_source(m.source, m))
@@ -244,4 +482,16 @@ def load(
     )
 
 
-import re  # noqa: E402  (used by the interactive prompt parser)
+def _load_file(p: Path, *, layout: Layout | dict[str, Any] | None, kind: str | None) -> Object:
+    if kind is not None:
+        k = _KIND_ALIASES.get(kind.lower())
+        if k is None:
+            raise ManifestError(f"kind={kind!r}: expected one of {sorted(set(_KIND_ALIASES))}")
+        kind = k
+    if layout is not None:
+        lay = layout if isinstance(layout, Layout) else Layout.model_validate(layout)
+        if kind is None:
+            dims = lay.dims()
+            kind = "volume" if len(dims) == 3 and all(d is not None for d in dims) else "pointcloud"
+        return wrap(p, kind=kind, layout=lay)
+    return wrap(p, kind=kind)

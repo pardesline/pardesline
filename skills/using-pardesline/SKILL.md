@@ -48,7 +48,8 @@ ds = pl.load("rire_brain")  # Dataset: samples with typed roles, fetched on acce
 | run one of the 73 algorithms, see its parameters | `pl.run`, `pl.describe("module.method")`, CLI `pardesline run` | catalog-and-run |
 | chain operations on a file, keep frame/licence/provenance | `pl.load(file)` then `.downsample() .poisson() .decimate() ...` | object-model |
 | segment a volume, turn a label into a surface, register two scans | `Volume.segment()`, `LabelMap.to_mesh(label)`, `Volume.align(moving)` | object-model, medical-volumes |
-| load a public dataset or your own folder | `pl.load("rire_brain")`, `pl.load("/data/study")` | datasets-and-manifests, scanning-private-folders |
+| load a public dataset, a Hugging Face repo or your own folder | `pl.load("msd_task02_heart")`, `pl.load("hf://org/name/sub")`, `pl.load("/data/study")` | datasets-and-manifests, scanning-private-folders |
+| read a raw `.npy` / `.bin` array, standardise a dataset | `pl.load("sweep.bin", layout={...})`, `ds.export(folder)`, `pardesline export` | object-model, datasets-and-manifests |
 | write a manifest, answer the scan's questions | `pl.scan(folder)`, `pl.load(folder, license=..., units=..., labels=...)` | scanning-private-folders |
 | share a result, run on the hosted GPU, open a browser viewer | `pl.login()`, `pl.upload`, `pl.share`, `pardesline.cloud` | cloud-client |
 | add an algorithm or a manifest to the package | `src/pardesline/ops/<module>/`, `catalog/data/<module>.json`, `data/manifests/` | contributing-algorithms |
@@ -80,8 +81,9 @@ module/method), `RunError` (script failed: `.returncode`, `.log`, `.command`),
 
 ## Quick facts
 
-19 modules, 73 methods, 371 parameters (`pl.catalog()`), 7 bundled datasets
-(`pl.datasets()`), outputs default to `pl.output_dir()` (system temp,
+19 modules, 73 methods, 371 parameters (`pl.catalog()`), 16 bundled datasets
+(`pl.datasets()`: 7 small excerpts, 3 remote archives read by HTTP Range, 6
+Hugging Face repos), outputs default to `pl.output_dir()` (system temp,
 change with `pl.set_output_dir`), downloads cache in `~/.cache/pardesline`
 (`PARDESLINE_CACHE`). `pl.o3d`, `pl.pv`, `pl.sitk`, `pl.np` are the real
 libraries when installed, the cloud-executed mirrors otherwise.

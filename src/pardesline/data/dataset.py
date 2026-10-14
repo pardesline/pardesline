@@ -12,10 +12,12 @@ from loguru import logger
 
 from ..errors import ManifestError
 from ..object import Frame, License, Object, wrap
-from .manifest import Manifest, Role, SampleSpec
+from .manifest import LicenseSpec, Manifest, Role, SampleSpec, SourceSpec
 from .sources import Source
 
 __all__ = ["Dataset", "Sample", "derive_samples"]
+
+_DICOM_EXTS = {".dcm", ".ima", ".dicom"}
 
 _ROLE_KIND = {
     "volume": "volume",
@@ -60,6 +62,7 @@ def _pattern_regex(pattern: str) -> tuple[re.Pattern[str], list[str]]:
 def derive_samples(manifest: Manifest, listing: list[str]) -> list[SampleSpec]:
     """Group a file listing into samples using the roles' patterns."""
     groups: dict[str, dict[str, Any]] = {}
+    extra_matches: dict[str, set[str]] = {}
     for role_name, role in manifest.roles.items():
         if not role.pattern:
             continue
@@ -69,16 +72,31 @@ def derive_samples(manifest: Manifest, listing: list[str]) -> list[SampleSpec]:
             if not m:
                 continue
             fields = m.groupdict()
-            sid = fields.get("id") or "/".join(fields.values()) or Path(rel).stem
+            # ``{id}`` names the sample; otherwise every placeholder, in order,
+            # so ``{study}/{subject}`` stays unique across studies.
+            sid = fields.get("id") or "/".join(fields[n] for n in _names) or Path(rel).stem
             g = groups.setdefault(sid, {"files": {}, "fields": {}})
             if role_name in g["files"]:
-                # several files for one role in one sample (DICOM slices): keep the folder
-                g["files"][role_name] = str(Path(rel).parent.as_posix())
+                if Path(rel).suffix.lower() in _DICOM_EXTS or not Path(rel).suffix:
+                    # several files for one role in one sample (DICOM slices): keep the folder
+                    g["files"][role_name] = str(Path(rel).parent.as_posix())
+                else:
+                    # a second match (e.g. a second run of the same modality): keep the first, say so
+                    extra_matches.setdefault(role_name, set()).add(sid)
             else:
                 g["files"][role_name] = rel
             g["fields"].update({k: v for k, v in fields.items() if k != "id"})
     if not groups:
         raise ManifestError(f"{manifest.name}: no file in the source matches the role patterns.")
+    for role_name, sids in extra_matches.items():
+        logger.warning(
+            "{}: role {!r} matches more than one file in {} sample(s) (e.g. {}); the first match is used. "
+            "Refine the pattern or add a placeholder to tell them apart.",
+            manifest.name,
+            role_name,
+            len(sids),
+            sorted(sids)[0],
+        )
     return [SampleSpec(id=sid, files=g["files"], fields=g["fields"]) for sid, g in sorted(groups.items())]
 
 
@@ -292,6 +310,12 @@ class Dataset:
     # ---- objects ----------------------------------------------------------
     def _make_object(self, sample: Sample, role_name: str) -> Object:
         role = self.roles[role_name]
+        rel = sample._spec.files[role_name]
+        if role.needs_layout(rel):
+            raise ManifestError(
+                f"{self.name}: role {role_name!r} ({rel}) is a raw array and the manifest gives no layout "
+                "(dtype, shape, columns / key). Add one to the role; the package never guesses it."
+            )
         path = sample.path(role_name)
         declared = (
             Frame(axes=role.frame, units=role.units, source="manifest")
@@ -305,6 +329,7 @@ class Dataset:
             labels=role.labels,
             license=self.license,
             role=role_name,
+            layout=role.layout,
             provenance=[
                 {
                     "step": "load",
@@ -317,8 +342,77 @@ class Dataset:
             ],
             read_sidecar=False,
         )
-        if role.layout:
-            obj.meta["layout"] = dict(role.layout)
         if role.modality:
             obj.meta["modality"] = role.modality
         return obj
+
+    # ---- standardise ------------------------------------------------------
+    def export(self, folder: str | Path, *, overwrite: bool = False) -> Manifest:
+        """Write every sample of this (sub)dataset as standard files in
+        ``folder`` - raw arrays become PLY or MetaImage through their layout,
+        DICOM series become one ``.mha`` - each with its ``.pardesline.json``
+        sidecar (frame, units, labels, licence, provenance), plus a local
+        ``pardesline.manifest.json`` so ``pl.load(folder)`` reopens the copy
+        without questions. Returns that manifest."""
+        root = Path(folder).expanduser()
+        root.mkdir(parents=True, exist_ok=True)
+        roles_out: dict[str, Role] = {}
+        samples_out: list[SampleSpec] = []
+        for spec in self._specs:
+            s = self[spec.id]
+            files: dict[str, str] = {}
+            for role_name in s.roles:
+                obj = s.get(role_name)
+                ext = _standard_extension(obj)
+                rel = f"{spec.id}/{role_name}{ext}"
+                dest = root / rel
+                if dest.exists() and not overwrite:
+                    raise FileExistsError(f"{dest} exists; pass overwrite=True to replace it")
+                obj.save(dest)
+                files[role_name] = rel
+                src_role = self.roles[role_name]
+                roles_out.setdefault(
+                    role_name,
+                    Role(
+                        type=src_role.type,
+                        description=src_role.description,
+                        frame=obj.frame.axes,
+                        units=obj.frame.units,
+                        labels=src_role.labels,
+                        modality=src_role.modality,
+                    ),
+                )
+            samples_out.append(SampleSpec(id=spec.id, files=files, fields=dict(spec.fields)))
+        lic = self.manifest.license
+        out = Manifest(
+            name=self.manifest.name,
+            title=self.manifest.title,
+            description=(
+                f"Standard copy of {self.name} exported by pardesline from {self._source.describe()}. "
+                + (self.manifest.description or "")
+            ).strip(),
+            source=SourceSpec(scheme="local", root="."),
+            license=LicenseSpec(**lic.model_dump(exclude_none=True)),
+            citation=self.manifest.citation,
+            homepage=self.manifest.homepage,
+            pairing=self.manifest.pairing,
+            roles=roles_out,
+            samples=samples_out,
+            tags=list(self.manifest.tags),
+        )
+        from .scan import DRAFT_NAME
+
+        out.save(root / DRAFT_NAME)
+        logger.info("{}: {} samples exported to {}", self.name, len(samples_out), root)
+        return out
+
+
+def _standard_extension(obj: Object) -> str:
+    """The file type an exported object takes: standard formats as they are,
+    raw arrays and DICOM folders materialised."""
+    if obj.is_raw_array:
+        return ".mha" if obj.kind in ("volume", "labels") else ".ply"
+    if obj.path.is_dir():
+        return ".mha"
+    ext = obj.extension
+    return ext if ext else ".bin"

@@ -106,6 +106,17 @@ class NeedsConfirmation(PardesLineError):
         labels = [q.field.split(".")[1] for q in self.questions if q.field.endswith(".labels")]
         if labels:
             example.append("labels={" + ", ".join(f"{r!r}: {{1: 'organ'}}" for r in labels[:2]) + "}")
+        layouts = [q.field.split(".")[1] for q in self.questions if q.field.endswith(".layout")]
+        if layouts:
+            example.append("types={" + ", ".join(f"{r!r}: 'points'" for r in layouts[:2]) + "}")
+            example.append(
+                "layout={"
+                + ", ".join(
+                    f"{r!r}: {{'dtype': 'float32', 'shape': '(N,4)', 'columns': ['x', 'y', 'z', 'i']}}"
+                    for r in layouts[:2]
+                )
+                + "}"
+            )
         lines.append("  " + ", ".join(example) + ")")
         lines.append(
             "or edit the saved draft, or pass assume=True to proceed with unknowns, or interactive=True."

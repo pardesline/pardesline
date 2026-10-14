@@ -37,9 +37,26 @@ def open_source(spec: SourceSpec, manifest: Manifest, *, manifest_dir: Path | No
     if spec.scheme == "hf":
         from .hf import HfSource
 
-        return HfSource(spec.repo_id or "", revision=spec.revision, repo_type=spec.repo_type)
+        return HfSource(
+            spec.repo_id or "",
+            revision=spec.revision,
+            repo_type=spec.repo_type,
+            paths=spec.paths,
+            max_files=spec.max_files,
+        )
     if spec.scheme == "open3d":
         from .open3d import Open3DSource
 
         return Open3DSource(spec.dataset or "")
+    if spec.scheme == "archive":
+        from .archive import RemoteArchiveSource
+
+        return RemoteArchiveSource(
+            manifest.name,
+            spec.url or "",
+            format=spec.archive_format,
+            prefix=spec.prefix,
+            sha512=spec.sha512,
+            md5=spec.md5,
+        )
     raise ValueError(f"unknown source scheme {spec.scheme!r}")

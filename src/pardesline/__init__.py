@@ -28,6 +28,7 @@ from ._version import __version__
 from .catalog import Catalog, Method, Module, Parameter, load_catalog
 from .data import Dataset, Manifest, Sample, cache_dir, datasets, scan, set_cache_dir
 from .data import load as load
+from .data.manifest import Layout
 from .errors import (
     CatalogError,
     FetchError,
@@ -38,7 +39,7 @@ from .errors import (
     PardesLineError,
     RunError,
 )
-from .object import Frame, Image, LabelMap, License, Mesh, Object, PointCloud, Transform, Volume
+from .object import Frame, Image, LabelMap, License, Mesh, Object, PointCloud, RawArray, Transform, Volume
 from .runner import RunResult, output_dir, run, set_output_dir
 
 __all__ = [
@@ -49,6 +50,7 @@ __all__ = [
     "Frame",
     "Image",
     "LabelMap",
+    "Layout",
     "License",
     "Manifest",
     "ManifestError",
@@ -62,6 +64,7 @@ __all__ = [
     "ParameterError",
     "PardesLineError",
     "PointCloud",
+    "RawArray",
     "RunError",
     "RunResult",
     "Sample",

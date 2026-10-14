@@ -18,10 +18,23 @@ def test_bundled_manifests_exist_and_are_valid():
     for m in BUNDLED:
         assert m.license.source_url or m.license.spdx, f"{m.name}: licence needs at least a source URL"
         assert m.citation, f"{m.name}: citation missing"
-        assert m.samples, f"{m.name}: bundled manifests list their samples explicitly"
         assert not m.is_draft
         assert "TO CONFIRM" in (m.license.note or "") or m.license.spdx, m.name  # honest about unknown terms
-        for s in m.samples:
+        if m.source.scheme in ("https", "open3d"):
+            assert m.samples, f"{m.name}: small bundled datasets list their samples explicitly"
+        else:
+            # hub repos and remote archives derive samples from a scoped listing
+            assert all(r.pattern for r in m.roles.values()), f"{m.name}: every role needs a pattern"
+            assert m.license.spdx, f"{m.name}: public hub/archive manifests state the licence id"
+            assert m.license.commercial is not None or "TO CONFIRM" in (m.license.note or ""), m.name
+        if m.source.scheme == "hf":
+            assert m.source.paths, f"{m.name}: hf manifests scope the listing with source.paths"
+        if m.source.scheme == "archive":
+            assert m.source.archive_format in ("zip", "tar") and m.source.prefix, m.name
+        for r in m.roles.values():
+            if r.pattern and r.needs_layout(r.pattern):
+                raise AssertionError(f"{m.name}: raw-array role without layout")
+        for s in m.samples or []:
             for role, rel in s.files.items():
                 assert role in m.roles
                 if m.source.scheme == "https":
@@ -114,7 +127,11 @@ def test_pattern_regex_and_derive_samples():
 
 
 def test_load_manifest_errors():
-    with pytest.raises(pl.ManifestError, match="No manifest for hf://"):
-        pl.load("hf://nobody/nothing")
+    with pytest.raises(pl.ManifestError, match="No bundled manifest for hf://"):
+        pl.data.load_manifest("hf://nobody/nothing")
+    with pytest.raises(pl.ManifestError, match="hf://<org>/<name>"):
+        pl.data.parse_hf_ref("hf://only-org")
+    assert pl.data.parse_hf_ref("hf://org/name/a/b") == ("org/name", "a/b")
+    assert pl.data.parse_hf_ref("hf://datasets/org/name") == ("org/name", None)
     with pytest.raises(FileNotFoundError, match="no bundled dataset"):
         pl.load("not_a_dataset_name")

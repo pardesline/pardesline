@@ -9,8 +9,11 @@ description: >-
   answering modes of `pl.load(folder, ...)`: strict `NeedsConfirmation` with a saved
   draft `pardesline.manifest.json`, answers as keyword arguments (`license=`, `units=`,
   `frame=`, `labels=`, `pairing=`), `interactive=True`, `assume=True`; and how an AI
-  agent should relay the questions to the human. Use whenever `pl.load` is given a
-  directory or the user says "my data", "my folder", "our study".
+  agent should relay the questions to the human; the same flow for a Hugging Face repo
+  without a bundled manifest (`pl.load("hf://org/name/sub")`, `pl.scan("hf://...")`),
+  including the `types=` / `layout=` answers that raw `.npy` `.npz` `.bin` arrays need.
+  Use whenever `pl.load` is given a directory or an un-manifested hub repo, or the user
+  says "my data", "my folder", "our study".
 ---
 
 # Scanning a private folder
@@ -60,10 +63,20 @@ suggestion)`), `.manifest` (the draft) and `.draft_path`.
    integer voxels, asks whether it is a label map.
 5. Fills frames it can know: ITK formats -> LPS/mm, glTF -> Y-up/m; asks
    units (and frame for meshes/points) for the rest.
-6. Always asks the licence.
+6. Asks the licence unless the source states one (a Hub card).
+7. Raw arrays (`.npy`, `.npz`, `.bin`, `.raw`) become `attribute` roles with
+   a `roles.<role>.layout` question: the type and the layout must be declared
+   (`types={"sweep": "points"}`, `layout={"sweep": {...}}`).
+8. A folder that wraps everything (`raw/p01/...`) is stripped before
+   grouping; one folder holding files of different kinds is one sample whose
+   files are its roles, a folder of same-kind files is one sample per file.
 
 `pl.scan(folder, name=None, read_headers=True)` returns the draft `Manifest`
 (`.questions`, `.is_draft`, `.describe()`), without raising.
+`pl.scan("hf://org/name/sub")` does the same from the repo listing (no
+headers read; the licence comes from the Hub card, marked TO CONFIRM); the
+draft is saved under `pl.cache_dir()/drafts/` and reused by the next
+`pl.load("hf://...")`.
 
 ## The four ways to answer
 
@@ -77,6 +90,8 @@ ds = pl.load(
     frame={"surface": "LPS"},  # ... or per role
     labels={"mask": {1: "liver", 2: "tumor"}},  # per role; {1: "liver"} applies to all label roles
     pairing="folder",
+    types={"sweep": "points"},  # raw arrays: what they are ...
+    layout={"sweep": {"dtype": "float32", "shape": "(N,4)", "columns": ["x", "y", "z", "i"]}},  # ... and how
 )
 ```
 
@@ -108,7 +123,9 @@ manifest for the next session.
 
 ## Limits (say them when relevant)
 
-- No reading inside `.npy` / `.bin`: a manifest with `layout` is required.
+- No reading inside `.npy` / `.npz` / `.bin`: the `layout` answer (or a
+  manifest with one) is required; `pl.load("sweep.bin", layout={...})` for a
+  single file.
 - DICOM series are split per folder, not per `SeriesInstanceUID`; a folder
   mixing series loads as one series (the largest) through SimpleITK.
 - `.vti` headers are read fully (no header-only reader), so the scan of a

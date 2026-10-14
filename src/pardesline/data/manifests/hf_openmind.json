@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "name": "hf_openmind",
+  "title": "OpenMind: head-and-neck 3D MRI pooled from OpenNeuro, one study at a time",
+  "description": "114k MRI volumes from 800 OpenNeuro studies, pooled by the nnU-Net group (MIC-DKFZ) for self-supervised pre-training, each with a deface mask and an anatomy mask. The repo holds 266 721 files: listing it whole takes 15 minutes and is rate-limited for anonymous clients, so this manifest scopes the listing to one study (source.paths). pl.load('hf://MIC-DKFZ/OpenMind/OpenMind/ds000003') picks another study; openneuro_metadata.csv at the repo root indexes them all.",
+  "source": {
+    "scheme": "hf",
+    "repo_id": "MIC-DKFZ/OpenMind",
+    "paths": [
+      "OpenMind/ds000001"
+    ]
+  },
+  "license": {
+    "spdx": "CC-BY-4.0",
+    "commercial": true,
+    "source_url": "https://huggingface.co/datasets/MIC-DKFZ/OpenMind",
+    "redistribution": "allowed",
+    "note": "CC BY 4.0 on the Hub card (checked 2026-10-13); each OpenNeuro study keeps its own CC0 / CC BY terms upstream, TO CONFIRM per study before redistribution."
+  },
+  "citation": "Wald T., Ulrich C., Suprijadi J., et al. An OpenMind for 3D medical vision self-supervised learning. arXiv:2412.17041, 2024.",
+  "homepage": "https://huggingface.co/datasets/MIC-DKFZ/OpenMind",
+  "pairing": "subject",
+  "tags": [
+    "medical",
+    "mri",
+    "head",
+    "brain",
+    "nifti",
+    "hf",
+    "self-supervised"
+  ],
+  "roles": {
+    "t1w": {
+      "type": "volume",
+      "description": "T1-weighted MRI (NIfTI; LPS mm come from the header once loaded)",
+      "pattern": "OpenMind/{study}/{subject}/anat/*_T1w.nii.gz",
+      "modality": "MR"
+    },
+    "t2w": {
+      "type": "volume",
+      "description": "T2-weighted MRI when the study has one (inplane T2 in ds000001)",
+      "pattern": "OpenMind/{study}/{subject}/anat/*T2*.nii.gz",
+      "modality": "MR"
+    },
+    "deface_mask": {
+      "type": "labels",
+      "description": "Voxels removed by defacing on the T1w image",
+      "pattern": "OpenMind/{study}/{subject}/anat/*_T1w__Data/deface_mask.nii.gz",
+      "labels": {
+        "1": "defaced"
+      },
+      "confidence": {
+        "labels": 0.7
+      }
+    },
+    "anatomy_mask": {
+      "type": "labels",
+      "description": "Voxels that hold anatomy on the T1w image (fb_mask)",
+      "pattern": "OpenMind/{study}/{subject}/anat/*_T1w__Data/fb_mask.nii.gz",
+      "labels": {
+        "1": "anatomy"
+      },
+      "confidence": {
+        "labels": 0.7
+      }
+    }
+  }
+}

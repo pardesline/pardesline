@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "name": "amos22",
+  "title": "AMOS 22: abdominal multi-organ segmentation, 600 CT and MRI with 15 organ labels",
+  "description": "The AMOS benchmark (Ji et al., NeurIPS 2022): 500 CT and 100 MRI scans with 15 abdominal organs annotated; 240 training, 120 validation and 240 test images. Read case by case out of the 24 GB zip64 archive on Zenodo (HTTP Range: the 1 207-entry central directory costs 145 KB, one case its own size). Case ids below 500 are CT, 500 and above are MRI. ds.filter(split='Tr') or 'Va' keeps the labelled cases.",
+  "source": {
+    "scheme": "archive",
+    "url": "https://zenodo.org/records/7262581/files/amos22.zip",
+    "format": "zip",
+    "prefix": "amos22"
+  },
+  "license": {
+    "spdx": "CC-BY-SA-4.0",
+    "commercial": true,
+    "source_url": "https://zenodo.org/records/7262581",
+    "redistribution": "allowed",
+    "note": "CC-BY-SA 4.0 as stated in the archive's dataset.json (checked 2026-10-13); the Zenodo record page lists its own licence field, TO CONFIRM that both agree before redistribution."
+  },
+  "citation": "Ji Y., Bai H., Ge C., et al. AMOS: A Large-Scale Abdominal Multi-Organ Benchmark for Versatile Medical Image Segmentation. NeurIPS 2022 Datasets and Benchmarks.",
+  "homepage": "https://amos22.grand-challenge.org/",
+  "pairing": "id",
+  "size_mb": 24234,
+  "tags": [
+    "medical",
+    "ct",
+    "mri",
+    "abdomen",
+    "multi-organ",
+    "segmentation",
+    "nifti",
+    "zenodo"
+  ],
+  "roles": {
+    "image": {
+      "type": "volume",
+      "description": "Abdominal CT (ids < 500) or MRI (ids >= 500), NIfTI, LPS mm from the header",
+      "pattern": "amos22/images{split}/{id}.nii.gz"
+    },
+    "mask": {
+      "type": "labels",
+      "description": "15-organ label map (training and validation cases)",
+      "pattern": "amos22/labels{split}/{id}.nii.gz",
+      "labels": {
+        "1": "spleen",
+        "2": "right_kidney",
+        "3": "left_kidney",
+        "4": "gall_bladder",
+        "5": "esophagus",
+        "6": "liver",
+        "7": "stomach",
+        "8": "aorta",
+        "9": "postcava",
+        "10": "pancreas",
+        "11": "right_adrenal_gland",
+        "12": "left_adrenal_gland",
+        "13": "duodenum",
+        "14": "bladder",
+        "15": "prostate_uterus"
+      }
+    }
+  }
+}

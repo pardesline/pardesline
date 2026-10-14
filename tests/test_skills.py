@@ -80,7 +80,9 @@ def test_dataset_names_exist(path):
     for name in re.findall(r'pl\.load\("([a-z0-9_]+)"\)', text):
         assert name in bundled, f"{path.parent.name}: dataset {name}"
     for name in re.findall(r"`([a-z0-9_]+)`", text):
-        if name.startswith(("rire_", "popi_", "liver_", "visible_", "open3d_")):
+        if name.startswith(
+            ("rire_", "popi_", "liver_", "visible_", "open3d_", "hf_", "msd_", "kitti_", "amos")
+        ):
             assert name in bundled, f"{path.parent.name}: dataset {name}"
 
 

@@ -17,8 +17,19 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from ..errors import ManifestError
+from ..object.arrays import ARRAY_EXTS
 
-__all__ = ["FileSpec", "LicenseSpec", "Manifest", "Question", "Role", "SampleSpec", "SourceSpec"]
+__all__ = [
+    "ARRAY_EXTS",
+    "FileSpec",
+    "Layout",
+    "LicenseSpec",
+    "Manifest",
+    "Question",
+    "Role",
+    "SampleSpec",
+    "SourceSpec",
+]
 
 ROLE_TYPES = (
     "volume",
@@ -32,7 +43,7 @@ ROLE_TYPES = (
     "calibration",
     "file",
 )
-SCHEMES = ("local", "https", "hf", "open3d")
+SCHEMES = ("local", "https", "hf", "open3d", "archive")
 
 # Hash-addressed mirrors used by the SimpleITK notebooks data; ``{sha512}`` is substituted.
 DEFAULT_MIRRORS = (
@@ -46,16 +57,39 @@ class _Model(BaseModel):
 
 
 class FileSpec(_Model):
-    """One downloadable file of an ``https`` source."""
+    """One downloadable file of an ``https`` source. ``sha512`` is preferred;
+    ``md5`` is accepted when that is what the upstream publishes."""
 
-    sha512: str = Field(min_length=128, max_length=128, pattern=r"^[0-9a-f]+$")
+    sha512: str | None = Field(default=None, min_length=128, max_length=128, pattern=r"^[0-9a-f]+$")
+    md5: str | None = Field(default=None, min_length=32, max_length=32, pattern=r"^[0-9a-f]+$")
     url: str | None = None
     archive: bool = False  # the download is a tar/zip whose content lands in the file's folder
+    archive_root: str | None = None  # ... or in this folder relative to the dataset cache ("." = root)
     size_mb: float | None = None
+
+    @model_validator(mode="after")
+    def _one_hash(self) -> FileSpec:
+        if self.sha512 is None and self.md5 is None:
+            raise ValueError("a file needs a sha512 (preferred) or an md5 checksum")
+        return self
 
 
 class SourceSpec(_Model):
-    scheme: Literal["local", "https", "hf", "open3d"]
+    """Where the files come from.
+
+    - ``local``: ``root`` folder (absolute, or relative to the manifest file).
+    - ``https``: ``files`` with checksums, optional ``mirrors``.
+    - ``hf``: ``repo_id`` on the Hugging Face Hub; ``paths`` restricts the
+      listing to sub-folders (a 100k-file repo is never listed whole);
+      ``max_files`` caps what one listing may return.
+    - ``open3d``: a class of ``open3d.data``.
+    - ``archive``: one remote ``url`` of a zip or uncompressed tar read with
+      HTTP Range requests: the index costs a few KB, a member costs its own
+      size, the archive is never downloaded whole when the server supports
+      ranges. ``prefix`` restricts the listing to members under it.
+    """
+
+    scheme: Literal["local", "https", "hf", "open3d", "archive"]
     # local
     root: str | None = None
     # https
@@ -65,12 +99,26 @@ class SourceSpec(_Model):
     repo_id: str | None = None
     revision: str = "main"
     repo_type: str = "dataset"
+    paths: list[str] | None = None
+    max_files: int = Field(default=20000, ge=1)
     # open3d
     dataset: str | None = None
+    # archive
+    url: str | None = None
+    format: Literal["zip", "tar"] | None = None  # inferred from the url when absent
+    prefix: str | None = None
+    sha512: str | None = Field(default=None, min_length=128, max_length=128, pattern=r"^[0-9a-f]+$")
+    md5: str | None = Field(default=None, min_length=32, max_length=32, pattern=r"^[0-9a-f]+$")
 
     @model_validator(mode="after")
     def _check(self) -> SourceSpec:
-        need = {"local": ["root"], "https": ["files"], "hf": ["repo_id"], "open3d": ["dataset"]}[self.scheme]
+        need = {
+            "local": ["root"],
+            "https": ["files"],
+            "hf": ["repo_id"],
+            "open3d": ["dataset"],
+            "archive": ["url"],
+        }[self.scheme]
         for field in need:
             if getattr(self, field) in (None, {}, ""):
                 raise ValueError(f"source.{field} is required for scheme {self.scheme!r}")
@@ -78,7 +126,61 @@ class SourceSpec(_Model):
             for rel, spec in self.files.items():
                 if spec.url is None and not (self.mirrors or DEFAULT_MIRRORS):
                     raise ValueError(f"source.files[{rel!r}] needs a url or mirrors")
+        if self.scheme == "archive" and self.format is None:
+            low = (self.url or "").lower().split("?")[0]
+            if low.endswith(".zip"):
+                self.format = "zip"
+            elif low.endswith(".tar"):
+                self.format = "tar"
+            else:
+                raise ValueError(
+                    "source.format must be 'zip' or 'tar' when the url does not end with .zip/.tar "
+                    "(compressed tars cannot be read by range)"
+                )
         return self
+
+    @property
+    def archive_format(self) -> str:
+        return self.format or ""
+
+
+class Layout(_Model):
+    """How to read a raw array file (``.npy``, ``.npz``, ``.bin``) as data.
+
+    Points: ``shape="(N,4)"`` with ``columns=["x","y","z","reflectance"]``.
+    Grids: ``shape="(L,W,H)"`` (voxel values) with optional ``spacing`` and
+    ``origin`` in the role's units. ``dtype`` is required for headerless
+    ``.bin`` / ``.raw`` files; ``key`` picks an array in an ``.npz``.
+    """
+
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
+
+    dtype: str | None = None
+    shape: str | None = None  # "(N,3)", "(N,4)", "(200,200,16)"
+    columns: list[str] | None = None
+    key: str | None = None
+    order: Literal["C", "F"] = "C"
+    spacing: list[float] | None = None
+    origin: list[float] | None = None
+    scale: float | None = None  # multiply colours/intensities, e.g. 1/255
+    note: str | None = None
+
+    @field_validator("shape")
+    @classmethod
+    def _shape_syntax(cls, v):
+        if v is None:
+            return None
+        s = v.replace(" ", "")
+        if not re.fullmatch(r"\((?:[A-Za-z0-9]+)(?:,[A-Za-z0-9]+)*,?\)", s):
+            raise ValueError(f"layout.shape {v!r} must look like '(N,3)' or '(200,200,16)'")
+        return s
+
+    def dims(self) -> list[int | None]:
+        """``"(N,4)"`` -> ``[None, 4]``; letters mean 'whatever the file holds'."""
+        if not self.shape:
+            return []
+        inner = self.shape.strip("()").rstrip(",")
+        return [int(t) if t.isdigit() else None for t in inner.split(",") if t]
 
 
 class LicenseSpec(_Model):
@@ -112,7 +214,7 @@ class Role(_Model):
     frame: str | None = None  # axis convention, e.g. "LPS", "sensor"
     units: str | None = None  # "mm", "m"
     labels: dict[int, str] | None = None
-    layout: dict[str, Any] | None = None  # for .npy/.bin: dtype, shape, columns - never guessed
+    layout: Layout | None = None  # for .npy/.npz/.bin: dtype, shape, columns - never guessed
     modality: str | None = None
     confidence: dict[str, float] | None = None  # from pl.scan: how sure each field is
 
@@ -122,6 +224,11 @@ class Role(_Model):
         if v is None:
             return None
         return {int(k): str(name) for k, name in v.items()}
+
+    def needs_layout(self, relpath: str) -> bool:
+        """True when ``relpath`` is a raw array and this role has no layout."""
+        low = relpath.lower()
+        return any(low.endswith(ext) for ext in ARRAY_EXTS) and self.layout is None
 
 
 class SampleSpec(_Model):
@@ -174,12 +281,24 @@ class Manifest(_Model):
                 unknown = set(s.files) - set(self.roles)
                 if unknown:
                     raise ValueError(f"sample {s.id!r} uses undeclared role(s) {sorted(unknown)}")
+                for role, rel in s.files.items():
+                    if not self.is_draft and self.roles[role].needs_layout(rel):
+                        raise ValueError(
+                            f"sample {s.id!r} role {role!r}: {rel} is a raw array; the role needs a "
+                            "'layout' (dtype, shape, columns) - the package never guesses one"
+                        )
         else:
             missing = [n for n, r in self.roles.items() if not r.pattern]
             if missing:
                 raise ValueError(
                     f"without an explicit sample list every role needs a pattern; missing: {missing}"
                 )
+            for name, r in self.roles.items():
+                if not self.is_draft and r.pattern and r.needs_layout(r.pattern):
+                    raise ValueError(
+                        f"role {name!r}: pattern {r.pattern} names raw arrays; the role needs a "
+                        "'layout' (dtype, shape, columns) - the package never guesses one"
+                    )
         return self
 
     # ---- convenience -----------------------------------------------------
@@ -227,10 +346,19 @@ class Manifest(_Model):
         lines = [f"{self.name}" + (f"  -  {self.title}" if self.title else "")]
         if self.description:
             lines.append(f"  {self.description}")
-        lines.append(
-            f"  source:  {self.source.scheme}" + (f" {self.source.repo_id}" if self.source.repo_id else "")
-        )
+        src = self.source.scheme
+        if self.source.repo_id:
+            src += f" hf://{self.source.repo_id}"
+            if self.source.paths:
+                src += f" ({', '.join(self.source.paths)})"
+        elif self.source.url:
+            src += f" {self.source.url}"
+        lines.append(f"  source:  {src}")
         lic = self.license.spdx or "unknown"
+        if self.license.commercial is False:
+            lic += ", non-commercial"
+        if self.license.requires_agreement:
+            lic += ", requires accepting the source's terms"
         if self.license.note:
             lic += f" ({self.license.note})"
         lines.append(f"  licence: {lic}")
@@ -245,6 +373,8 @@ class Manifest(_Model):
                 extra.append(f"{r.frame or '?'} {r.units or '?'}")
             if r.labels:
                 extra.append("labels " + ", ".join(f"{k}={v}" for k, v in sorted(r.labels.items())))
+            if r.layout and r.layout.shape:
+                extra.append(f"layout {r.layout.shape}" + (f" {r.layout.dtype}" if r.layout.dtype else ""))
             lines.append(
                 f"    {name:<12} {r.type:<10} {r.description or ''}"
                 + (f"  [{'; '.join(extra)}]" if extra else "")

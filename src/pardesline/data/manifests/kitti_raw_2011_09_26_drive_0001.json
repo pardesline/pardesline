@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "name": "kitti_raw_2011_09_26_drive_0001",
+  "title": "KITTI raw, drive 2011_09_26_0001: 108 Velodyne sweeps with the four camera streams",
+  "description": "One synced+rectified KITTI raw drive read frame by frame out of the official 459 MB zip on S3 (HTTP Range: the central directory costs 157 KB, one sweep 2 MB). Velodyne sweeps are headerless float32 (N,4) x, y, z, reflectance in the sensor frame (x forward, y left, z up, metres) - the layout below is what makes them readable. Calibration files are their own samples.",
+  "source": {
+    "scheme": "archive",
+    "url": "https://s3.eu-central-1.amazonaws.com/avg-kitti/raw_data/2011_09_26_drive_0001/2011_09_26_drive_0001_sync.zip",
+    "format": "zip",
+    "prefix": "2011_09_26"
+  },
+  "license": {
+    "spdx": "CC-BY-NC-SA-3.0",
+    "commercial": false,
+    "source_url": "https://www.cvlibs.net/datasets/kitti/",
+    "redistribution": "forbidden",
+    "note": "KITTI terms: Creative Commons Attribution-NonCommercial-ShareAlike 3.0; the loader fetches from the authors' server, nothing is mirrored."
+  },
+  "citation": "Geiger A., Lenz P., Stiller C., Urtasun R. Vision meets Robotics: The KITTI Dataset. IJRR 2013.",
+  "homepage": "https://www.cvlibs.net/datasets/kitti/raw_data.php",
+  "pairing": "frame",
+  "size_mb": 459,
+  "tags": [
+    "lidar",
+    "points",
+    "driving",
+    "kitti",
+    "stereo",
+    "non-commercial"
+  ],
+  "roles": {
+    "lidar": {
+      "type": "points",
+      "description": "Velodyne HDL-64E sweep, sensor frame (x forward, y left, z up)",
+      "pattern": "2011_09_26/2011_09_26_drive_0001_sync/velodyne_points/data/{frame}.bin",
+      "layout": {
+        "dtype": "float32",
+        "shape": "(N,4)",
+        "columns": [
+          "x",
+          "y",
+          "z",
+          "reflectance"
+        ]
+      },
+      "frame": "sensor",
+      "units": "m"
+    },
+    "image_left": {
+      "type": "image",
+      "description": "Colour left camera (image_02), rectified",
+      "pattern": "2011_09_26/2011_09_26_drive_0001_sync/image_02/data/{frame}.png"
+    },
+    "image_right": {
+      "type": "image",
+      "description": "Colour right camera (image_03), rectified",
+      "pattern": "2011_09_26/2011_09_26_drive_0001_sync/image_03/data/{frame}.png"
+    },
+    "calibration": {
+      "type": "calibration",
+      "description": "KITTI calibration text files (velo_to_cam, cam_to_cam, imu_to_velo)",
+      "pattern": "2011_09_26/calib_*.txt"
+    }
+  }
+}

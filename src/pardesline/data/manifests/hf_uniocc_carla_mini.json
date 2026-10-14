@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "name": "hf_uniocc_carla_mini",
+  "title": "UniOcc, CARLA 10 Hz mini split: LiDAR sweeps, camera views and semantic occupancy grids",
+  "description": "The smallest split of UniOcc (unified occupancy benchmark over nuScenes, Waymo, CARLA, OpenCOOD). Two CARLA scenes at 10 Hz; per time step a surround LiDAR sweep (.ply), four camera images, a bird's-eye view and an .npz with the 200x200x16 semantic occupancy grid, camera/LiDAR masks, voxel flow and the ego-to-world 4x4 transform. The other splits are folders of the same repo: pl.load('hf://tasl-lab/uniocc/NuScenes-via-Occ3D-2Hz-mini').",
+  "source": {
+    "scheme": "hf",
+    "repo_id": "tasl-lab/uniocc",
+    "paths": [
+      "Carla-10Hz-mini"
+    ]
+  },
+  "license": {
+    "spdx": "MIT",
+    "commercial": true,
+    "source_url": "https://huggingface.co/datasets/tasl-lab/uniocc",
+    "redistribution": "allowed",
+    "note": "MIT on the Hub card (checked 2026-10-13). The nuScenes- and Waymo-derived splits of the same repo inherit the upstream terms of those datasets (non-commercial for nuScenes) - this manifest covers the CARLA split only."
+  },
+  "citation": "Wang Y., Huang X., Sun X., Yan M., Xing S., Tu Z., Li J. UniOcc: A Unified Benchmark for Occupancy Forecasting and Prediction in Autonomous Driving. arXiv:2503.24381, 2025.",
+  "homepage": "https://uniocc.github.io/",
+  "pairing": "scene",
+  "size_mb": 5000,
+  "tags": [
+    "lidar",
+    "driving",
+    "occupancy",
+    "points",
+    "carla",
+    "hf"
+  ],
+  "roles": {
+    "lidar": {
+      "type": "points",
+      "description": "Surround LiDAR sweep in the ego-vehicle frame",
+      "pattern": "Carla-10Hz-mini/{scene}/{frame}_surround_lidar.ply",
+      "frame": "sensor",
+      "units": "m",
+      "confidence": {
+        "frame": 0.8,
+        "units": 0.9
+      }
+    },
+    "occupancy": {
+      "type": "labels",
+      "description": "Semantic occupancy grid 200x200x16 (L, W, H), class ids per the UniOcc repo; voxel size and grid origin are not stated on the card, so the grid is loaded with unit spacing (TO CONFIRM: 0.4 m voxels in the Occ3D convention)",
+      "pattern": "Carla-10Hz-mini/{scene}/{frame}.npz",
+      "layout": {
+        "key": "occ_label",
+        "shape": "(200,200,16)",
+        "note": "int64 class ids; 0 = free in the Occ3D convention [TO CONFIRM]"
+      }
+    },
+    "ego_to_world": {
+      "type": "attribute",
+      "description": "4x4 transform from the ego vehicle to the world frame (same .npz)",
+      "pattern": "Carla-10Hz-mini/{scene}/{frame}.npz",
+      "layout": {
+        "key": "ego_to_world_transformation",
+        "shape": "(4,4)"
+      }
+    },
+    "camera_0": {
+      "type": "image",
+      "pattern": "Carla-10Hz-mini/{scene}/{frame}_camera_0.png"
+    },
+    "camera_1": {
+      "type": "image",
+      "pattern": "Carla-10Hz-mini/{scene}/{frame}_camera_1.png"
+    },
+    "camera_2": {
+      "type": "image",
+      "pattern": "Carla-10Hz-mini/{scene}/{frame}_camera_2.png"
+    },
+    "camera_3": {
+      "type": "image",
+      "pattern": "Carla-10Hz-mini/{scene}/{frame}_camera_3.png"
+    },
+    "bev": {
+      "type": "image",
+      "description": "Bird's-eye-view rendering of the frame",
+      "pattern": "Carla-10Hz-mini/{scene}/{frame}_bev.png"
+    }
+  }
+}

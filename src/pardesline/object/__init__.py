@@ -30,14 +30,16 @@ from loguru import logger
 
 from .._version import __version__
 from ..catalog import Method, load_catalog
-from ..errors import MissingDependency, ParameterError
+from ..errors import ManifestError, MissingDependency, ParameterError
 from ..runner import output_dir
 from ..runner import run as _run
-from . import convert
+from . import arrays, convert
+from .arrays import ARRAY_EXTS, is_array_file
 from .frame import FORMAT_FRAMES, ITK_VOLUME_EXTS, Frame, License
 
 __all__ = [
     "ALIASES",
+    "ARRAY_EXTS",
     "KIND_BY_EXT",
     "SIDECAR_SUFFIX",
     "Frame",
@@ -47,7 +49,9 @@ __all__ = [
     "Mesh",
     "Object",
     "PointCloud",
+    "RawArray",
     "Transform",
+    "Volume",
     "kind_of",
     "load_object",
     "wrap",
@@ -92,6 +96,11 @@ KIND_BY_EXT: dict[str, str] = {
     ".zip": "archive",
     ".tar": "archive",
     ".gz": "archive",
+    # raw arrays: typed only once a layout says what the numbers are
+    ".npy": "array",
+    ".npz": "array",
+    ".bin": "array",
+    ".raw": "array",
 }
 
 # Friendly names -> (module, method). Kept small and obvious; everything else
@@ -153,6 +162,7 @@ class Object:
         provenance: list[dict[str, Any]] | None = None,
         role: str | None = None,
         meta: dict[str, Any] | None = None,
+        layout: Any = None,
         read_sidecar: bool = True,
     ):
         self.path = Path(path).expanduser()
@@ -164,6 +174,10 @@ class Object:
         self.role = role
         self.meta: dict[str, Any] = dict(meta or {})
         side = self._read_sidecar() if read_sidecar else {}
+        if layout is None:
+            layout = side.get("layout")
+        if layout is not None:
+            self.meta["layout"] = layout if isinstance(layout, dict) else layout.model_dump(exclude_none=True)
         self.provenance: list[dict[str, Any]] = list(
             provenance if provenance is not None else side.get("provenance", [])
         )
@@ -254,6 +268,25 @@ class Object:
     def sidecar_path(self) -> Path:
         return self.path.with_name(self.path.name + SIDECAR_SUFFIX)
 
+    @property
+    def is_raw_array(self) -> bool:
+        """True for ``.npy`` / ``.npz`` / ``.bin`` / ``.raw`` files: data that only a layout can read."""
+        return is_array_file(self.path)
+
+    @property
+    def layout(self) -> dict[str, Any] | None:
+        """How a raw array is to be read (dtype, shape, columns, key...), when declared."""
+        lay = self.meta.get("layout")
+        return dict(lay) if lay else None
+
+    def with_layout(self, **layout: Any) -> Object:
+        """A copy that declares the array layout, e.g.
+        ``with_layout(dtype="float32", shape="(N,4)", columns=["x","y","z","reflectance"])``."""
+        new = self._copy()
+        new.meta["layout"] = {**(self.layout or {}), **layout}
+        new.meta.pop("_materialised", None)
+        return new
+
     # ---- metadata -------------------------------------------------------
     def with_frame(self, axes: str | None = None, units: str | None = None, **more: Any) -> Object:
         """A copy that states the frame (``source="user"``). Does not override
@@ -287,11 +320,15 @@ class Object:
     def info(self) -> dict[str, Any]:
         """Header-level facts (size, spacing, counts...) read lazily and cached."""
         if self._info is None:
-            self._info = dict(self.meta)
-            readable = self.extension in ITK_VOLUME_EXTS or self.extension in (".vti", ".vtu", ".vtk")
-            if not self._info and self.kind in ("volume", "labels") and readable:
-                with contextlib.suppress(MissingDependency):
-                    self._info = convert.read_volume_header(self.path)
+            self._info = {k: v for k, v in self.meta.items() if not k.startswith("_")}
+            if self.kind in ("volume", "labels") and "size" not in self._info:
+                readable = self.extension in ITK_VOLUME_EXTS or self.extension in (".vti", ".vtu", ".vtk")
+                if self.is_raw_array or self.path.is_dir():
+                    with contextlib.suppress(MissingDependency, ManifestError):
+                        self._info.update(convert.read_volume_header(self._op_input()))
+                elif readable:
+                    with contextlib.suppress(MissingDependency):
+                        self._info.update(convert.read_volume_header(self.path))
         return self._info
 
     @property
@@ -338,7 +375,39 @@ class Object:
         return self._resolve(method).describe()
 
     def _op_extension(self) -> str:
-        return ".mha" if self.path.is_dir() else self.extension
+        if self.path.is_dir():
+            return ".mha"
+        if self.is_raw_array:
+            return ".mha" if self.kind in ("volume", "labels") else ".ply"
+        return self.extension
+
+    def _materialise_array(self) -> Path:
+        """Decode a raw array through its layout into a standard file, once."""
+        cached = self.meta.get("_materialised")
+        if cached and Path(cached).is_file():
+            return Path(cached)
+        key = abs(hash((str(self.path), json.dumps(self.layout, sort_keys=True, default=str)))) % 10**8
+        if self.kind in ("volume", "labels"):
+            out = output_dir() / f"{self.path.stem}_{key:08d}.mha"
+            step = arrays.array_to_volume(self.path, self.layout, out)
+            if not step["geometry_known"]:
+                logger.warning(
+                    "{}: the layout gives no spacing/origin; the grid gets unit spacing at the origin.",
+                    self.path.name,
+                )
+        elif self.kind in ("pointcloud", "splat"):
+            out = output_dir() / f"{self.path.stem}_{key:08d}.ply"
+            step = arrays.array_to_points(self.path, self.layout, out)
+        elif self.kind == "array":
+            raise ParameterError(
+                f"{self.path.name} is a raw array of unknown kind. Use .as_points(...) or .as_volume(...)"
+                " with its layout, or load it through a manifest role."
+            )
+        else:
+            raise ParameterError(f"{self.path.name}: a raw array cannot be read as {self.kind}.")
+        self.meta["_materialised"] = str(out)
+        self.meta["_materialised_step"] = step
+        return out
 
     def _resolve(self, method: str) -> Method:
         if method in ALIASES:
@@ -346,7 +415,10 @@ class Object:
         return load_catalog().find(method, self._op_extension())
 
     def _op_input(self) -> Path:
-        """Ops take files: a DICOM folder is materialised as .mha once."""
+        """Ops take standard files: a DICOM folder is materialised as .mha
+        once, a raw array as .ply or .mha through its layout."""
+        if self.is_raw_array:
+            return self._materialise_array()
         if not self.path.is_dir():
             return self.path
         cached = self.meta.get("_materialised")
@@ -447,6 +519,8 @@ class Object:
         d: dict[str, Any] = {"pardesline": __version__, "kind": self.kind, "frame": self.frame.to_dict()}
         if self.labels:
             d["labels"] = {str(k): v for k, v in self.labels.items()}
+        if self.layout:
+            d["layout"] = self.layout
         lic = self.license.to_dict()
         if lic:
             d["license"] = lic
@@ -467,7 +541,12 @@ class Object:
             dest.mkdir(parents=True, exist_ok=True)
             dest = dest / self.path.name
         dest.parent.mkdir(parents=True, exist_ok=True)
-        if self.path.is_dir():
+        dest_ext = extension_of(dest) if not dest.is_dir() else ""
+        if self.is_raw_array and dest_ext and not is_array_file(dest):
+            shutil.copyfile(self._materialise_array(), dest)  # standard file from the layout
+        elif self.path.is_dir() and dest_ext in ITK_VOLUME_EXTS:
+            shutil.copyfile(self._op_input(), dest)  # DICOM series as one volume file
+        elif self.path.is_dir():
             if dest.exists():
                 shutil.rmtree(dest)
             shutil.copytree(self.path, dest)
@@ -491,6 +570,8 @@ class Object:
             import open3d as o3d
         except ImportError:
             raise MissingDependency("Open3D", "local") from None
+        if self.is_raw_array:
+            return o3d.io.read_point_cloud(str(self._op_input()))
         if self.kind == "mesh":
             return o3d.io.read_triangle_mesh(str(self.path))
         if self.kind == "pointcloud":
@@ -509,7 +590,7 @@ class Object:
             import pyvista as pv
         except ImportError:
             raise MissingDependency("PyVista", "local") from None
-        if self.path.is_dir():
+        if self.path.is_dir() or self.is_raw_array:
             return pv.read(str(self._op_input()))
         return pv.read(str(self.path))
 
@@ -521,12 +602,18 @@ class Object:
             raise MissingDependency("SimpleITK", "medical") from None
         if self.path.is_dir():
             return load_dicom(self.path)
+        if self.is_raw_array:
+            return load_volume(self._op_input())
         return load_volume(self.path)
 
     def to_numpy(self):
         """Points (N,3) for clouds, vertices for meshes, voxels (z,y,x) for volumes."""
         import numpy as np
 
+        if self.is_raw_array and self.kind in ("pointcloud", "splat"):
+            return arrays.decode_points(self.path, self.layout)[0]
+        if self.is_raw_array and self.kind == "array":
+            return np.asarray(arrays.load_array(self.path, self.layout))
         if self.kind in ("volume", "labels"):
             import SimpleITK as sitk
 
@@ -655,6 +742,31 @@ class Transform(Object):
     kind = "transform"
 
 
+class RawArray(Object):
+    """A ``.npy`` / ``.npz`` / ``.bin`` file: numbers without meaning until a
+    layout says what they are. ``as_points(...)`` or ``as_volume(...)`` turn
+    it into a typed object; a manifest role does the same for a dataset."""
+
+    kind = "array"
+
+    def as_points(self, **layout: Any) -> PointCloud:
+        """Declare the array as points: ``as_points(dtype="float32",
+        shape="(N,4)", columns=["x","y","z","reflectance"])``."""
+        new = PointCloud.__new__(PointCloud)
+        new.__dict__.update(self.with_layout(**layout).__dict__)
+        return new
+
+    def as_volume(self, labels: dict[int, str] | None = None, **layout: Any) -> Volume:
+        """Declare the array as a dense grid: ``as_volume(key="occ_label",
+        shape="(200,200,16)", spacing=[0.4,0.4,0.4])``; with ``labels`` it is a LabelMap."""
+        cls: type[Volume] = LabelMap if labels is not None else Volume
+        new = cls.__new__(cls)
+        new.__dict__.update(self.with_layout(**layout).__dict__)
+        if labels is not None:
+            new.labels = {int(k): str(v) for k, v in labels.items()}
+        return new
+
+
 class Image(Object):
     kind = "image"
 
@@ -666,6 +778,7 @@ _CLASS_BY_KIND: dict[str, type[Object]] = {
     "labels": LabelMap,
     "transform": Transform,
     "image": Image,
+    "array": RawArray,
 }
 
 

@@ -6,6 +6,32 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- **Hugging Face datasets, for real.** `pl.load("hf://org/name[/sub/folder]")`
+  loads a bundled manifest or, for any other repo, lists the folder, drafts a
+  manifest and asks what it cannot establish (licence from the Hub card, units,
+  labels, array layouts) - the same four asking modes as a private folder.
+  Listings go per folder (`source.paths`), are cached on disk per commit and
+  capped (`source.max_files`), with a clear message instead of an HTTP 429.
+- **Remote archives read by HTTP Range** (`source.scheme: "archive"`): zip
+  (incl. zip64) and uncompressed tar on S3 / Zenodo are indexed for a few KB
+  and read member by member; whole download with checksum when the server
+  ignores ranges.
+- **Raw arrays through a layout**: `.npy` / `.npz` / `.bin` roles declare
+  `layout` (dtype, shape, columns, key, spacing); `pl.load("sweep.bin",
+  layout=...)`, `RawArray.as_points()` / `as_volume()`; decoded once into
+  PLY / MetaImage so the 73 algorithms run unchanged; wrong layouts fail loudly.
+- **Nine manifests**: `msd_task02_heart`, `amos22`,
+  `kitti_raw_2011_09_26_drive_0001`, `hf_openmind`, `hf_nsclc_radiomics`,
+  `hf_objaverse_glb_shard`, `hf_3d_arena`, `hf_uniocc_carla_mini`,
+  `hf_kitti360_gs_subset`, each checked against the live source.
+- `Dataset.export(folder)`: a standard copy (PLY / MetaImage / NIfTI, one
+  sidecar per file, a local manifest) of any dataset or subset.
+- CLI: `pardesline datasets`, `describe <dataset>`, `fetch`, `export`.
+- `https` files accept an upstream `md5` and an `archive_root`; pattern
+  placeholders other than `{id}` join into the sample id and become fields
+  (`ds.filter(split="Tr")`).
+
 ## [0.2.0a1] — 2026-10-10
 
 First open-source release of the package. Licence: Apache-2.0.

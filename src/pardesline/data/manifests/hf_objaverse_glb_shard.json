@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "name": "hf_objaverse_glb_shard",
+  "title": "Objaverse 1.0, one shard of glTF meshes (5 000 objects)",
+  "description": "Objaverse hosts 800k+ Sketchfab objects as .glb under glbs/<shard>/<uid>.glb (160 shards of 5 000). This manifest lists one shard; pl.load('hf://allenai/objaverse/glbs/000-017') picks another. glTF fixes the frame: Y-up, metres. Object metadata (names, categories, per-object licences) is in metadata/ and object-paths.json.gz at the repo root.",
+  "source": {
+    "scheme": "hf",
+    "repo_id": "allenai/objaverse",
+    "paths": [
+      "glbs/000-000"
+    ]
+  },
+  "license": {
+    "spdx": "ODC-By-1.0",
+    "commercial": null,
+    "source_url": "https://huggingface.co/datasets/allenai/objaverse",
+    "redistribution": "unknown",
+    "note": "ODC-By 1.0 for the collection (Hub card, checked 2026-10-13); every object keeps its own Creative Commons licence from Sketchfab (CC BY, CC BY-NC, CC BY-ND...), recorded in the metadata. Commercial use and redistribution are TO CONFIRM per object from that metadata."
+  },
+  "citation": "Deitke M., Schwenk D., Salvador J., et al. Objaverse: A Universe of Annotated 3D Objects. CVPR 2023.",
+  "homepage": "https://objaverse.allenai.org/",
+  "pairing": "id",
+  "size_mb": 15000,
+  "tags": [
+    "mesh",
+    "gltf",
+    "objects",
+    "hf",
+    "objaverse"
+  ],
+  "roles": {
+    "mesh": {
+      "type": "mesh",
+      "description": "Textured glTF binary mesh (Y-up, metres by the glTF specification)",
+      "pattern": "glbs/{shard}/{id}.glb",
+      "frame": "Y-up",
+      "units": "m"
+    }
+  }
+}

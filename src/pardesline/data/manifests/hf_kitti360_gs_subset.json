@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "name": "hf_kitti360_gs_subset",
+  "title": "KITTI-360 street chunks as point clouds and Gaussian splats (GaussianWorld subset, 16 chunks)",
+  "description": "Sixteen chunks of KITTI-360 sequence 0000 pre-processed by GaussianWorld: per chunk the accumulated LiDAR point cloud (pc_coord.npy, ~3 M points, with segment ids) and a fitted Gaussian splat stored as separate arrays (coord, color, opacity, scale, quat). Coordinates are in the KITTI-360 world frame with offsets above 1 000 m - keep float64. This is the dataset the pl.load feasibility test of 2026-10-03 ran on (one chunk of 43 MB fetched in 5.5 s, ground removal unchanged).",
+  "source": {
+    "scheme": "hf",
+    "repo_id": "GaussianWorld/kitti_360_subset_chunk_gs_preprocessed",
+    "paths": [
+      "test"
+    ]
+  },
+  "license": {
+    "spdx": "CC-BY-NC-SA-3.0",
+    "commercial": false,
+    "source_url": "https://www.cvlibs.net/datasets/kitti-360/",
+    "redistribution": "forbidden",
+    "note": "The Hub card declares no licence; KITTI-360 upstream is CC BY-NC-SA 3.0 (non-commercial, share-alike), inherited here. TO CONFIRM with the GaussianWorld authors for the splat fits."
+  },
+  "citation": "Liao Y., Xie J., Geiger A. KITTI-360: A Novel Dataset and Benchmarks for Urban Scene Understanding in 2D and 3D. TPAMI 2022.",
+  "homepage": "https://huggingface.co/datasets/GaussianWorld/kitti_360_subset_chunk_gs_preprocessed",
+  "pairing": "chunk",
+  "size_mb": 2500,
+  "tags": [
+    "lidar",
+    "points",
+    "splat",
+    "driving",
+    "kitti",
+    "hf",
+    "non-commercial"
+  ],
+  "roles": {
+    "points": {
+      "type": "points",
+      "description": "Accumulated LiDAR points of the chunk (KITTI-360 world frame, metres)",
+      "pattern": "test/{chunk}/pc_coord.npy",
+      "layout": {
+        "shape": "(N,3)",
+        "columns": [
+          "x",
+          "y",
+          "z"
+        ]
+      },
+      "frame": "world",
+      "units": "m"
+    },
+    "point_segments": {
+      "type": "attribute",
+      "description": "One segment id per LiDAR point (meaning of the ids TO CONFIRM)",
+      "pattern": "test/{chunk}/pc_segment.npy",
+      "layout": {
+        "shape": "(N)"
+      }
+    },
+    "gaussian_centers": {
+      "type": "points",
+      "description": "Centres of the fitted Gaussians (same frame as the points)",
+      "pattern": "test/{chunk}/coord.npy",
+      "layout": {
+        "shape": "(N,3)",
+        "columns": [
+          "x",
+          "y",
+          "z"
+        ]
+      },
+      "frame": "world",
+      "units": "m"
+    },
+    "gaussian_color": {
+      "type": "attribute",
+      "description": "RGB per Gaussian (range 0-1 or 0-255 TO CONFIRM)",
+      "pattern": "test/{chunk}/color.npy",
+      "layout": {
+        "shape": "(N,3)",
+        "columns": [
+          "r",
+          "g",
+          "b"
+        ]
+      }
+    },
+    "gaussian_opacity": {
+      "type": "attribute",
+      "pattern": "test/{chunk}/opacity.npy",
+      "layout": {
+        "shape": "(N,1)"
+      }
+    },
+    "gaussian_scale": {
+      "type": "attribute",
+      "pattern": "test/{chunk}/scale.npy",
+      "layout": {
+        "shape": "(N,3)"
+      }
+    },
+    "gaussian_rotation": {
+      "type": "attribute",
+      "description": "Unit quaternion per Gaussian",
+      "pattern": "test/{chunk}/quat.npy",
+      "layout": {
+        "shape": "(N,4)"
+      }
+    }
+  }
+}
