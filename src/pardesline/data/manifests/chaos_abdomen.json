@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "name": "chaos_abdomen",
+  "title": "CHAOS: abdominal CT and MR (T1 in/out-phase, T2 SPIR) as DICOM series, 40 patients",
+  "description": "The Combined Healthy Abdominal Organ Segmentation challenge training set: 20 CT and 20 MR patients as anonymised DICOM series, read series by series out of the 890 MB zip on Zenodo (HTTP Range; a series is fetched as a folder of .dcm files). Ground-truth masks are PNG slice stacks in the same archive (folders Ground/) and are not mapped here. Sample ids are set/case (CT/1, MR/1 are different patients).",
+  "source": {
+    "scheme": "archive",
+    "url": "https://zenodo.org/records/3431873/files/CHAOS_Train_Sets.zip",
+    "format": "zip",
+    "prefix": "Train_Sets"
+  },
+  "license": {
+    "spdx": "CC-BY-NC-SA-4.0",
+    "commercial": false,
+    "source_url": "https://zenodo.org/records/3431873",
+    "redistribution": "allowed",
+    "note": "CC BY-NC-SA 4.0 on the Zenodo record (checked 2026-10-14): non-commercial, share-alike."
+  },
+  "citation": "Kavur A.E., Gezer N.S., Baris M., et al. CHAOS Challenge - combined (CT-MR) healthy abdominal organ segmentation. Med Image Anal 69:101950, 2021.",
+  "homepage": "https://chaos.grand-challenge.org/",
+  "pairing": "case",
+  "size_mb": 891,
+  "tags": [
+    "medical",
+    "ct",
+    "mri",
+    "abdomen",
+    "dicom",
+    "segmentation"
+  ],
+  "roles": {
+    "ct": {
+      "type": "volume",
+      "description": "Abdominal CT, DICOM series (set CT)",
+      "pattern": "Train_Sets/{set}/{case}/DICOM_anon/*.dcm",
+      "modality": "CT"
+    },
+    "mr_t1_inphase": {
+      "type": "volume",
+      "description": "T1-DUAL in-phase, DICOM series (set MR)",
+      "pattern": "Train_Sets/{set}/{case}/T1DUAL/DICOM_anon/InPhase/*.dcm",
+      "modality": "MR"
+    },
+    "mr_t1_outphase": {
+      "type": "volume",
+      "description": "T1-DUAL out-of-phase, DICOM series (set MR)",
+      "pattern": "Train_Sets/{set}/{case}/T1DUAL/DICOM_anon/OutPhase/*.dcm",
+      "modality": "MR"
+    },
+    "mr_t2_spir": {
+      "type": "volume",
+      "description": "T2-SPIR, DICOM series (set MR)",
+      "pattern": "Train_Sets/{set}/{case}/T2SPIR/DICOM_anon/*.dcm",
+      "modality": "MR"
+    }
+  }
+}

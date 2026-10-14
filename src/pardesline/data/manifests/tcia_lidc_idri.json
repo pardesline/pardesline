@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "name": "tcia_lidc_idri",
+  "title": "TCIA LIDC-IDRI: 1 018 thoracic CTs for lung nodule analysis (DICOM)",
+  "description": "The Lung Image Database Consortium collection: 1 018 CT scans of 1 010 patients with nodule annotations by four radiologists (the XML annotations are on the collection page; DICOM SEG and SR objects derived from them are in NBIA as separate series). This manifest exposes the CT series; patients with several CT series keep the first. Series are listed through the public NBIA API (no account) and each one is downloaded as a zip of DICOM files on first access; the folder is then a DICOM volume (LPS mm from the headers).",
+  "source": {
+    "scheme": "tcia",
+    "collection": "LIDC-IDRI",
+    "modalities": [
+      "CT",
+      "SEG"
+    ]
+  },
+  "license": {
+    "spdx": "CC-BY-3.0",
+    "commercial": true,
+    "source_url": "https://www.cancerimagingarchive.net/collection/lidc-idri/",
+    "redistribution": "allowed",
+    "note": "CC BY 3.0 on the TCIA collection page (checked 2026-10-14)."
+  },
+  "citation": "Armato S.G. III, McLennan G., Bidaut L., et al. Data From LIDC-IDRI. The Cancer Imaging Archive, 2015. doi:10.7937/K9/TCIA.2015.LO9QL9SX. Clark K., Vendt B., Smith K., et al. The Cancer Imaging Archive (TCIA): Maintaining and Operating a Public Information Repository. J Digit Imaging 26(6):1045-1057, 2013.",
+  "homepage": "https://www.cancerimagingarchive.net/collection/lidc-idri/",
+  "pairing": "id",
+  "size_mb": 125000,
+  "tags": [
+    "medical",
+    "dicom",
+    "tcia",
+    "ct",
+    "lung",
+    "nodules"
+  ],
+  "roles": {
+    "ct": {
+      "type": "volume",
+      "description": "Thorax CT, DICOM series",
+      "pattern": "{id}/CT/{series}",
+      "modality": "CT"
+    },
+    "seg": {
+      "type": "file",
+      "description": "DICOM SEG object derived from the annotations (one of several per patient)",
+      "pattern": "{id}/SEG/{series}"
+    }
+  }
+}

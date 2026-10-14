@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "name": "msd_task07_pancreas",
+  "title": "Medical Segmentation Decathlon, Task07 Pancreas",
+  "description": "Pancreas and pancreatic masses: 281 + 139 portal-venous CTs (MSKCC). Read case by case out of the official MSD tar on S3 (HTTP Range: one 512-byte header per member to index, each volume its own size). ds.filter(split='Tr') keeps the labelled cases; the test split has images only.",
+  "source": {
+    "scheme": "archive",
+    "url": "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task07_Pancreas.tar",
+    "format": "tar",
+    "prefix": "Task07_Pancreas"
+  },
+  "license": {
+    "spdx": "CC-BY-SA-4.0",
+    "commercial": true,
+    "source_url": "http://medicaldecathlon.com/",
+    "redistribution": "allowed",
+    "note": "CC-BY-SA 4.0 as stated in the archive's dataset.json (checked 2026-10-14); share-alike applies to derived data."
+  },
+  "citation": "Antonelli M., Reinke A., Bakas S., et al. The Medical Segmentation Decathlon. Nat Commun 13:4128, 2022. Simpson A.L. et al. A large annotated medical image dataset for the development and evaluation of segmentation algorithms. arXiv:1902.09063, 2019.",
+  "homepage": "http://medicaldecathlon.com/",
+  "pairing": "id",
+  "size_mb": 12290,
+  "tags": [
+    "medical",
+    "ct",
+    "segmentation",
+    "nifti",
+    "msd",
+    "pancreas",
+    "abdomen",
+    "tumor"
+  ],
+  "roles": {
+    "ct": {
+      "type": "volume",
+      "description": "CT image (NIfTI, LPS mm from the header); split Tr = labelled, Ts = test",
+      "pattern": "Task07_Pancreas/images{split}/{id}.nii.gz",
+      "modality": "CT"
+    },
+    "mask": {
+      "type": "labels",
+      "description": "Label map (training cases only)",
+      "pattern": "Task07_Pancreas/labelsTr/{id}.nii.gz",
+      "labels": {
+        "1": "pancreas",
+        "2": "cancer"
+      }
+    }
+  }
+}

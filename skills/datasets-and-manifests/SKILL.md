@@ -1,17 +1,20 @@
 ---
 name: datasets-and-manifests
 description: >-
-  Load datasets with pardesline by manifest instead of per-dataset code: the 16
-  bundled datasets (`pl.load("rire_brain")`, POPI 4D-CT, liver tumours, Visible Human,
-  Open3D meshes, MSD Task02 Heart, AMOS 22, KITTI raw, and Hugging Face repos OpenMind,
-  NSCLC-Radiomics, Objaverse, 3D Arena, UniOcc, KITTI-360), `pl.load("hf://org/name/sub")`
-  for any Hub repo (bundled manifest or a drafted one with questions), the Dataset /
-  Sample API (roles as attributes, lazy fetch, `take`, `sample`, `filter`, leakage-free
-  `split`, `fetch_all`, `export`), the manifest schema (sources local / https / hf with
-  scoped `paths` / archive read by HTTP Range / open3d; licence tiers; roles with
-  frame, units, labels and the `layout` of raw `.npy` `.npz` `.bin` arrays), the cache,
-  and the `pardesline datasets|fetch|export` commands. Use when the user asks for sample
-  data, a public dataset, a Hugging Face 3D dataset, or how to write a manifest for one.
+  Load datasets with pardesline by manifest instead of per-dataset code: the 43
+  bundled datasets (35 medical: the ten MSD tasks, AMOS, TotalSegmentator CT/MRI,
+  LUNA16, IXI, VerSe, SPIDER, CHAOS DICOM, TCIA collections, OpenNeuro, KiTS23,
+  AbdomenAtlas, CT-RATE, BiomedSegFM, MedShapeNet meshes, C3VD splats; plus KITTI,
+  KITTI-360, UniOcc, Objaverse, 3D Arena, Open3D demos), `pl.load("hf://org/name/sub")`,
+  `pl.load("s3://bucket/prefix")`, `pl.load("tcia://Collection/CT")` for any Hub repo,
+  public bucket or TCIA collection (bundled manifest or a drafted one with questions),
+  the Dataset / Sample API (roles as attributes, lazy fetch, `take`, `sample`, `filter`,
+  leakage-free `split`, `fetch_all`, `export`), the manifest schema (sources local /
+  https / hf with scoped `paths` / archive(s) read by HTTP Range / s3 / tcia / urllist /
+  open3d; licence tiers; roles with frame, units, labels and the `layout` of raw arrays;
+  DICOM series as folder entries), the cache, and the `pardesline datasets|fetch|export`
+  commands. Use when the user asks for sample data, a public or medical dataset, a
+  Hugging Face 3D dataset, or how to write a manifest for one.
 ---
 
 # Datasets and manifests
@@ -42,6 +45,22 @@ archive and a private folder.
 | `hf_3d_arena` | 3D Arena: 29 image-to-3D generators x ~100 images | `mesh`, `splat`, `preview` | hf `3d-arena/3d-arena` |
 | `hf_uniocc_carla_mini` | UniOcc CARLA 10 Hz mini: LiDAR, cameras, occupancy grids | `lidar`, `occupancy` (.npz grid), `ego_to_world`, `camera_0..3`, `bev` | hf `tasl-lab/uniocc` |
 | `hf_kitti360_gs_subset` | 16 KITTI-360 chunks: LiDAR points + Gaussian-splat arrays | `points`, `point_segments`, `gaussian_*` (.npy, layouts) | hf `GaussianWorld/kitti_360_subset_chunk_gs_preprocessed` |
+| `msd_task01_braintumour`, `msd_task03_liver`, `msd_task04_hippocampus`, `msd_task05_prostate`, `msd_task06_lung`, `msd_task07_pancreas`, `msd_task08_hepaticvessel`, `msd_task09_spleen`, `msd_task10_colon` | the other MSD tasks, same layout as Task02 | `ct` or `mri`, `mask` (task labels); field `split` Tr/Ts | archive (tar on S3) |
+| `totalsegmentator_ct` | 1 228 CTs, 117 structures | `ct` + one labels role per structure (`liver`, `vertebrae_l3`, `rib_left_6`...) | archive (zip on Zenodo, 24 GB) |
+| `totalsegmentator_mri` | 298 MRIs, 56 structures | `mri` + one labels role per structure | archive (zip on Zenodo) |
+| `luna16` | 888 thorax CTs (MetaImage), ten folds | `ct`; field `subset` | archive (ten zips on Zenodo) |
+| `ixi_brain_mri` | ~600 healthy brains | `t1`, `t2`, `pd`, `mra` | archive (four tars, Imperial College) |
+| `verse19_spine` | 160 spine CTs | `ct`, `mask` (28 vertebra labels), `centroids` (json); field `split` | archive (three zips, BoneScreen S3) |
+| `spider_lumbar_mri` | 447 lumbar MRIs | `t1`, `t2`, `t2_space` + `*_mask` (vertebrae / discs / canal) | archive (two zips on Zenodo) |
+| `chaos_abdomen` | 20 CT + 20 MR patients as DICOM series | `ct`, `mr_t1_inphase`, `mr_t1_outphase`, `mr_t2_spir`; ids `CT/1`, `MR/1` | archive (zip on Zenodo) |
+| `tcia_pancreas_ct`, `tcia_lidc_idri`, `tcia_nsclc_radiomics_dicom`, `tcia_prostate_3t` | TCIA collections as DICOM series | `ct` / `t2` (DICOM folder), `seg`, `rtstruct` (files) | tcia (NBIA API) |
+| `openneuro_ds000228` | T1w MRI of 155 children and adults | `t1w` | s3 `openneuro.org/ds000228` |
+| `hf_kits23` | 489 kidney-tumour CTs | `ct`, `mask` `{1: kidney, 2: tumor, 3: cyst}` | hf `neheller/KiTS-Challenge-Imaging` |
+| `hf_abdomenatlas_mini` | first 100 of 5 195 abdominal CTs (gated, token) | `ct`, `combined_labels` + nine organ masks | hf `AbdomenAtlas/AbdomenAtlas1.0Mini` |
+| `hf_ct_rate_valid` | first 20 validation chest CTs (gated, token) | `ct` | hf `ibrahimhamamci/CT-RATE` |
+| `hf_biomedsegfm_3d_val` | 2 144 CT / MRI / PET / US3D / microscopy volumes as npz | `image`, `mask` (npz keys imgs / gts); field `modality` | hf `junma/CVPR-BiomedSegFM` |
+| `medshapenet` | 106 101 STL shapes | `mesh`; fields `case`, `structure` | urllist (sciebo) |
+| `c3vd_endoscopy_splats` | ten colonoscopy scenes | `splat` (3DGS PLY), `points` | archive (zip on Zenodo) |
 
 Licences: the https/open3d excerpts say **TO CONFIRM** (terms not established
 by the package authors). The hub/archive manifests carry the id the source
@@ -67,6 +86,20 @@ sweep = pl.load("kitti_raw_2011_09_26_drive_0001")[0].lidar  # .bin decoded thro
 sweep.frame.describe()  # "sensor, m (manifest)"
 objects = sweep.run("ground_removal").run("object_clustering", eps=0.7, min_points=10)
 ```
+
+## Any public bucket or TCIA collection: `s3://`, `tcia://`
+
+`pl.load("s3://openneuro.org/ds000001")` lists the prefix of a public bucket
+(ListObjectsV2, anonymous, paginated, cached, capped at 20 000 keys) and
+drafts a manifest; OpenNeuro's licence (CC0 / PDDL) is filled in. When
+nothing is left to ask (NIfTI carries its frame) the dataset loads directly.
+`pl.load("tcia://Pancreas-CT/CT")` lists the series of a public TCIA
+collection through the NBIA API (one entry per series, named
+`<PatientID>/<Modality>/<SeriesInstanceUID>/`; the optional `/CT,MR` part
+filters modalities); each series downloads as a zip of DICOM files on first
+access and becomes a DICOM `Volume`. Restricted collections answer 401 and
+are left to the NBIA Data Retriever. A manifest routes modalities to roles
+with patterns such as `{id}/CT/{series}` (id = patient) and `{id}/SEG/{series}`.
 
 ## Any Hugging Face repo: `hf://org/name[/sub/folder]`
 
@@ -151,12 +184,15 @@ Objects from a dataset carry `role`, the dataset licence, the role's frame
 
 Role types: `volume`, `labels`, `mesh`, `points`, `image`, `transform`,
 `splat`, `attribute`, `calibration`, `file`. Either list `samples`
-explicitly (small bundled datasets do) or give every role a `pattern`:
-`{id}` names the sample; other placeholders (`{study}/{subject}`,
+explicitly (small bundled datasets and gated repos do) or give every role a
+`pattern`: `{id}` names the sample; other placeholders (`{study}/{subject}`,
 `images{split}/{id}`) become sample fields and, without `{id}`, join into the
-sample id (`ds000001/sub-01`); `*` matches within a path segment, `**`
-across. Several DICOM files for one role collapse to their folder; a second
-non-DICOM match is reported and the first kept.
+sample id (`ds000001/sub-01`); a repeated placeholder (`{id}/anat/{id}_T1w.nii.gz`)
+must match the same text; `*` matches within a path segment, `**` across.
+Several DICOM files for one role collapse to their folder (fetched whole on
+access); a folder entry from a listing (`.../series/`) is a DICOM series; a
+second non-DICOM match is reported and the first kept. A `.mhd` header
+brings its `.raw` / `.zraw` sibling along.
 
 **Raw arrays need a layout.** A role whose files are `.npy`, `.npz`, `.bin`
 or `.raw` must carry `layout`: `shape` (`"(N,4)"` for points, `"(L,W,H)"` for
@@ -172,7 +208,10 @@ Sources:
 | `local` | `root` (absolute, or relative to the manifest file) | files on disk |
 | `https` | `files: {relpath: {sha512 or md5, url?, archive?, archive_root?, size_mb?}}`, `mirrors?` | download from `url` then hash-addressed mirrors, verify, cache under `~/.cache/pardesline/datasets/<name>/`; `archive: true` = the download is a tar/zip whose members land in the file's folder (or `archive_root`) |
 | `hf` | `repo_id`, `revision="main"`, `repo_type="dataset"`, `paths` (sub-folders to list), `max_files=20000` | `huggingface_hub` listing per folder (cached per commit) and per-file download; the user's own token for gated repos |
-| `archive` | `url`, `format` zip/tar (inferred from the url), `prefix`, optional `sha512`/`md5` | one remote archive read by HTTP Range: index (zip central directory, incl. zip64; tar headers) cached on disk, each member fetched alone and CRC-checked (zip); whole download once with checksum when the server ignores ranges; compressed tars not supported |
+| `archive` | `url` or `urls` (several archives forming one dataset), `format` zip/tar (inferred), `prefix`, optional `sha512`/`md5` (single url) | remote archives read by HTTP Range: index (zip central directory, incl. zip64; tar headers) cached on disk, each member fetched alone and CRC-checked (zip); whole download once when the server ignores ranges; compressed tars not supported; `fetch_folder` for DICOM series inside |
+| `s3` | `bucket`, `endpoint` (default AWS), `prefix`, `max_files` | public bucket listing (ListObjectsV2) and plain HTTPS downloads; relative paths are the keys under `prefix` |
+| `tcia` | `collection`, `modalities?`, `api` | NBIA REST API: `getSeries` listing cached on disk, `getImage` zip per series unpacked into a folder |
+| `urllist` | `index_url`, `strip_prefix?`, `max_files` | a text file with one URL per line (MedShapeNet); relative path = file name |
 | `open3d` | `dataset` (class name in `open3d.data`) | Open3D downloads its own demo data |
 
 Licence tiers for public data: permissive (CC-BY, MIT, ODC-By) may be

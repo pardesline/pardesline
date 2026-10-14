@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "name": "hf_biomedsegfm_3d_val",
+  "title": "CVPR 2025 BiomedSegFM, 3-D validation set: 2 144 CT / MRI / PET / 3-D ultrasound / microscopy volumes as npz",
+  "description": "The validation volumes of the CVPR 2025 Foundation Models for Interactive 3D Biomedical Image Segmentation challenge (Ma et al.), pooled from 30+ public datasets (AMOS, AbdomenAtlas, TotalSegmentator, BraTS, ...). Each case is an .npz with 'imgs' (the volume), 'gts' (the label map) and 'spacing'; the spacing key cannot be carried by the layout, so the grids load with unit spacing (read s.path('image') with numpy for the real spacing). The field modality is CT, MRI, PET, US3D or Microscopy.",
+  "source": {
+    "scheme": "hf",
+    "repo_id": "junma/CVPR-BiomedSegFM",
+    "paths": [
+      "3D_val_npz"
+    ]
+  },
+  "license": {
+    "spdx": "CC-BY-NC-SA-4.0",
+    "commercial": false,
+    "source_url": "https://huggingface.co/datasets/junma/CVPR-BiomedSegFM",
+    "redistribution": "allowed",
+    "note": "CC BY-NC-SA 4.0 on the Hub card (checked 2026-10-14); each pooled source dataset keeps its own terms, TO CONFIRM per case."
+  },
+  "citation": "Ma J., et al. CVPR 2025 Challenge: Foundation Models for Interactive 3D Biomedical Image Segmentation. 2025.",
+  "homepage": "https://www.codabench.org/competitions/5263/",
+  "pairing": "id",
+  "size_mb": 20000,
+  "tags": [
+    "medical",
+    "ct",
+    "mri",
+    "pet",
+    "ultrasound",
+    "microscopy",
+    "segmentation",
+    "npz",
+    "hf",
+    "non-commercial"
+  ],
+  "roles": {
+    "image": {
+      "type": "volume",
+      "description": "The volume ('imgs' array; spacing in the 'spacing' key of the same file)",
+      "pattern": "3D_val_npz/{modality}_{id}.npz",
+      "layout": {
+        "key": "imgs",
+        "shape": "(Z,Y,X)",
+        "note": "spacing key not applied: unit spacing"
+      }
+    },
+    "mask": {
+      "type": "labels",
+      "description": "Label map ('gts' array); class ids per source dataset",
+      "pattern": "3D_val_npz/{modality}_{id}.npz",
+      "layout": {
+        "key": "gts",
+        "shape": "(Z,Y,X)"
+      }
+    }
+  }
+}

@@ -7,6 +7,20 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- **Medical 3D datasets, one line each.** 27 new manifests: the ten Medical
+  Segmentation Decathlon tasks, TotalSegmentator CT (117 structures) and MRI
+  (56), LUNA16, IXI, VerSe 2019, SPIDER, CHAOS (DICOM), four TCIA collections
+  (Pancreas-CT, LIDC-IDRI, NSCLC-Radiomics, Prostate-3T), OpenNeuro ds000228,
+  KiTS23, AbdomenAtlas Mini and CT-RATE (gated), the BiomedSegFM 3-D
+  validation set, MedShapeNet (106 101 STL shapes) and the C3VD endoscopy
+  Gaussian splats - 43 manifests in all, each listed and sampled live.
+- New sources: `s3` (public bucket, ListObjectsV2, `pl.load("s3://...")`),
+  `tcia` (NBIA REST API, one DICOM series per entry,
+  `pl.load("tcia://Collection/CT")`), `urllist` (a text index of URLs);
+  `archive` sources may span several archives (`urls`).
+- DICOM series as folder entries (fetched whole), MetaImage `.raw` siblings
+  fetched with their header, repeated pattern placeholders
+  (`{id}/anat/{id}_T1w.nii.gz`) matched as backreferences.
 - **Hugging Face datasets, for real.** `pl.load("hf://org/name[/sub/folder]")`
   loads a bundled manifest or, for any other repo, lists the folder, drafts a
   manifest and asks what it cannot establish (licence from the Hub card, units,

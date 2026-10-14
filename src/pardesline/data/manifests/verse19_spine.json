@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "name": "verse19_spine",
+  "title": "VerSe 2019: 160 spine CTs with vertebra-level label maps and centroids",
+  "description": "The Large Scale Vertebrae Segmentation Challenge 2019 (training, validation and test splits, 80 + 40 + 40 scans): spine CT in NIfTI with a 28-class vertebra label map and a JSON of vertebra centroids per scan. Three zips on the BoneScreen S3 bucket read scan by scan with HTTP Range. VerSe 2020 is the same layout under dataset-verse20*.zip.",
+  "source": {
+    "scheme": "archive",
+    "format": "zip",
+    "urls": [
+      "https://s3.bonescreen.de/public/VerSe-complete/dataset-verse19training.zip",
+      "https://s3.bonescreen.de/public/VerSe-complete/dataset-verse19validation.zip",
+      "https://s3.bonescreen.de/public/VerSe-complete/dataset-verse19test.zip"
+    ]
+  },
+  "license": {
+    "spdx": "CC-BY-SA-4.0",
+    "commercial": true,
+    "source_url": "https://github.com/anjany/verse",
+    "redistribution": "allowed",
+    "note": "CC BY-SA 4.0 as stated in the VerSe repository (checked 2026-10-14)."
+  },
+  "citation": "Sekuboyina A., Husseini M.E., Bayat A., et al. VerSe: A Vertebrae labelling and segmentation benchmark for multi-detector CT images. Med Image Anal 73:102166, 2021.",
+  "homepage": "https://github.com/anjany/verse",
+  "pairing": "id",
+  "size_mb": 12254,
+  "tags": [
+    "medical",
+    "ct",
+    "spine",
+    "vertebrae",
+    "segmentation",
+    "nifti"
+  ],
+  "roles": {
+    "ct": {
+      "type": "volume",
+      "description": "Spine CT (NIfTI); field split = training / validation / test",
+      "pattern": "dataset-verse19{split}/rawdata/{id}/{id}_ct.nii.gz",
+      "modality": "CT"
+    },
+    "mask": {
+      "type": "labels",
+      "description": "Vertebra label map (VerSe convention: 1-7 cervical, 8-19 thoracic, 20-25 lumbar, 26 sacrum, 27 cocygis, 28 T13)",
+      "pattern": "dataset-verse19{split}/derivatives/{id}/{id}_seg-vert_msk.nii.gz",
+      "labels": {
+        "1": "C1",
+        "2": "C2",
+        "3": "C3",
+        "4": "C4",
+        "5": "C5",
+        "6": "C6",
+        "7": "C7",
+        "8": "T1",
+        "9": "T2",
+        "10": "T3",
+        "11": "T4",
+        "12": "T5",
+        "13": "T6",
+        "14": "T7",
+        "15": "T8",
+        "16": "T9",
+        "17": "T10",
+        "18": "T11",
+        "19": "T12",
+        "20": "L1",
+        "21": "L2",
+        "22": "L3",
+        "23": "L4",
+        "24": "L5",
+        "25": "L6",
+        "26": "sacrum",
+        "27": "cocygis",
+        "28": "T13"
+      }
+    },
+    "centroids": {
+      "type": "file",
+      "description": "Vertebra centroids and direction (JSON)",
+      "pattern": "dataset-verse19{split}/derivatives/{id}/{id}_seg-subreg_ctd.json"
+    }
+  }
+}

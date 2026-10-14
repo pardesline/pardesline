@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "name": "c3vd_endoscopy_splats",
+  "title": "C3VD colonoscopy scenes as Gaussian splats and point clouds (EndoGSLAM fits from PR-ENDO)",
+  "description": "Ten colonoscopy sequences of the C3VD phantom dataset reconstructed with EndoGSLAM and released with PR-ENDO (relightable Gaussian splatting for endoscopy): per scene the optimised Gaussian splat (point_cloud.ply with the 3DGS attributes), the Gaussian centres (means3D.ply) and the per-step parameter dumps (.npz / .pt). Read out of the 7.8 GB zip on Zenodo by HTTP Range. The frame is the scene's own camera frame; the scale follows the C3VD phantom (millimetres, TO CONFIRM).",
+  "source": {
+    "scheme": "archive",
+    "url": "https://zenodo.org/records/15732143/files/C3VD_endogslam_optimized.zip",
+    "format": "zip",
+    "prefix": "C3VD_endogslam_optimized"
+  },
+  "license": {
+    "spdx": "CC-BY-4.0",
+    "commercial": null,
+    "source_url": "https://zenodo.org/records/15732143",
+    "redistribution": "unknown",
+    "note": "CC BY 4.0 on the PR-ENDO Zenodo record (checked 2026-10-14); the underlying C3VD dataset is CC BY-NC-SA 4.0, so commercial use is TO CONFIRM."
+  },
+  "citation": "Kaleta J., Dall'Alba D., Plotka S., Korzeniowski P. PR-ENDO: Physically Based Relightable Gaussian Splatting for Endoscopy. arXiv:2411.12510, 2024. Bobrow T.L., Golhar M., Vijayan R., et al. Colonoscopy 3D Video Dataset with Paired Depth from 2D-3D Registration. Med Image Anal 90:102956, 2023.",
+  "homepage": "https://github.com/SanoScience/PR-ENDO",
+  "pairing": "scene",
+  "size_mb": 7846,
+  "tags": [
+    "medical",
+    "endoscopy",
+    "colonoscopy",
+    "splat",
+    "points",
+    "gaussian-splatting"
+  ],
+  "roles": {
+    "splat": {
+      "type": "splat",
+      "description": "Optimised 3-D Gaussian splat (PLY with position, scale, rotation, opacity, SH colour)",
+      "pattern": "C3VD_endogslam_optimized/{scene}/point_cloud/iteration_*/point_cloud.ply",
+      "frame": "sensor",
+      "units": "mm",
+      "confidence": {
+        "units": 0.5
+      }
+    },
+    "points": {
+      "type": "points",
+      "description": "Gaussian centres as a plain point cloud",
+      "pattern": "C3VD_endogslam_optimized/{scene}/means3D.ply",
+      "frame": "sensor",
+      "units": "mm",
+      "confidence": {
+        "units": 0.5
+      }
+    }
+  }
+}

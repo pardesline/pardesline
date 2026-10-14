@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "name": "spider_lumbar_mri",
+  "title": "SPIDER: lumbar spine MRI (T1, T2, T2 SPACE) of 218 patients with vertebra, disc and canal masks",
+  "description": "447 sagittal lumbar MRI series (T1, T2, some T2 SPACE) of 218 patients with low back pain, with masks of vertebrae, intervertebral discs and spinal canal, as MetaImage. Two zips on Zenodo (images, masks) read series by series with HTTP Range. Label values: vertebrae numbered from L5 upward (1 = L5), 100 = spinal canal, discs numbered from L5/S1 upward (201 = L5/S1) - mapping TO CONFIRM against the dataset paper for the upper levels. Radiological gradings are in a CSV on the record.",
+  "source": {
+    "scheme": "archive",
+    "format": "zip",
+    "urls": [
+      "https://zenodo.org/records/10159290/files/images.zip",
+      "https://zenodo.org/records/10159290/files/masks.zip"
+    ]
+  },
+  "license": {
+    "spdx": "CC-BY-4.0",
+    "commercial": true,
+    "source_url": "https://zenodo.org/records/10159290",
+    "redistribution": "allowed",
+    "note": "CC BY 4.0 on the Zenodo record (checked 2026-10-14)."
+  },
+  "citation": "van der Graaf J.W., van Hooff M.L., Buckens C.F.M., et al. Lumbar spine segmentation in MR images: a dataset and a public benchmark. Sci Data 11:264, 2024.",
+  "homepage": "https://spider.grand-challenge.org/",
+  "pairing": "id",
+  "size_mb": 3759,
+  "tags": [
+    "medical",
+    "mri",
+    "spine",
+    "lumbar",
+    "segmentation",
+    "metaimage"
+  ],
+  "roles": {
+    "t1": {
+      "type": "volume",
+      "pattern": "images/{id}_t1.mha",
+      "modality": "MR",
+      "description": "Sagittal T1"
+    },
+    "t2": {
+      "type": "volume",
+      "pattern": "images/{id}_t2.mha",
+      "modality": "MR",
+      "description": "Sagittal T2"
+    },
+    "t2_space": {
+      "type": "volume",
+      "pattern": "images/{id}_t2_SPACE.mha",
+      "modality": "MR",
+      "description": "3-D T2 SPACE when acquired"
+    },
+    "t1_mask": {
+      "type": "labels",
+      "pattern": "masks/{id}_t1.mha",
+      "labels": {
+        "1": "vertebra_L5",
+        "2": "vertebra_L4",
+        "3": "vertebra_L3",
+        "4": "vertebra_L2",
+        "5": "vertebra_L1",
+        "6": "vertebra_T12",
+        "7": "vertebra_T11",
+        "8": "vertebra_T10",
+        "9": "vertebra_T9",
+        "100": "spinal_canal",
+        "201": "disc_L5_S1",
+        "202": "disc_L4_L5",
+        "203": "disc_L3_L4",
+        "204": "disc_L2_L3",
+        "205": "disc_L1_L2",
+        "206": "disc_T12_L1",
+        "207": "disc_T11_T12",
+        "208": "disc_T10_T11",
+        "209": "disc_T9_T10"
+      },
+      "confidence": {
+        "labels": 0.6
+      }
+    },
+    "t2_mask": {
+      "type": "labels",
+      "pattern": "masks/{id}_t2.mha",
+      "labels": {
+        "1": "vertebra_L5",
+        "2": "vertebra_L4",
+        "3": "vertebra_L3",
+        "4": "vertebra_L2",
+        "5": "vertebra_L1",
+        "6": "vertebra_T12",
+        "7": "vertebra_T11",
+        "8": "vertebra_T10",
+        "9": "vertebra_T9",
+        "100": "spinal_canal",
+        "201": "disc_L5_S1",
+        "202": "disc_L4_L5",
+        "203": "disc_L3_L4",
+        "204": "disc_L2_L3",
+        "205": "disc_L1_L2",
+        "206": "disc_T12_L1",
+        "207": "disc_T11_T12",
+        "208": "disc_T10_T11",
+        "209": "disc_T9_T10"
+      },
+      "confidence": {
+        "labels": 0.6
+      }
+    },
+    "t2_space_mask": {
+      "type": "labels",
+      "pattern": "masks/{id}_t2_SPACE.mha",
+      "labels": {
+        "1": "vertebra_L5",
+        "2": "vertebra_L4",
+        "3": "vertebra_L3",
+        "4": "vertebra_L2",
+        "5": "vertebra_L1",
+        "6": "vertebra_T12",
+        "7": "vertebra_T11",
+        "8": "vertebra_T10",
+        "9": "vertebra_T9",
+        "100": "spinal_canal",
+        "201": "disc_L5_S1",
+        "202": "disc_L4_L5",
+        "203": "disc_L3_L4",
+        "204": "disc_L2_L3",
+        "205": "disc_L1_L2",
+        "206": "disc_T12_L1",
+        "207": "disc_T11_T12",
+        "208": "disc_T10_T11",
+        "209": "disc_T9_T10"
+      },
+      "confidence": {
+        "labels": 0.6
+      }
+    }
+  }
+}

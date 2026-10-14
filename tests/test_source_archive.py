@@ -121,7 +121,7 @@ def test_members_by_range(server, tmp_path, fmt, deflate):
         src: RemoteArchiveSource = ds._source
         cloud = ds["0000000001"].lidar
         assert cloud.to_numpy().shape == (4, 3)
-        assert src._ranged is not None and src._ranged.supports_ranges is True
+        assert src._ranged and src._ranged[0].supports_ranges is True
         assert not (
             tmp_path / "cache" / "datasets" / "drive" / f"archive.{fmt}"
         ).exists()  # never downloaded whole
@@ -129,7 +129,7 @@ def test_members_by_range(server, tmp_path, fmt, deflate):
         assert ds["0000000000"].path("lidar").read_bytes() == MEMBERS["drive/velodyne/0000000000.bin"]
         # a second dataset over the same archive reuses the on-disk index: no probe needed to list
         ds2 = pl.load(_manifest(f"{base}/a.{fmt}", fmt, tmp_path))
-        assert ds2._source._ranged is None and ds2.ids == ds.ids
+        assert ds2._source._ranged == {} and ds2.ids == ds.ids
         with pytest.raises(pl.FetchError, match="not a member"):
             src.fetch("nope.bin")
     finally:

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "name": "openneuro_ds000228",
+  "title": "OpenNeuro ds000228: T1-weighted MRI of 155 children and adults (Richardson et al.)",
+  "description": "Anatomical T1w volumes of 122 children (3-12 years) and 33 adults from the OpenNeuro dataset ds000228, read straight from the public OpenNeuro S3 bucket (anonymous listing and download). The functional runs and fMRIPrep derivatives of the same dataset are in the bucket too; any other OpenNeuro dataset is one line away: pl.load('s3://openneuro.org/ds000001').",
+  "source": {
+    "scheme": "s3",
+    "bucket": "openneuro.org",
+    "prefix": "ds000228"
+  },
+  "license": {
+    "spdx": "PDDL-1.0",
+    "commercial": true,
+    "source_url": "https://openneuro.org/datasets/ds000228",
+    "redistribution": "allowed",
+    "note": "dataset_description.json states License: PDDL (checked 2026-10-14); OpenNeuro datasets published since 2018 are CC0."
+  },
+  "citation": "Richardson H., Lisandrelli G., Riobueno-Naylor A., Saxe R. Development of the social brain from age three to twelve years. Nat Commun 9:1027, 2018. OpenNeuro ds000228. doi:10.18112/openneuro.ds000228.v1.1.1",
+  "homepage": "https://openneuro.org/datasets/ds000228",
+  "pairing": "id",
+  "size_mb": 2500,
+  "tags": [
+    "medical",
+    "mri",
+    "brain",
+    "pediatric",
+    "nifti",
+    "openneuro",
+    "bids"
+  ],
+  "roles": {
+    "t1w": {
+      "type": "volume",
+      "description": "T1-weighted anatomical MRI (BIDS anat/)",
+      "pattern": "{id}/anat/{id}_T1w.nii.gz",
+      "modality": "MR"
+    }
+  }
+}

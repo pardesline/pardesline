@@ -43,7 +43,8 @@ ROLE_TYPES = (
     "calibration",
     "file",
 )
-SCHEMES = ("local", "https", "hf", "open3d", "archive")
+SCHEMES = ("local", "https", "hf", "open3d", "archive", "s3", "tcia", "urllist")
+TCIA_API = "https://services.cancerimagingarchive.net/nbia-api/services/v1"
 
 # Hash-addressed mirrors used by the SimpleITK notebooks data; ``{sha512}`` is substituted.
 DEFAULT_MIRRORS = (
@@ -83,13 +84,19 @@ class SourceSpec(_Model):
       listing to sub-folders (a 100k-file repo is never listed whole);
       ``max_files`` caps what one listing may return.
     - ``open3d``: a class of ``open3d.data``.
-    - ``archive``: one remote ``url`` of a zip or uncompressed tar read with
-      HTTP Range requests: the index costs a few KB, a member costs its own
-      size, the archive is never downloaded whole when the server supports
-      ranges. ``prefix`` restricts the listing to members under it.
+    - ``archive``: one remote ``url`` (or several ``urls`` that form one
+      dataset) of zip or uncompressed tar read with HTTP Range requests: the
+      index costs a few KB, a member costs its own size, the archive is never
+      downloaded whole when the server supports ranges. ``prefix`` restricts
+      the listing to members under it.
+    - ``s3``: a public bucket listed with ListObjectsV2 (``bucket``,
+      ``endpoint``, ``prefix``); relative paths are the keys under ``prefix``.
+    - ``tcia``: a public collection of The Cancer Imaging Archive through the
+      NBIA REST API (``collection``, optional ``modalities``); one entry per
+      DICOM series as ``<PatientID>/<Modality>/<SeriesInstanceUID>/``.
     """
 
-    scheme: Literal["local", "https", "hf", "open3d", "archive"]
+    scheme: Literal["local", "https", "hf", "open3d", "archive", "s3", "tcia", "urllist"]
     # local
     root: str | None = None
     # https
@@ -105,10 +112,21 @@ class SourceSpec(_Model):
     dataset: str | None = None
     # archive
     url: str | None = None
+    urls: list[str] | None = None  # several archives forming one dataset (LUNA16 subsets, IXI modalities)
     format: Literal["zip", "tar"] | None = None  # inferred from the url when absent
     prefix: str | None = None
     sha512: str | None = Field(default=None, min_length=128, max_length=128, pattern=r"^[0-9a-f]+$")
     md5: str | None = Field(default=None, min_length=32, max_length=32, pattern=r"^[0-9a-f]+$")
+    # s3 (public bucket)
+    bucket: str | None = None
+    endpoint: str = "https://s3.amazonaws.com"
+    # tcia
+    collection: str | None = None
+    modalities: list[str] | None = None
+    api: str = TCIA_API
+    # urllist: a text index with one download URL per line
+    index_url: str | None = None
+    strip_prefix: str | None = None
 
     @model_validator(mode="after")
     def _check(self) -> SourceSpec:
@@ -117,17 +135,25 @@ class SourceSpec(_Model):
             "https": ["files"],
             "hf": ["repo_id"],
             "open3d": ["dataset"],
-            "archive": ["url"],
+            "archive": [],
+            "s3": ["bucket"],
+            "tcia": ["collection"],
+            "urllist": ["index_url"],
         }[self.scheme]
         for field in need:
             if getattr(self, field) in (None, {}, ""):
                 raise ValueError(f"source.{field} is required for scheme {self.scheme!r}")
+        if self.scheme == "archive":
+            if not self.url and not self.urls:
+                raise ValueError("source.url or source.urls is required for scheme 'archive'")
+            if self.url and self.urls:
+                raise ValueError("give source.url or source.urls, not both")
         if self.scheme == "https" and self.files:
             for rel, spec in self.files.items():
                 if spec.url is None and not (self.mirrors or DEFAULT_MIRRORS):
                     raise ValueError(f"source.files[{rel!r}] needs a url or mirrors")
         if self.scheme == "archive" and self.format is None:
-            low = (self.url or "").lower().split("?")[0]
+            low = (self.url or (self.urls or [""])[0]).lower().split("?")[0]
             if low.endswith(".zip"):
                 self.format = "zip"
             elif low.endswith(".tar"):
@@ -142,6 +168,25 @@ class SourceSpec(_Model):
     @property
     def archive_format(self) -> str:
         return self.format or ""
+
+    @property
+    def archive_urls(self) -> list[str]:
+        return list(self.urls) if self.urls else ([self.url] if self.url else [])
+
+    def key(self) -> str:
+        """What identifies this source for ``pl.load`` lookups: the Hub repo,
+        the bucket and prefix, the TCIA collection, the archive url(s)."""
+        if self.scheme == "hf":
+            return f"hf://{self.repo_id}"
+        if self.scheme == "s3":
+            return f"s3://{self.bucket}/{(self.prefix or '').strip('/')}".rstrip("/")
+        if self.scheme == "tcia":
+            return f"tcia://{self.collection}"
+        if self.scheme == "archive":
+            return ",".join(self.archive_urls)
+        if self.scheme == "urllist":
+            return f"urllist://{self.index_url}"
+        return self.scheme
 
 
 class Layout(_Model):
@@ -351,8 +396,15 @@ class Manifest(_Model):
             src += f" hf://{self.source.repo_id}"
             if self.source.paths:
                 src += f" ({', '.join(self.source.paths)})"
-        elif self.source.url:
-            src += f" {self.source.url}"
+        elif self.source.scheme == "archive":
+            urls = self.source.archive_urls
+            src += f" {urls[0]}" + (f" (+{len(urls) - 1} more)" if len(urls) > 1 else "")
+        elif self.source.scheme == "s3":
+            src += f" {self.source.key()}"
+        elif self.source.scheme == "tcia":
+            src += f" {self.source.collection}" + (
+                f" ({', '.join(self.source.modalities)})" if self.source.modalities else ""
+            )
         lines.append(f"  source:  {src}")
         lic = self.license.spdx or "unknown"
         if self.license.commercial is False:

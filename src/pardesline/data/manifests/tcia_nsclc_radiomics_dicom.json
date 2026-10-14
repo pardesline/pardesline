@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "name": "tcia_nsclc_radiomics_dicom",
+  "title": "TCIA NSCLC-Radiomics: 422 lung-cancer CTs with RTSTRUCT and SEG contours (DICOM)",
+  "description": "The original DICOM release of the Lung1 cohort (see hf_nsclc_radiomics for the NIfTI conversion): planning CT, the radiotherapy structure set (GTV, lungs, heart, oesophagus, spinal cord) and a DICOM SEG per patient. Series are listed through the public NBIA API (no account) and each one is downloaded as a zip of DICOM files on first access; the folder is then a DICOM volume (LPS mm from the headers).",
+  "source": {
+    "scheme": "tcia",
+    "collection": "NSCLC-Radiomics"
+  },
+  "license": {
+    "spdx": "CC-BY-3.0",
+    "commercial": true,
+    "source_url": "https://www.cancerimagingarchive.net/collection/nsclc-radiomics/",
+    "redistribution": "allowed",
+    "note": "CC BY 3.0 on the TCIA collection page (checked 2026-10-14)."
+  },
+  "citation": "Aerts H.J.W.L., Wee L., Rios Velazquez E., et al. Data From NSCLC-Radiomics (version 4). The Cancer Imaging Archive, 2019. doi:10.7937/K9/TCIA.2015.PF0M9REI. Clark K., Vendt B., Smith K., et al. The Cancer Imaging Archive (TCIA): Maintaining and Operating a Public Information Repository. J Digit Imaging 26(6):1045-1057, 2013.",
+  "homepage": "https://www.cancerimagingarchive.net/collection/nsclc-radiomics/",
+  "pairing": "id",
+  "size_mb": 33000,
+  "tags": [
+    "medical",
+    "dicom",
+    "tcia",
+    "ct",
+    "lung",
+    "oncology",
+    "rtstruct"
+  ],
+  "roles": {
+    "ct": {
+      "type": "volume",
+      "description": "Planning CT, DICOM series",
+      "pattern": "{id}/CT/{series}",
+      "modality": "CT"
+    },
+    "rtstruct": {
+      "type": "file",
+      "description": "RTSTRUCT contours (GTV-1, lungs, heart, oesophagus, spinal cord)",
+      "pattern": "{id}/RTSTRUCT/{series}"
+    },
+    "seg": {
+      "type": "file",
+      "description": "DICOM SEG of the same structures",
+      "pattern": "{id}/SEG/{series}"
+    }
+  }
+}

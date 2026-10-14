@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "name": "hf_kits23",
+  "title": "KiTS23: 489 kidney-tumour CTs with kidney, tumour and cyst labels",
+  "description": "The 2023 Kidney and Kidney Tumor Segmentation challenge imaging as published by the organisers on the Hub: contrast-enhanced abdominal CT per case (100-280 MB) with a three-class label map. Two scoped folders of the repo are listed (images, segmentations).",
+  "source": {
+    "scheme": "hf",
+    "repo_id": "neheller/KiTS-Challenge-Imaging",
+    "paths": [
+      "images",
+      "segmentations"
+    ]
+  },
+  "license": {
+    "spdx": "CC-BY-NC-SA-4.0",
+    "commercial": false,
+    "source_url": "https://kits-challenge.org/kits23/",
+    "redistribution": "allowed",
+    "note": "CC BY-NC-SA 4.0 on the Hub card (checked 2026-10-14): non-commercial, share-alike."
+  },
+  "citation": "Heller N., Isensee F., Trofimova D., et al. The KiTS21 Challenge: Automatic segmentation of kidneys, renal tumors, and renal cysts in corticomedullary-phase CT. arXiv:2307.01984, 2023.",
+  "homepage": "https://kits-challenge.org/kits23/",
+  "pairing": "id",
+  "size_mb": 90000,
+  "tags": [
+    "medical",
+    "ct",
+    "kidney",
+    "tumor",
+    "segmentation",
+    "nifti",
+    "hf",
+    "non-commercial"
+  ],
+  "roles": {
+    "ct": {
+      "type": "volume",
+      "description": "Abdominal CT (NIfTI)",
+      "pattern": "images/{id}.nii.gz",
+      "modality": "CT"
+    },
+    "mask": {
+      "type": "labels",
+      "description": "Kidney / tumour / cyst label map",
+      "pattern": "segmentations/{id}.nii.gz",
+      "labels": {
+        "1": "kidney",
+        "2": "tumor",
+        "3": "cyst"
+      }
+    }
+  }
+}

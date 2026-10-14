@@ -25,7 +25,7 @@ src/pardesline/
   catalog/               Catalog, Module, Method, Parameter + data/<module>.json (19 files, the 73 methods)
   runner.py              pl.run: validation, subprocess, log/progress capture, RunResult
   object/                Object classes, frame.py (Frame, License, format defaults), convert.py (in-process conversions)
-  data/                  manifest.py (pydantic schema incl. Layout), dataset.py (+ export), scan.py (folders and hub listings), cache.py, sources/{local,https,hf,archive,open3d}.py, manifests/*.json
+  data/                  manifest.py (pydantic schema incl. Layout), dataset.py (+ export), scan.py (folders and listings), cache.py, sources/{local,https,hf,archive,s3,tcia,urllist,open3d}.py, manifests/*.json
   object/arrays.py       raw .npy/.npz/.bin decoding through a layout; pure-NumPy PLY writer; grid -> MetaImage
   ops/<module>/*.py      the 73 scripts, byte-identical to the hosted platform's modules/*/scripts
   medical/               _service.py + pyvista_adapter.py (the platform's SimpleITK service), public re-exports
@@ -76,8 +76,10 @@ fork here and document it in CHANGELOG.
    `hf` sources **must** scope the listing with `paths` (a whole 100k-file
    repo is rate-limited before it is listed); check the real tree with
    `HfApi().list_repo_tree(repo, path_in_repo=..., repo_type="dataset")`.
-   `archive` sources need a `url` whose server honours Range requests (probe
-   with a `Range: bytes=0-0` GET -> 206) and a `prefix`.
+   `archive` sources need a `url` (or `urls`) whose server honours Range
+   requests (probe with a `Range: bytes=0-0` GET -> 206); `s3` sources a
+   bucket that allows anonymous ListObjectsV2; `tcia` sources the exact
+   NBIA collection name (`getCollectionValues`).
    Any `.npy/.npz/.bin` role needs its `layout`; verify it on one real file.
    Record in the description what was measured (index size, fetch time).
 3. `tests/test_manifest.py` validates every bundled manifest offline

@@ -74,3 +74,17 @@ def test_hf_nsclc_listing_and_one_mask():
     assert len(ds) == 422
     mask = ds["LUNG1-001"].mask
     assert isinstance(mask, pl.LabelMap) and mask.labels[2] == "gtv"
+
+
+def test_tcia_prostate_series_as_dicom_volume():
+    ds = pl.load("tcia_prostate_3t")
+    assert len(ds) >= 60
+    vol = ds[0].t2
+    assert vol.kind == "volume" and vol.path.is_dir() and len(list(vol.path.iterdir())) >= 10
+
+
+def test_openneuro_bucket_listing():
+    ds = pl.load("openneuro_ds000228")
+    assert len(ds) >= 150 and ds[0].roles == ["t1w"]
+    other = pl.load("s3://openneuro.org/ds000001")  # drafted on the fly, nothing to ask
+    assert other.manifest.source.scheme == "s3" and len(other) >= 10

@@ -11,7 +11,7 @@ from typing import Protocol
 
 from ..manifest import Manifest, SourceSpec
 
-__all__ = ["Source", "open_source"]
+__all__ = ["Source", "fetch_folder", "open_source"]
 
 
 class Source(Protocol):
@@ -20,6 +20,22 @@ class Source(Protocol):
     def list(self) -> list[str] | None: ...
 
     def describe(self) -> str: ...
+
+
+def fetch_folder(source: Source, prefix: str) -> Path:
+    """Every file under ``prefix`` (a DICOM series): the source's own
+    ``fetch_folder`` when it has one, else file by file from the listing."""
+    impl = getattr(source, "fetch_folder", None)
+    if impl is not None:
+        return impl(prefix)
+    prefix = prefix.rstrip("/") + "/"
+    listing = source.list() or []
+    members = [rel for rel in listing if rel.startswith(prefix)]
+    if not members:
+        raise FileNotFoundError(f"no file under {prefix!r} in {source.describe()}")
+    paths = [source.fetch(rel) for rel in members]
+    folder = paths[0].parent
+    return folder
 
 
 def open_source(spec: SourceSpec, manifest: Manifest, *, manifest_dir: Path | None = None) -> Source:
@@ -53,10 +69,30 @@ def open_source(spec: SourceSpec, manifest: Manifest, *, manifest_dir: Path | No
 
         return RemoteArchiveSource(
             manifest.name,
-            spec.url or "",
+            spec.archive_urls,
             format=spec.archive_format,
             prefix=spec.prefix,
             sha512=spec.sha512,
             md5=spec.md5,
+        )
+    if spec.scheme == "s3":
+        from .s3 import S3Source
+
+        return S3Source(
+            manifest.name,
+            spec.bucket or "",
+            endpoint=spec.endpoint,
+            prefix=spec.prefix,
+            max_files=spec.max_files,
+        )
+    if spec.scheme == "tcia":
+        from .tcia import TciaSource
+
+        return TciaSource(manifest.name, spec.collection or "", modalities=spec.modalities, api=spec.api)
+    if spec.scheme == "urllist":
+        from .urllist import UrlListSource
+
+        return UrlListSource(
+            manifest.name, spec.index_url or "", strip_prefix=spec.strip_prefix, max_files=spec.max_files
         )
     raise ValueError(f"unknown source scheme {spec.scheme!r}")

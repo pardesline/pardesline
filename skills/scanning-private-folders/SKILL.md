@@ -73,10 +73,12 @@ suggestion)`), `.manifest` (the draft) and `.draft_path`.
 
 `pl.scan(folder, name=None, read_headers=True)` returns the draft `Manifest`
 (`.questions`, `.is_draft`, `.describe()`), without raising.
-`pl.scan("hf://org/name/sub")` does the same from the repo listing (no
-headers read; the licence comes from the Hub card, marked TO CONFIRM); the
-draft is saved under `pl.cache_dir()/drafts/` and reused by the next
-`pl.load("hf://...")`.
+`pl.scan("hf://org/name/sub")`, `pl.scan("s3://bucket/prefix")` and
+`pl.scan("tcia://Collection")` do the same from a listing (no headers read;
+the licence comes from the Hub card, OpenNeuro's CC0 policy or TCIA's CC BY
+3.0 default, marked TO CONFIRM); the draft is saved under
+`pl.cache_dir()/drafts/` and reused by the next `pl.load`. When no question
+remains, `pl.load` returns the dataset directly.
 
 ## The four ways to answer
 

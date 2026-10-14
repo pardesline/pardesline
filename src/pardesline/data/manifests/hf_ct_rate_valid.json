@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "name": "hf_ct_rate_valid",
+  "title": "CT-RATE: non-contrast chest CTs paired with radiology reports (first 20 validation cases)",
+  "description": "CT-RATE (Istanbul Medipol / University of Zurich): 50 188 chest CT volumes from 21 304 patients with radiology reports and multi-abnormality labels. The repo is gated: accept its terms on huggingface.co and log in (HF_TOKEN). This manifest lists the first reconstruction of the first 20 validation patients explicitly (one 200-500 MB NIfTI each); reports and labels are CSV files under dataset/ in the same repo.",
+  "source": {
+    "scheme": "hf",
+    "repo_id": "ibrahimhamamci/CT-RATE",
+    "paths": [
+      "dataset/valid/valid_1"
+    ]
+  },
+  "license": {
+    "spdx": "CC-BY-NC-SA-4.0",
+    "commercial": false,
+    "source_url": "https://huggingface.co/datasets/ibrahimhamamci/CT-RATE",
+    "redistribution": "allowed",
+    "requires_agreement": true,
+    "note": "CC BY-NC-SA 4.0, gated repository (checked 2026-10-14): non-commercial, share-alike, your own Hub token after accepting the terms."
+  },
+  "citation": "Hamamci I.E., Er S., Almas F., et al. Developing Generalist Foundation Models from a Multimodal Dataset for 3D Computed Tomography. arXiv:2403.17834, 2024.",
+  "homepage": "https://huggingface.co/datasets/ibrahimhamamci/CT-RATE",
+  "pairing": "patient",
+  "size_mb": 7000,
+  "tags": [
+    "medical",
+    "ct",
+    "chest",
+    "reports",
+    "nifti",
+    "hf",
+    "gated",
+    "non-commercial"
+  ],
+  "roles": {
+    "ct": {
+      "type": "volume",
+      "description": "Non-contrast chest CT (NIfTI), first reconstruction of the study",
+      "modality": "CT"
+    }
+  },
+  "samples": [
+    {
+      "id": "valid_1",
+      "files": {
+        "ct": "dataset/valid/valid_1/valid_1_a/valid_1_a_1.nii.gz"
+      },
+      "fields": {
+        "patient": "valid_1"
+      }
+    },
+    {
+      "id": "valid_2",
+      "files": {
+        "ct": "dataset/valid/valid_2/valid_2_a/valid_2_a_1.nii.gz"
+      },
+      "fields": {
+        "patient": "valid_2"
+      }
+    },
+    {
+      "id": "valid_3",
+      "files": {
+        "ct": "dataset/valid/valid_3/valid_3_a/valid_3_a_1.nii.gz"
+      },
+      "fields": {
+        "patient": "valid_3"
+      }
+    },
+    {
+      "id": "valid_4",
+      "files": {
+        "ct": "dataset/valid/valid_4/valid_4_a/valid_4_a_1.nii.gz"
+      },
+      "fields": {
+        "patient": "valid_4"
+      }
+    },
+    {
+      "id": "valid_5",
+      "files": {
+        "ct": "dataset/valid/valid_5/valid_5_a/valid_5_a_1.nii.gz"
+      },
+      "fields": {
+        "patient": "valid_5"
+      }
+    },
+    {
+      "id": "valid_6",
+      "files": {
+        "ct": "dataset/valid/valid_6/valid_6_a/valid_6_a_1.nii.gz"
+      },
+      "fields": {
+        "patient": "valid_6"
+      }
+    },
+    {
+      "id": "valid_7",
+      "files": {
+        "ct": "dataset/valid/valid_7/valid_7_a/valid_7_a_1.nii.gz"
+      },
+      "fields": {
+        "patient": "valid_7"
+      }
+    },
+    {
+      "id": "valid_8",
+      "files": {
+        "ct": "dataset/valid/valid_8/valid_8_a/valid_8_a_1.nii.gz"
+      },
+      "fields": {
+        "patient": "valid_8"
+      }
+    },
+    {
+      "id": "valid_9",
+      "files": {
+        "ct": "dataset/valid/valid_9/valid_9_a/valid_9_a_1.nii.gz"
+      },
+      "fields": {
+        "patient": "valid_9"
+      }
+    },
+    {
+      "id": "valid_10",
+      "files": {
+        "ct": "dataset/valid/valid_10/valid_10_a/valid_10_a_1.nii.gz"
+      },
+      "fields": {
+        "patient": "valid_10"
+      }
+    },
+    {
+      "id": "valid_11",
+      "files": {
+        "ct": "dataset/valid/valid_11/valid_11_a/valid_11_a_1.nii.gz"
+      },
+      "fields": {
+        "patient": "valid_11"
+      }
+    },
+    {
+      "id": "valid_12",
+      "files": {
+        "ct": "dataset/valid/valid_12/valid_12_a/valid_12_a_1.nii.gz"
+      },
+      "fields": {
+        "patient": "valid_12"
+      }
+    },
+    {
+      "id": "valid_13",
+      "files": {
+        "ct": "dataset/valid/valid_13/valid_13_a/valid_13_a_1.nii.gz"
+      },
+      "fields": {
+        "patient": "valid_13"
+      }
+    },
+    {
+      "id": "valid_14",
+      "files": {
+        "ct": "dataset/valid/valid_14/valid_14_a/valid_14_a_1.nii.gz"
+      },
+      "fields": {
+        "patient": "valid_14"
+      }
+    },
+    {
+      "id": "valid_15",
+      "files": {
+        "ct": "dataset/valid/valid_15/valid_15_a/valid_15_a_1.nii.gz"
+      },
+      "fields": {
+        "patient": "valid_15"
+      }
+    },
+    {
+      "id": "valid_16",
+      "files": {
+        "ct": "dataset/valid/valid_16/valid_16_a/valid_16_a_1.nii.gz"
+      },
+      "fields": {
+        "patient": "valid_16"
+      }
+    },
+    {
+      "id": "valid_17",
+      "files": {
+        "ct": "dataset/valid/valid_17/valid_17_a/valid_17_a_1.nii.gz"
+      },
+      "fields": {
+        "patient": "valid_17"
+      }
+    },
+    {
+      "id": "valid_18",
+      "files": {
+        "ct": "dataset/valid/valid_18/valid_18_a/valid_18_a_1.nii.gz"
+      },
+      "fields": {
+        "patient": "valid_18"
+      }
+    },
+    {
+      "id": "valid_19",
+      "files": {
+        "ct": "dataset/valid/valid_19/valid_19_a/valid_19_a_1.nii.gz"
+      },
+      "fields": {
+        "patient": "valid_19"
+      }
+    },
+    {
+      "id": "valid_20",
+      "files": {
+        "ct": "dataset/valid/valid_20/valid_20_a/valid_20_a_1.nii.gz"
+      },
+      "fields": {
+        "patient": "valid_20"
+      }
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "name": "medshapenet",
+  "title": "MedShapeNet: 106 101 anatomical and surgical-instrument shapes as STL meshes",
+  "description": "The MedShapeNet collection (IKIM, University Hospital Essen): over 100 000 3-D shapes extracted from 23 medical datasets - organs, bones, vessels, tumours, teeth, instruments - as STL files, one per URL in the public download index (sciebo, HTTP Range supported). Sample ids are case/structure (426 structure names, e.g. liver, vertebrae, skull, tumoredbrain); ds.filter(structure='liver') selects one anatomy. STL carries no unit: shapes derived from medical images are in millimetres (declared here, TO CONFIRM for the instrument sets).",
+  "source": {
+    "scheme": "urllist",
+    "index_url": "https://mml.ikim.nrw/ait/projects/medshapenet/MedShapeNetDataset.txt",
+    "max_files": 200000
+  },
+  "license": {
+    "spdx": "CC-BY-4.0",
+    "commercial": null,
+    "source_url": "https://medshapenet.ikim.nrw/",
+    "redistribution": "unknown",
+    "note": "MedShapeNetCore on Zenodo is CC BY 4.0 (checked 2026-10-14); the full collection inherits the licence of each source dataset, TO CONFIRM per structure before commercial use or redistribution."
+  },
+  "citation": "Li J., Zhou Z., Yang J., et al. MedShapeNet - A Large-Scale Dataset of 3D Medical Shapes for Computer Vision. Biomedical Engineering / Biomedizinische Technik, 2024. arXiv:2308.16139.",
+  "homepage": "https://medshapenet.ikim.nrw/",
+  "pairing": "case",
+  "size_mb": 2000000,
+  "tags": [
+    "medical",
+    "mesh",
+    "stl",
+    "anatomy",
+    "shapes",
+    "instruments"
+  ],
+  "roles": {
+    "mesh": {
+      "type": "mesh",
+      "description": "Triangle mesh of one anatomical structure (STL, millimetres)",
+      "pattern": "{case}_{structure}.stl",
+      "units": "mm",
+      "confidence": {
+        "units": 0.8
+      }
+    }
+  }
+}

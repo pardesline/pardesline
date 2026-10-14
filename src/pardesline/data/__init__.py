@@ -7,6 +7,8 @@ pl.load("sample://popi_lung_4dct")       -> same
 pl.load("hf://org/name")                 -> Dataset from the bundled manifest of that repo,
                                             or a draft with questions (like a private folder)
 pl.load("hf://org/name/sub/folder")      -> same, listing only that folder of the repo
+pl.load("s3://openneuro.org/ds000228")   -> a public bucket prefix, same flow
+pl.load("tcia://Pancreas-CT")            -> a public TCIA collection (DICOM series), same flow
 pl.load("my_dataset.manifest.json")      -> Dataset from your own manifest
 pl.load("/data/study_A")                 -> Dataset after pl.scan; raises NeedsConfirmation
                                            until licence/units/labels are answered
@@ -46,6 +48,7 @@ __all__ = [
     "load_manifest",
     "parse_hf_ref",
     "scan",
+    "scan_uri",
     "set_cache_dir",
 ]
 
@@ -116,6 +119,15 @@ def parse_hf_ref(text: str) -> tuple[str, str | None]:
     repo = "/".join(parts[:2])
     sub = "/".join(parts[2:]) or None
     return repo, sub
+
+
+def _bundled_for_key(key: str) -> Manifest | None:
+    """The bundled manifest whose source key (``s3://bucket/prefix``,
+    ``tcia://Collection``) is ``key``, or whose prefix contains it."""
+    exact = [m for m in _bundled().values() if m.source.key() == key]
+    if exact:
+        return exact[0]
+    return None
 
 
 def _bundled_for_repo(repo: str, sub: str | None) -> Manifest | None:
@@ -336,13 +348,112 @@ def scan_hf(ref: str, *, max_files: int = 20000) -> Manifest:
     )
 
 
+def _source_for_uri(text: str) -> tuple[SourceSpec, str, LicenseSpec, str]:
+    """``s3://bucket/prefix`` or ``tcia://Collection[/MOD,MOD]`` ->
+    (source, draft name, licence hint, title)."""
+    if text.startswith("s3://"):
+        body = text[len("s3://") :].strip("/")
+        bucket, _, prefix = body.partition("/")
+        if not bucket:
+            raise ManifestError(f"{text!r}: a bucket reference is s3://<bucket>/<prefix>")
+        source = SourceSpec(scheme="s3", bucket=bucket, prefix=prefix or None)
+        lic = LicenseSpec(source_url=f"https://{bucket}" if "." in bucket else None)
+        if bucket == "openneuro.org":
+            lic = LicenseSpec(
+                spdx="CC0-1.0",
+                commercial=True,
+                redistribution="allowed",
+                source_url=f"https://openneuro.org/datasets/{prefix.split('/')[0]}"
+                if prefix
+                else "https://openneuro.org",
+                note=(
+                    "OpenNeuro publishes under CC0 since 2018; older datasets may state PDDL in "
+                    "dataset_description.json [TO CONFIRM]"
+                ),
+            )
+        name = re.sub(r"[^a-z0-9_]+", "_", f"s3_{bucket}_{prefix}".lower()).strip("_")
+        return source, name, lic, text
+    if text.startswith("tcia://"):
+        body = text[len("tcia://") :].strip("/")
+        collection, _, mods = body.partition("/")
+        if not collection:
+            raise ManifestError(f"{text!r}: a TCIA reference is tcia://<Collection>[/<MODALITY,MODALITY>]")
+        modalities = [m.strip().upper() for m in mods.split(",") if m.strip()] or None
+        source = SourceSpec(scheme="tcia", collection=collection, modalities=modalities)
+        lic = LicenseSpec(
+            spdx="CC-BY-3.0",
+            commercial=True,
+            source_url=f"https://www.cancerimagingarchive.net/collection/{collection.lower()}/",
+            note=(
+                "TCIA's default licence is CC BY 3.0 but collections may differ (CC BY 4.0, NC); "
+                "check the collection page and cite the collection and TCIA [TO CONFIRM]"
+            ),
+        )
+        name = re.sub(r"[^a-z0-9_]+", "_", f"tcia_{collection}".lower()).strip("_")
+        return source, name, lic, text
+    raise ManifestError(f"{text!r}: unsupported reference")
+
+
+def scan_uri(text: str, *, max_files: int = 20000) -> Manifest:
+    """Draft a manifest for an ``s3://`` prefix or a ``tcia://`` collection from its listing."""
+    source, name, lic, title = _source_for_uri(text)
+    if source.scheme == "s3":
+        source = source.model_copy(update={"max_files": max_files})
+    listing = open_source(source, Manifest.model_construct(name="draft")).list()
+    if listing is None:
+        raise FetchError(f"{text} cannot be listed")
+    return scan_listing(
+        listing,
+        name=name,
+        source=source,
+        title=title,
+        description=f"Drafted by pl.scan from the listing of {text}",
+        license=lic,
+    )
+
+
 def scan(ref: str | os.PathLike, **kwargs: Any) -> Manifest:
-    """Draft a manifest for a private folder or a Hub repo and list the
-    questions it will not answer by guessing."""
+    """Draft a manifest for a private folder, a Hub repo, a public bucket or
+    a TCIA collection, and list the questions it will not answer by guessing."""
     text = str(ref)
     if text.startswith("hf://"):
         return scan_hf(text, **kwargs)
+    if text.startswith(("s3://", "tcia://")):
+        return scan_uri(text, **kwargs)
     return scan_folder(ref, **kwargs)
+
+
+def _load_uri(
+    text: str,
+    *,
+    manifest: str | os.PathLike | None,
+    answers: dict[str, Any],
+    interactive: bool,
+    assume: bool,
+    save_draft: bool,
+) -> Dataset:
+    """``s3://`` and ``tcia://``: bundled manifest when one matches, else the draft flow."""
+    if manifest is not None:
+        m, mdir = Manifest.load(manifest), Path(manifest).parent
+        return Dataset(m, open_source(m.source, m, manifest_dir=mdir))
+    source, name, _lic, _title = _source_for_uri(text)
+    m = _bundled_for_key(source.key())
+    if m is not None and not answers:
+        return Dataset(m, open_source(m.source, m))
+    folder = cache_dir() / "drafts"
+    folder.mkdir(parents=True, exist_ok=True)
+    draft_path = folder / f"{name}.manifest.json"
+    if m is None:
+        m = Manifest.load(draft_path) if draft_path.is_file() else scan_uri(text)
+    return _finish_draft(
+        m,
+        draft_path=draft_path,
+        answers=answers,
+        interactive=interactive,
+        assume=assume,
+        save_draft=save_draft,
+        manifest_dir=None,
+    )
 
 
 def _draft_path_for_hf(repo: str, sub: str | None) -> Path:
@@ -431,6 +542,15 @@ def load(
         answers["layout"] = layout  # per-role answer for a dataset draft
     if text.startswith("hf://"):
         return _load_hf(
+            text,
+            manifest=manifest,
+            answers=answers,
+            interactive=interactive,
+            assume=assume,
+            save_draft=save_draft,
+        )
+    if text.startswith(("s3://", "tcia://")):
+        return _load_uri(
             text,
             manifest=manifest,
             answers=answers,

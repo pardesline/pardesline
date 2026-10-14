@@ -24,6 +24,10 @@ atrium = s.mask.to_mesh(label=1)  # exact left-atrium surface, LPS millimetres, 
 ds = pl.load("hf://farrell236/NSCLC-Radiomics-NIFTI")  # a Hugging Face repo: 422 lung CTs + masks
 ds["LUNG1-001"].mask.labels  # {1: 'esophagus', 2: 'gtv', 3: 'heart', ...}
 
+ct = pl.load("tcia://Pancreas-CT")[0].ct  # a TCIA collection: DICOM series fetched on access
+liver = pl.load("totalsegmentator_ct")[0].liver.to_mesh()  # one of 117 organ masks, 1 228 CTs
+t1 = pl.load("s3://openneuro.org/ds000228")[0].t1w  # any OpenNeuro dataset from its public bucket
+
 sweep = pl.load("kitti_raw_2011_09_26_drive_0001")[0].lidar  # a KITTI .bin read through its layout
 sweep.run("ground_removal").run("object_clustering", eps=0.7, min_points=10)
 
@@ -33,10 +37,10 @@ ds.export("/data/study_A_standard")  # standard files + sidecars + manifest
 
 > **Status: 0.2.0 alpha.** Local execution of the 73 algorithms, the typed
 > catalog, the object model (frames, units, labels, licence, provenance),
-> 16 bundled dataset manifests (Hugging Face repos, remote archives read by
-> HTTP Range, small excerpts), `pl.load("hf://...")` for any Hub repo with
-> the same questions as a private folder, raw-array layouts and `pl.scan`
-> are in and tested on Linux, Windows and macOS. Next: splats as a first-class
+> 43 bundled dataset manifests (35 medical: DICOM, NIfTI, MetaImage, npz,
+> STL meshes, Gaussian splats), `pl.load` for any Hugging Face repo, public
+> S3 bucket or TCIA collection with the same questions as a private folder,
+> raw-array layouts and `pl.scan` are in and tested on Linux, Windows and macOS. Next: splats as a first-class
 > kind, learned models, the local MCP server. See [Roadmap](#roadmap).
 
 ## Install
@@ -57,7 +61,7 @@ the core package also runs on 3.13.
 | | |
 |---|---|
 | **`pl.load(path)`** | A local file as a typed `Object`: `PointCloud`, `Mesh`, `Volume`, `LabelMap`, `Transform`, `Image`. Volumes get their frame (LPS, mm, affine) from the header; glTF is Y-up metres by specification; formats that carry no unit stay *unknown* until you say. |
-| **`pl.load(dataset)`** | A `Dataset` from one of the 16 bundled manifests (`pardesline datasets`), from `hf://org/name[/folder]`, from your own manifest file, or from a folder via `pl.scan`. Files are fetched on first access (per file from the Hub, member by member out of remote archives, SHA-512-verified downloads), cached. |
+| **`pl.load(dataset)`** | A `Dataset` from one of the 43 bundled manifests (`pardesline datasets`), from `hf://org/name[/folder]`, `s3://bucket/prefix`, `tcia://Collection`, from your own manifest file, or from a folder via `pl.scan`. Files are fetched on first access (per file from the Hub or a bucket, member by member out of remote archives, series by series from TCIA, SHA-512-verified downloads), cached. |
 | **`pl.load("sweep.bin", layout=...)`** | A raw `.npy` / `.npz` / `.bin` array as a `PointCloud` or a grid, through a declared layout (dtype, shape, columns, key). Never guessed; materialised once as PLY / MetaImage so every algorithm runs on it. |
 | **`ds.export(folder)`** | A standard copy of any dataset: PLY / MetaImage / NIfTI files, one `.pardesline.json` sidecar each (frame, units, labels, licence, provenance) and a local manifest. |
 | **`obj.run("module.method", **params)`** | Any algorithm; the result is a new `Object` that keeps the frame and licence and records the step. Aliases: `downsample`, `remove_outliers`, `normals`, `poisson`, `ball_pivoting`, `decimate`, `smooth`, `to_points`, `icp`, `ransac`, `register`, `segment`. |
@@ -121,28 +125,71 @@ The theory behind each module (with the formulas) is in the catalog too:
 `pl.load` never knows a dataset; it knows a **manifest**: where the files
 come from (with checksums or a Hub revision), under which licence, how files
 group into samples, and what each file cannot say by itself (frame, units,
-label meanings, array layout). Sixteen manifests ship with the package;
-`pl.datasets()` / `pardesline datasets` list them, `pl.describe(name)` prints one.
+label meanings, array layout). Forty-three manifests ship with the package;
+`pl.datasets()` / `pardesline datasets` list them, `pl.describe(name)` prints
+one. Every public source below was listed and one file fetched from it on
+2026-10-13/14; the licence column is what the source states.
+
+**Medical volumes: CT, MRI, PET, ultrasound (NIfTI, MetaImage, npz)**
 
 | Dataset | What | Source | Licence |
 |---|---|---|---|
-| `msd_task02_heart` | 20 + 10 cardiac MRIs, left atrium labelled | tar on S3, read by Range (456 MB) | CC-BY-SA-4.0 |
+| `msd_task01_braintumour` ... `msd_task10_colon` | the ten Medical Segmentation Decathlon tasks (2 633 CT/MRI with labels: brain tumour, heart, liver, hippocampus, prostate, lung, pancreas, hepatic vessels, spleen, colon) | one tar per task on S3, read by Range | CC-BY-SA-4.0 |
 | `amos22` | 600 abdominal CT/MRI, 15 organs | zip64 on Zenodo, read by Range (24 GB) | CC-BY-SA-4.0 |
-| `kitti_raw_2011_09_26_drive_0001` | 108 Velodyne sweeps + stereo images | zip on S3, read by Range (459 MB) | CC-BY-NC-SA-3.0 |
-| `hf_openmind` | OpenMind head MRI, one OpenNeuro study at a time | `hf://MIC-DKFZ/OpenMind` | CC-BY-4.0 |
-| `hf_nsclc_radiomics` | 422 lung CTs with tumour and organ masks (TCIA) | `hf://farrell236/NSCLC-Radiomics-NIFTI` | CC-BY-3.0 |
-| `hf_objaverse_glb_shard` | 5 000 glTF objects (one shard) | `hf://allenai/objaverse` | ODC-By, per-object CC |
-| `hf_3d_arena` | 29 image-to-3D generators x 100 images, meshes and splats | `hf://3d-arena/3d-arena` | MIT |
-| `hf_uniocc_carla_mini` | LiDAR, cameras and occupancy grids (CARLA) | `hf://tasl-lab/uniocc` | MIT |
-| `hf_kitti360_gs_subset` | 16 KITTI-360 chunks: points + Gaussian-splat arrays | `hf://GaussianWorld/...` | CC-BY-NC-SA-3.0 |
+| `totalsegmentator_ct` | 1 228 CTs, 117 structures as one mask role each (`s.liver`, `s.vertebrae_l3`...) | zip on Zenodo, read by Range (24 GB) | CC-BY-4.0 |
+| `totalsegmentator_mri` | 298 MRIs, 56 structures | zip on Zenodo, read by Range | CC-BY-NC-SA-2.0 |
+| `luna16` | 888 thorax CTs for nodule detection (MetaImage + raw) | ten zips on Zenodo, read by Range | CC-BY-4.0 |
+| `ixi_brain_mri` | ~600 healthy brains, T1 / T2 / PD / MRA | four tars at Imperial College, read by Range | CC-BY-SA-3.0 |
+| `verse19_spine` | 160 spine CTs, 28-class vertebra masks, centroids | three zips on S3, read by Range | CC-BY-SA-4.0 |
+| `spider_lumbar_mri` | 447 lumbar MRIs, vertebra / disc / canal masks | two zips on Zenodo, read by Range | CC-BY-4.0 |
+| `hf_openmind` | OpenMind head MRI, one OpenNeuro study at a time (114k images in all) | `hf://MIC-DKFZ/OpenMind` | CC-BY-4.0 |
+| `hf_nsclc_radiomics` | 422 lung CTs with tumour and organ masks (TCIA, NIfTI) | `hf://farrell236/NSCLC-Radiomics-NIFTI` | CC-BY-3.0 |
+| `hf_kits23` | 489 kidney-tumour CTs, kidney / tumour / cyst | `hf://neheller/KiTS-Challenge-Imaging` | CC-BY-NC-SA-4.0 |
+| `hf_abdomenatlas_mini` | abdominal CTs with nine organ masks (first 100 of 5 195) | `hf://AbdomenAtlas/AbdomenAtlas1.0Mini`, gated | CC-BY-NC-SA-4.0 |
+| `hf_ct_rate_valid` | chest CTs paired with radiology reports (first 20 of 50 188) | `hf://ibrahimhamamci/CT-RATE`, gated | CC-BY-NC-SA-4.0 |
+| `hf_biomedsegfm_3d_val` | 2 144 CT / MRI / PET / 3-D ultrasound / microscopy volumes as npz | `hf://junma/CVPR-BiomedSegFM` | CC-BY-NC-SA-4.0 |
+| `openneuro_ds000228` | T1w MRI of 155 children and adults; any OpenNeuro dataset via `s3://openneuro.org/dsXXXXXX` | public S3 bucket | PDDL / CC0 |
 | `rire_brain`, `popi_lung_4dct`, `liver_tumor_patient01`, `visible_human_head_mri` | the SimpleITK notebook excerpts | https + SHA-512 | research use, terms to confirm |
+
+**DICOM series**
+
+| Dataset | What | Source | Licence |
+|---|---|---|---|
+| `tcia_pancreas_ct` | 82 abdominal CTs (NIH) | TCIA, NBIA API | CC-BY-3.0 |
+| `tcia_lidc_idri` | 1 018 thorax CTs + DICOM SEG | TCIA, NBIA API | CC-BY-3.0 |
+| `tcia_nsclc_radiomics_dicom` | 422 planning CTs + RTSTRUCT + SEG | TCIA, NBIA API | CC-BY-3.0 |
+| `tcia_prostate_3t` | 64 T2 prostate MRIs | TCIA, NBIA API | CC-BY-3.0 |
+| `chaos_abdomen` | 20 CT + 20 MR (T1 in/out-phase, T2 SPIR) as DICOM series | zip on Zenodo, read by Range | CC-BY-NC-SA-4.0 |
+
+Any of the 156 public TCIA collections: `pl.load("tcia://Collection[/CT,MR]")`.
+
+**Anatomical meshes, splats and point clouds**
+
+| Dataset | What | Source | Licence |
+|---|---|---|---|
+| `medshapenet` | 106 101 anatomical and instrument shapes as STL (`ds.filter(structure="liver")`) | public URL index | CC-BY-4.0, per source |
+| `c3vd_endoscopy_splats` | ten colonoscopy scenes as Gaussian splats + point clouds | zip on Zenodo, read by Range | CC-BY-4.0 (C3VD NC) |
+| `hf_3d_arena` | 29 image-to-3D generators x 100 images, meshes and splats | `hf://3d-arena/3d-arena` | MIT |
+| `hf_objaverse_glb_shard` | 5 000 glTF objects (one shard) | `hf://allenai/objaverse` | ODC-By, per-object CC |
 | `open3d_bunny`, `open3d_armadillo`, `open3d_icp_demo` | Open3D demo data | `open3d.data` | terms to confirm |
 
-Access is lazy by design. Indexing the MSD tar costs 32 KB (61 headers), the
-KITTI zip 157 KB and the 24 GB AMOS zip64 145 KB; a case then costs its own
-size (measured 2026-10-13). Hub manifests scope their listing to the folders
-they need and a listing is capped at 20 000 files: listing OpenMind whole
-(266 721 files) takes 15 minutes and is rate-limited for anonymous clients.
+**Driving and LiDAR**
+
+| Dataset | What | Source | Licence |
+|---|---|---|---|
+| `kitti_raw_2011_09_26_drive_0001` | 108 Velodyne sweeps + stereo images | zip on S3, read by Range | CC-BY-NC-SA-3.0 |
+| `hf_kitti360_gs_subset` | 16 KITTI-360 chunks: points + Gaussian-splat arrays | `hf://GaussianWorld/...` | CC-BY-NC-SA-3.0 |
+| `hf_uniocc_carla_mini` | LiDAR, cameras and occupancy grids (CARLA) | `hf://tasl-lab/uniocc` | MIT |
+
+Access is lazy by design. Indexing the MSD heart tar costs 32 KB (61
+headers), the KITTI zip 157 KB, the 24 GB AMOS zip64 145 KB and the 145k-entry
+TotalSegmentator zip 14 MB; a case then costs its own size. Hub manifests scope
+their listing to the folders they need and a listing is capped at 20 000
+files: listing OpenMind whole (266 721 files) takes 15 minutes and is
+rate-limited for anonymous clients. Gated repositories (AbdomenAtlas, CT-RATE)
+need your own Hub token after you accept their terms; restricted TCIA
+collections answer 401 and are left to the NBIA Data Retriever. The package
+never scripts past a click-through.
 
 ```python
 ds = pl.load("popi_lung_4dct")  # six breathing phases of one thorax CT + a mask
@@ -180,10 +227,12 @@ Or edit the saved draft, or `interactive=True` to answer in the terminal, or
 public datasets that could not be confirmed are marked `TO CONFIRM` in the
 manifest and in `ds.license.describe()`.
 
-**Any Hugging Face repo.** `pl.load("hf://org/name/sub/folder")` uses the
-bundled manifest when there is one, otherwise lists the folder, drafts a
-manifest and asks the same questions (licence from the Hub card, units,
-labels, and the layout of raw arrays):
+**Any Hugging Face repo, public bucket or TCIA collection.**
+`pl.load("hf://org/name/sub/folder")`, `pl.load("s3://bucket/prefix")` and
+`pl.load("tcia://Collection/CT")` use the bundled manifest when there is one,
+otherwise list the source, draft a manifest and ask the same questions
+(licence from the Hub card or the archive's policy, units, labels, and the
+layout of raw arrays). When nothing is left to ask, the dataset loads directly:
 
 ```python
 pl.load("hf://acme/scans/raw")
@@ -201,9 +250,13 @@ ds = pl.load(
 Sources: `local` folders; `https` files with SHA-512 or md5 (and tar/zip
 downloads); `hf` repos through `huggingface_hub` (`pip install
 "pardesline[hf]"`, your own token for gated data and for higher rate limits);
-`archive`: one remote zip or tar read member by member with HTTP Range
-requests (zip64 included, index cached; falls back to one verified download
-when the server ignores ranges); Open3D demo data.
+`archive`: one or several remote zips or tars read member by member with HTTP
+Range requests (zip64 included, index cached; one verified download when the
+server ignores ranges); `s3`: a public bucket listed anonymously; `tcia`: a
+collection of The Cancer Imaging Archive through the NBIA API, one DICOM
+series per entry; `urllist`: a text index with one download URL per line;
+Open3D demo data. A DICOM series is a folder entry: fetching it brings every
+file; a MetaImage header brings its `.raw`.
 
 ## Examples
 
@@ -262,9 +315,10 @@ remote.view()  # link to the 3D viewer
 
 ## Roadmap
 
-- **More manifests**: the other MSD tasks, TotalSegmentator, KiTS23 (NC),
-  ShapeNetCore (gated), nuScenes-derived UniOcc splits; a PardesLine org on
-  the Hub mirroring the permissive ones.
+- **More manifests**: BraTS (Synapse DUA), ShapeNetCore (gated), the
+  nuScenes-derived UniOcc splits, VerSe 2020, the remaining TCIA CT/MR
+  collections as a generated set; a PardesLine org on the Hub mirroring the
+  permissive ones.
 - **Splats** (`.splat`, `.spz`, glTF Gaussian-splat extension, the KITTI-360
   array sets) as a first-class kind with its own conversions.
 - **Local MCP server**: `pardesline mcp` exposes the catalog and datasets to

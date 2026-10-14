@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "name": "luna16",
+  "title": "LUNA16: 888 thoracic CTs (LIDC-IDRI subset) for lung nodule detection",
+  "description": "The LUNA16 challenge scans: 888 CTs from LIDC-IDRI with slice thickness <= 2.5 mm, as MetaImage (.mhd + .raw), in ten subsets for cross-validation. Each subset is a 6-7 GB zip on Zenodo read scan by scan with HTTP Range (the .raw sibling is fetched with its header). Nodule annotations (annotations.csv, candidates.csv) are separate files on the Zenodo record.",
+  "source": {
+    "scheme": "archive",
+    "format": "zip",
+    "urls": [
+      "https://zenodo.org/records/3723295/files/subset0.zip",
+      "https://zenodo.org/records/3723295/files/subset1.zip",
+      "https://zenodo.org/records/3723295/files/subset2.zip",
+      "https://zenodo.org/records/3723295/files/subset3.zip",
+      "https://zenodo.org/records/3723295/files/subset4.zip",
+      "https://zenodo.org/records/3723295/files/subset5.zip",
+      "https://zenodo.org/records/3723295/files/subset6.zip",
+      "https://zenodo.org/records/4121926/files/subset7.zip",
+      "https://zenodo.org/records/4121926/files/subset8.zip",
+      "https://zenodo.org/records/4121926/files/subset9.zip"
+    ]
+  },
+  "license": {
+    "spdx": "CC-BY-4.0",
+    "commercial": true,
+    "source_url": "https://zenodo.org/records/3723295",
+    "redistribution": "allowed",
+    "note": "CC BY 4.0 on the Zenodo records (checked 2026-10-14); the underlying LIDC-IDRI collection is CC BY 3.0 (TCIA)."
+  },
+  "citation": "Setio A.A.A., Traverso A., de Bel T., et al. Validation, comparison, and combination of algorithms for automatic detection of pulmonary nodules in computed tomography images: the LUNA16 challenge. Med Image Anal 42:1-13, 2017.",
+  "homepage": "https://luna16.grand-challenge.org/",
+  "pairing": "subset",
+  "size_mb": 66340,
+  "tags": [
+    "medical",
+    "ct",
+    "lung",
+    "nodules",
+    "detection",
+    "metaimage",
+    "lidc"
+  ],
+  "roles": {
+    "ct": {
+      "type": "volume",
+      "description": "Thorax CT (MetaImage header + raw; LPS mm from the header); field subset = fold 0..9",
+      "pattern": "subset{subset}/{id}.mhd",
+      "modality": "CT"
+    }
+  }
+}

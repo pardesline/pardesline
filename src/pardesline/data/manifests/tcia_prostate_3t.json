@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "name": "tcia_prostate_3t",
+  "title": "TCIA Prostate-3T: 64 T2-weighted prostate MRIs (DICOM)",
+  "description": "Axial T2-weighted 3 T prostate MRIs of 64 patients (Radboud), the images behind the MSD prostate task. Series are listed through the public NBIA API (no account) and each one is downloaded as a zip of DICOM files on first access; the folder is then a DICOM volume (LPS mm from the headers).",
+  "source": {
+    "scheme": "tcia",
+    "collection": "Prostate-3T",
+    "modalities": [
+      "MR"
+    ]
+  },
+  "license": {
+    "spdx": "CC-BY-3.0",
+    "commercial": true,
+    "source_url": "https://www.cancerimagingarchive.net/collection/prostate-3t/",
+    "redistribution": "allowed",
+    "note": "CC BY 3.0 on the TCIA collection page (checked 2026-10-14)."
+  },
+  "citation": "Litjens G., Futterer J., Huisman H. Data From Prostate-3T. The Cancer Imaging Archive, 2015. doi:10.7937/K9/TCIA.2015.QJTV5IL5. Clark K., Vendt B., Smith K., et al. The Cancer Imaging Archive (TCIA): Maintaining and Operating a Public Information Repository. J Digit Imaging 26(6):1045-1057, 2013.",
+  "homepage": "https://www.cancerimagingarchive.net/collection/prostate-3t/",
+  "pairing": "id",
+  "size_mb": 200,
+  "tags": [
+    "medical",
+    "dicom",
+    "tcia",
+    "mri",
+    "prostate",
+    "pelvis"
+  ],
+  "roles": {
+    "t2": {
+      "type": "volume",
+      "description": "Axial T2 TSE, DICOM series",
+      "pattern": "{id}/MR/{series}",
+      "modality": "MR"
+    }
+  }
+}

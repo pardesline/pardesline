@@ -1,0 +1,430 @@
+{
+  "schema_version": 1,
+  "name": "totalsegmentator_mri",
+  "title": "TotalSegmentator MRI dataset v1.0.0: 298 MRI volumes with 56 anatomical structures",
+  "description": "298 MRI examinations (various sequences and regions) with 56 structures segmented as one binary mask per structure. Read subject by subject out of the 2.4 GB zip on Zenodo by HTTP Range.",
+  "source": {
+    "scheme": "archive",
+    "url": "https://zenodo.org/records/11367005/files/TotalsegmentatorMRI_dataset_v100.zip",
+    "format": "zip"
+  },
+  "license": {
+    "spdx": "CC-BY-NC-SA-2.0",
+    "commercial": false,
+    "source_url": "https://zenodo.org/records/11367005",
+    "redistribution": "allowed",
+    "note": "CC BY-NC-SA 2.0 on the Zenodo record (checked 2026-10-14): non-commercial, share-alike."
+  },
+  "citation": "D'Antonoli T.A., Berger L.K., Indrakanti A.K., et al. TotalSegmentator MRI: Sequence-Independent Segmentation of 59 Anatomical Structures in MR images. Radiology 314(2), 2025.",
+  "homepage": "https://github.com/wasserth/TotalSegmentator",
+  "pairing": "id",
+  "size_mb": 2385,
+  "tags": [
+    "medical",
+    "mri",
+    "segmentation",
+    "nifti",
+    "whole-body",
+    "totalsegmentator"
+  ],
+  "roles": {
+    "mri": {
+      "type": "volume",
+      "description": "MRI image (NIfTI, LPS mm from the header)",
+      "pattern": "{id}/mri.nii.gz",
+      "modality": "MR"
+    },
+    "adrenal_gland_left": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/adrenal_gland_left.nii.gz",
+      "labels": {
+        "1": "adrenal_gland_left"
+      }
+    },
+    "adrenal_gland_right": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/adrenal_gland_right.nii.gz",
+      "labels": {
+        "1": "adrenal_gland_right"
+      }
+    },
+    "aorta": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/aorta.nii.gz",
+      "labels": {
+        "1": "aorta"
+      }
+    },
+    "autochthon_left": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/autochthon_left.nii.gz",
+      "labels": {
+        "1": "autochthon_left"
+      }
+    },
+    "autochthon_right": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/autochthon_right.nii.gz",
+      "labels": {
+        "1": "autochthon_right"
+      }
+    },
+    "brain": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/brain.nii.gz",
+      "labels": {
+        "1": "brain"
+      }
+    },
+    "colon": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/colon.nii.gz",
+      "labels": {
+        "1": "colon"
+      }
+    },
+    "duodenum": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/duodenum.nii.gz",
+      "labels": {
+        "1": "duodenum"
+      }
+    },
+    "esophagus": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/esophagus.nii.gz",
+      "labels": {
+        "1": "esophagus"
+      }
+    },
+    "femur_left": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/femur_left.nii.gz",
+      "labels": {
+        "1": "femur_left"
+      }
+    },
+    "femur_right": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/femur_right.nii.gz",
+      "labels": {
+        "1": "femur_right"
+      }
+    },
+    "fibula": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/fibula.nii.gz",
+      "labels": {
+        "1": "fibula"
+      }
+    },
+    "gallbladder": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/gallbladder.nii.gz",
+      "labels": {
+        "1": "gallbladder"
+      }
+    },
+    "gluteus_maximus_left": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/gluteus_maximus_left.nii.gz",
+      "labels": {
+        "1": "gluteus_maximus_left"
+      }
+    },
+    "gluteus_maximus_right": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/gluteus_maximus_right.nii.gz",
+      "labels": {
+        "1": "gluteus_maximus_right"
+      }
+    },
+    "gluteus_medius_left": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/gluteus_medius_left.nii.gz",
+      "labels": {
+        "1": "gluteus_medius_left"
+      }
+    },
+    "gluteus_medius_right": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/gluteus_medius_right.nii.gz",
+      "labels": {
+        "1": "gluteus_medius_right"
+      }
+    },
+    "gluteus_minimus_left": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/gluteus_minimus_left.nii.gz",
+      "labels": {
+        "1": "gluteus_minimus_left"
+      }
+    },
+    "gluteus_minimus_right": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/gluteus_minimus_right.nii.gz",
+      "labels": {
+        "1": "gluteus_minimus_right"
+      }
+    },
+    "heart": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/heart.nii.gz",
+      "labels": {
+        "1": "heart"
+      }
+    },
+    "hip_left": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/hip_left.nii.gz",
+      "labels": {
+        "1": "hip_left"
+      }
+    },
+    "hip_right": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/hip_right.nii.gz",
+      "labels": {
+        "1": "hip_right"
+      }
+    },
+    "humerus_left": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/humerus_left.nii.gz",
+      "labels": {
+        "1": "humerus_left"
+      }
+    },
+    "humerus_right": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/humerus_right.nii.gz",
+      "labels": {
+        "1": "humerus_right"
+      }
+    },
+    "iliac_artery_left": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/iliac_artery_left.nii.gz",
+      "labels": {
+        "1": "iliac_artery_left"
+      }
+    },
+    "iliac_artery_right": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/iliac_artery_right.nii.gz",
+      "labels": {
+        "1": "iliac_artery_right"
+      }
+    },
+    "iliac_vena_left": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/iliac_vena_left.nii.gz",
+      "labels": {
+        "1": "iliac_vena_left"
+      }
+    },
+    "iliac_vena_right": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/iliac_vena_right.nii.gz",
+      "labels": {
+        "1": "iliac_vena_right"
+      }
+    },
+    "iliopsoas_left": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/iliopsoas_left.nii.gz",
+      "labels": {
+        "1": "iliopsoas_left"
+      }
+    },
+    "iliopsoas_right": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/iliopsoas_right.nii.gz",
+      "labels": {
+        "1": "iliopsoas_right"
+      }
+    },
+    "inferior_vena_cava": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/inferior_vena_cava.nii.gz",
+      "labels": {
+        "1": "inferior_vena_cava"
+      }
+    },
+    "intervertebral_discs": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/intervertebral_discs.nii.gz",
+      "labels": {
+        "1": "intervertebral_discs"
+      }
+    },
+    "kidney_left": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/kidney_left.nii.gz",
+      "labels": {
+        "1": "kidney_left"
+      }
+    },
+    "kidney_right": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/kidney_right.nii.gz",
+      "labels": {
+        "1": "kidney_right"
+      }
+    },
+    "liver": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/liver.nii.gz",
+      "labels": {
+        "1": "liver"
+      }
+    },
+    "lung_left": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/lung_left.nii.gz",
+      "labels": {
+        "1": "lung_left"
+      }
+    },
+    "lung_right": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/lung_right.nii.gz",
+      "labels": {
+        "1": "lung_right"
+      }
+    },
+    "pancreas": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/pancreas.nii.gz",
+      "labels": {
+        "1": "pancreas"
+      }
+    },
+    "portal_vein_and_splenic_vein": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/portal_vein_and_splenic_vein.nii.gz",
+      "labels": {
+        "1": "portal_vein_and_splenic_vein"
+      }
+    },
+    "prostate": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/prostate.nii.gz",
+      "labels": {
+        "1": "prostate"
+      }
+    },
+    "quadriceps_femoris_left": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/quadriceps_femoris_left.nii.gz",
+      "labels": {
+        "1": "quadriceps_femoris_left"
+      }
+    },
+    "quadriceps_femoris_right": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/quadriceps_femoris_right.nii.gz",
+      "labels": {
+        "1": "quadriceps_femoris_right"
+      }
+    },
+    "sacrum": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/sacrum.nii.gz",
+      "labels": {
+        "1": "sacrum"
+      }
+    },
+    "sartorius_left": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/sartorius_left.nii.gz",
+      "labels": {
+        "1": "sartorius_left"
+      }
+    },
+    "sartorius_right": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/sartorius_right.nii.gz",
+      "labels": {
+        "1": "sartorius_right"
+      }
+    },
+    "small_bowel": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/small_bowel.nii.gz",
+      "labels": {
+        "1": "small_bowel"
+      }
+    },
+    "spinal_cord": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/spinal_cord.nii.gz",
+      "labels": {
+        "1": "spinal_cord"
+      }
+    },
+    "spleen": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/spleen.nii.gz",
+      "labels": {
+        "1": "spleen"
+      }
+    },
+    "stomach": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/stomach.nii.gz",
+      "labels": {
+        "1": "stomach"
+      }
+    },
+    "thigh_medial_compartment_left": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/thigh_medial_compartment_left.nii.gz",
+      "labels": {
+        "1": "thigh_medial_compartment_left"
+      }
+    },
+    "thigh_medial_compartment_right": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/thigh_medial_compartment_right.nii.gz",
+      "labels": {
+        "1": "thigh_medial_compartment_right"
+      }
+    },
+    "thigh_posterior_compartment_left": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/thigh_posterior_compartment_left.nii.gz",
+      "labels": {
+        "1": "thigh_posterior_compartment_left"
+      }
+    },
+    "thigh_posterior_compartment_right": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/thigh_posterior_compartment_right.nii.gz",
+      "labels": {
+        "1": "thigh_posterior_compartment_right"
+      }
+    },
+    "tibia": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/tibia.nii.gz",
+      "labels": {
+        "1": "tibia"
+      }
+    },
+    "urinary_bladder": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/urinary_bladder.nii.gz",
+      "labels": {
+        "1": "urinary_bladder"
+      }
+    },
+    "vertebrae": {
+      "type": "labels",
+      "pattern": "{id}/segmentations/vertebrae.nii.gz",
+      "labels": {
+        "1": "vertebrae"
+      }
+    }
+  }
+}

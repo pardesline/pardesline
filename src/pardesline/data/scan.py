@@ -70,6 +70,9 @@ def _entries_from_listing(listing: list[str]) -> list[tuple[str, str]]:
     entries: list[tuple[str, str]] = []
     dicom_dirs: set[str] = set()
     for rel in sorted(listing):
+        if rel.endswith("/"):  # a folder entry = one DICOM series (TCIA, PACS exports)
+            dicom_dirs.add(rel.rstrip("/"))
+            continue
         name = rel.rsplit("/", 1)[-1]
         if name.startswith(".") or name.startswith("._"):
             continue

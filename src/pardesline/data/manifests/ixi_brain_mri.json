@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "name": "ixi_brain_mri",
+  "title": "IXI: ~600 healthy-subject brain MRIs (T1, T2, PD, MRA) from three London hospitals",
+  "description": "The Information eXtraction from Images dataset: T1, T2, PD-weighted and MR angiography volumes of nearly 600 healthy subjects acquired at Guy's, Hammersmith and the Institute of Psychiatry (1.5 T and 3 T). One tar per modality on the Imperial College server, read subject by subject with HTTP Range (indexing a tar walks its ~580 headers once, a few minutes). Subject ids such as IXI002-Guys-0828 join the modalities into one sample. Demographics are in IXI.xls on the website.",
+  "source": {
+    "scheme": "archive",
+    "format": "tar",
+    "urls": [
+      "http://biomedic.doc.ic.ac.uk/brain-development/downloads/IXI/IXI-T1.tar",
+      "http://biomedic.doc.ic.ac.uk/brain-development/downloads/IXI/IXI-T2.tar",
+      "http://biomedic.doc.ic.ac.uk/brain-development/downloads/IXI/IXI-PD.tar",
+      "http://biomedic.doc.ic.ac.uk/brain-development/downloads/IXI/IXI-MRA.tar"
+    ]
+  },
+  "license": {
+    "spdx": "CC-BY-SA-3.0",
+    "commercial": true,
+    "source_url": "https://brain-development.org/ixi-dataset/",
+    "redistribution": "allowed",
+    "note": "Creative Commons CC BY-SA 3.0 as stated on the IXI website (checked 2026-10-14)."
+  },
+  "citation": "IXI dataset, brain-development.org (Imperial College London, Biomedical Image Analysis Group), EPSRC GR/S21533/02.",
+  "homepage": "https://brain-development.org/ixi-dataset/",
+  "pairing": "id",
+  "size_mb": 25200,
+  "tags": [
+    "medical",
+    "mri",
+    "brain",
+    "healthy",
+    "nifti",
+    "multimodal"
+  ],
+  "roles": {
+    "t1": {
+      "type": "volume",
+      "pattern": "{id}-T1.nii.gz",
+      "modality": "MR",
+      "description": "T1-weighted"
+    },
+    "t2": {
+      "type": "volume",
+      "pattern": "{id}-T2.nii.gz",
+      "modality": "MR",
+      "description": "T2-weighted"
+    },
+    "pd": {
+      "type": "volume",
+      "pattern": "{id}-PD.nii.gz",
+      "modality": "MR",
+      "description": "Proton density"
+    },
+    "mra": {
+      "type": "volume",
+      "pattern": "{id}-MRA.nii.gz",
+      "modality": "MR",
+      "description": "MR angiography"
+    }
+  }
+}

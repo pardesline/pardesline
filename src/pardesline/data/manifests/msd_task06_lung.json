@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "name": "msd_task06_lung",
+  "title": "Medical Segmentation Decathlon, Task06 Lung",
+  "description": "Lung tumour: 63 + 32 thorax CTs (TCIA NSCLC-Radiomics). Read case by case out of the official MSD tar on S3 (HTTP Range: one 512-byte header per member to index, each volume its own size). ds.filter(split='Tr') keeps the labelled cases; the test split has images only.",
+  "source": {
+    "scheme": "archive",
+    "url": "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task06_Lung.tar",
+    "format": "tar",
+    "prefix": "Task06_Lung"
+  },
+  "license": {
+    "spdx": "CC-BY-SA-4.0",
+    "commercial": true,
+    "source_url": "http://medicaldecathlon.com/",
+    "redistribution": "allowed",
+    "note": "CC-BY-SA 4.0 as stated in the archive's dataset.json (checked 2026-10-14); share-alike applies to derived data."
+  },
+  "citation": "Antonelli M., Reinke A., Bakas S., et al. The Medical Segmentation Decathlon. Nat Commun 13:4128, 2022. Simpson A.L. et al. A large annotated medical image dataset for the development and evaluation of segmentation algorithms. arXiv:1902.09063, 2019.",
+  "homepage": "http://medicaldecathlon.com/",
+  "pairing": "id",
+  "size_mb": 9164,
+  "tags": [
+    "medical",
+    "ct",
+    "segmentation",
+    "nifti",
+    "msd",
+    "lung",
+    "thorax",
+    "tumor"
+  ],
+  "roles": {
+    "ct": {
+      "type": "volume",
+      "description": "CT image (NIfTI, LPS mm from the header); split Tr = labelled, Ts = test",
+      "pattern": "Task06_Lung/images{split}/{id}.nii.gz",
+      "modality": "CT"
+    },
+    "mask": {
+      "type": "labels",
+      "description": "Label map (training cases only)",
+      "pattern": "Task06_Lung/labelsTr/{id}.nii.gz",
+      "labels": {
+        "1": "cancer"
+      }
+    }
+  }
+}

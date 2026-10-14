@@ -13,7 +13,7 @@ from loguru import logger
 from ..errors import ManifestError
 from ..object import Frame, License, Object, wrap
 from .manifest import LicenseSpec, Manifest, Role, SampleSpec, SourceSpec
-from .sources import Source
+from .sources import Source, fetch_folder
 
 __all__ = ["Dataset", "Sample", "derive_samples"]
 
@@ -44,8 +44,11 @@ def _pattern_regex(pattern: str) -> tuple[re.Pattern[str], list[str]]:
         if c == "{":
             j = pattern.index("}", i)
             name = pattern[i + 1 : j].split(":")[0]
-            names.append(name)
-            out += f"(?P<{name}>[^/]+)"
+            if name in names:
+                out += f"(?P={name})"  # a repeated placeholder must match the same text
+            else:
+                names.append(name)
+                out += f"(?P<{name}>[^/]+?)"  # non-greedy: {modality}_{id} splits at the first "_"
             i = j + 1
         elif pattern.startswith("**", i):
             out += ".*"
@@ -68,7 +71,7 @@ def derive_samples(manifest: Manifest, listing: list[str]) -> list[SampleSpec]:
             continue
         rx, _names = _pattern_regex(role.pattern)
         for rel in listing:
-            m = rx.match(rel)
+            m = rx.match(rel.rstrip("/"))  # folder entries (a DICOM series) end with "/"
             if not m:
                 continue
             fields = m.groupdict()
@@ -126,8 +129,22 @@ class Sample:
         return self._dataset.license
 
     def path(self, role: str) -> Path:
-        """Fetch (if needed) and return the local path of a role."""
-        return self._dataset._source.fetch(self._spec.files[role])
+        """Fetch (if needed) and return the local path of a role. A folder
+        entry (DICOM series) fetches every file it holds; a MetaImage header
+        brings its ``.raw`` / ``.zraw`` sibling along."""
+        rel = self._spec.files[role]
+        src = self._dataset._source
+        if rel.endswith("/") or rel in self._dataset._folders:
+            return fetch_folder(src, rel)
+        p = src.fetch(rel)
+        low = rel.lower()
+        if low.endswith(".mhd"):
+            listing = self._dataset._listing()
+            for ext in (".raw", ".zraw"):
+                sibling = rel[:-4] + ext
+                if sibling in listing:
+                    src.fetch(sibling)
+        return p
 
     def get(self, role: str) -> Object:
         if role not in self._spec.files:
@@ -181,9 +198,21 @@ class Dataset:
                 samples = derive_samples(manifest, listing)
         self._specs: list[SampleSpec] = samples
         self._samples: dict[str, Sample] = {}
+        self._folders: set[str] = {
+            rel
+            for s in samples
+            for rel in s.files.values()
+            if not rel.endswith("/") and "." not in rel.rsplit("/", 1)[-1]
+        }
+        self._listing_cache: list[str] | None = None
         self.license = License.from_dict(manifest.license.model_dump(exclude_none=True))
         if not self.license.known:
             logger.warning("{}: licence unknown - check the terms before using this data.", manifest.name)
+
+    def _listing(self) -> list[str]:
+        if self._listing_cache is None:
+            self._listing_cache = self._source.list() or []
+        return self._listing_cache
 
     # ---- metadata --------------------------------------------------------
     @property

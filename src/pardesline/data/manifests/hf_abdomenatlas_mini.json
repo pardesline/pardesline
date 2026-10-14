@@ -1,0 +1,1714 @@
+{
+  "schema_version": 1,
+  "name": "hf_abdomenatlas_mini",
+  "title": "AbdomenAtlas 1.0 Mini: abdominal CTs with nine organ masks (first 100 of 5 195 cases)",
+  "description": "AbdomenAtlas 1.0 Mini (Johns Hopkins): 5 195 CT volumes with nine abdominal organs annotated, per case a CT, a combined label map and one mask per organ. The repo is gated: accept its terms on huggingface.co and log in (HF_TOKEN); the package then fetches files on access. This manifest lists the first 100 cases explicitly (no repo listing needed); edit the sample list or use pl.load('hf://AbdomenAtlas/AbdomenAtlas1.0Mini/BDMAP_00001234') for others.",
+  "source": {
+    "scheme": "hf",
+    "repo_id": "AbdomenAtlas/AbdomenAtlas1.0Mini",
+    "paths": [
+      "BDMAP_00000001"
+    ]
+  },
+  "license": {
+    "spdx": "CC-BY-NC-SA-4.0",
+    "commercial": false,
+    "source_url": "https://huggingface.co/datasets/AbdomenAtlas/AbdomenAtlas1.0Mini",
+    "redistribution": "allowed",
+    "requires_agreement": true,
+    "note": "CC BY-NC-SA 4.0, gated repository (checked 2026-10-14): non-commercial, share-alike, your own Hub token after accepting the terms."
+  },
+  "citation": "Qu C., Zhang T., Qiao H., et al. AbdomenAtlas-8K: Annotating 8,000 CT Volumes for Multi-Organ Segmentation in Three Weeks. NeurIPS 2023. Li W., et al. AbdomenAtlas: A large-scale, detailed-annotated, & multi-center dataset for efficient transfer learning and open algorithmic benchmarking. Med Image Anal 97:103285, 2024.",
+  "homepage": "https://github.com/MrGiovanni/AbdomenAtlas",
+  "pairing": "id",
+  "size_mb": 8000,
+  "tags": [
+    "medical",
+    "ct",
+    "abdomen",
+    "multi-organ",
+    "segmentation",
+    "nifti",
+    "hf",
+    "gated",
+    "non-commercial"
+  ],
+  "roles": {
+    "ct": {
+      "type": "volume",
+      "description": "Abdominal CT (NIfTI)",
+      "modality": "CT"
+    },
+    "combined_labels": {
+      "type": "labels",
+      "description": "Nine organs in one label map",
+      "labels": {
+        "1": "aorta",
+        "2": "gall_bladder",
+        "3": "kidney_left",
+        "4": "kidney_right",
+        "5": "liver",
+        "6": "pancreas",
+        "7": "postcava",
+        "8": "spleen",
+        "9": "stomach"
+      }
+    },
+    "aorta": {
+      "type": "labels",
+      "labels": {
+        "1": "aorta"
+      }
+    },
+    "gall_bladder": {
+      "type": "labels",
+      "labels": {
+        "1": "gall_bladder"
+      }
+    },
+    "kidney_left": {
+      "type": "labels",
+      "labels": {
+        "1": "kidney_left"
+      }
+    },
+    "kidney_right": {
+      "type": "labels",
+      "labels": {
+        "1": "kidney_right"
+      }
+    },
+    "liver": {
+      "type": "labels",
+      "labels": {
+        "1": "liver"
+      }
+    },
+    "pancreas": {
+      "type": "labels",
+      "labels": {
+        "1": "pancreas"
+      }
+    },
+    "postcava": {
+      "type": "labels",
+      "labels": {
+        "1": "postcava"
+      }
+    },
+    "spleen": {
+      "type": "labels",
+      "labels": {
+        "1": "spleen"
+      }
+    },
+    "stomach": {
+      "type": "labels",
+      "labels": {
+        "1": "stomach"
+      }
+    }
+  },
+  "samples": [
+    {
+      "id": "BDMAP_00000001",
+      "files": {
+        "ct": "BDMAP_00000001/ct.nii.gz",
+        "combined_labels": "BDMAP_00000001/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000001/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000001/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000001/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000001/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000001/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000001/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000001/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000001/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000001/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000002",
+      "files": {
+        "ct": "BDMAP_00000002/ct.nii.gz",
+        "combined_labels": "BDMAP_00000002/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000002/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000002/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000002/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000002/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000002/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000002/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000002/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000002/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000002/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000003",
+      "files": {
+        "ct": "BDMAP_00000003/ct.nii.gz",
+        "combined_labels": "BDMAP_00000003/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000003/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000003/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000003/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000003/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000003/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000003/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000003/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000003/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000003/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000004",
+      "files": {
+        "ct": "BDMAP_00000004/ct.nii.gz",
+        "combined_labels": "BDMAP_00000004/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000004/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000004/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000004/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000004/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000004/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000004/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000004/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000004/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000004/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000005",
+      "files": {
+        "ct": "BDMAP_00000005/ct.nii.gz",
+        "combined_labels": "BDMAP_00000005/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000005/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000005/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000005/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000005/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000005/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000005/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000005/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000005/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000005/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000006",
+      "files": {
+        "ct": "BDMAP_00000006/ct.nii.gz",
+        "combined_labels": "BDMAP_00000006/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000006/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000006/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000006/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000006/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000006/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000006/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000006/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000006/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000006/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000007",
+      "files": {
+        "ct": "BDMAP_00000007/ct.nii.gz",
+        "combined_labels": "BDMAP_00000007/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000007/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000007/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000007/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000007/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000007/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000007/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000007/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000007/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000007/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000008",
+      "files": {
+        "ct": "BDMAP_00000008/ct.nii.gz",
+        "combined_labels": "BDMAP_00000008/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000008/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000008/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000008/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000008/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000008/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000008/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000008/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000008/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000008/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000009",
+      "files": {
+        "ct": "BDMAP_00000009/ct.nii.gz",
+        "combined_labels": "BDMAP_00000009/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000009/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000009/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000009/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000009/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000009/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000009/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000009/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000009/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000009/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000010",
+      "files": {
+        "ct": "BDMAP_00000010/ct.nii.gz",
+        "combined_labels": "BDMAP_00000010/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000010/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000010/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000010/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000010/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000010/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000010/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000010/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000010/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000010/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000011",
+      "files": {
+        "ct": "BDMAP_00000011/ct.nii.gz",
+        "combined_labels": "BDMAP_00000011/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000011/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000011/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000011/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000011/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000011/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000011/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000011/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000011/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000011/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000012",
+      "files": {
+        "ct": "BDMAP_00000012/ct.nii.gz",
+        "combined_labels": "BDMAP_00000012/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000012/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000012/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000012/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000012/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000012/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000012/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000012/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000012/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000012/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000013",
+      "files": {
+        "ct": "BDMAP_00000013/ct.nii.gz",
+        "combined_labels": "BDMAP_00000013/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000013/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000013/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000013/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000013/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000013/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000013/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000013/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000013/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000013/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000014",
+      "files": {
+        "ct": "BDMAP_00000014/ct.nii.gz",
+        "combined_labels": "BDMAP_00000014/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000014/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000014/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000014/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000014/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000014/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000014/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000014/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000014/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000014/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000015",
+      "files": {
+        "ct": "BDMAP_00000015/ct.nii.gz",
+        "combined_labels": "BDMAP_00000015/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000015/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000015/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000015/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000015/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000015/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000015/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000015/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000015/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000015/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000016",
+      "files": {
+        "ct": "BDMAP_00000016/ct.nii.gz",
+        "combined_labels": "BDMAP_00000016/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000016/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000016/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000016/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000016/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000016/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000016/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000016/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000016/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000016/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000017",
+      "files": {
+        "ct": "BDMAP_00000017/ct.nii.gz",
+        "combined_labels": "BDMAP_00000017/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000017/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000017/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000017/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000017/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000017/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000017/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000017/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000017/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000017/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000018",
+      "files": {
+        "ct": "BDMAP_00000018/ct.nii.gz",
+        "combined_labels": "BDMAP_00000018/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000018/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000018/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000018/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000018/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000018/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000018/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000018/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000018/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000018/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000019",
+      "files": {
+        "ct": "BDMAP_00000019/ct.nii.gz",
+        "combined_labels": "BDMAP_00000019/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000019/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000019/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000019/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000019/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000019/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000019/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000019/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000019/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000019/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000020",
+      "files": {
+        "ct": "BDMAP_00000020/ct.nii.gz",
+        "combined_labels": "BDMAP_00000020/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000020/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000020/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000020/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000020/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000020/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000020/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000020/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000020/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000020/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000021",
+      "files": {
+        "ct": "BDMAP_00000021/ct.nii.gz",
+        "combined_labels": "BDMAP_00000021/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000021/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000021/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000021/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000021/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000021/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000021/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000021/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000021/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000021/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000022",
+      "files": {
+        "ct": "BDMAP_00000022/ct.nii.gz",
+        "combined_labels": "BDMAP_00000022/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000022/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000022/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000022/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000022/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000022/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000022/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000022/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000022/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000022/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000023",
+      "files": {
+        "ct": "BDMAP_00000023/ct.nii.gz",
+        "combined_labels": "BDMAP_00000023/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000023/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000023/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000023/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000023/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000023/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000023/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000023/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000023/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000023/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000024",
+      "files": {
+        "ct": "BDMAP_00000024/ct.nii.gz",
+        "combined_labels": "BDMAP_00000024/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000024/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000024/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000024/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000024/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000024/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000024/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000024/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000024/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000024/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000025",
+      "files": {
+        "ct": "BDMAP_00000025/ct.nii.gz",
+        "combined_labels": "BDMAP_00000025/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000025/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000025/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000025/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000025/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000025/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000025/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000025/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000025/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000025/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000026",
+      "files": {
+        "ct": "BDMAP_00000026/ct.nii.gz",
+        "combined_labels": "BDMAP_00000026/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000026/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000026/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000026/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000026/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000026/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000026/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000026/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000026/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000026/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000027",
+      "files": {
+        "ct": "BDMAP_00000027/ct.nii.gz",
+        "combined_labels": "BDMAP_00000027/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000027/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000027/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000027/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000027/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000027/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000027/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000027/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000027/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000027/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000028",
+      "files": {
+        "ct": "BDMAP_00000028/ct.nii.gz",
+        "combined_labels": "BDMAP_00000028/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000028/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000028/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000028/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000028/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000028/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000028/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000028/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000028/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000028/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000029",
+      "files": {
+        "ct": "BDMAP_00000029/ct.nii.gz",
+        "combined_labels": "BDMAP_00000029/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000029/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000029/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000029/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000029/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000029/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000029/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000029/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000029/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000029/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000030",
+      "files": {
+        "ct": "BDMAP_00000030/ct.nii.gz",
+        "combined_labels": "BDMAP_00000030/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000030/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000030/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000030/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000030/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000030/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000030/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000030/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000030/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000030/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000031",
+      "files": {
+        "ct": "BDMAP_00000031/ct.nii.gz",
+        "combined_labels": "BDMAP_00000031/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000031/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000031/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000031/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000031/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000031/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000031/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000031/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000031/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000031/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000032",
+      "files": {
+        "ct": "BDMAP_00000032/ct.nii.gz",
+        "combined_labels": "BDMAP_00000032/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000032/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000032/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000032/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000032/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000032/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000032/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000032/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000032/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000032/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000033",
+      "files": {
+        "ct": "BDMAP_00000033/ct.nii.gz",
+        "combined_labels": "BDMAP_00000033/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000033/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000033/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000033/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000033/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000033/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000033/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000033/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000033/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000033/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000034",
+      "files": {
+        "ct": "BDMAP_00000034/ct.nii.gz",
+        "combined_labels": "BDMAP_00000034/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000034/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000034/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000034/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000034/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000034/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000034/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000034/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000034/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000034/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000035",
+      "files": {
+        "ct": "BDMAP_00000035/ct.nii.gz",
+        "combined_labels": "BDMAP_00000035/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000035/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000035/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000035/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000035/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000035/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000035/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000035/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000035/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000035/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000036",
+      "files": {
+        "ct": "BDMAP_00000036/ct.nii.gz",
+        "combined_labels": "BDMAP_00000036/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000036/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000036/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000036/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000036/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000036/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000036/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000036/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000036/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000036/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000037",
+      "files": {
+        "ct": "BDMAP_00000037/ct.nii.gz",
+        "combined_labels": "BDMAP_00000037/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000037/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000037/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000037/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000037/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000037/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000037/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000037/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000037/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000037/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000038",
+      "files": {
+        "ct": "BDMAP_00000038/ct.nii.gz",
+        "combined_labels": "BDMAP_00000038/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000038/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000038/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000038/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000038/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000038/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000038/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000038/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000038/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000038/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000039",
+      "files": {
+        "ct": "BDMAP_00000039/ct.nii.gz",
+        "combined_labels": "BDMAP_00000039/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000039/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000039/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000039/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000039/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000039/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000039/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000039/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000039/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000039/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000040",
+      "files": {
+        "ct": "BDMAP_00000040/ct.nii.gz",
+        "combined_labels": "BDMAP_00000040/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000040/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000040/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000040/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000040/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000040/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000040/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000040/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000040/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000040/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000041",
+      "files": {
+        "ct": "BDMAP_00000041/ct.nii.gz",
+        "combined_labels": "BDMAP_00000041/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000041/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000041/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000041/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000041/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000041/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000041/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000041/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000041/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000041/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000042",
+      "files": {
+        "ct": "BDMAP_00000042/ct.nii.gz",
+        "combined_labels": "BDMAP_00000042/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000042/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000042/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000042/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000042/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000042/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000042/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000042/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000042/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000042/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000043",
+      "files": {
+        "ct": "BDMAP_00000043/ct.nii.gz",
+        "combined_labels": "BDMAP_00000043/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000043/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000043/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000043/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000043/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000043/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000043/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000043/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000043/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000043/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000044",
+      "files": {
+        "ct": "BDMAP_00000044/ct.nii.gz",
+        "combined_labels": "BDMAP_00000044/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000044/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000044/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000044/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000044/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000044/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000044/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000044/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000044/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000044/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000045",
+      "files": {
+        "ct": "BDMAP_00000045/ct.nii.gz",
+        "combined_labels": "BDMAP_00000045/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000045/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000045/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000045/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000045/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000045/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000045/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000045/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000045/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000045/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000046",
+      "files": {
+        "ct": "BDMAP_00000046/ct.nii.gz",
+        "combined_labels": "BDMAP_00000046/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000046/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000046/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000046/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000046/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000046/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000046/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000046/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000046/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000046/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000047",
+      "files": {
+        "ct": "BDMAP_00000047/ct.nii.gz",
+        "combined_labels": "BDMAP_00000047/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000047/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000047/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000047/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000047/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000047/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000047/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000047/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000047/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000047/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000048",
+      "files": {
+        "ct": "BDMAP_00000048/ct.nii.gz",
+        "combined_labels": "BDMAP_00000048/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000048/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000048/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000048/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000048/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000048/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000048/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000048/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000048/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000048/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000049",
+      "files": {
+        "ct": "BDMAP_00000049/ct.nii.gz",
+        "combined_labels": "BDMAP_00000049/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000049/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000049/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000049/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000049/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000049/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000049/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000049/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000049/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000049/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000050",
+      "files": {
+        "ct": "BDMAP_00000050/ct.nii.gz",
+        "combined_labels": "BDMAP_00000050/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000050/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000050/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000050/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000050/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000050/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000050/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000050/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000050/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000050/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000051",
+      "files": {
+        "ct": "BDMAP_00000051/ct.nii.gz",
+        "combined_labels": "BDMAP_00000051/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000051/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000051/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000051/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000051/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000051/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000051/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000051/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000051/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000051/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000052",
+      "files": {
+        "ct": "BDMAP_00000052/ct.nii.gz",
+        "combined_labels": "BDMAP_00000052/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000052/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000052/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000052/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000052/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000052/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000052/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000052/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000052/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000052/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000053",
+      "files": {
+        "ct": "BDMAP_00000053/ct.nii.gz",
+        "combined_labels": "BDMAP_00000053/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000053/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000053/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000053/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000053/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000053/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000053/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000053/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000053/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000053/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000054",
+      "files": {
+        "ct": "BDMAP_00000054/ct.nii.gz",
+        "combined_labels": "BDMAP_00000054/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000054/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000054/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000054/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000054/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000054/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000054/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000054/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000054/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000054/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000055",
+      "files": {
+        "ct": "BDMAP_00000055/ct.nii.gz",
+        "combined_labels": "BDMAP_00000055/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000055/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000055/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000055/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000055/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000055/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000055/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000055/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000055/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000055/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000056",
+      "files": {
+        "ct": "BDMAP_00000056/ct.nii.gz",
+        "combined_labels": "BDMAP_00000056/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000056/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000056/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000056/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000056/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000056/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000056/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000056/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000056/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000056/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000057",
+      "files": {
+        "ct": "BDMAP_00000057/ct.nii.gz",
+        "combined_labels": "BDMAP_00000057/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000057/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000057/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000057/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000057/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000057/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000057/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000057/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000057/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000057/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000058",
+      "files": {
+        "ct": "BDMAP_00000058/ct.nii.gz",
+        "combined_labels": "BDMAP_00000058/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000058/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000058/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000058/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000058/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000058/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000058/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000058/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000058/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000058/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000059",
+      "files": {
+        "ct": "BDMAP_00000059/ct.nii.gz",
+        "combined_labels": "BDMAP_00000059/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000059/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000059/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000059/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000059/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000059/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000059/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000059/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000059/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000059/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000060",
+      "files": {
+        "ct": "BDMAP_00000060/ct.nii.gz",
+        "combined_labels": "BDMAP_00000060/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000060/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000060/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000060/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000060/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000060/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000060/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000060/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000060/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000060/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000061",
+      "files": {
+        "ct": "BDMAP_00000061/ct.nii.gz",
+        "combined_labels": "BDMAP_00000061/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000061/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000061/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000061/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000061/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000061/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000061/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000061/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000061/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000061/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000062",
+      "files": {
+        "ct": "BDMAP_00000062/ct.nii.gz",
+        "combined_labels": "BDMAP_00000062/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000062/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000062/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000062/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000062/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000062/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000062/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000062/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000062/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000062/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000063",
+      "files": {
+        "ct": "BDMAP_00000063/ct.nii.gz",
+        "combined_labels": "BDMAP_00000063/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000063/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000063/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000063/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000063/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000063/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000063/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000063/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000063/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000063/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000064",
+      "files": {
+        "ct": "BDMAP_00000064/ct.nii.gz",
+        "combined_labels": "BDMAP_00000064/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000064/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000064/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000064/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000064/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000064/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000064/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000064/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000064/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000064/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000065",
+      "files": {
+        "ct": "BDMAP_00000065/ct.nii.gz",
+        "combined_labels": "BDMAP_00000065/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000065/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000065/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000065/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000065/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000065/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000065/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000065/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000065/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000065/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000066",
+      "files": {
+        "ct": "BDMAP_00000066/ct.nii.gz",
+        "combined_labels": "BDMAP_00000066/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000066/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000066/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000066/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000066/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000066/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000066/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000066/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000066/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000066/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000067",
+      "files": {
+        "ct": "BDMAP_00000067/ct.nii.gz",
+        "combined_labels": "BDMAP_00000067/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000067/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000067/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000067/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000067/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000067/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000067/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000067/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000067/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000067/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000068",
+      "files": {
+        "ct": "BDMAP_00000068/ct.nii.gz",
+        "combined_labels": "BDMAP_00000068/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000068/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000068/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000068/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000068/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000068/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000068/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000068/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000068/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000068/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000069",
+      "files": {
+        "ct": "BDMAP_00000069/ct.nii.gz",
+        "combined_labels": "BDMAP_00000069/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000069/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000069/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000069/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000069/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000069/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000069/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000069/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000069/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000069/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000070",
+      "files": {
+        "ct": "BDMAP_00000070/ct.nii.gz",
+        "combined_labels": "BDMAP_00000070/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000070/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000070/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000070/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000070/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000070/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000070/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000070/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000070/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000070/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000071",
+      "files": {
+        "ct": "BDMAP_00000071/ct.nii.gz",
+        "combined_labels": "BDMAP_00000071/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000071/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000071/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000071/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000071/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000071/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000071/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000071/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000071/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000071/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000072",
+      "files": {
+        "ct": "BDMAP_00000072/ct.nii.gz",
+        "combined_labels": "BDMAP_00000072/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000072/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000072/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000072/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000072/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000072/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000072/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000072/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000072/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000072/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000073",
+      "files": {
+        "ct": "BDMAP_00000073/ct.nii.gz",
+        "combined_labels": "BDMAP_00000073/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000073/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000073/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000073/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000073/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000073/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000073/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000073/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000073/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000073/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000074",
+      "files": {
+        "ct": "BDMAP_00000074/ct.nii.gz",
+        "combined_labels": "BDMAP_00000074/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000074/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000074/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000074/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000074/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000074/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000074/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000074/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000074/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000074/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000075",
+      "files": {
+        "ct": "BDMAP_00000075/ct.nii.gz",
+        "combined_labels": "BDMAP_00000075/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000075/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000075/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000075/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000075/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000075/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000075/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000075/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000075/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000075/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000076",
+      "files": {
+        "ct": "BDMAP_00000076/ct.nii.gz",
+        "combined_labels": "BDMAP_00000076/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000076/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000076/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000076/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000076/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000076/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000076/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000076/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000076/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000076/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000077",
+      "files": {
+        "ct": "BDMAP_00000077/ct.nii.gz",
+        "combined_labels": "BDMAP_00000077/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000077/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000077/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000077/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000077/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000077/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000077/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000077/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000077/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000077/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000078",
+      "files": {
+        "ct": "BDMAP_00000078/ct.nii.gz",
+        "combined_labels": "BDMAP_00000078/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000078/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000078/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000078/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000078/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000078/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000078/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000078/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000078/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000078/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000079",
+      "files": {
+        "ct": "BDMAP_00000079/ct.nii.gz",
+        "combined_labels": "BDMAP_00000079/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000079/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000079/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000079/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000079/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000079/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000079/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000079/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000079/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000079/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000080",
+      "files": {
+        "ct": "BDMAP_00000080/ct.nii.gz",
+        "combined_labels": "BDMAP_00000080/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000080/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000080/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000080/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000080/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000080/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000080/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000080/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000080/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000080/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000081",
+      "files": {
+        "ct": "BDMAP_00000081/ct.nii.gz",
+        "combined_labels": "BDMAP_00000081/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000081/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000081/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000081/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000081/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000081/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000081/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000081/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000081/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000081/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000082",
+      "files": {
+        "ct": "BDMAP_00000082/ct.nii.gz",
+        "combined_labels": "BDMAP_00000082/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000082/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000082/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000082/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000082/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000082/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000082/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000082/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000082/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000082/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000083",
+      "files": {
+        "ct": "BDMAP_00000083/ct.nii.gz",
+        "combined_labels": "BDMAP_00000083/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000083/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000083/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000083/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000083/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000083/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000083/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000083/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000083/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000083/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000084",
+      "files": {
+        "ct": "BDMAP_00000084/ct.nii.gz",
+        "combined_labels": "BDMAP_00000084/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000084/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000084/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000084/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000084/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000084/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000084/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000084/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000084/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000084/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000085",
+      "files": {
+        "ct": "BDMAP_00000085/ct.nii.gz",
+        "combined_labels": "BDMAP_00000085/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000085/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000085/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000085/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000085/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000085/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000085/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000085/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000085/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000085/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000086",
+      "files": {
+        "ct": "BDMAP_00000086/ct.nii.gz",
+        "combined_labels": "BDMAP_00000086/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000086/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000086/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000086/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000086/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000086/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000086/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000086/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000086/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000086/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000087",
+      "files": {
+        "ct": "BDMAP_00000087/ct.nii.gz",
+        "combined_labels": "BDMAP_00000087/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000087/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000087/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000087/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000087/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000087/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000087/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000087/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000087/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000087/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000088",
+      "files": {
+        "ct": "BDMAP_00000088/ct.nii.gz",
+        "combined_labels": "BDMAP_00000088/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000088/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000088/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000088/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000088/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000088/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000088/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000088/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000088/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000088/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000089",
+      "files": {
+        "ct": "BDMAP_00000089/ct.nii.gz",
+        "combined_labels": "BDMAP_00000089/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000089/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000089/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000089/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000089/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000089/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000089/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000089/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000089/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000089/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000090",
+      "files": {
+        "ct": "BDMAP_00000090/ct.nii.gz",
+        "combined_labels": "BDMAP_00000090/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000090/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000090/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000090/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000090/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000090/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000090/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000090/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000090/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000090/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000091",
+      "files": {
+        "ct": "BDMAP_00000091/ct.nii.gz",
+        "combined_labels": "BDMAP_00000091/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000091/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000091/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000091/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000091/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000091/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000091/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000091/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000091/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000091/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000092",
+      "files": {
+        "ct": "BDMAP_00000092/ct.nii.gz",
+        "combined_labels": "BDMAP_00000092/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000092/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000092/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000092/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000092/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000092/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000092/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000092/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000092/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000092/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000093",
+      "files": {
+        "ct": "BDMAP_00000093/ct.nii.gz",
+        "combined_labels": "BDMAP_00000093/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000093/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000093/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000093/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000093/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000093/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000093/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000093/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000093/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000093/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000094",
+      "files": {
+        "ct": "BDMAP_00000094/ct.nii.gz",
+        "combined_labels": "BDMAP_00000094/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000094/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000094/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000094/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000094/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000094/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000094/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000094/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000094/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000094/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000095",
+      "files": {
+        "ct": "BDMAP_00000095/ct.nii.gz",
+        "combined_labels": "BDMAP_00000095/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000095/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000095/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000095/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000095/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000095/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000095/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000095/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000095/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000095/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000096",
+      "files": {
+        "ct": "BDMAP_00000096/ct.nii.gz",
+        "combined_labels": "BDMAP_00000096/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000096/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000096/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000096/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000096/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000096/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000096/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000096/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000096/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000096/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000097",
+      "files": {
+        "ct": "BDMAP_00000097/ct.nii.gz",
+        "combined_labels": "BDMAP_00000097/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000097/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000097/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000097/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000097/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000097/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000097/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000097/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000097/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000097/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000098",
+      "files": {
+        "ct": "BDMAP_00000098/ct.nii.gz",
+        "combined_labels": "BDMAP_00000098/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000098/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000098/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000098/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000098/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000098/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000098/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000098/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000098/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000098/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000099",
+      "files": {
+        "ct": "BDMAP_00000099/ct.nii.gz",
+        "combined_labels": "BDMAP_00000099/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000099/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000099/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000099/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000099/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000099/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000099/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000099/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000099/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000099/segmentations/stomach.nii.gz"
+      }
+    },
+    {
+      "id": "BDMAP_00000100",
+      "files": {
+        "ct": "BDMAP_00000100/ct.nii.gz",
+        "combined_labels": "BDMAP_00000100/combined_labels.nii.gz",
+        "aorta": "BDMAP_00000100/segmentations/aorta.nii.gz",
+        "gall_bladder": "BDMAP_00000100/segmentations/gall_bladder.nii.gz",
+        "kidney_left": "BDMAP_00000100/segmentations/kidney_left.nii.gz",
+        "kidney_right": "BDMAP_00000100/segmentations/kidney_right.nii.gz",
+        "liver": "BDMAP_00000100/segmentations/liver.nii.gz",
+        "pancreas": "BDMAP_00000100/segmentations/pancreas.nii.gz",
+        "postcava": "BDMAP_00000100/segmentations/postcava.nii.gz",
+        "spleen": "BDMAP_00000100/segmentations/spleen.nii.gz",
+        "stomach": "BDMAP_00000100/segmentations/stomach.nii.gz"
+      }
+    }
+  ]
+}

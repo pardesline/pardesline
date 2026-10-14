@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "name": "tcia_pancreas_ct",
+  "title": "TCIA Pancreas-CT: 82 abdominal contrast-enhanced CTs (NIH)",
+  "description": "82 portal-venous CT scans of the pancreas from the NIH Clinical Center, one DICOM series per patient (the pancreas label maps of the original release are NIfTI files on the collection page, not in NBIA). Series are listed through the public NBIA API (no account) and each one is downloaded as a zip of DICOM files on first access; the folder is then a DICOM volume (LPS mm from the headers).",
+  "source": {
+    "scheme": "tcia",
+    "collection": "Pancreas-CT",
+    "modalities": [
+      "CT"
+    ]
+  },
+  "license": {
+    "spdx": "CC-BY-3.0",
+    "commercial": true,
+    "source_url": "https://www.cancerimagingarchive.net/collection/pancreas-ct/",
+    "redistribution": "allowed",
+    "note": "CC BY 3.0 on the TCIA collection page (checked 2026-10-14)."
+  },
+  "citation": "Roth H.R., Farag A., Turkbey E.B., et al. Data From Pancreas-CT. The Cancer Imaging Archive, 2016. doi:10.7937/K9/TCIA.2016.tNB1kqBU. Clark K., Vendt B., Smith K., et al. The Cancer Imaging Archive (TCIA): Maintaining and Operating a Public Information Repository. J Digit Imaging 26(6):1045-1057, 2013.",
+  "homepage": "https://www.cancerimagingarchive.net/collection/pancreas-ct/",
+  "pairing": "id",
+  "size_mb": 9000,
+  "tags": [
+    "medical",
+    "dicom",
+    "tcia",
+    "ct",
+    "pancreas",
+    "abdomen"
+  ],
+  "roles": {
+    "ct": {
+      "type": "volume",
+      "description": "Abdominal CT, DICOM series",
+      "pattern": "{id}/CT/{series}",
+      "modality": "CT"
+    }
+  }
+}
