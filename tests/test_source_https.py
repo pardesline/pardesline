@@ -42,7 +42,9 @@ def test_fetch_verify_cache(server, tmp_path):
     )
     p = src.fetch("a.ply")
     assert p.read_bytes() == payload and p == tmp_path / "cache" / "a.ply"
-    (root / "a.ply").unlink()  # second fetch comes from the cache
+    # second fetch comes from the cache (the served file is changed, not deleted: on Windows the
+    # server thread may still hold it open and unlink would raise PermissionError)
+    (root / "a.ply").write_bytes(b"changed on the server")
     assert src.fetch("a.ply") == p
     p.write_bytes(b"corrupted")  # a tampered cache entry is re-downloaded (and fails here: server file gone)
     with pytest.raises(pl.FetchError, match="could not fetch"):
