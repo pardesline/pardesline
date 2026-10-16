@@ -16,6 +16,7 @@ or ``HF_TOKEN``); the package never scripts past a click-through.
 
 from __future__ import annotations
 
+import builtins
 import hashlib
 import json
 import time
@@ -140,7 +141,8 @@ class HfSource:
         files: list[str] = []
         t0 = time.perf_counter()
         try:
-            for folder in self.paths or [None]:
+            folders: builtins.list[str | None] = list(self.paths) if self.paths else [None]
+            for folder in folders:
                 for entry in api.list_repo_tree(
                     self.repo_id,
                     path_in_repo=folder,
@@ -187,7 +189,7 @@ class HfSource:
         except HfHubHTTPError as exc:
             raise self._translate(exc, f"cannot fetch {relpath} from hf://{self.repo_id}") from None
 
-    def fetch_many(self, relpaths: list[str]) -> list[Path]:
+    def fetch_many(self, relpaths: builtins.list[str]) -> builtins.list[Path]:
         """Download several files in one ``snapshot_download`` (parallel, resumable)."""
         from huggingface_hub import snapshot_download
         from huggingface_hub.utils import HfHubHTTPError

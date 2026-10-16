@@ -78,8 +78,10 @@ mcp = [
 all = ["pardesline[local,medical,hf,mcp]"]
 dev = [
     "pytest>=8",
+    "pytest-cov>=5",
     "respx>=0.21",
     "ruff>=0.17,<0.18",
+    "mypy>=1.11",
     "build>=1",
 ]
 
@@ -153,6 +155,28 @@ ignore = ["RUF012"]
 "docs/_gen/**/*.py" = ["E501"]
 "docs/seo/*.py" = ["E501"]
 "templates/**/*.py" = ["E501"]
+"docs/assets/*.py" = ["E501"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["pardesline"]
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+warn_unused_ignores = false
+check_untyped_defs = false
+# Migrated platform code and the 0.1 client are kept byte-identical and are not typed.
+exclude = 'src/pardesline/(ops|cloud|medical/_service\.py|medical/pyvista_adapter\.py)'
+
+[[tool.mypy.overrides]]
+module = ["pardesline.ops.*", "pardesline.cloud.*", "pardesline.medical._service", "pardesline.medical.pyvista_adapter"]
+follow_imports = "skip"
+ignore_errors = true
+
+[tool.coverage.run]
+source = ["pardesline"]
+omit = ["*/ops/*", "*/cloud/*", "*/medical/_service.py", "*/medical/pyvista_adapter.py"]
+
+[tool.coverage.report]
+skip_covered = false
+show_missing = false

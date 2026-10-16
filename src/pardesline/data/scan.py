@@ -265,7 +265,7 @@ def _draft(
                 is_label = kind == "volume" and bool(_LABEL_HINT.search(rel))
                 rtype = "labels" if is_label else _KIND_TO_ROLE_TYPE[kind]
                 ext = extension_of(rel) if rel != "." and "." in rel.rsplit("/", 1)[-1] else ".dcm"
-                role = Role(type=rtype, description=f"{kind} files like {rel}", confidence={})
+                role = Role(type=rtype, description=f"{kind} files like {rel}", confidence={})  # type: ignore[arg-type]
                 if ext in FORMAT_FRAMES:
                     role.frame, role.units = FORMAT_FRAMES[ext].axes, FORMAT_FRAMES[ext].units
                     role.confidence = {"frame": 1.0, "units": 1.0}

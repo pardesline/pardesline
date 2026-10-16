@@ -9,6 +9,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -21,8 +24,19 @@ jobs:
       - run: ruff check .
       - run: ruff format --check .
 
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[hf,mcp]" mypy
+      - run: python -m mypy src/pardesline
+
   test-core:
-    # The core package (catalog, object model, cloud client) has no native deps:
+    # The core package (catalog, object model, datasets, MCP) has no native deps:
     # it must import and pass on every supported interpreter, 3.13 included.
     runs-on: ubuntu-latest
     strategy:
@@ -35,17 +49,23 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[dev]"
-      - run: python -m pytest -q -m "not local and not medical"
+      - run: python -m pytest -q -m "not local and not medical" --cov=pardesline --cov-report=xml
+      - uses: codecov/codecov-action@v4
+        if: matrix.python-version == '3.13'
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
+          flags: core
+          fail_ci_if_error: false
 
   test-local:
-    # Full run with the native libraries (Open3D, PyVista, SimpleITK).
-    # Open3D 0.19 ships wheels for 3.10–3.12 only.
+    # Full run with the native libraries (Open3D 0.20 ships wheels for 3.10-3.13).
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.10", "3.12"]
+        python-version: ["3.10", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -58,7 +78,39 @@ jobs:
           sudo apt-get install -y --no-install-recommends libgl1 libegl1 libglib2.0-0 libgomp1 libxrender1 libsm6 libusb-1.0-0
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[all,dev]"
-      - run: python -m pytest -q
+      - run: python -m pytest -q --cov=pardesline --cov-report=xml
+        env:
+          PYVISTA_OFF_SCREEN: "true"
+      - uses: codecov/codecov-action@v4
+        if: runner.os == 'Linux' && matrix.python-version == '3.13'
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
+          flags: full
+          fail_ci_if_error: false
+
+  readme-demo:
+    # The README 30-second demo and the documented how-to code blocks run as written,
+    # against the live datasets (19 MB RIRE, 28 MB hippocampus, 3 MB bunny).
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libgl1 libegl1 libglib2.0-0 libgomp1 libxrender1 libsm6 libusb-1.0-0 xvfb
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[all,dev]"
+      - name: Run the README, tutorial and how-to code blocks
+        run: xvfb-run -a python -m pytest -q tests/test_docs_snippets.py
+        env:
+          PARDESLINE_NETWORK_TESTS: "1"
+          PYVISTA_OFF_SCREEN: "true"
+      - name: Run the README demo script
+        run: xvfb-run -a python examples/register_ct_mr_rire/run.py
         env:
           PYVISTA_OFF_SCREEN: "true"
 

@@ -264,8 +264,8 @@ def run(
             returncode=returncode,
             log=log,
         )
-    sidecar = output_path.with_suffix(".json")
-    if not sidecar.is_file():
+    sidecar: Path | None = output_path.with_suffix(".json")
+    if sidecar is not None and not sidecar.is_file():
         sidecar = None
     logger.info("done {} in {:.1f}s -> {}", spec.qualname, duration, output_path)
     return RunResult(

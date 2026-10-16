@@ -702,7 +702,7 @@ class Volume(Object):
         if lower is None and upper is None:
             out = self.run("segment", **params)
         else:
-            bounds = {k: v for k, v in (("lower", lower), ("upper", upper)) if v is not None}
+            bounds: dict[str, Any] = {k: v for k, v in (("lower", lower), ("upper", upper)) if v is not None}
             out = self.run("simpleitk_segmentation.manual_threshold", **bounds, **params)
         return LabelMap._from_object(out, labels={1: "foreground"})
 

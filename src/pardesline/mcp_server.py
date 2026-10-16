@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -151,6 +152,7 @@ def impl_describe_dataset(ref: str, count_samples: bool = False) -> dict:
             )
             if count_samples:
                 ds = pl.load(ref)
+                assert isinstance(ds, pl.Dataset)
                 out["sample_count"] = len(ds)
                 out["first_ids"] = ds.ids[:10]
             return out
@@ -453,7 +455,9 @@ def impl_to_mesh(
 
     obj = pl.load(path)
     if not isinstance(obj, pl.Volume):
-        raise PardesLineError(f"{path} is a {obj.kind}, not a volume", code="not_a_volume")
+        raise PardesLineError(
+            f"{path} is a {getattr(obj, 'kind', 'dataset')}, not a volume", code="not_a_volume"
+        )
     if label is not None and not isinstance(obj, pl.LabelMap):
         obj = obj.as_labels()
     mesh = obj.to_mesh(label=label, isovalue=isovalue, output=output_path)
@@ -671,15 +675,13 @@ def main(argv: list[str] | None = None) -> int:
     try:
         server = build_server(args.name)
     except MissingDependency as exc:
-        print(f"error: {exc}", file=os.sys.stderr)
+        print(f"error: {exc}", file=sys.stderr)
         return 1
     if args.transport != "stdio":
         server.settings.host = args.host
         server.settings.port = args.port
     logger.remove()
-    logger.add(
-        os.sys.stderr, level=os.environ.get("PARDESLINE_LOG", "INFO")
-    )  # stdout is the protocol channel
+    logger.add(sys.stderr, level=os.environ.get("PARDESLINE_LOG", "INFO"))  # stdout is the protocol channel
     server.run(transport=args.transport)
     return 0
 

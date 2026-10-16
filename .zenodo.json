@@ -1,0 +1,50 @@
+{
+  "title": "pardesline: 3D vision and medical imaging in one Python package",
+  "description": "<p>Python library for 3D computer vision and medical imaging: 43 public 3D and medical imaging datasets loaded in one line with manifests and licences (Medical Segmentation Decathlon, TCIA, TotalSegmentator, AMOS, LUNA16, IXI, KITTI, Objaverse, Hugging Face repositories), one typed object for point clouds, meshes, volumes and label maps over Open3D, PyVista and SimpleITK, 73 algorithms with documented data-tied defaults (registration, reconstruction, segmentation, LiDAR, SDF, mesh and volume processing), expert guides with reference scripts for PointNet, DINOv3, JEPA, VAE and nnU-Net, and a local MCP server for AI agents.</p>",
+  "creators": [
+    {
+      "name": "Tabet, Jonathan",
+      "affiliation": "PardesLine"
+    }
+  ],
+  "license": "Apache-2.0",
+  "upload_type": "software",
+  "access_right": "open",
+  "keywords": [
+    "3D computer vision",
+    "medical imaging",
+    "point cloud",
+    "mesh",
+    "CT",
+    "MRI",
+    "DICOM",
+    "NIfTI",
+    "registration",
+    "segmentation",
+    "datasets",
+    "Open3D",
+    "SimpleITK",
+    "PyVista",
+    "Model Context Protocol"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/pardesline/pardesline",
+      "relation": "isSupplementTo",
+      "resource_type": "software",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://pypi.org/project/pardesline/",
+      "relation": "isIdenticalTo",
+      "resource_type": "software",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://pardesline.github.io/pardesline/",
+      "relation": "isDocumentedBy",
+      "resource_type": "publication-other",
+      "scheme": "url"
+    }
+  ]
+}

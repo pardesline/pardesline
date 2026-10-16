@@ -420,7 +420,7 @@ def scan(ref: str | os.PathLike, **kwargs: Any) -> Manifest:
         return scan_hf(text, **kwargs)
     if text.startswith(("s3://", "tcia://")):
         return scan_uri(text, **kwargs)
-    return scan_folder(ref, **kwargs)
+    return scan_folder(Path(ref), **kwargs)
 
 
 def _load_uri(
@@ -434,8 +434,8 @@ def _load_uri(
 ) -> Dataset:
     """``s3://`` and ``tcia://``: bundled manifest when one matches, else the draft flow."""
     if manifest is not None:
-        m, mdir = Manifest.load(manifest), Path(manifest).parent
-        return Dataset(m, open_source(m.source, m, manifest_dir=mdir))
+        mf, mdir = Manifest.load(Path(manifest)), Path(manifest).parent
+        return Dataset(mf, open_source(mf.source, mf, manifest_dir=mdir))
     source, name, _lic, _title = _source_for_uri(text)
     m = _bundled_for_key(source.key())
     if m is not None and not answers:
@@ -474,14 +474,14 @@ def _load_hf(
 ) -> Dataset:
     repo, sub = parse_hf_ref(text)
     if manifest is not None:
-        m, mdir = Manifest.load(manifest), Path(manifest).parent
-        if m.source.scheme != "hf" or m.source.repo_id != repo:
+        mf, mdir = Manifest.load(Path(manifest)), Path(manifest).parent
+        if mf.source.scheme != "hf" or mf.source.repo_id != repo:
             raise ManifestError(
-                f"the manifest describes {m.source.scheme}://{m.source.repo_id}, not hf://{repo}"
+                f"the manifest describes {mf.source.scheme}://{mf.source.repo_id}, not hf://{repo}"
             )
         if sub:
-            m = m.model_copy(update={"source": m.source.model_copy(update={"paths": [sub]})})
-        return Dataset(m, open_source(m.source, m, manifest_dir=mdir))
+            mf = mf.model_copy(update={"source": mf.source.model_copy(update={"paths": [sub]})})
+        return Dataset(mf, open_source(mf.source, mf, manifest_dir=mdir))
     m = _bundled_for_repo(repo, sub)
     if m is not None and not answers:
         try:
@@ -559,8 +559,9 @@ def load(
             save_draft=save_draft,
         )
     if "://" in text or manifest is not None:
+        mdir: Path | None
         if manifest is not None:
-            m, mdir = Manifest.load(manifest), Path(manifest).parent
+            m, mdir = Manifest.load(Path(manifest)), Path(manifest).parent
         else:
             m, mdir = load_manifest(text)
         return Dataset(m, open_source(m.source, m, manifest_dir=mdir))

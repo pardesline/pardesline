@@ -1,0 +1,24 @@
+name: Release Please
+
+# Opens and maintains a release pull request from the conventional commits on
+# main (version bump in _version.py and the two plugin manifests, CHANGELOG
+# section). Merging it creates the tag and the GitHub release; publish.yml then
+# uploads to PyPI through Trusted Publishing and docs.yml deploys the
+# versioned documentation.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json

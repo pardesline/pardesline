@@ -17,6 +17,7 @@ once (checksum verified when the manifest gives one) and read locally.
 
 from __future__ import annotations
 
+import builtins
 import hashlib
 import io
 import json
@@ -632,9 +633,9 @@ class RemoteArchiveSource:
         return target.open("wb")
 
     @staticmethod
-    def _runs(members: list[Member]) -> list[list[Member]]:
+    def _runs(members: builtins.list[Member]) -> builtins.list[builtins.list[Member]]:
         """Split offset-sorted members into runs with small gaps between them."""
-        runs: list[list[Member]] = []
+        runs: builtins.list[builtins.list[Member]] = []
         for m in members:
             if runs:
                 prev = runs[-1][-1]

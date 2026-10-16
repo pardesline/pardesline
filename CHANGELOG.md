@@ -15,6 +15,7 @@ All notable changes to this project are documented here. The format follows
 - `benchmarks/`: package defaults vs upstream defaults on the Stanford bunny (registration, Poisson reconstruction), tables generated into `benchmarks/results.md`.
 - `tests/test_docs_snippets.py` executes the code blocks of the README, the tutorial and the how-to pages (network marker).
 - Docstrings on every public function and class (31 added).
+- CI: type-check job (mypy), coverage uploaded to Codecov, native matrix on Python 3.10 and 3.13, a job that executes the README demo and the documented code blocks against the live datasets, a nightly workflow that installs from PyPI on three OSes and runs the demo, OpenSSF Scorecard, Dependabot, pre-commit config, release-please (version bump in `_version.py`, the plugin manifests and `CITATION.cff`, CHANGELOG section, tag and GitHub release), `.zenodo.json` for a DOI per release, `docs/assets/make_social_preview.py`.
 - Contributor funnel: issue forms (bug, feature, dataset request, algorithm or model request, real case), pull request template, `SUPPORT.md`, `CODEOWNERS`, `.all-contributorsrc`, `templates/new_dataset`, `templates/new_algorithm`, `templates/new_model`, `templates/new_pipeline` with tests, a README per example, `docs/seo/issues-to-create.md` (tracking issues, 16 good first issues, 11 help wanted) and `docs/seo/apply_github.py` to apply labels, metadata and issues through the API.
 
 ### Changed

@@ -123,12 +123,13 @@ def volume_to_mesh(
         level = 0.5
     else:
         arr = arr.astype(np.float32)
+        assert isovalue is not None
         level = float(isovalue)
 
     grid = pv.ImageData(dimensions=img.GetSize(), spacing=img.GetSpacing(), origin=img.GetOrigin())
     grid.direction_matrix = np.array(img.GetDirection(), dtype=float).reshape(3, 3)
     grid.point_data["values"] = arr.ravel(order="C")  # (z,y,x) C-order == VTK x-fastest order
-    surface = grid.contour([level], scalars="values", method=method)
+    surface = grid.contour([level], scalars="values", method=method)  # type: ignore[arg-type]
     if surface.n_points == 0:
         raise ValueError(f"volume_to_mesh: the level {level} produces an empty surface.")
     surface = surface.extract_surface().triangulate()

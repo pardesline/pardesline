@@ -8,6 +8,7 @@ hash-addressed mirrors are tried in order.
 
 from __future__ import annotations
 
+import builtins
 import hashlib
 import shutil
 import tarfile
@@ -95,7 +96,7 @@ class HttpsSource:
     def describe(self) -> str:
         return f"{len(self.files)} file(s) over https, cached in {self.cache}"
 
-    def _urls(self, spec: FileSpec) -> list[str]:
+    def _urls(self, spec: FileSpec) -> builtins.list[str]:
         urls = [spec.url] if spec.url else []
         urls += [m.format(sha512=spec.sha512) for m in self.mirrors]
         return urls

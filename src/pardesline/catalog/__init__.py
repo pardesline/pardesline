@@ -14,6 +14,7 @@ takes, their defaults and their ranges. Nothing here imports a native library.
 
 from __future__ import annotations
 
+import builtins
 import difflib
 import json
 from collections.abc import Iterator
@@ -83,7 +84,7 @@ class Parameter:
         raise ParameterError(f"{label}: unsupported parameter type {self.type!r} in the catalog.")
 
     @staticmethod
-    def _number(value: Any, kind: type, label: str):
+    def _number(value: Any, kind: builtins.type[float] | builtins.type[int], label: str):
         if isinstance(value, bool):
             raise ParameterError(f"{label}: expected a {kind.__name__}, got a bool.")
         if isinstance(value, str):

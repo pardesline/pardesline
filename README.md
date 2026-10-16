@@ -11,6 +11,9 @@
 <a href="https://pypi.org/project/pardesline/"><img src="https://img.shields.io/pypi/pyversions/pardesline.svg" alt="Python versions"></a>
 <a href="https://pepy.tech/projects/pardesline"><img src="https://static.pepy.tech/badge/pardesline/month" alt="PyPI downloads per month"></a>
 <a href="https://github.com/pardesline/pardesline/actions/workflows/ci.yml"><img src="https://github.com/pardesline/pardesline/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
+<a href="https://codecov.io/gh/pardesline/pardesline"><img src="https://codecov.io/gh/pardesline/pardesline/branch/main/graph/badge.svg" alt="Test coverage"></a>
+<a href="https://github.com/pardesline/pardesline/actions/workflows/docs.yml"><img src="https://github.com/pardesline/pardesline/actions/workflows/docs.yml/badge.svg" alt="Docs build"></a>
+<a href="https://securityscorecards.dev/viewer/?uri=github.com/pardesline/pardesline"><img src="https://api.securityscorecards.dev/projects/github.com/pardesline/pardesline/badge" alt="OpenSSF Scorecard"></a>
 <a href="https://pardesline.github.io/pardesline/"><img src="https://img.shields.io/badge/docs-pardesline.github.io-f0a05a.svg" alt="Documentation"></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License Apache-2.0"></a>
 <a href="CITATION.cff"><img src="https://img.shields.io/badge/cite-CITATION.cff-lightgrey.svg" alt="Citation file"></a>

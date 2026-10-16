@@ -391,7 +391,7 @@ class Manifest(_Model):
         lines = [f"{self.name}" + (f"  -  {self.title}" if self.title else "")]
         if self.description:
             lines.append(f"  {self.description}")
-        src = self.source.scheme
+        src: str = str(self.source.scheme)
         if self.source.repo_id:
             src += f" hf://{self.source.repo_id}"
             if self.source.paths:

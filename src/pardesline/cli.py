@@ -22,6 +22,7 @@ import sys
 
 from ._version import __version__
 from .catalog import load_catalog
+from .data import Dataset
 from .errors import PardesLineError
 
 CLOUD_COMMANDS = ("login", "logout", "whoami", "upload", "send", "inbox", "ls", "download", "share")
@@ -94,6 +95,8 @@ def _open_dataset(args: argparse.Namespace):
     from .data import load
 
     ds = load(args.dataset, assume=getattr(args, "assume", False))
+    if not isinstance(ds, Dataset):
+        raise PardesLineError(f"{args.dataset} is a file, not a dataset")
     if getattr(args, "take", None):
         ds = ds.take(args.take)
     return ds
