@@ -27,3 +27,15 @@ Thumbs.db
 /data/
 /outputs/
 *.log
+
+# Example outputs that are large or regenerated (images and result.json are committed)
+examples/**/*.ply
+examples/**/*.stl
+examples/**/*.npz
+examples/**/*.pt
+examples/**/out/
+examples/**/runs/
+examples/**/hippo_points/
+examples/**/slices_normal/
+examples/**/slices_test/
+examples/**/scores/*_recon.png

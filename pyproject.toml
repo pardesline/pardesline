@@ -53,9 +53,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# Point clouds, meshes, SDF, LiDAR, stereo (Open3D 0.19 ships wheels for 3.10–3.12).
+# Point clouds, meshes, SDF, LiDAR, stereo (Open3D 0.20 ships wheels for 3.10-3.13; 0.19 for 3.10-3.12).
 local = [
-    "open3d>=0.18,<0.20",
+    "open3d>=0.18,<0.21",
     "pyvista>=0.43,<1",
     "scipy>=1.10,<2",
     "scikit-image>=0.21,<1",
@@ -141,6 +141,8 @@ ignore = ["RUF012"]
 [tool.ruff.lint.per-file-ignores]
 # Reference scripts shipped with the skills favour readable one-liners over the 110-column rule.
 "skills/**/*.py" = ["E501", "B905", "B007", "SIM115", "RUF005", "RUF007", "RUF046", "RUF059", "F401", "F841", "E741", "UP"]
+# Examples are read top to bottom like a notebook: long usage lines and late imports are deliberate.
+"examples/**/*.py" = ["E501", "E402"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["pardesline"]

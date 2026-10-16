@@ -14,6 +14,7 @@ import numpy as np
 import pytest
 
 import pardesline as pl
+import pardesline.data.sources.archive as archive_mod
 from pardesline.data.manifest import Manifest
 from pardesline.data.sources.archive import RemoteArchiveSource
 
@@ -109,7 +110,8 @@ def _manifest(url, fmt, tmp_path, **source_extra):
 
 
 @pytest.mark.parametrize("fmt,deflate", [("zip", True), ("zip", False), ("tar", False)])
-def test_members_by_range(server, tmp_path, fmt, deflate):
+def test_members_by_range(server, tmp_path, fmt, deflate, monkeypatch):
+    monkeypatch.setattr(archive_mod, "WHOLE_ARCHIVE_BYTES", 0)  # the test archive is tiny: force Range reads
     root, base, _httpd = server
     blob = _zip(deflate) if fmt == "zip" else _tar()
     (root / f"a.{fmt}").write_bytes(blob)
@@ -132,6 +134,27 @@ def test_members_by_range(server, tmp_path, fmt, deflate):
         assert ds2._source._ranged == {} and ds2.ids == ds.ids
         with pytest.raises(pl.FetchError, match="not a member"):
             src.fetch("nope.bin")
+    finally:
+        pl.set_cache_dir(None)
+
+
+@pytest.mark.parametrize("fmt", ["zip", "tar"])
+def test_small_archive_is_downloaded_whole(server, tmp_path, fmt):
+    """Below WHOLE_ARCHIVE_BYTES one download replaces a Range request per member."""
+    root, base, _httpd = server
+    blob = _zip(True) if fmt == "zip" else _tar()
+    (root / f"a.{fmt}").write_bytes(blob)
+    pl.set_cache_dir(tmp_path / "cache")
+    try:
+        assert len(blob) < archive_mod.WHOLE_ARCHIVE_BYTES
+        ds = pl.load(_manifest(f"{base}/a.{fmt}", fmt, tmp_path))
+        assert ds.ids == ["0000000000", "0000000001"]
+        src: RemoteArchiveSource = ds._source
+        assert src._ranged[0].supports_ranges is True  # the server does support Range; size decided
+        assert (tmp_path / "cache" / "datasets" / "drive" / f"archive.{fmt}").is_file()
+        assert ds["0000000001"].lidar.to_numpy().shape == (4, 3)
+        assert ds["0000000000"].path("lidar").read_bytes() == MEMBERS["drive/velodyne/0000000000.bin"]
+        assert src._ranged[0].bytes_read == 0  # nothing was read by Range
     finally:
         pl.set_cache_dir(None)
 
@@ -172,3 +195,31 @@ def test_format_inferred_or_required():
                 "roles": {"r": {"type": "file", "pattern": "{id}.txt"}},
             }
         )
+
+
+def test_members_escaping_the_cache_are_ignored(server, tmp_path):
+    """A tar member named ../evil.bin must never be written outside the dataset cache."""
+    root, base, _httpd = server
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w") as tf:
+        for name, data in {
+            **MEMBERS,
+            "../evil.bin": b"x" * 16,
+            "drive/velodyne/../../../evil2.bin": b"y" * 8,
+        }.items():
+            info = tarfile.TarInfo(name)
+            info.size = len(data)
+            tf.addfile(info, io.BytesIO(data))
+    (root / "a.tar").write_bytes(buf.getvalue())
+    pl.set_cache_dir(tmp_path / "cache")
+    try:
+        ds = pl.load(_manifest(f"{base}/a.tar", "tar", tmp_path))
+        src: RemoteArchiveSource = ds._source
+        assert "../evil.bin" not in src.list() and not any("evil" in n for n in src.list())
+        assert ds.ids == ["0000000000", "0000000001"]
+        assert ds["0000000000"].path("lidar").read_bytes() == MEMBERS["drive/velodyne/0000000000.bin"]
+        with pytest.raises(pl.FetchError):
+            src.fetch("../evil.bin")
+        assert not (tmp_path / "evil.bin").exists() and not (tmp_path / "cache" / "evil.bin").exists()
+    finally:
+        pl.set_cache_dir(None)

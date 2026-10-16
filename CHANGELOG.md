@@ -6,6 +6,19 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- `examples/`: twelve runnable examples, one folder each, titled "<algorithm or model> on <dataset>", with the images they produce.
+- Remote archives up to 64 MB (`PARDESLINE_WHOLE_ARCHIVE_MB`) are downloaded once and indexed locally instead of one Range request per member: the first `pl.load("msd_task04_hippocampus")` goes from 194 s to a few seconds.
+- `docs/_gen/datasets_table.py` generates the README dataset table from the manifests.
+
+### Changed
+- `[local]` accepts Open3D 0.20, which ships Python 3.13 wheels: `pip install "pardesline[all]"` now works on 3.10-3.13 (the native test suite passes on 3.13 with 0.20).
+- PyPI metadata: description, 26 keywords, classifiers and project URLs unified on the documentation site.
+
+### Fixed
+- Archive members whose names would escape the dataset cache (`../evil.bin`) are ignored at index time and refused by `fetch`.
+- `.nii.gz` files are accepted by every module that accepts `.nii` (`Volume.segment()` on a Decathlon volume raised "does not accept '.gz' files").
+
 ### Changed
 - README rewritten as a short front page: animated poster carousel, the
   promise in three lines, install, a 30-second example, a Mermaid diagram of

@@ -1,0 +1,189 @@
+{
+  "pardesline": "0.2.0",
+  "kind": "pointcloud",
+  "frame": {
+    "axes": "Y-up",
+    "units": "m",
+    "source": "manifest"
+  },
+  "license": {
+    "source_url": "https://graphics.stanford.edu/data/3Dscanrep/",
+    "note": "Stanford 3D Scanning Repository: free to use with acknowledgement; commercial use TO CONFIRM with Stanford."
+  },
+  "provenance": [
+    {
+      "step": "load",
+      "dataset": "open3d_bunny",
+      "sample": "bunny",
+      "role": "mesh",
+      "source": "open3d.data.BunnyMesh",
+      "path": "C:\\Users\\mehes\\open3d_data\\extract\\BunnyMesh\\BunnyMesh.ply"
+    },
+    {
+      "module": "mesh_processing",
+      "method": "mesh_to_pcd_poisson_disk",
+      "params": {
+        "num_points": "20000",
+        "seed": "1"
+      },
+      "input": "C:\\Users\\mehes\\open3d_data\\extract\\BunnyMesh\\BunnyMesh.ply",
+      "moving": null,
+      "output": "C:\\Users\\mehes\\AppData\\Local\\Temp\\pardesline-outputs\\BunnyMesh_mesh_to_pcd_poisson_disk_da6c484f.ply",
+      "duration_s": 11.492,
+      "pardesline": "0.2.0",
+      "timestamp": "2026-10-16T10:39:09+0300",
+      "step": "run",
+      "input_provenance": [
+        {
+          "step": "load",
+          "dataset": "open3d_bunny",
+          "sample": "bunny",
+          "role": "mesh",
+          "source": "open3d.data.BunnyMesh",
+          "path": "C:\\Users\\mehes\\open3d_data\\extract\\BunnyMesh\\BunnyMesh.ply"
+        }
+      ]
+    },
+    {
+      "module": "point_cloud_processing",
+      "method": "statistical_outlier_removal",
+      "params": {},
+      "input": "C:\\Users\\mehes\\AppData\\Local\\Temp\\pardesline-outputs\\BunnyMesh_mesh_to_pcd_poisson_disk_da6c484f.ply",
+      "moving": null,
+      "output": "C:\\Users\\mehes\\AppData\\Local\\Temp\\pardesline-outputs\\BunnyMesh_mesh_to_pcd_poisson_disk_da6c484f_statistical_outlier_removal_0cd2ec5b.ply",
+      "duration_s": 6.1,
+      "pardesline": "0.2.0",
+      "timestamp": "2026-10-16T10:39:15+0300",
+      "step": "run",
+      "input_provenance": [
+        {
+          "step": "load",
+          "dataset": "open3d_bunny",
+          "sample": "bunny",
+          "role": "mesh",
+          "source": "open3d.data.BunnyMesh",
+          "path": "C:\\Users\\mehes\\open3d_data\\extract\\BunnyMesh\\BunnyMesh.ply"
+        },
+        {
+          "module": "mesh_processing",
+          "method": "mesh_to_pcd_poisson_disk",
+          "params": {
+            "num_points": "20000",
+            "seed": "1"
+          },
+          "input": "C:\\Users\\mehes\\open3d_data\\extract\\BunnyMesh\\BunnyMesh.ply",
+          "moving": null,
+          "output": "C:\\Users\\mehes\\AppData\\Local\\Temp\\pardesline-outputs\\BunnyMesh_mesh_to_pcd_poisson_disk_da6c484f.ply",
+          "duration_s": 11.492,
+          "pardesline": "0.2.0",
+          "timestamp": "2026-10-16T10:39:09+0300",
+          "step": "run",
+          "input_provenance": [
+            {
+              "step": "load",
+              "dataset": "open3d_bunny",
+              "sample": "bunny",
+              "role": "mesh",
+              "source": "open3d.data.BunnyMesh",
+              "path": "C:\\Users\\mehes\\open3d_data\\extract\\BunnyMesh\\BunnyMesh.ply"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "module": "point_cloud_reconstruction",
+      "method": "poisson",
+      "params": {},
+      "input": "C:\\Users\\mehes\\AppData\\Local\\Temp\\pardesline-outputs\\BunnyMesh_mesh_to_pcd_poisson_disk_da6c484f_statistical_outlier_removal_0cd2ec5b.ply",
+      "moving": null,
+      "output": "C:\\Users\\mehes\\AppData\\Local\\Temp\\pardesline-outputs\\BunnyMesh_mesh_to_pcd_poisson_disk_da6c484f_stat_poisson_248e22e9.ply",
+      "duration_s": 9.195,
+      "pardesline": "0.2.0",
+      "timestamp": "2026-10-16T10:39:24+0300",
+      "step": "run",
+      "input_provenance": [
+        {
+          "step": "load",
+          "dataset": "open3d_bunny",
+          "sample": "bunny",
+          "role": "mesh",
+          "source": "open3d.data.BunnyMesh",
+          "path": "C:\\Users\\mehes\\open3d_data\\extract\\BunnyMesh\\BunnyMesh.ply"
+        },
+        {
+          "module": "mesh_processing",
+          "method": "mesh_to_pcd_poisson_disk",
+          "params": {
+            "num_points": "20000",
+            "seed": "1"
+          },
+          "input": "C:\\Users\\mehes\\open3d_data\\extract\\BunnyMesh\\BunnyMesh.ply",
+          "moving": null,
+          "output": "C:\\Users\\mehes\\AppData\\Local\\Temp\\pardesline-outputs\\BunnyMesh_mesh_to_pcd_poisson_disk_da6c484f.ply",
+          "duration_s": 11.492,
+          "pardesline": "0.2.0",
+          "timestamp": "2026-10-16T10:39:09+0300",
+          "step": "run",
+          "input_provenance": [
+            {
+              "step": "load",
+              "dataset": "open3d_bunny",
+              "sample": "bunny",
+              "role": "mesh",
+              "source": "open3d.data.BunnyMesh",
+              "path": "C:\\Users\\mehes\\open3d_data\\extract\\BunnyMesh\\BunnyMesh.ply"
+            }
+          ]
+        },
+        {
+          "module": "point_cloud_processing",
+          "method": "statistical_outlier_removal",
+          "params": {},
+          "input": "C:\\Users\\mehes\\AppData\\Local\\Temp\\pardesline-outputs\\BunnyMesh_mesh_to_pcd_poisson_disk_da6c484f.ply",
+          "moving": null,
+          "output": "C:\\Users\\mehes\\AppData\\Local\\Temp\\pardesline-outputs\\BunnyMesh_mesh_to_pcd_poisson_disk_da6c484f_statistical_outlier_removal_0cd2ec5b.ply",
+          "duration_s": 6.1,
+          "pardesline": "0.2.0",
+          "timestamp": "2026-10-16T10:39:15+0300",
+          "step": "run",
+          "input_provenance": [
+            {
+              "step": "load",
+              "dataset": "open3d_bunny",
+              "sample": "bunny",
+              "role": "mesh",
+              "source": "open3d.data.BunnyMesh",
+              "path": "C:\\Users\\mehes\\open3d_data\\extract\\BunnyMesh\\BunnyMesh.ply"
+            },
+            {
+              "module": "mesh_processing",
+              "method": "mesh_to_pcd_poisson_disk",
+              "params": {
+                "num_points": "20000",
+                "seed": "1"
+              },
+              "input": "C:\\Users\\mehes\\open3d_data\\extract\\BunnyMesh\\BunnyMesh.ply",
+              "moving": null,
+              "output": "C:\\Users\\mehes\\AppData\\Local\\Temp\\pardesline-outputs\\BunnyMesh_mesh_to_pcd_poisson_disk_da6c484f.ply",
+              "duration_s": 11.492,
+              "pardesline": "0.2.0",
+              "timestamp": "2026-10-16T10:39:09+0300",
+              "step": "run",
+              "input_provenance": [
+                {
+                  "step": "load",
+                  "dataset": "open3d_bunny",
+                  "sample": "bunny",
+                  "role": "mesh",
+                  "source": "open3d.data.BunnyMesh",
+                  "path": "C:\\Users\\mehes\\open3d_data\\extract\\BunnyMesh\\BunnyMesh.ply"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

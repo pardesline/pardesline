@@ -20,6 +20,7 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import os
 import shutil
 import struct
 import tarfile
@@ -43,6 +44,10 @@ _TIMEOUT = 120
 _RETRY_STATUS = {429, 500, 502, 503, 504}
 _RETRY_DELAYS = (1.0, 2.0, 4.0, 8.0, 16.0)
 _FOLDER_GAP = 1 << 16  # members closer than this in the archive are read in one request
+# Archives up to this size are downloaded once and indexed locally: for a 28 MB MSD tar
+# that is one request instead of one Range request per member (measured 2026-10: 194 s
+# of header walking versus a few seconds of download). PARDESLINE_WHOLE_ARCHIVE_MB overrides.
+WHOLE_ARCHIVE_BYTES = int(float(os.environ.get("PARDESLINE_WHOLE_ARCHIVE_MB", "64")) * 1_000_000)
 
 
 @dataclass(frozen=True)
@@ -406,6 +411,30 @@ class RemoteArchiveSource:
     def _index_path(self) -> Path:
         return self.cache / _INDEX_NAME
 
+    def _is_safe(self, name: str) -> bool:
+        try:
+            self._target(name)
+        except FetchError:
+            return False
+        return True
+
+    def _target(self, name: str) -> Path:
+        """Where a member lands on disk; refuses names that would escape the cache."""
+        target = (self.cache / name).resolve()
+        root = self.cache.resolve()
+        if target == root or root not in target.parents:
+            raise FetchError(f"{name!r}: the archive member would be written outside the dataset cache")
+        return target
+
+    @staticmethod
+    def _whole(r: _Ranged) -> bool:
+        """Download the archive once instead of reading it by Range: when the server
+        ignores Range requests, or when the archive is small enough that one download
+        beats a request per member (see ``WHOLE_ARCHIVE_BYTES``)."""
+        if not r.supports_ranges:
+            return True
+        return r.size is not None and r.size <= WHOLE_ARCHIVE_BYTES
+
     def _members_dict(self) -> dict[str, Member]:
         if self._members is not None:
             return self._members
@@ -422,8 +451,13 @@ class RemoteArchiveSource:
         sizes: list[int | None] = []
         for i, url in enumerate(self.urls):
             r = self._open(i)
-            if not r.supports_ranges:
-                logger.info("{}: no Range support; downloading the whole archive once", url)
+            if self._whole(r):
+                logger.info(
+                    "{}: {}; downloading the whole archive once ({:.0f} MB)",
+                    url.rsplit("/", 1)[-1],
+                    "no Range support" if not r.supports_ranges else "small archive",
+                    (r.size or 0) / 1e6,
+                )
                 found = self._index_local(self._download_whole(i))
             else:
                 reader = RemoteZip(r) if self.format == "zip" else RemoteTar(r)
@@ -438,7 +472,12 @@ class RemoteArchiveSource:
                 )
             members += [Member(**{**asdict(m), "url_index": i}) for m in found]
             sizes.append(r.size)
-        self._members = {m.name: m for m in members}
+        unsafe = [m.name for m in members if not self._is_safe(m.name)]
+        if unsafe:
+            logger.warning(
+                "{}: {} member(s) with unsafe paths ignored, e.g. {!r}", self.name, len(unsafe), unsafe[0]
+            )
+        self._members = {m.name: m for m in members if m.name not in set(unsafe)}
         try:
             idx.parent.mkdir(parents=True, exist_ok=True)
             idx.write_text(
@@ -514,7 +553,7 @@ class RemoteArchiveSource:
         if relpath not in members:
             raise FetchError(f"{relpath!r} is not a member of {self.url}")
         m = members[relpath]
-        target = self.cache / relpath
+        target = self._target(relpath)
         if target.is_file() and target.stat().st_size == m.size:
             return target
         r = self._open(m.url_index)
@@ -522,7 +561,7 @@ class RemoteArchiveSource:
         tmp = target.with_name(target.name + ".part")
         try:
             with tmp.open("wb") as out:
-                if r.supports_ranges:
+                if not self._whole(r):
                     reader = RemoteZip(r) if self.format == "zip" else RemoteTar(r)
                     n = reader.write(m, out)
                 else:
@@ -566,7 +605,7 @@ class RemoteArchiveSource:
             by_url.setdefault(m.url_index, []).append(m)
         for i, group in by_url.items():
             r = self._open(i)
-            if not r.supports_ranges:
+            if self._whole(r):
                 for m in group:
                     self.fetch(m.name)
                 continue
@@ -588,7 +627,7 @@ class RemoteArchiveSource:
         return folder
 
     def _open_member_out(self, m: Member):
-        target = self.cache / m.name
+        target = self._target(m.name)
         target.parent.mkdir(parents=True, exist_ok=True)
         return target.open("wb")
 

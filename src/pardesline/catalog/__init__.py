@@ -221,7 +221,12 @@ class Module:
     videos: tuple[dict[str, str], ...] = ()
 
     def accepts(self, extension: str | None) -> bool:
+        """``True`` when the module reads files with this suffix. ``.nii.gz`` is
+        accepted wherever ``.nii`` is: the readers (SimpleITK, VTK) handle the
+        compression themselves."""
         ext = (extension or "").lower()
+        if ext == ".nii.gz":
+            return ".nii.gz" in self.input_formats or ".nii" in self.input_formats
         return bool(ext) and ext in self.input_formats
 
     def method(self, method_id: str) -> Method:

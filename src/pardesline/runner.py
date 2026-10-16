@@ -82,6 +82,12 @@ class RunResult:
         }
 
 
+def _suffix(path: Path) -> str:
+    """Lower-case suffix, ``.nii.gz`` kept whole."""
+    name = path.name.lower()
+    return ".nii.gz" if name.endswith(".nii.gz") else path.suffix.lower()
+
+
 def _default_output(method: Method, input_path: Path) -> Path:
     stem = input_path.stem[:48] or "result"
     return output_dir() / f"{stem}_{method.id}_{uuid.uuid4().hex[:8]}{method.output_extension}"
@@ -195,10 +201,10 @@ def run(
     if not input_path.is_file():
         raise FileNotFoundError(f"Input file not found: {input_path}")
     mod = load_catalog().module(spec.module_id)
-    if not mod.accepts(input_path.suffix):
+    ext = _suffix(input_path)
+    if not mod.accepts(ext):
         raise ParameterError(
-            f"{spec.qualname} does not accept {input_path.suffix!r} files. "
-            f"Accepted: {', '.join(mod.input_formats)}."
+            f"{spec.qualname} does not accept {ext!r} files. Accepted: {', '.join(mod.input_formats)}."
         )
     moving_path: Path | None = None
     if spec.dual_input:

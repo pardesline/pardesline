@@ -112,3 +112,11 @@ def test_top_level_helpers():
     assert pl.modules()[0] == "point_cloud_processing"
     assert pl.catalog() is cat
     assert pl.__version__
+
+
+def test_accepts_nii_gz_wherever_nii_is_accepted():
+    mod = pl.catalog().module("simpleitk_segmentation")
+    assert ".nii" in mod.input_formats
+    assert mod.accepts(".nii.gz") and mod.accepts(".NII.GZ") and mod.accepts(".nii")
+    assert not mod.accepts(".gz") and not mod.accepts(".ply")
+    assert not pl.catalog().module("point_cloud_processing").accepts(".nii.gz")

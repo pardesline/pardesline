@@ -1,0 +1,78 @@
+{
+  "pardesline": "0.2.0",
+  "kind": "pointcloud",
+  "frame": {
+    "axes": "LPS",
+    "units": "mm",
+    "source": "file"
+  },
+  "license": {
+    "spdx": "CC-BY-SA-4.0",
+    "commercial": true,
+    "source_url": "http://medicaldecathlon.com/",
+    "note": "CC-BY-SA 4.0 as stated in the archive's dataset.json (checked 2026-10-14); share-alike applies to derived data.",
+    "redistribution": "allowed"
+  },
+  "provenance": [
+    {
+      "step": "load",
+      "dataset": "msd_task04_hippocampus",
+      "sample": "hippocampus_001",
+      "role": "mask",
+      "source": "remote tar https://msd-for-monai.s3-us-west-2.amazonaws.com/Task04_Hippocampus.tar, members cached in C:\\Users\\mehes\\.cache\\pardesline\\datasets\\msd_task04_hippocampus",
+      "path": "C:\\Users\\mehes\\.cache\\pardesline\\datasets\\msd_task04_hippocampus\\Task04_Hippocampus\\labelsTr\\hippocampus_001.nii.gz"
+    },
+    {
+      "step": "convert",
+      "op": "volume_to_mesh",
+      "method": "flying_edges",
+      "isovalue": null,
+      "label": 1,
+      "n_points": 1048,
+      "n_faces": 2092,
+      "input": "C:\\Users\\mehes\\.cache\\pardesline\\datasets\\msd_task04_hippocampus\\Task04_Hippocampus\\labelsTr\\hippocampus_001.nii.gz",
+      "output": "C:\\Users\\mehes\\AppData\\Local\\Temp\\pardesline-outputs\\hippocampus_001.nii_surface_63626138.ply",
+      "exact": true,
+      "duration_s": 0.078,
+      "pardesline": "0.2.0",
+      "label_name": "anterior"
+    },
+    {
+      "module": "pyvista_mesh_processing",
+      "method": "pv_smooth_laplacian",
+      "params": {},
+      "input": "C:\\Users\\mehes\\AppData\\Local\\Temp\\pardesline-outputs\\hippocampus_001.nii_surface_63626138.ply",
+      "moving": null,
+      "output": "C:\\Users\\mehes\\AppData\\Local\\Temp\\pardesline-outputs\\hippocampus_001.nii_surface_63626138_pv_smooth_laplacian_982cd5bb.ply",
+      "duration_s": 3.822,
+      "pardesline": "0.2.0",
+      "timestamp": "2026-10-16T10:23:02+0300",
+      "step": "run",
+      "input_provenance": [
+        {
+          "step": "load",
+          "dataset": "msd_task04_hippocampus",
+          "sample": "hippocampus_001",
+          "role": "mask",
+          "source": "remote tar https://msd-for-monai.s3-us-west-2.amazonaws.com/Task04_Hippocampus.tar, members cached in C:\\Users\\mehes\\.cache\\pardesline\\datasets\\msd_task04_hippocampus",
+          "path": "C:\\Users\\mehes\\.cache\\pardesline\\datasets\\msd_task04_hippocampus\\Task04_Hippocampus\\labelsTr\\hippocampus_001.nii.gz"
+        },
+        {
+          "step": "convert",
+          "op": "volume_to_mesh",
+          "method": "flying_edges",
+          "isovalue": null,
+          "label": 1,
+          "n_points": 1048,
+          "n_faces": 2092,
+          "input": "C:\\Users\\mehes\\.cache\\pardesline\\datasets\\msd_task04_hippocampus\\Task04_Hippocampus\\labelsTr\\hippocampus_001.nii.gz",
+          "output": "C:\\Users\\mehes\\AppData\\Local\\Temp\\pardesline-outputs\\hippocampus_001.nii_surface_63626138.ply",
+          "exact": true,
+          "duration_s": 0.078,
+          "pardesline": "0.2.0",
+          "label_name": "anterior"
+        }
+      ]
+    }
+  ]
+}
