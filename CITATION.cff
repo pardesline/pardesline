@@ -8,7 +8,7 @@ version: 0.2.0
 date-released: 2026-10-14
 license: Apache-2.0
 repository-code: "https://github.com/pardesline/pardesline"
-url: "https://pardesline.com"
+url: "https://pardesline.github.io/pardesline/"
 keywords:
   - 3D vision
   - medical imaging

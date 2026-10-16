@@ -5,31 +5,43 @@ build-backend = "hatchling.build"
 [project]
 name = "pardesline"
 dynamic = ["version"]
-description = "3D vision and medical imaging in one package: 73 algorithms on point clouds, meshes and volumes, run locally or in the PardesLine cloud."
+description = "3D computer vision and medical imaging in Python: 43 public 3D and medical datasets loaded in one line with manifests and licences, 73 algorithms on point clouds, meshes and CT/MRI volumes (registration, segmentation, reconstruction), one typed object over Open3D, PyVista and SimpleITK, and an MCP server for AI agents."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
 authors = [{ name = "Jonathan Tabet" }]
 maintainers = [{ name = "PardesLine" }]
 keywords = [
-    "3d", "point-cloud", "mesh", "volume", "medical-imaging", "dicom",
-    "registration", "segmentation", "open3d", "pyvista", "simpleitk", "lidar",
+    "3d", "3d-vision", "computer-vision", "medical-imaging", "point-cloud", "mesh",
+    "volume", "ct", "mri", "dicom", "nifti", "datasets", "dataset-loader", "huggingface",
+    "registration", "icp", "segmentation", "3d-reconstruction", "lidar", "gaussian-splatting",
+    "open3d", "pyvista", "simpleitk", "deep-learning", "mcp", "mcp-server",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Information Technology",
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Environment :: Console",
+    "Natural Language :: English",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Scientific/Engineering :: Image Processing",
+    "Topic :: Scientific/Engineering :: Image Recognition",
     "Topic :: Scientific/Engineering :: Medical Science Apps.",
     "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed",
 ]
 # Core: catalog, object model, runner and the cloud client. No native libraries.
@@ -72,11 +84,14 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://pardesline.com"
-Documentation = "https://github.com/pardesline/pardesline#readme"
+Homepage = "https://pardesline.github.io/pardesline/"
+Documentation = "https://pardesline.github.io/pardesline/"
 Repository = "https://github.com/pardesline/pardesline"
 Changelog = "https://github.com/pardesline/pardesline/blob/main/CHANGELOG.md"
 Issues = "https://github.com/pardesline/pardesline/issues"
+Discussions = "https://github.com/pardesline/pardesline/discussions"
+Showcase = "https://github.com/pardesline/pardesline/blob/main/docs/showcase/README.md"
+Company = "https://pardesline.com"
 Platform = "https://appbeta.pardesline.com"
 
 [project.scripts]
