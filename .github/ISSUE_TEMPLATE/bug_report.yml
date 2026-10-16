@@ -1,0 +1,60 @@
+name: Bug report
+description: Something does not work as documented.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you ran, what you expected, what you got.
+      placeholder: |
+        ds = pl.load("msd_task09_spleen")
+        ds[0].ct.segment(lower=30, upper=200)
+        -> ParameterError: ...
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Full log
+      description: Run again with `PARDESLINE_LOG=DEBUG` and paste everything (stderr included).
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: pardesline version
+      description: Output of `pardesline version`.
+      placeholder: "0.2.0"
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Python, OS, Open3D / PyVista / SimpleITK versions
+      placeholder: "Python 3.12, Windows 11, open3d 0.19.0, pyvista 0.47, SimpleITK 2.5.3"
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - datasets / manifests
+        - object model (load, save, conversions)
+        - an algorithm (catalog / ops)
+        - MCP server
+        - CLI
+        - documentation
+        - other
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched the existing issues and the FAQ.
+          required: true
+        - label: The snippet above reproduces the problem on a bundled dataset or on data I can share.

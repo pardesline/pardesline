@@ -1,0 +1,48 @@
+name: Algorithm or model request
+description: A classical algorithm the catalog should expose, or a pretrained model the registry should load.
+labels: ["enhancement", "help wanted"]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options:
+        - classical algorithm (Open3D, PyVista/VTK, SimpleITK, SciPy, pycpd, ...)
+        - pretrained model (weights on the Hub, torch.hub, a vendor repository)
+        - metric or evaluation
+    validations:
+      required: true
+  - type: input
+    id: name
+    attributes:
+      label: Name and reference
+      placeholder: "Generalized ICP (Segal et al. 2009), open3d.pipelines.registration.registration_generalized_icp"
+    validations:
+      required: true
+  - type: textarea
+    id: io
+    attributes:
+      label: Inputs, outputs, parameters
+      description: Which object types it reads (points, mesh, volume, labels, image), what it returns, the parameters that matter and sensible defaults with the reason.
+      placeholder: |
+        input: two point clouds (fixed, moving); output: moved cloud + 4x4 transform
+        max_correspondence_distance: 0.4 x voxel, because ...
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: Data it should be validated on
+      description: A bundled dataset, or public data with the licence.
+      placeholder: "open3d_icp_demo, kitti_raw_2011_09_26_drive_0001"
+  - type: textarea
+    id: model
+    attributes:
+      label: For a model, the manifest facts
+      description: weights URI, licence, input type and size, task, memory / GPU needs, citation.
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contribution
+      options:
+        - label: I can implement it from `templates/new_algorithm/` or write the manifest from `templates/new_model/`.

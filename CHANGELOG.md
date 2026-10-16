@@ -15,6 +15,7 @@ All notable changes to this project are documented here. The format follows
 - `benchmarks/`: package defaults vs upstream defaults on the Stanford bunny (registration, Poisson reconstruction), tables generated into `benchmarks/results.md`.
 - `tests/test_docs_snippets.py` executes the code blocks of the README, the tutorial and the how-to pages (network marker).
 - Docstrings on every public function and class (31 added).
+- Contributor funnel: issue forms (bug, feature, dataset request, algorithm or model request, real case), pull request template, `SUPPORT.md`, `CODEOWNERS`, `.all-contributorsrc`, `templates/new_dataset`, `templates/new_algorithm`, `templates/new_model`, `templates/new_pipeline` with tests, a README per example, `docs/seo/issues-to-create.md` (tracking issues, 16 good first issues, 11 help wanted) and `docs/seo/apply_github.py` to apply labels, metadata and issues through the API.
 
 ### Changed
 - `[local]` accepts Open3D 0.20, which ships Python 3.13 wheels: `pip install "pardesline[all]"` now works on 3.10-3.13 (the native test suite passes on 3.13 with 0.20).

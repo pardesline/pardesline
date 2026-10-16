@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or show-and-tell
+    url: https://github.com/pardesline/pardesline/discussions
+    about: Ask how to do something, or show what you built. Faster than an issue.
+  - name: Security report
+    url: https://github.com/pardesline/pardesline/security/advisories/new
+    about: Private vulnerability reporting, see SECURITY.md.
+  - name: Documentation
+    url: https://pardesline.github.io/pardesline/
+    about: Datasets, algorithms, how-to guides, API reference.

@@ -1,0 +1,9 @@
+{
+  "<module>.my_method": {
+    "validated_on": "Stanford bunny sampled to 20 000 points (examples/...), KITTI sweep; generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "radius": "0.05 in file units is about 5x the point spacing of a centimetre-resolution scan: the covariance needs 10-30 points inside the radius; scale it with the spacing (0.5 mm for CBCT, 0.5 m for outdoor LiDAR).",
+      "max_nn": "30 neighbours cap the cost on dense clouds while keeping the estimate local at edges."
+    }
+  }
+}

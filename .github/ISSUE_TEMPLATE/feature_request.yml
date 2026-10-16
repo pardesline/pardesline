@@ -1,0 +1,30 @@
+name: Feature request
+description: A capability the package should have (not a dataset, algorithm or model: those have their own forms).
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The task you cannot do today
+      description: Describe the job, not the solution. Which data, which step, what you do by hand instead.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What the call could look like
+      placeholder: |
+        splat = pl.load("scene.ply")           # a Splat object
+        splat.to_points().align(ct.to_mesh(label=1).to_points())
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Links to papers, libraries that do it, data it should work on.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I checked the roadmap in the README and the open issues.
+          required: true

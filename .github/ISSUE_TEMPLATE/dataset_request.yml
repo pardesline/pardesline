@@ -1,0 +1,54 @@
+name: Dataset request
+description: A public 3D or medical imaging dataset that should load in one line.
+labels: ["dataset", "good first issue"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Dataset name and homepage
+      placeholder: "VerSe 2020, https://github.com/anjany/verse"
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Where the files are
+      description: A Hugging Face repo, a zip/tar URL, a TCIA collection, an S3 bucket, a URL index.
+      placeholder: "https://s3.bonescreen.de/public/VerSe-complete/dataset-01training.zip"
+    validations:
+      required: true
+  - type: input
+    id: license
+    attributes:
+      label: Licence as stated by the source
+      description: The exact licence name and where it is written. "Unknown" is an acceptable answer; a guess is not.
+      placeholder: "CC BY-SA 4.0, stated in the README of the GitHub repository"
+    validations:
+      required: true
+  - type: textarea
+    id: layout
+    attributes:
+      label: What a sample contains
+      description: File kinds (NIfTI volume, label map with these labels, PLY mesh, raw .bin with this layout), how files pair into a sample, frame and units if you know them.
+      placeholder: |
+        sub-verse004/sub-verse004_ct.nii.gz          CT volume, LPS mm
+        sub-verse004/sub-verse004_seg-vert_msk.nii.gz label map, 1..28 = C1..L5
+        sub-verse004/sub-verse004_seg-vb_ctd.json     centroids
+    validations:
+      required: true
+  - type: dropdown
+    id: gated
+    attributes:
+      label: Access
+      options:
+        - public download, no registration
+        - registration or agreement required (the loader must use the user's credentials)
+        - unsure
+    validations:
+      required: true
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contribution
+      options:
+        - label: I can write the manifest myself from `templates/new_dataset/` (maintainers will review and run the live check).

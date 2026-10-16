@@ -1,0 +1,39 @@
+name: Real case
+description: A reproducible run on data that looks like production data (industrial scan, de-identified medical volume, field LiDAR), for examples/real_cases.
+labels: ["real-case"]
+body:
+  - type: input
+    id: domain
+    attributes:
+      label: Domain and task
+      placeholder: "structured-light scan of a cast part, registration against the CAD mesh"
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: The data
+      description: What it is, how it was acquired, size, spacing or point density, noise level, and how it will be shared (files under a redistributable licence, or a loader to the owner's server with their terms).
+    validations:
+      required: true
+  - type: input
+    id: license
+    attributes:
+      label: Licence or permission
+      placeholder: "CC BY 4.0 / written permission from the owner attached"
+    validations:
+      required: true
+  - type: dropdown
+    id: deid
+    attributes:
+      label: Identifiers
+      options:
+        - not applicable (no personal data)
+        - de-identified by me (method stated in the README)
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: What the defaults handled, and the numbers
+      description: Which call, which characteristics of the data broke textbook defaults, the metric with its unit.

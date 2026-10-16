@@ -1,0 +1,8 @@
+# Review ownership. The maintainer reviews everything; the paths below are where
+# a second pair of eyes is most useful once contributors join.
+*                                   @1904jonathan
+/src/pardesline/catalog/data/       @1904jonathan
+/src/pardesline/data/manifests/     @1904jonathan
+/src/pardesline/ops/                @1904jonathan
+/skills/                            @1904jonathan
+/docs/                              @1904jonathan

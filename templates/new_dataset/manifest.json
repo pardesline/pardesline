@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "name": "my_dataset_name",
+  "title": "Human-readable title: what it is, how many cases, which modalities",
+  "description": "One paragraph: what the data is, how pardesline reads it (zip by HTTP Range, Hub listing scoped to a folder, TCIA API), what one sample costs to fetch, anything the user must know (test split has images only, gated repo).",
+  "source": {
+    "scheme": "archive",
+    "url": "https://example.org/files/dataset.zip",
+    "format": "zip",
+    "prefix": "dataset_root_folder_inside_the_archive",
+
+    "_other_schemes": {
+      "hf": {"scheme": "hf", "repo_id": "org/repo", "paths": ["sub/folder"], "max_files": 20000},
+      "tcia": {"scheme": "tcia", "collection": "Collection-Name", "modalities": ["CT"]},
+      "s3": {"scheme": "s3", "bucket": "bucket-name", "prefix": "ds000000/", "endpoint": "https://s3.amazonaws.com"},
+      "https": {"scheme": "https", "files": {"relative/name.mha": {"url": "https://...", "sha512": "..."}}},
+      "urllist": {"scheme": "urllist", "index_url": "https://.../index.txt", "strip_prefix": "https://host/"}
+    }
+  },
+  "license": {
+    "spdx": "CC-BY-4.0",
+    "commercial": true,
+    "redistribution": "allowed",
+    "requires_agreement": false,
+    "source_url": "https://example.org/dataset/license",
+    "note": "Exact wording as stated by the source, and where (README, dataset.json, collection page), checked YYYY-MM-DD."
+  },
+  "citation": "Author A., Author B. Title. Venue, year. DOI or arXiv id.",
+  "homepage": "https://example.org/dataset",
+  "pairing": "id",
+  "size_mb": 1234,
+  "tags": ["medical", "ct", "segmentation", "nifti"],
+  "roles": {
+    "ct": {
+      "type": "volume",
+      "modality": "CT",
+      "description": "CT volume (NIfTI, LPS mm from the header)",
+      "pattern": "dataset_root_folder_inside_the_archive/images{split}/{id}.nii.gz"
+    },
+    "mask": {
+      "type": "labels",
+      "description": "Label map",
+      "pattern": "dataset_root_folder_inside_the_archive/labelsTr/{id}.nii.gz",
+      "labels": {"1": "organ", "2": "tumor"}
+    },
+    "_raw_array_example": {
+      "type": "points",
+      "pattern": "velodyne/{frame}.bin",
+      "frame": "sensor",
+      "units": "m",
+      "layout": {"dtype": "float32", "shape": "(N,4)", "columns": ["x", "y", "z", "reflectance"]}
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "name": "my_model_name",
+  "title": "Human-readable title: architecture, what it segments or encodes, training data",
+  "task": "segmentation",
+  "_task_values": ["segmentation", "detection", "features", "registration", "reconstruction", "anomaly", "generation"],
+  "input": {
+    "type": "volume",
+    "modality": "CT",
+    "channels": 1,
+    "spacing_mm": [1.5, 1.5, 1.5],
+    "intensity": "Hounsfield units, clipped to [-1000, 1000] by the preprocessing",
+    "note": "what the model expects; the loader will resample and window to this"
+  },
+  "output": {
+    "type": "labels",
+    "labels": {"1": "spleen", "2": "kidney_right", "3": "kidney_left"},
+    "note": "a LabelMap on the input grid"
+  },
+  "source": {
+    "scheme": "hf",
+    "repo_id": "org/model-repo",
+    "files": ["model.pt", "config.json"],
+    "revision": "main",
+    "_other_schemes": {
+      "https": {"scheme": "https", "url": "https://.../weights.zip", "sha512": "..."},
+      "torch_hub": {"scheme": "torch_hub", "repo": "org/repo", "model": "name"}
+    }
+  },
+  "runtime": {
+    "framework": "torch",
+    "framework_version": ">=2.2",
+    "extra_packages": ["monai>=1.4"],
+    "gpu": "optional",
+    "memory_gb": 4,
+    "note": "measured on a 256^3 CT: 3.8 GB peak GPU memory; CPU inference 90 s"
+  },
+  "license": {
+    "spdx": "Apache-2.0",
+    "commercial": true,
+    "requires_agreement": false,
+    "source_url": "https://.../LICENSE",
+    "note": "Exact wording and where it is stated, checked YYYY-MM-DD."
+  },
+  "provenance": {
+    "paper": "Author A. et al. Title. Venue, year. DOI",
+    "repository": "https://github.com/org/repo",
+    "version": "v1.0 / commit abc123",
+    "trained_on": "which datasets, how many cases",
+    "reported_metrics": {"dice_spleen": 0.96, "source": "paper table 2"}
+  },
+  "validated_on": "the bundled dataset you ran it on with the model's own tooling, and the number you measured (Dice against the reference label)",
+  "tags": ["medical", "ct", "segmentation", "nnunet"]
+}

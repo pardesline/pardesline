@@ -151,6 +151,8 @@ ignore = ["RUF012"]
 # Benchmarks and docs generators carry long Markdown strings on purpose.
 "benchmarks/**/*.py" = ["E501"]
 "docs/_gen/**/*.py" = ["E501"]
+"docs/seo/*.py" = ["E501"]
+"templates/**/*.py" = ["E501"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["pardesline"]
