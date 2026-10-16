@@ -4,6 +4,7 @@
     python docs/seo/apply_github.py --metadata              # description, homepage, topics, discussions on
     python docs/seo/apply_github.py --labels                # create or update the labels
     python docs/seo/apply_github.py --issues                # create the tracking, good-first and help-wanted issues
+    python docs/seo/apply_github.py --protect               # branch protection on main (required checks, no force push)
     python docs/seo/apply_github.py --all
 
 The token is read from %USERPROFILE%/.pardesline-secrets/github_token.txt (a
@@ -158,6 +159,25 @@ def parse_issues() -> list[dict]:
     return issues
 
 
+def protect_main(tok: str) -> None:
+    """Branch protection on main: required status checks (strict), no force pushes, no deletions.
+    Pull requests are not required so the maintainer's direct pushes and release-please keep working."""
+    body = {
+        "required_status_checks": {
+            "strict": True,
+            "contexts": ["lint", "typecheck", "test-core (3.10)", "test-core (3.13)", "build"],
+        },
+        "enforce_admins": False,
+        "required_pull_request_reviews": None,
+        "restrictions": None,
+        "allow_force_pushes": False,
+        "allow_deletions": False,
+        "required_conversation_resolution": False,
+    }
+    status, out = call("PUT", f"{API}/branches/main/protection", body, tok)
+    print("branch protection:", status, out.get("message", "ok"))
+
+
 def create_issues(tok: str) -> None:
     status, existing = call("GET", f"{API}/issues?state=all&per_page=100", tok=tok)
     titles = {i["title"] for i in existing} if status == 200 else set()
@@ -183,6 +203,7 @@ def main() -> None:
     ap.add_argument("--metadata", action="store_true")
     ap.add_argument("--labels", action="store_true")
     ap.add_argument("--issues", action="store_true")
+    ap.add_argument("--protect", action="store_true", help="branch protection on main")
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--list", action="store_true", help="print the parsed issues without sending anything")
     args = ap.parse_args()
@@ -199,6 +220,8 @@ def main() -> None:
         labels(tok)
     if args.issues or args.all:
         create_issues(tok)
+    if args.protect or args.all:
+        protect_main(tok)
 
 
 if __name__ == "__main__":

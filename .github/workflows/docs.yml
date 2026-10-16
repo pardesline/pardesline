@@ -76,7 +76,9 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Deploy dev docs (push to main)
         if: github.event_name != 'release'
-        run: mike deploy --push --update-aliases dev
+        run: |
+          mike deploy --push --update-aliases dev latest
+          mike set-default --push latest
         env:
           DOCS_SOCIAL: "true"
       - name: Deploy versioned docs (release)
