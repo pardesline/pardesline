@@ -41,3 +41,5 @@ examples/**/slices_test/
 examples/**/scores/*_recon.png
 site/
 benchmarks/results/*.ply
+templates/new_pipeline/*.png
+templates/new_pipeline/result.json

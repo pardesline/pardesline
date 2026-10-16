@@ -46,14 +46,17 @@ def test_new_model_loader_stub_validates_the_template():
     assert "download from hf org/model-repo" in out.stdout
 
 
-@pytest.mark.parametrize(
-    "script", ["new_algorithm/my_method.py", "new_dataset/live_check.py", "new_pipeline/run.py"]
-)
+@pytest.mark.parametrize("script", ["new_algorithm/my_method.py", "new_dataset/live_check.py"])
 def test_template_scripts_have_a_help(script):
     out = subprocess.run([sys.executable, str(TEMPLATES / script), "--help"], capture_output=True, text=True)
-    # run.py has no argparse (running it would download): only the argparse scripts are asserted
-    if script != "new_pipeline/run.py":
-        assert out.returncode == 0 and "--" in out.stdout
+    assert out.returncode == 0 and "--" in out.stdout
+
+
+def test_pipeline_template_compiles():
+    # running it would download the bunny and write files into templates/: compile only
+    import py_compile
+
+    py_compile.compile(str(TEMPLATES / "new_pipeline" / "run.py"), doraise=True)
 
 
 def test_issue_list_parses():
