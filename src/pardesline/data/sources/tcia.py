@@ -35,6 +35,13 @@ def _safe(s: str) -> str:
 
 
 class TciaSource:
+    """A public collection of The Cancer Imaging Archive through the NBIA REST API.
+
+    ``getSeries`` lists the series (PatientID, Modality, SeriesInstanceUID, counts);
+    ``getImage`` returns one series as a zip of DICOM files, unpacked into a folder
+    that opens as one volume. Restricted collections answer 401 and are not handled.
+    """
+
     def __init__(
         self,
         name: str,

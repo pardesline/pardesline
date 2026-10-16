@@ -11,6 +11,8 @@ __all__ = ["Open3DSource"]
 
 
 class Open3DSource:
+    """Demo data shipped by ``open3d.data`` (bunny, armadillo, ICP fragments), downloaded by Open3D itself."""
+
     def __init__(self, dataset: str):
         self.dataset = dataset
         self._paths: dict[str, Path] | None = None

@@ -135,6 +135,11 @@ def extension_of(path: str | os.PathLike) -> str:
 
 
 def kind_of(path: str | os.PathLike) -> str:
+    """The object kind a path maps to by extension.
+
+    One of ``pointcloud``, ``mesh``, ``volume``, ``labels``, ``array``...; ``file`` when unknown.
+    """
+
     return KIND_BY_EXT.get(extension_of(path), "file")
 
 
@@ -801,4 +806,9 @@ def wrap(path: str | os.PathLike, *, kind: str | None = None, **kwargs: Any) -> 
 
 
 def load_object(path: str | os.PathLike) -> Object:
+    """Open a file as the right :class:`Object` subclass, reading its sidecar when present.
+
+    Same as ``pl.load`` for a file.
+    """
+
     return wrap(path)

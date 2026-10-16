@@ -35,6 +35,11 @@ def _unescape(s: str) -> str:
 
 
 class S3Source:
+    """Objects of a public S3 bucket listed with ``ListObjectsV2`` (anonymous) and fetched by key.
+
+    Used for OpenNeuro (``s3://openneuro.org/dsXXXXXX``); no credentials, no SDK.
+    """
+
     def __init__(
         self,
         name: str,

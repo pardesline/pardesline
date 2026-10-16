@@ -1,0 +1,90 @@
+name: Docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - "src/pardesline/**"
+      - "skills/**"
+      - "examples/**"
+      - ".github/workflows/docs.yml"
+  pull_request:
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - "src/pardesline/**"
+      - "skills/**"
+      - ".github/workflows/docs.yml"
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: System libraries for the social cards
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libcairo2-dev libfreetype6-dev libffi-dev libjpeg-dev libpng-dev libz-dev pngquant
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[hf,mcp]" "mkdocs-material[imaging]>=9.5" "mkdocstrings[python]>=0.26" mkdocs-gen-files mike
+      - name: Build (strict)
+        run: mkdocs build --strict
+        env:
+          DOCS_SOCIAL: "true"
+      - name: Check links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --no-progress --accept 200,206,429 --exclude-path site/assets --exclude 'localhost' --exclude 'pardesline.com' --exclude 'linkedin.com' --exclude 'pypistats' --max-concurrency 8 'site/**/*.html'
+          fail: false
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: site/
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libcairo2-dev libfreetype6-dev libffi-dev libjpeg-dev libpng-dev libz-dev pngquant
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[hf,mcp]" "mkdocs-material[imaging]>=9.5" "mkdocstrings[python]>=0.26" mkdocs-gen-files mike
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Deploy dev docs (push to main)
+        if: github.event_name != 'release'
+        run: mike deploy --push --update-aliases dev
+        env:
+          DOCS_SOCIAL: "true"
+      - name: Deploy versioned docs (release)
+        if: github.event_name == 'release'
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          MINOR="${VERSION%.*}"
+          mike deploy --push --update-aliases "$MINOR" latest
+          mike set-default --push latest
+        env:
+          DOCS_SOCIAL: "true"

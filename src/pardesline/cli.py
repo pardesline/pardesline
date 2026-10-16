@@ -134,6 +134,18 @@ def _cmd_run(args: argparse.Namespace, extra: list[str]) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Entry point of the ``pardesline`` command line.
+
+    Dispatches to ``list``, ``describe``, ``datasets``, ``fetch``, ``export``, ``run``,
+    ``mcp`` and ``version``; the cloud commands are forwarded to the optional client.
+    Returns the process exit code (0 on success).
+
+    Examples:
+        >>> from pardesline.cli import main
+        >>> main(["version"])  # doctest: +SKIP
+        0
+    """
+
     argv = list(sys.argv[1:] if argv is None else argv)
     if argv and argv[0] in CLOUD_COMMANDS:
         from .cloud.cli import main as cloud_main

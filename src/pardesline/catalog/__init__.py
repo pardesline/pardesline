@@ -44,6 +44,8 @@ class Parameter:
     max: float | None = None
     options: tuple[str, ...] = ()
     advanced: bool = False
+    rationale: str = ""  # why this default, and when to override it
+    validated_on: str = ""  # the bundled data or test the method ran on with this default
 
     def coerce(self, value: Any, *, where: str = "") -> str:
         """Validate ``value`` against this parameter and return the string the
@@ -127,9 +129,9 @@ class Parameter:
             rng = f" [{self.min}..{self.max}]"
         opts = f" {{{', '.join(map(str, self.options))}}}" if self.options else ""
         adv = "  (advanced)" if self.advanced else ""
-        return (
-            f"{self.name}: {self.type} = {self.default!r}{rng}{opts}{adv}\n      {self.description}".rstrip()
-        )
+        why = f"\n      why: {self.rationale}" if self.rationale else ""
+        head = f"{self.name}: {self.type} = {self.default!r}{rng}{opts}{adv}"
+        return f"{head}\n      {self.description}{why}".rstrip()
 
 
 @dataclass(frozen=True)
@@ -143,6 +145,7 @@ class Method:
     output_extension: str
     dual_input: bool = False
     parameters: tuple[Parameter, ...] = ()
+    validated_on: str = ""  # the bundled data or test this method's defaults were checked on
 
     @property
     def qualname(self) -> str:
@@ -199,6 +202,8 @@ class Method:
         if self.dual_input:
             head += "  (two inputs: input=fixed, moving=moving)"
         head += f"\n  output: {self.output_extension}"
+        if self.validated_on:
+            head += f"\n  defaults validated on: {self.validated_on}"
         if not self.parameters:
             return head + "\n  (no tunable parameters)"
         return head + "\n  parameters:\n" + "\n".join(f"    {p.describe()}" for p in self.parameters)
@@ -334,7 +339,7 @@ class Catalog:
 # ---- loading -------------------------------------------------------------
 
 
-def _parameter(raw: dict[str, Any]) -> Parameter:
+def _parameter(raw: dict[str, Any], why: dict[str, str] | None = None, validated_on: str = "") -> Parameter:
     typ = raw.get("type", "string")
     if typ not in PARAM_TYPES:
         raise CatalogError(f"Parameter {raw.get('name')!r} has unsupported type {typ!r}.")
@@ -347,13 +352,16 @@ def _parameter(raw: dict[str, Any]) -> Parameter:
         max=raw.get("max"),
         options=tuple(str(o) for o in raw.get("options", []) or []),
         advanced=bool(raw.get("advanced", False)),
+        rationale=(why or {}).get(raw["name"], ""),
+        validated_on=validated_on,
     )
 
 
-def _module(raw: dict[str, Any]) -> Module:
+def _module(raw: dict[str, Any], defaults: dict[str, Any] | None = None) -> Module:
     module_dual = bool(raw.get("dual_input", False))
     methods = {}
     for m in raw["methods"]:
+        why = (defaults or {}).get(f"{raw['id']}.{m['id']}", {})
         methods[m["id"]] = Method(
             id=m["id"],
             name=m.get("name", m["id"]),
@@ -361,7 +369,10 @@ def _module(raw: dict[str, Any]) -> Module:
             script=m["script"],
             output_extension=m.get("output_extension", ".ply"),
             dual_input=bool(m.get("dual_input", module_dual)),
-            parameters=tuple(_parameter(p) for p in m.get("parameters", [])),
+            parameters=tuple(
+                _parameter(p, why.get("params"), why.get("validated_on", "")) for p in m.get("parameters", [])
+            ),
+            validated_on=why.get("validated_on", ""),
         )
     return Module(
         id=raw["id"],
@@ -382,10 +393,12 @@ def _module(raw: dict[str, Any]) -> Module:
 def load_catalog() -> Catalog:
     """Load the bundled catalog once per process."""
     data_dir = resources.files("pardesline.catalog") / "data"
+    defaults_file = data_dir / "_defaults.json"
+    defaults = json.loads(defaults_file.read_text(encoding="utf-8")) if defaults_file.is_file() else {}
     modules = []
     for entry in sorted(data_dir.iterdir(), key=lambda e: e.name):
-        if entry.name.endswith(".json"):
-            modules.append(_module(json.loads(entry.read_text(encoding="utf-8"))))
+        if entry.name.endswith(".json") and not entry.name.startswith("_"):
+            modules.append(_module(json.loads(entry.read_text(encoding="utf-8")), defaults))
     if not modules:
         raise CatalogError("The bundled catalog is empty - the package is broken, please reinstall.")
     return Catalog(modules)

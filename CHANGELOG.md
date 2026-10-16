@@ -10,6 +10,11 @@ All notable changes to this project are documented here. The format follows
 - `examples/`: twelve runnable examples, one folder each, titled "<algorithm or model> on <dataset>", with the images they produce.
 - Remote archives up to 64 MB (`PARDESLINE_WHOLE_ARCHIVE_MB`) are downloaded once and indexed locally instead of one Range request per member: the first `pl.load("msd_task04_hippocampus")` goes from 194 s to a few seconds.
 - `docs/_gen/datasets_table.py` generates the README dataset table from the manifests.
+- Documentation site (MkDocs Material, `mkdocs.yml`, `.github/workflows/docs.yml` with `mike` versioning): one page per dataset (43) and per algorithm family (19) generated from the manifests and the catalog, model pages, the twenty skills as guides, 18 how-to pages titled as the questions people search for, "Why our defaults work", comparison, FAQ, API reference from the docstrings, `llms.txt`.
+- Every catalog parameter now carries `rationale` (why the default, when to change it) and every method `validated_on` (`src/pardesline/catalog/data/_defaults.json`); `pl.describe()` prints them; `tests/test_catalog.py` enforces full coverage.
+- `benchmarks/`: package defaults vs upstream defaults on the Stanford bunny (registration, Poisson reconstruction), tables generated into `benchmarks/results.md`.
+- `tests/test_docs_snippets.py` executes the code blocks of the README, the tutorial and the how-to pages (network marker).
+- Docstrings on every public function and class (31 added).
 
 ### Changed
 - `[local]` accepts Open3D 0.20, which ships Python 3.13 wheels: `pip install "pardesline[all]"` now works on 3.10-3.13 (the native test suite passes on 3.13 with 0.20).

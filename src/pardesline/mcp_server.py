@@ -102,6 +102,11 @@ def _manifest_summary(m) -> dict[str, Any]:
 
 
 def impl_list_datasets(tag: str | None = None, scheme: str | None = None, medical_only: bool = False) -> dict:
+    """The bundled manifests as summaries.
+
+    Filtered by ``tag``, source ``scheme`` or ``medical_only``.
+    """
+
     import pardesline as pl
 
     rows = pl.datasets(tag=tag, scheme=scheme)
@@ -121,6 +126,13 @@ def _open(ref: str, **answers: Any):
 
 
 def impl_describe_dataset(ref: str, count_samples: bool = False) -> dict:
+    """Roles, frames, units, labels, licence and citation of a dataset reference.
+
+    ``ref`` is a bundled name, an ``hf://`` / ``tcia://`` / ``s3://`` URI, a manifest
+    path or a folder. ``count_samples`` lists the source to count samples, which may
+    take a while on large archives.
+    """
+
     import pardesline as pl
 
     for m in pl.datasets():
@@ -160,6 +172,11 @@ def impl_describe_dataset(ref: str, count_samples: bool = False) -> dict:
 def impl_list_samples(
     ref: str, limit: int = 50, offset: int = 0, filters: dict[str, str] | None = None
 ) -> dict:
+    """Sample ids and fields of a dataset, paged with ``limit`` / ``offset``.
+
+    ``filters`` restricts to samples whose fields match.
+    """
+
     ds = _open(ref)
     if filters:
         ds = ds.filter(**{k: str(v) for k, v in filters.items()})
@@ -199,6 +216,13 @@ def _object_record(obj) -> dict[str, Any]:
 
 
 def impl_load_sample(ref: str, sample: str | int, role: str, standard: bool = True) -> dict:
+    """Fetch one role of one sample and describe the resulting object.
+
+    Returns the path, kind, frame, units, labels, licence, provenance, the catalog
+    methods that accept the file and, when ``standard`` is true, ``standard_path``:
+    a PLY / MetaImage rendition for raw arrays and DICOM folders.
+    """
+
     ds = _open(ref)
     s = (
         ds[int(sample)]
@@ -215,6 +239,8 @@ def impl_load_sample(ref: str, sample: str | int, role: str, standard: bool = Tr
 
 
 def impl_scan_dataset(ref: str) -> dict:
+    """Draft a manifest for a folder or a Hub repository and return its open questions."""
+
     import pardesline as pl
 
     m = pl.scan(ref)
@@ -237,6 +263,8 @@ def impl_scan_dataset(ref: str) -> dict:
 
 
 def impl_confirm_dataset(ref: str, answers: dict[str, Any] | None = None, save_to: str | None = None) -> dict:
+    """Answer a draft's questions (``license``, ``units``, ``labels``...) and save the manifest."""
+
     ds = _open(ref, **(answers or {}))
     saved = None
     if save_to:
@@ -256,6 +284,11 @@ def impl_confirm_dataset(ref: str, answers: dict[str, Any] | None = None, save_t
 
 
 def impl_export_dataset(ref: str, folder: str, take: int | None = None, overwrite: bool = False) -> dict:
+    """Write a dataset (or its first ``take`` samples) as standard files.
+
+    PLY / MetaImage with sidecars and a manifest for the folder.
+    """
+
     ds = _open(ref)
     if take:
         ds = ds.take(take)
@@ -269,6 +302,8 @@ def impl_export_dataset(ref: str, folder: str, take: int | None = None, overwrit
 
 
 def impl_list_methods(extension: str | None = None, category: str | None = None) -> dict:
+    """The catalog methods, optionally those accepting a file ``extension`` or in a ``category``."""
+
     import pardesline as pl
 
     cat = pl.catalog()
@@ -293,6 +328,11 @@ def impl_list_methods(extension: str | None = None, category: str | None = None)
 
 
 def impl_describe_method(method: str) -> dict:
+    """One method with every parameter.
+
+    Type, default, range, description, rationale and validation regime.
+    """
+
     import pardesline as pl
 
     return {"method": method, "text": pl.catalog().describe(method)}
@@ -306,6 +346,11 @@ def impl_run_method(
     output_path: str | None = None,
     timeout: float = 600,
 ) -> dict:
+    """Run a catalog method on a file with validated parameters.
+
+    Returns the output path and the recorded provenance step.
+    """
+
     import pardesline as pl
 
     res = pl.run(method, input_path, output_path, moving=moving_path, params=params or {}, timeout=timeout)
@@ -344,6 +389,8 @@ def _skill_frontmatter(text: str) -> dict[str, str]:
 
 
 def impl_list_skills() -> dict:
+    """The expert skills shipped with the package: name, description and files."""
+
     root = skills_dir()
     skills = []
     for skill in sorted(root.glob("*/SKILL.md")):
@@ -362,6 +409,11 @@ def impl_list_skills() -> dict:
 
 
 def impl_get_skill(name: str, file: str | None = None) -> dict:
+    """The text of a skill's ``SKILL.md`` or of one of its files.
+
+    Paths outside the skill folder are refused.
+    """
+
     root = skills_dir()
     folder = (root / name).resolve()
     if not folder.is_dir() or root.resolve() not in folder.parents:
@@ -376,6 +428,11 @@ def impl_get_skill(name: str, file: str | None = None) -> dict:
 
 
 def impl_describe_object(path: str, layout: dict[str, Any] | None = None, kind: str | None = None) -> dict:
+    """Kind, frame, units, labels, sidecar and accepted methods of any file.
+
+    Raw arrays (``.npy``, ``.bin``) need a ``layout``.
+    """
+
     import pardesline as pl
 
     obj = pl.load(path, layout=layout, kind=kind)
@@ -387,6 +444,11 @@ def impl_describe_object(path: str, layout: dict[str, Any] | None = None, kind: 
 def impl_to_mesh(
     path: str, label: int | None = None, isovalue: float | None = None, output_path: str | None = None
 ) -> dict:
+    """A label map or volume to a surface.
+
+    ``label`` gives the exact boundary of one label, ``isovalue`` a level set.
+    """
+
     import pardesline as pl
 
     obj = pl.load(path)
@@ -588,6 +650,11 @@ def build_server(name: str = "pardesline"):
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Run the MCP server (``pardesline mcp``).
+
+    stdio by default; ``--transport streamable-http --port N`` serves HTTP.
+    """
+
     import argparse
 
     p = argparse.ArgumentParser(prog="pardesline mcp", description="Run the pardesline MCP server.")

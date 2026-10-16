@@ -39,3 +39,5 @@ examples/**/hippo_points/
 examples/**/slices_normal/
 examples/**/slices_test/
 examples/**/scores/*_recon.png
+site/
+benchmarks/results/*.ply

@@ -1,0 +1,255 @@
+site_name: pardesline
+site_description: 3D computer vision and medical imaging in Python — datasets in one line, algorithms with defaults that work on real scans, models, MCP for AI agents.
+site_url: https://pardesline.github.io/pardesline/
+repo_url: https://github.com/pardesline/pardesline
+repo_name: pardesline/pardesline
+edit_uri: edit/main/docs/
+copyright: Apache-2.0 · PardesLine
+docs_dir: docs
+site_dir: site
+strict: true
+
+exclude_docs: |
+  _gen/
+  seo/
+  index.html
+
+theme:
+  name: material
+  logo: assets/icon.svg
+  favicon: assets/icon.svg
+  language: en
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.action.edit
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep orange
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep orange
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
+
+extra:
+  version:
+    provider: mike
+    default: latest
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/pardesline/pardesline
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/pardesline/
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/company/pardesline
+
+plugins:
+  - search
+  - gen-files:
+      scripts:
+        - docs/_gen/mkdocs_hook.py
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            show_source: false
+            show_root_heading: true
+            show_symbol_type_heading: true
+            members_order: source
+            filters: ["!^_"]
+            merge_init_into_class: true
+            separate_signature: true
+            show_signature_annotations: true
+  - social:
+      enabled: !ENV [DOCS_SOCIAL, false]
+      cards_layout_options:
+        background_color: "#151a24"
+        color: "#e8ecf2"
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path: [".", "docs"]
+      check_paths: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+extra_javascript:
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - Install: getting-started/install.md
+      - 5-minute tutorial: getting-started/tutorial.md
+      - Concepts: getting-started/concepts.md
+      - Running modes: running-modes.md
+  - Datasets:
+      - datasets/index.md
+      - Medical:
+          - datasets/msd_task01_braintumour.md
+          - datasets/msd_task02_heart.md
+          - datasets/msd_task03_liver.md
+          - datasets/msd_task04_hippocampus.md
+          - datasets/msd_task05_prostate.md
+          - datasets/msd_task06_lung.md
+          - datasets/msd_task07_pancreas.md
+          - datasets/msd_task08_hepaticvessel.md
+          - datasets/msd_task09_spleen.md
+          - datasets/msd_task10_colon.md
+          - datasets/amos22.md
+          - datasets/totalsegmentator_ct.md
+          - datasets/totalsegmentator_mri.md
+          - datasets/luna16.md
+          - datasets/ixi_brain_mri.md
+          - datasets/verse19_spine.md
+          - datasets/spider_lumbar_mri.md
+          - datasets/chaos_abdomen.md
+          - datasets/tcia_pancreas_ct.md
+          - datasets/tcia_lidc_idri.md
+          - datasets/tcia_nsclc_radiomics_dicom.md
+          - datasets/tcia_prostate_3t.md
+          - datasets/openneuro_ds000228.md
+          - datasets/hf_kits23.md
+          - datasets/hf_abdomenatlas_mini.md
+          - datasets/hf_ct_rate_valid.md
+          - datasets/hf_biomedsegfm_3d_val.md
+          - datasets/hf_openmind.md
+          - datasets/hf_nsclc_radiomics.md
+          - datasets/medshapenet.md
+          - datasets/c3vd_endoscopy_splats.md
+          - datasets/rire_brain.md
+          - datasets/popi_lung_4dct.md
+          - datasets/liver_tumor_patient01.md
+          - datasets/visible_human_head_mri.md
+      - General 3D:
+          - datasets/open3d_bunny.md
+          - datasets/open3d_armadillo.md
+          - datasets/open3d_icp_demo.md
+          - datasets/kitti_raw_2011_09_26_drive_0001.md
+          - datasets/hf_kitti360_gs_subset.md
+          - datasets/hf_uniocc_carla_mini.md
+          - datasets/hf_objaverse_glb_shard.md
+          - datasets/hf_3d_arena.md
+      - Dataset reference (tables): datasets.md
+  - Algorithms & Models:
+      - algorithms/index.md
+      - Why our defaults work: algorithms/why-our-defaults-work.md
+      - Classical algorithms:
+          - algorithms/point_cloud_processing.md
+          - algorithms/mesh_processing.md
+          - algorithms/voxel_to_mesh.md
+          - algorithms/sdf.md
+          - algorithms/point_cloud_reconstruction.md
+          - algorithms/registration.md
+          - algorithms/deformable_registration.md
+          - algorithms/point_cloud_segmentation.md
+          - algorithms/stereo_3d_reconstruction.md
+          - algorithms/lidar_scene_detection.md
+          - algorithms/lidar_camera_fusion.md
+          - algorithms/features_extraction.md
+          - algorithms/collision_detection.md
+          - algorithms/pyvista_mesh_processing.md
+          - algorithms/pyvista_pointcloud_processing.md
+          - algorithms/pyvista_volume_processing.md
+          - algorithms/pyvista_analysis.md
+          - algorithms/simpleitk_registration.md
+          - algorithms/simpleitk_segmentation.md
+      - Models:
+          - models/index.md
+          - models/dinov3.md
+          - models/jepa.md
+          - models/pointnet.md
+          - models/vae-anomaly.md
+          - models/medical-segmentation.md
+          - models/evaluation-metrics.md
+      - Benchmarks: benchmarks.md
+      - Catalog reference (tables): catalog.md
+  - How-to:
+      - how-to/index.md
+      - Datasets:
+          - how-to/download-a-medical-imaging-dataset-in-python.md
+          - how-to/load-a-hugging-face-3d-dataset-in-python.md
+          - how-to/download-a-tcia-collection-in-python.md
+          - how-to/standardize-a-folder-of-medical-images-in-python.md
+          - how-to/convert-a-dicom-series-to-nifti-in-python.md
+          - how-to/load-raw-npy-and-bin-point-clouds-with-a-layout.md
+      - Algorithms:
+          - how-to/register-two-point-clouds-with-icp-in-python.md
+          - how-to/fix-icp-that-does-not-converge.md
+          - how-to/fix-ransac-global-registration-that-fails.md
+          - how-to/register-ct-and-mri-of-the-same-patient-in-python.md
+          - how-to/turn-a-segmentation-mask-into-a-mesh-in-python.md
+          - how-to/segment-organs-in-a-ct-scan-in-python.md
+          - how-to/reconstruct-a-surface-from-a-point-cloud-in-python.md
+          - how-to/align-two-scans-in-python.md
+          - how-to/label-a-scan-from-an-atlas-in-python.md
+          - how-to/convert-a-point-cloud-to-gaussian-splats-in-python.md
+          - how-to/run-a-pretrained-3d-segmentation-model-on-your-ct-scans.md
+          - how-to/extract-dinov3-features-from-medical-images-in-python.md
+  - Examples: examples.md
+  - Guides:
+      - guides/index.md
+      - guides/using-pardesline.md
+      - guides/object-model.md
+      - guides/datasets-and-manifests.md
+      - guides/scanning-private-folders.md
+      - guides/medical-volumes.md
+      - guides/catalog-and-run.md
+      - guides/point-cloud-registration.md
+      - guides/multimodal-rigid-registration.md
+      - guides/atlas-label-transfer.md
+      - guides/3d-representations.md
+      - guides/gaussian-splatting.md
+      - guides/mcp-server.md
+      - guides/contributing-algorithms.md
+      - Showcase: showcase/README.md
+  - Agents:
+      - MCP server: agents/mcp.md
+      - MCP reference: mcp.md
+  - API reference:
+      - api/index.md
+      - api/data.md
+      - api/object.md
+      - api/catalog.md
+      - api/runner.md
+      - api/mcp_server.md
+  - Comparison: comparison.md
+  - FAQ: faq.md
+  - Changelog: changelog.md
+  - Contributing: contributing.md

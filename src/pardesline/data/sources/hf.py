@@ -40,6 +40,13 @@ def _status(exc: Exception) -> int | None:
 
 
 class HfSource:
+    """Files of a Hugging Face Hub repository, listed per ``paths`` and fetched with ``huggingface_hub``.
+
+    The tree listing is cached on disk per commit sha; downloads go through the
+    Hub cache (resumable, token-aware). Gated repositories need the user's own
+    token after accepting the terms.
+    """
+
     def __init__(
         self,
         repo_id: str,

@@ -45,6 +45,8 @@ def output_dir() -> Path:
 
 
 def set_output_dir(path: str | os.PathLike) -> Path:
+    """Set where algorithm outputs go when no ``output=`` is given; returns the resolved path."""
+
     global _output_dir
     _output_dir = Path(path).expanduser().resolve()
     _output_dir.mkdir(parents=True, exist_ok=True)
@@ -101,6 +103,14 @@ def build_command(
     moving_path: Path | None = None,
     python: str | None = None,
 ) -> list[str]:
+    """The command line that runs a method's script.
+
+    Interpreter, ``python -m`` module, ``--input``, ``--output``, ``--moving`` and the
+    validated parameters.
+
+    Exposed so callers can log or dry-run the exact invocation.
+    """
+
     cmd = [
         python or sys.executable,
         "-m",

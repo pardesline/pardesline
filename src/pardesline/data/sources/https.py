@@ -28,6 +28,8 @@ _CHUNK = 1 << 20
 
 
 def sha512_of(path: Path) -> str:
+    """SHA-512 hex digest of a file, read in 1 MB chunks."""
+
     h = hashlib.sha512()
     with path.open("rb") as fp:
         for block in iter(lambda: fp.read(_CHUNK), b""):
@@ -68,6 +70,12 @@ def _safe_extract(archive: Path, into: Path) -> None:
 
 
 class HttpsSource:
+    """Explicitly listed files downloaded over HTTPS and verified by SHA-512 or MD5.
+
+    A file may be an archive whose members land in its folder (``archive: true``);
+    mirrors are tried in order when the first URL fails.
+    """
+
     def __init__(
         self,
         name: str,

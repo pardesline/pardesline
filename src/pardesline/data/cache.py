@@ -14,6 +14,17 @@ _override: Path | None = None
 
 
 def cache_dir() -> Path:
+    """The root folder where datasets are cached.
+
+    ``PARDESLINE_CACHE`` or :func:`set_cache_dir` override the default
+    ``~/.cache/pardesline``. The folder is created on first use.
+
+    Examples:
+        >>> import pardesline as pl
+        >>> pl.cache_dir().name
+        'pardesline'
+    """
+
     if _override is not None:
         root = _override
     elif os.environ.get("PARDESLINE_CACHE"):
@@ -32,6 +43,8 @@ def set_cache_dir(path: str | os.PathLike | None) -> Path:
 
 
 def dataset_cache_dir(name: str) -> Path:
+    """The cache folder of one dataset (``<cache_dir>/datasets/<name>``), created if needed."""
+
     d = cache_dir() / "datasets" / name
     d.mkdir(parents=True, exist_ok=True)
     return d

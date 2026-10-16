@@ -132,6 +132,11 @@ exclude = [
     "src/pardesline/medical/_service.py",
     "src/pardesline/medical/pyvista_adapter.py",
     "tests/cloud",
+    # Generated documentation pages (docs/_gen/*.py rewrites them at build time).
+    "docs/datasets",
+    "docs/algorithms",
+    "docs/models",
+    "docs/guides",
 ]
 
 [tool.ruff.lint]
@@ -143,6 +148,9 @@ ignore = ["RUF012"]
 "skills/**/*.py" = ["E501", "B905", "B007", "SIM115", "RUF005", "RUF007", "RUF046", "RUF059", "F401", "F841", "E741", "UP"]
 # Examples are read top to bottom like a notebook: long usage lines and late imports are deliberate.
 "examples/**/*.py" = ["E501", "E402"]
+# Benchmarks and docs generators carry long Markdown strings on purpose.
+"benchmarks/**/*.py" = ["E501"]
+"docs/_gen/**/*.py" = ["E501"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["pardesline"]

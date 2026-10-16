@@ -39,6 +39,23 @@ def fetch_folder(source: Source, prefix: str) -> Path:
 
 
 def open_source(spec: SourceSpec, manifest: Manifest, *, manifest_dir: Path | None = None) -> Source:
+    """Instantiate the source that a manifest's ``source`` block describes.
+
+    Args:
+        spec: the ``SourceSpec`` (scheme ``local``, ``https``, ``hf``, ``open3d``,
+            ``archive``, ``s3``, ``tcia`` or ``urllist``).
+        manifest: the manifest, used for the dataset name and explicit samples.
+        manifest_dir: folder the manifest was loaded from, for relative local roots.
+
+    Returns:
+        An object with ``list()`` and ``fetch(relpath)`` (and ``fetch_folder`` for
+        DICOM series), caching under the dataset's cache folder.
+
+    Raises:
+        ManifestError: when the scheme is unknown or its required fields are missing.
+        MissingDependency: when the scheme needs an extra (``huggingface_hub``, Open3D).
+    """
+
     if spec.scheme == "local":
         from .local import LocalSource
 

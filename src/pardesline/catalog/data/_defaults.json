@@ -1,0 +1,736 @@
+{
+  "_about": "Why each default is what it is, and on which data it was checked. Keyed by module.method; `validated_on` names the bundled data or the test that exercised the method; `params` holds one sentence per parameter. Read by the catalog loader into Parameter.rationale / Parameter.validated_on; printed by pl.describe(); rendered on the docs pages. Keep every parameter covered: tests/test_catalog.py fails otherwise.",
+  "point_cloud_processing.voxel_downsample": {
+    "validated_on": "Stanford bunny (0.15 m, examples/poisson_reconstruction_bunny), KITTI sweeps (metres, examples/kitti_lidar_ground_and_objects); generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "voxel_size": "0.02 in file units: on a metre-scale object or room it keeps one point per 2 cm, enough for registration features and clustering; set it to 2-5x the point spacing of your scanner (0.5 mm for CBCT, 0.1 m for outdoor LiDAR), because the value is absolute, not relative to the object."
+    }
+  },
+  "point_cloud_processing.statistical_outlier_removal": {
+    "validated_on": "Stanford bunny with 0.5 % Gaussian noise (examples/poisson_reconstruction_bunny, examples/icp_registration_bunny); generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "nb_neighbors": "20 neighbours give a stable mean distance per point on scans of 10k-1M points; fewer makes the estimate noisy, more blurs the boundary between surface and stray points.",
+      "std_ratio": "2.0 removes points whose mean neighbour distance is beyond two standard deviations: on scanner noise this drops the flying pixels and keeps thin structures; lower to 1.0 on very noisy depth-camera data, raise to 3.0 on clean CAD-derived clouds.",
+      "print_progress": "Off: the progress bar writes to the terminal and is useless in a pipeline or an agent run."
+    }
+  },
+  "point_cloud_processing.radius_outlier_removal": {
+    "validated_on": "generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "radius": "0.05 in file units: a point with fewer than min_neighbors within 5 cm is isolated on a metre-scale scan; scale with the point spacing (about 10x the spacing).",
+      "min_neighbors": "5 is low enough to keep edges and thin parts, where neighbourhoods are naturally sparse, while isolated speckle has 0-2 neighbours.",
+      "print_progress": "Off: terminal output only."
+    }
+  },
+  "mesh_processing.subdivision": {
+    "validated_on": "generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "iterations": "1 iteration quadruples the triangle count; two or more are rarely needed before smoothing and make files large quickly."
+    }
+  },
+  "mesh_processing.simplification": {
+    "validated_on": "Stanford bunny (examples/hippocampus_mask_to_mesh uses the PyVista decimation instead); generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "target_triangles": "5 000 triangles is the size at which an organ or part surface still looks right on screen and loads instantly in a viewer; raise it for metrology.",
+      "maximum_error": "Unbounded (1e30) matches Open3D's behaviour: the decimation stops at the triangle budget, not at an error threshold, so the result is predictable in size.",
+      "boundary_weight": "1.0 treats boundary edges like interior ones; raise it on open meshes (scans with holes) so the boundary does not shrink."
+    }
+  },
+  "mesh_processing.mesh_to_pcd_uniform": {
+    "validated_on": "Stanford bunny (examples/points_to_gaussians_bunny); generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "num_points": "5 000 points keep registration and clustering fast while covering a surface; the examples use 20 000-50 000 for visual density.",
+      "use_triangle_normal": "Off: interpolated vertex normals are smoother on organic surfaces; turn on for CAD meshes with flat faces.",
+      "seed": "-1 (non-deterministic) is Open3D's default; set a seed when a result must be reproducible, as the examples do."
+    }
+  },
+  "mesh_processing.mesh_to_pcd_poisson_disk": {
+    "validated_on": "Stanford bunny (examples/poisson_reconstruction_bunny, examples/icp_registration_bunny); generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "num_points": "5 000 is the approximate count after elimination: Poisson-disk sampling gives evenly spaced points, which is what registration features and PointNet training want.",
+      "init_factor": "5x oversampling before elimination is Open3D's recommendation: enough candidates for an even blue-noise distribution without a long elimination pass.",
+      "use_triangle_normal": "Off: interpolated normals; on for flat-faced CAD meshes.",
+      "seed": "-1 is non-deterministic; the examples pass seed=1 for reproducible figures."
+    }
+  },
+  "voxel_to_mesh.voxelization": {
+    "validated_on": "generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "voxel_size": "0.01 in file units gives a 100-voxel grid across a unit-sized object: coarse enough to run in a second, fine enough to see shape; the range (0.002-0.05) assumes objects around a metre, so scale it for millimetre data."
+    }
+  },
+  "voxel_to_mesh.binary_erosion": {
+    "validated_on": "generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "voxel_size": "Same grid as voxelization so the two can be compared on the same object.",
+      "erosion_iterations": "1 iteration removes one voxel layer: the thinnest shell, which is what you want to strip surface noise without eating thin parts.",
+      "erosion_connectivity": "1 (faces only) is the most conservative structuring element: each iteration removes the least material.",
+      "iso_level": "0.5 is the half-occupancy surface of a binary grid: the boundary between inside and outside voxels.",
+      "padding_voxels": "5 voxels of margin keep marching cubes from clipping the surface at the grid border."
+    }
+  },
+  "sdf.compute_sdf": {
+    "validated_on": "generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "voxel_size": "0.01 in file units for a 100-voxel grid on a unit object; the SDF cost grows with the cube of the resolution.",
+      "padding": "5 voxels of margin so the zero level set is closed inside the grid.",
+      "level": "0.0 is the surface itself (zero signed distance); offset it to inflate or shrink the mesh.",
+      "mc_step_size": "1 samples every voxel; a larger step is a quick coarse preview.",
+      "mc_method": "Lewiner marching cubes resolves the ambiguous cases that the original Lorensen tables get wrong on thin structures.",
+      "mc_gradient_direction": "descent orients normals so that the inside is negative distance, which is the convention of the SDF grid.",
+      "mc_allow_degenerate": "On, matching scikit-image: degenerate triangles are removed later by the mesh cleaning step rather than by rejecting the surface."
+    }
+  },
+  "sdf.occupancy_reconstruction": {
+    "validated_on": "generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "voxel_size": "Same grid as compute_sdf for comparable results.",
+      "padding": "5 voxels of margin around the bounding box.",
+      "level": "0.5 is the half-occupancy boundary of a binary occupancy grid.",
+      "mc_step_size": "1 samples every voxel.",
+      "mc_method": "Lewiner resolves ambiguous cube cases.",
+      "mc_gradient_direction": "descent keeps normals pointing outward for occupancy grids.",
+      "mc_allow_degenerate": "On, matching scikit-image."
+    }
+  },
+  "sdf.sdf_voxel_visualization": {
+    "validated_on": "generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "resolution": "32 voxels per axis (32 768 cells) renders in a second and still shows the shape of the field; it is a visualisation, not the SDF you compute with.",
+      "min_clamp": "-0.1 clamps the interior so colours stay readable near the surface instead of saturating at the object centre.",
+      "max_clamp": "0.1 clamps the exterior for the same reason.",
+      "padding_factor": "15 % of the extent as margin shows the field decaying outside the object.",
+      "colormap": "coolwarm is diverging around zero, which is what a signed field needs: blue inside, red outside."
+    }
+  },
+  "point_cloud_reconstruction.poisson": {
+    "validated_on": "Stanford bunny sampled to 20 000 points (examples/poisson_reconstruction_bunny); ultrasound and CBCT reconstructions in the atlas-label-transfer and pointnet-segmentation skills; generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "depth": "9 gives 512 cells across the bounding cube: on 20k-200k point scans it recovers organ- and part-level detail without fitting the noise; 8 is Open3D's default and blurs small features, 10-11 need hundreds of thousands of points.",
+      "scale": "1.1 is the Kazhdan reference setting: the reconstruction cube is 10 % larger than the samples' bounding cube so the surface can close outside the data.",
+      "width": "0 means depth drives the resolution; set a width in file units when you know the target cell size (e.g. 1 mm).",
+      "linear_fit": "Off: the default iso-vertex placement is smoother; linear fit is faster and slightly blockier.",
+      "n_threads": "-1 uses every core.",
+      "density_quantile": "0.01 removes the 1 % of vertices with the least sample support: that is where Poisson balloons over holes and partial views, so the output is a clean, density-trimmed surface rather than a bubble; raise to 0.05-0.1 on very partial scans.",
+      "normal_radius": "0.1 in file units for normal estimation when the cloud has none; about 5-10x the point spacing on metre-scale data, scale it for millimetre scans.",
+      "normal_max_nn": "30 neighbours is enough for a stable covariance; more smooths sharp edges.",
+      "normal_orient_k": "15 neighbours for consistent orientation: Poisson needs normals pointing the same way, and a small k keeps the propagation local on thin parts."
+    }
+  },
+  "point_cloud_reconstruction.convex_hull": {
+    "validated_on": "generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "joggle_inputs": "Off: exact hull; turn on only when QHull fails on coplanar or duplicated points."
+    }
+  },
+  "point_cloud_reconstruction.alpha_shape": {
+    "validated_on": "generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "alpha": "0.03 in file units is a tight fit on metre-scale objects with centimetre point spacing; alpha must be larger than the largest gap you want bridged and smaller than the smallest concavity you want kept."
+    }
+  },
+  "point_cloud_reconstruction.ball_pivoting": {
+    "validated_on": "generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "radius_factor": "2x the average point spacing is the smallest ball that rolls over a sampled surface without falling through; the multi-scale set (1x, 2x, 4x) then fills the larger gaps.",
+      "radii_multipliers": "1,2,4 is the classic multi-scale schedule: small balls first for detail, larger ones to bridge sparse regions.",
+      "normal_radius": "0.1 in file units for normal estimation when the cloud has none.",
+      "normal_max_nn": "30 neighbours for a stable covariance.",
+      "normal_orient_k": "15 for consistent orientation; ball pivoting needs oriented normals."
+    }
+  },
+  "registration.ransac_global": {
+    "validated_on": "Stanford bunny, 35 deg / 70 % overlap / 0.5 % noise (examples/icp_registration_bunny: 0.14 deg residual after ICP); ultrasound and CBCT reconstructions in the atlas-label-transfer skill (0.06 deg pose error on the bunny atlas); Open3D indoor fragments",
+    "params": {
+      "voxel_size": "0.5 is a placeholder for the platform UI; 0 (auto) is what the one-call API passes: 1.3 % of the bounding-box diagonal, so the feature scale follows the object instead of a fixed number that is wrong for both a 15 cm part and a 15 m facade.",
+      "normal_radius_factor": "2x the voxel: normals need a neighbourhood a little larger than the downsampling cell to be stable but local.",
+      "normal_max_nn": "30 neighbours cap the normal estimation cost on dense clouds.",
+      "fpfh_radius_factor": "5x the voxel is the Open3D-recommended FPFH support: large enough for a descriptive 33-bin histogram, small enough to stay local on partial scans.",
+      "fpfh_max_nn": "100 neighbours bound the histogram cost.",
+      "distance_threshold_factor": "1.5x the voxel: a correspondence within one and a half cells counts as an inlier; tighter rejects true matches on noisy scans, looser lets outliers vote.",
+      "mutual_filter": "On: both directions of the feature match must agree, which removes most false correspondences before RANSAC and is the single setting that most improves success on symmetric parts.",
+      "ransac_with_scaling": "Off: rigid scans share a scale; turn on only for photogrammetry against a scanner.",
+      "ransac_n": "3 correspondences is the minimum for a rigid transform; 4 helps on symmetric objects at the cost of more iterations.",
+      "edge_length_threshold": "0.9: the pairwise distances of the sampled correspondences must agree within 10 %, which prunes wrong triplets before the expensive inlier count.",
+      "ransac_max_iteration": "100 000 iterations with the early-stop confidence below converge in seconds on 20k-point clouds.",
+      "ransac_confidence": "0.999 stops once the best model is that likely to be the true one."
+    }
+  },
+  "registration.icp_refinement": {
+    "validated_on": "Stanford bunny (examples/icp_registration_bunny); Open3D indoor fragments; generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "voxel_size": "0 (auto) picks 1.3 % of the bounding-box diagonal; the explicit 0.5 is the platform UI placeholder.",
+      "max_iterations": "2 000 is a ceiling, not a target: point-to-plane ICP stops on the relative thresholds long before.",
+      "icp_estimation_method": "point_to_plane converges in far fewer iterations and slides along surfaces instead of fighting them; point-to-point is the automatic fallback when normals cannot be estimated (sparse LiDAR).",
+      "relative_fitness": "1e-6: stop when the inlier fraction no longer changes.",
+      "relative_rmse": "1e-6: stop when the inlier RMSE no longer changes.",
+      "icp_threshold_factor": "1.5x the voxel on the downsampled pass: generous so the first ICP pass can pull a coarse RANSAC pose in.",
+      "refine_threshold_factor": "0.4x the voxel on the full-resolution pass: tight so the last iterations are not pulled by points without a true counterpart (the 30 % non-overlap of a partial scan).",
+      "normal_radius_factor": "2x the voxel for normal estimation.",
+      "normal_max_nn": "30 neighbours cap the normal-estimation cost on dense clouds while keeping the covariance stable.",
+      "fpfh_radius_factor": "5x the voxel for the RANSAC pre-pass features.",
+      "fpfh_max_nn": "100 neighbours bound the FPFH histogram cost; the radius, not the count, sets the feature scale.",
+      "ransac_distance_factor": "1.5x the voxel for the pre-pass inlier distance.",
+      "mutual_filter": "On for the pre-pass.",
+      "ransac_with_scaling": "Off: two rigid scans share a scale; estimating one only makes sense for photogrammetry against a scanner.",
+      "ransac_n": "3 correspondences is the minimum that determines a rigid transform, which keeps the inlier probability per draw highest.",
+      "edge_length_threshold": "0.9 edge-length agreement.",
+      "ransac_max_iteration": "100 000 pre-pass iterations.",
+      "ransac_confidence": "0.999 early stop.",
+      "ransac_seed_fitness": "0.3: below this pre-pass fitness the features were not informative and ICP starts from the centre-of-mass alignment instead of a wrong pose."
+    }
+  },
+  "registration.ransac_icp_pipeline": {
+    "validated_on": "Stanford bunny, 35 deg / 70 % overlap / 0.5 % noise: 0.14 deg residual, inlier RMSE 0.9 mm against a 1.4 mm noise floor (examples/icp_registration_bunny); bunny atlas transfer 99.4 % label agreement (examples/atlas_label_transfer_bunny); Open3D indoor fragments",
+    "params": {
+      "voxel_size": "0 (auto) = 1.3 % of the bounding-box diagonal: every other distance is a multiple of it, so one number adapts the whole pipeline to a 15 cm part or a 15 m facade; the explicit 0.5 is the platform UI placeholder.",
+      "rotation_degrees": "45 degrees is used only in demo mode (no moving cloud): a synthetic rotation large enough to defeat plain ICP so the global stage is visibly needed.",
+      "normal_radius_factor": "2x the voxel for stable but local normals.",
+      "normal_max_nn": "30 neighbours cap the normal-estimation cost on dense clouds while keeping the covariance stable.",
+      "fpfh_radius_factor": "5x the voxel: the Open3D-recommended FPFH support.",
+      "fpfh_max_nn": "100 neighbours bound the FPFH histogram cost; the radius, not the count, sets the feature scale.",
+      "distance_threshold_factor": "1.5x the voxel for RANSAC inliers: tolerant to scanner noise, still rejects outliers.",
+      "mutual_filter": "On: mutual nearest-neighbour matching is the setting that most reduces false correspondences on symmetric or repetitive parts.",
+      "ransac_with_scaling": "Off: two rigid scans share a scale; estimating one only makes sense for photogrammetry against a scanner.",
+      "ransac_n": "3 correspondences, the minimum for a rigid transform.",
+      "edge_length_threshold": "0.9: prune triplets whose pairwise distances disagree by more than 10 %.",
+      "ransac_max_iteration": "100 000 with early stop.",
+      "ransac_confidence": "0.999 early-stop confidence.",
+      "icp_threshold_factor": "0.4x the voxel for the final ICP: tight, so the refinement is driven by true overlap and not by the partial-view points that have no counterpart.",
+      "icp_estimation_method": "point_to_plane: faster convergence and no sliding across flat regions compared with point-to-point; point-to-point is the automatic fallback without normals.",
+      "icp_max_iteration": "30 iterations after a good global pose is enough; the relative thresholds usually stop it earlier.",
+      "icp_relative_fitness": "1e-6 stop on fitness plateau.",
+      "icp_relative_rmse": "1e-6 stop on RMSE plateau."
+    }
+  },
+  "deformable_registration.cpd_deformable": {
+    "validated_on": "generated clouds in tests/test_ops_smoke.py; the point-cloud-registration skill documents its use after a rigid stage",
+    "params": {
+      "max_iterations": "100 EM iterations: CPD converges in 30-80 on organ-sized clouds; the tolerance below usually stops it first.",
+      "tolerance": "1e-3 relative change of the objective: tighter costs iterations without visible change in the displacement field.",
+      "beta": "100 is pycpd's default Gaussian kernel width in file units, i.e. a very smooth, almost global deformation for unit-scale clouds; lower it to about the size of the structures you expect to move independently (10-20 mm for organs).",
+      "lambda_val": "2.0 regularisation weight: the pycpd default, balancing fit against smoothness; raise it when the field folds.",
+      "w": "0 assumes no outliers; set 0.1-0.3 when the fixed cloud has clutter the moving cloud should not reach.",
+      "low_rank": "Off below about 10k points; on above, where the full kernel matrix no longer fits in memory.",
+      "num_eig": "100 eigenvectors keep the low-rank approximation close to the full kernel at a fraction of the cost."
+    }
+  },
+  "deformable_registration.gaussian_deformation": {
+    "validated_on": "generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "displacement": "0.02 in file units: a visible but plausible dent on a unit-scale object, used to synthesise test cases for non-rigid registration.",
+      "radius": "0.1 in file units: the dent spans 10 % of a unit object.",
+      "sigma_factor": "0.5: the Gaussian falls to about 13 % at the radius, so the dent fades smoothly instead of leaving a crease."
+    }
+  },
+  "point_cloud_segmentation.ransac_plane": {
+    "validated_on": "generated clouds in tests/test_ops_smoke.py; the same RANSAC plane model runs on KITTI in lidar_scene_detection",
+    "params": {
+      "distance_threshold": "0.01 in file units: one centimetre on metre-scale indoor scans, which is the depth-camera noise level; use 0.2-0.3 m for outdoor LiDAR ground.",
+      "num_iterations": "1 000 iterations find the dominant plane with probability above 0.99 when it holds at least 20 % of the points.",
+      "ransac_n": "3 points define a plane; the minimum keeps the inlier probability per draw highest.",
+      "probability": "0.99999999 lets Open3D stop early once the best plane is almost certainly found, so the 1 000 iterations are a ceiling."
+    }
+  },
+  "point_cloud_segmentation.dbscan_clustering": {
+    "validated_on": "generated clouds in tests/test_ops_smoke.py; KITTI sweeps through lidar_scene_detection.object_clustering",
+    "params": {
+      "eps": "0.02 in file units: two centimetres joins points of the same object on indoor depth scans; use 0.5 m outdoors (see object_clustering).",
+      "min_points": "10 points keep speckle out of the cluster list while small objects (a cup, a hand) still form one.",
+      "print_progress": "Off: terminal output only."
+    }
+  },
+  "stereo_3d_reconstruction.depth_colorization": {
+    "validated_on": "generated depth clouds in tests/test_ops_smoke.py",
+    "params": {
+      "colormap": "0 (jet) is what stereo and depth tooling has used for decades, so the colours are readable at a glance; the others are perceptually uniform alternatives."
+    }
+  },
+  "stereo_3d_reconstruction.depth_filter": {
+    "validated_on": "generated depth clouds in tests/test_ops_smoke.py",
+    "params": {
+      "min_depth": "Dropping the nearest 10 % removes the lens-edge and occlusion artefacts stereo matching produces close to the camera.",
+      "max_depth": "Dropping the farthest 10 % removes the sky and the far-range noise where disparity is below one pixel."
+    }
+  },
+  "lidar_scene_detection.height_colorization": {
+    "validated_on": "KITTI sweeps (examples/kitti_lidar_ground_and_objects); generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "colormap": "0 (height gradient) maps the sensor z axis directly to colour, which is how LiDAR engineers read a sweep."
+    }
+  },
+  "lidar_scene_detection.ground_removal": {
+    "validated_on": "KITTI Velodyne HDL-64E sweeps, sensor frame, metres (examples/kitti_lidar_ground_and_objects)",
+    "params": {
+      "distance_threshold": "0.3 m: a road is not flat over a 100 m sweep (camber, slope, curb), so a 30 cm band keeps the whole surface as ground while a car's lowest points (sills at 0.4-0.5 m) stay out; lower to 0.1 m for indoor floors.",
+      "ransac_n": "3 points define the plane.",
+      "num_iterations": "1 000 iterations are plenty when the ground holds 30-50 % of a sweep's points."
+    }
+  },
+  "lidar_scene_detection.object_clustering": {
+    "validated_on": "KITTI sweeps: 35 476 points clustered into cars, poles, walls after ground removal (examples/kitti_lidar_ground_and_objects)",
+    "params": {
+      "ground_threshold": "0.3 m, as in ground_removal: the band that follows a real road's camber and slope.",
+      "cluster_eps": "0.5 m: the HDL-64E spacing between rings reaches 0.3-0.5 m at 30 m, so a smaller epsilon splits one car into ring-stripes; a larger one merges parked cars.",
+      "min_cluster_points": "10 points keep ring fragments and speckle out while a pedestrian at 20 m (about 15-30 points) still clusters.",
+      "ransac_n": "3 points define the ground plane.",
+      "num_iterations": "1 000 ground-plane iterations.",
+      "print_progress": "Off: terminal output only."
+    }
+  },
+  "lidar_camera_fusion.intensity_colorization": {
+    "validated_on": "KITTI sweeps carry reflectance in the fourth column (manifest layout); generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "colormap": "0 (jet) for reflectance: lane paint and plates saturate to red, asphalt stays blue, which is what people look for in an intensity view."
+    }
+  },
+  "lidar_camera_fusion.roi_extraction": {
+    "validated_on": "generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "x_range": "Keep the central 50 % along x: the near field in front of and behind the sensor, where the camera overlap is.",
+      "y_range": "Keep the central 50 % along y: the lane and its neighbours.",
+      "z_range": "Keep 80 % along z: drops only the extreme returns (tree tops, below-ground reflections)."
+    }
+  },
+  "lidar_camera_fusion.multi_resolution": {
+    "validated_on": "generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "levels": "3 levels (base, 2x, 4x) are what multi-scale registration and visualisation consume.",
+      "base_voxel_size": "0.01 in file units at the finest level, matching voxel_downsample's default.",
+      "voxel_growth_factor": "2x per level: the standard octave pyramid."
+    }
+  },
+  "features_extraction.normal_estimation": {
+    "validated_on": "Stanford bunny through the registration pipeline; generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "radius": "0.05 in file units: about 5x the spacing of a centimetre-resolution scan; the covariance needs 10-30 points inside the radius.",
+      "max_nn": "30 neighbours cap the cost and keep normals local at edges.",
+      "fast_normal_computation": "On: Open3D's closed-form eigen solver is accurate to visual precision and several times faster than the iterative one.",
+      "orient_k": "0 lets the script choose min(max_nn, 15) for the orientation propagation: small enough to stay consistent across thin parts."
+    }
+  },
+  "features_extraction.fpfh_features": {
+    "validated_on": "Stanford bunny and Open3D fragments through registration.ransac_global; generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "voxel_size": "0.005 in file units (5 mm on a metre object) keeps enough points for descriptive histograms; the registration pipeline derives it from the bounding box instead.",
+      "normal_radius_factor": "2x the voxel for normals.",
+      "normal_max_nn": "30 neighbours cap the normal-estimation cost on dense clouds while keeping the covariance stable.",
+      "feature_radius_factor": "5x the voxel: the Open3D-recommended FPFH support.",
+      "feature_max_nn": "100 neighbours bound the histogram cost."
+    }
+  },
+  "features_extraction.curvature_estimation": {
+    "validated_on": "generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "radius": "0.05 in file units for the covariance neighbourhood, as for normals.",
+      "max_nn": "30 neighbours cap the cost and keep the estimate local at edges.",
+      "normalize_percentile": "Colour scale capped at the 99th percentile so a few extreme points (edges, noise) do not flatten the map."
+    }
+  },
+  "collision_detection.sdf_collision": {
+    "validated_on": "generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "obstacle_radius": "0.5 in file units: a sphere half the size of a unit object, the demo obstacle.",
+      "penetration_ratio": "0.3: the obstacle is placed so that 30 % of its radius overlaps the part, enough to show a clear collision patch.",
+      "num_samples": "50 000 surface samples give a dense signed-distance map on the part in under a second.",
+      "obstacle_resolution": "50 tessellation steps make the sphere smooth enough that its SDF has no facet artefacts.",
+      "obstacle_viz_points": "5 000 points draw the obstacle without hiding the part.",
+      "colormap": "coolwarm is diverging around zero distance: red inside the obstacle, blue outside."
+    }
+  },
+  "collision_detection.penetration_depth": {
+    "validated_on": "generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "obstacle_radius": "0.5 in file units, the demo obstacle.",
+      "overlap_distance": "0.15 in file units: the obstacle overlaps the part by 15 % of a unit object.",
+      "num_samples": "50 000 surface samples.",
+      "obstacle_resolution": "50 tessellation steps make the sphere smooth enough that its SDF has no facet artefacts.",
+      "colormap": "hot maps zero depth to black and the deepest penetration to white."
+    }
+  },
+  "pyvista_mesh_processing.pv_decimate": {
+    "validated_on": "MSD hippocampus surfaces (examples/hippocampus_mask_to_mesh, decimate 0.5); generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "target_reduction": "0.5 halves the triangle count: on marching-cubes output (one triangle per voxel face) that removes the redundant co-planar triangles with no visible change.",
+      "volume_preservation": "Off: VTK's default; on when the mesh is used for volume measurements (organs), since plain quadric decimation shrinks convex shapes slightly.",
+      "attribute_error": "Off: ignore scalar fields in the error metric; on when a label or curvature field must survive decimation.",
+      "normals": "Off: do not penalise normal deviation; on for CAD meshes with sharp edges.",
+      "boundary_constraints": "Off: VTK's current boundary handling; the legacy weighting is for reproducing old results."
+    }
+  },
+  "pyvista_mesh_processing.pv_subdivide": {
+    "validated_on": "generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "n_subdivisions": "1 iteration quadruples the triangle count, which is as much as a smoothing or sampling step ever needs.",
+      "algorithm": "linear keeps the surface exactly where it is and only adds vertices; butterfly and loop also smooth, which changes the geometry."
+    }
+  },
+  "pyvista_mesh_processing.pv_smooth_laplacian": {
+    "validated_on": "MSD hippocampus surfaces (examples/hippocampus_mask_to_mesh); generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "n_iterations": "20 iterations remove the voxel staircase of a marching-cubes surface; more than 50 visibly shrinks small structures.",
+      "relaxation_factor": "0.01 is VTK's default step: small steps over 20 iterations move vertices by less than a voxel in total.",
+      "convergence": "0 disables early stop so the iteration count is the only knob.",
+      "edge_angle": "15 degrees is VTK's edge-feature threshold when feature smoothing is on.",
+      "feature_angle": "45 degrees is VTK's sharp-feature threshold when feature smoothing is on.",
+      "boundary_smoothing": "On: boundary vertices of open surfaces move too, otherwise the rim stays jagged.",
+      "feature_smoothing": "Off: organic surfaces have no sharp features to preserve; on for CAD parts."
+    }
+  },
+  "pyvista_mesh_processing.pv_smooth_taubin": {
+    "validated_on": "MSD hippocampus surfaces: the default mesh.smooth() (examples/hippocampus_mask_to_mesh); generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "n_iterations": "20 iterations remove the voxel staircase; Taubin's pass band keeps the volume, so the count can be higher than for Laplacian smoothing without shrinkage.",
+      "pass_band": "0.1 is VTK's default: frequencies above it are attenuated (staircase), below it kept (anatomy); lower it for a smoother result.",
+      "edge_angle": "15 degrees, VTK's edge-feature threshold.",
+      "feature_angle": "45 degrees, VTK's sharp-feature threshold.",
+      "boundary_smoothing": "On so open rims are smoothed too.",
+      "feature_smoothing": "Off for organic surfaces.",
+      "non_manifold_smoothing": "Off: non-manifold vertices (two sheets touching) are left in place to avoid tearing.",
+      "normalize_coordinates": "Off: VTK's default; on for coordinates with very large magnitudes (UTM metres) to keep the filter numerically stable."
+    }
+  },
+  "pyvista_mesh_processing.pv_clean": {
+    "validated_on": "every Mesh.clean() in the examples; generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "tolerance": "0 merges exact duplicates only: safe on any mesh; a positive tolerance welds nearby vertices and can close scan seams.",
+      "point_merging": "On: duplicate vertices from STL files and marching cubes are merged.",
+      "absolute": "On: the tolerance is in file units, not a fraction of the bounding box, so it means the same thing on every mesh.",
+      "lines_to_points": "On: zero-length lines become points instead of invalid cells.",
+      "polys_to_lines": "On: degenerate polygons become lines.",
+      "strips_to_polys": "On: degenerate strips become polygons."
+    }
+  },
+  "pyvista_mesh_processing.pv_fill_holes": {
+    "validated_on": "generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "hole_size": "100 in file units is the largest hole (by boundary radius) that is filled: scan holes, not the open bottom of a bust."
+    }
+  },
+  "pyvista_mesh_processing.pv_compute_normals": {
+    "validated_on": "generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "flip_normals": "0: keep the file's orientation.",
+      "consistency": "1: make neighbouring faces agree, which STL files from scanners often do not.",
+      "cell_normals": "On: per-face normals for rendering and sampling.",
+      "point_normals": "On: per-vertex normals for smooth shading and registration.",
+      "split_vertices": "Off: splitting duplicates vertices along sharp edges and breaks the connectivity other steps rely on.",
+      "auto_orient_normals": "Off: it assumes a closed manifold and inverts open scans.",
+      "non_manifold_traversal": "On: orientation does not propagate across non-manifold edges, where it would flip.",
+      "feature_angle": "30 degrees when split_vertices is on, VTK's default."
+    }
+  },
+  "pyvista_mesh_processing.pv_extract_surface": {
+    "validated_on": "every Volume.to_mesh() result goes through surface extraction (examples/hippocampus_mask_to_mesh); generated grids in tests/test_ops_smoke.py",
+    "params": {
+      "pass_pointid": "On: keep the original point ids so results can be mapped back to the volume.",
+      "pass_cellid": "On: keep the original cell ids for the same reason.",
+      "nonlinear_subdivision": "1 matches VTK's default for higher-order cells; the grids here are linear."
+    }
+  },
+  "pyvista_pointcloud_processing.pv_threshold": {
+    "validated_on": "generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "lower": "0 and upper 1 select a normalised scalar range; set them to your field's units (HU, reflectance).",
+      "upper": "1, see lower.",
+      "scalars": "Empty uses the active scalar array, which is what a freshly loaded file has.",
+      "invert": "Off: keep what is inside the range.",
+      "continuous": "Off: a cell is kept on its own scalar, not on the range it spans.",
+      "preference": "cell: VTK's default when both point and cell scalars exist.",
+      "all_scalars": "Off: a cell is kept if any of its points pass, which keeps boundaries intact.",
+      "component_mode": "all: every component of a vector scalar must pass.",
+      "component": "0: the first component when component_mode is component."
+    }
+  },
+  "pyvista_pointcloud_processing.pv_clip_plane": {
+    "validated_on": "generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "origin_x": "0: the plane passes through the origin by default; set it to a point on the cut you want.",
+      "origin_y": "0, see origin_x.",
+      "origin_z": "0, see origin_x.",
+      "normal_x": "1: cut perpendicular to x by default.",
+      "normal_y": "0, see normal_x.",
+      "normal_z": "0, see normal_x.",
+      "invert": "On keeps the side the normal points away from, VTK's convention for clip.",
+      "value": "0: no offset along the normal.",
+      "crinkle": "Off: cells crossed by the plane are cut, giving a flat face; on keeps them whole, which preserves the original cells."
+    }
+  },
+  "pyvista_pointcloud_processing.pv_clip_box": {
+    "validated_on": "generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "x_min": "-0.5 to 0.5 is a unit box around the origin, the placeholder for normalised data; set the box in file units.",
+      "x_max": "0.5, see x_min.",
+      "y_min": "-0.5, see x_min.",
+      "y_max": "0.5, see x_min.",
+      "z_min": "-0.5, see x_min.",
+      "z_max": "0.5, see x_min.",
+      "invert": "Off: keep the inside of the box.",
+      "merge_points": "On: coincident points created by the clip are merged.",
+      "crinkle": "Off: cut the crossed cells."
+    }
+  },
+  "pyvista_pointcloud_processing.pv_random_sample": {
+    "validated_on": "generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "fraction": "0.5 halves a cloud, the usual first step before an interactive look at a multi-million-point scan.",
+      "replace": "Off: no duplicate picks.",
+      "seed": "-1 is non-deterministic, matching the original script; set a seed for reproducible figures.",
+      "adjacent_cells": "On: cells touching a selected point are kept so meshes stay connected.",
+      "include_cells": "On: carry cells through."
+    }
+  },
+  "pyvista_pointcloud_processing.pv_extract_points": {
+    "validated_on": "generated clouds in tests/test_ops_smoke.py",
+    "params": {
+      "scalars": "Empty uses the active scalars.",
+      "lower": "0 with upper 1 is a normalised range placeholder.",
+      "upper": "1, see lower.",
+      "adjacent_cells": "On keeps connectivity.",
+      "include_cells": "On carries cells through."
+    }
+  },
+  "pyvista_volume_processing.pv_contour": {
+    "validated_on": "MSD and RIRE volumes through Volume.to_mesh (examples/hippocampus_mask_to_mesh, examples/spleen_ct_threshold_segmentation); generated grids in tests/test_ops_smoke.py",
+    "params": {
+      "n_contours": "5 evenly spaced iso-levels show the structure of an unknown field; a label map or a known threshold uses one level through Volume.to_mesh.",
+      "scalars": "Empty uses the active scalars (the image intensity).",
+      "compute_normals": "Off: normals are recomputed later by the mesh steps that need them.",
+      "compute_gradients": "Off: not needed for a surface.",
+      "compute_scalars": "On: the contoured value is kept on the surface for colouring.",
+      "method": "contour is VTK's generic filter; marching_cubes and flying_edges are faster on image data and give the same surface.",
+      "preference": "point: image intensities are point data."
+    }
+  },
+  "pyvista_volume_processing.pv_slice": {
+    "validated_on": "RIRE and MSD volumes (README demo slices); generated grids in tests/test_ops_smoke.py",
+    "params": {
+      "normal_x": "1: an x-normal (sagittal in LPS) slice by default.",
+      "normal_y": "0, see normal_x.",
+      "normal_z": "0, see normal_x.",
+      "origin_x": "0 means the volume centre.",
+      "origin_y": "0 means the centre.",
+      "origin_z": "0 means the centre.",
+      "generate_triangles": "Off: the slice stays a polygon mesh of quads.",
+      "contour": "Off: no contour edges."
+    }
+  },
+  "pyvista_volume_processing.pv_slice_orthogonal": {
+    "validated_on": "MSD hippocampus MRI (examples/hippocampus_mask_to_mesh); generated grids in tests/test_ops_smoke.py",
+    "params": {
+      "x": "0 means the centre of the volume.",
+      "y": "0 means the centre.",
+      "z": "0 means the centre.",
+      "generate_triangles": "Off: the slice stays a polygon mesh of quads, which renders and saves smaller.",
+      "contour": "Off: no contour edges are generated on the slice."
+    }
+  },
+  "pyvista_volume_processing.pv_threshold_volume": {
+    "validated_on": "generated grids in tests/test_ops_smoke.py",
+    "params": {
+      "lower": "0 with upper 1 is a normalised placeholder; use Hounsfield units on CT.",
+      "upper": "1, see lower.",
+      "scalars": "Empty uses the active scalars.",
+      "invert": "Off: keep the inside of the range.",
+      "continuous": "Off: a cell is kept on its own scalar value, not on the range it spans.",
+      "preference": "cell: VTK's default.",
+      "all_scalars": "Off: a cell is kept if any of its points pass, which keeps boundaries intact."
+    }
+  },
+  "pyvista_volume_processing.pv_extract_geometry": {
+    "validated_on": "generated grids in tests/test_ops_smoke.py",
+    "params": {
+      "extent": "Empty keeps the whole dataset; a six-number extent crops in index space."
+    }
+  },
+  "pyvista_volume_processing.pv_extract_cells": {
+    "validated_on": "generated grids in tests/test_ops_smoke.py",
+    "params": {
+      "cell_type": "tetrahedral is the cell type of simulation meshes (VTU), the usual reason to extract by type.",
+      "invert": "Off: keep the named type."
+    }
+  },
+  "pyvista_analysis.pv_curvature": {
+    "validated_on": "generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "curvature_type": "mean curvature is the one that reads as 'bumps and dents' on an organ or a part; Gaussian separates saddles, maximum/minimum are the principal curvatures."
+    }
+  },
+  "pyvista_analysis.pv_distance": {
+    "validated_on": "generated meshes in tests/test_ops_smoke.py",
+    "params": {}
+  },
+  "pyvista_analysis.pv_glyph": {
+    "validated_on": "generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "scale_factor": "0.01 in file units draws normal arrows of 1 % of a unit object, visible without hiding the surface.",
+      "vector_name": "Normals is the array every mesh has after compute_normals.",
+      "scale": "Off: all arrows the same length, so direction is what you see.",
+      "tolerance": "-1 lets PyVista choose the glyph merge tolerance.",
+      "absolute": "Off: the tolerance is a fraction of the bounding box.",
+      "clamping": "Off: no scaling range clamp since scale is off."
+    }
+  },
+  "pyvista_analysis.pv_vector_magnitude": {
+    "validated_on": "generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "vector_name": "Normals is the array every mesh has."
+    }
+  },
+  "pyvista_analysis.pv_scalar_stats": {
+    "validated_on": "generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "scalars": "Empty takes the first available array."
+    }
+  },
+  "pyvista_analysis.pv_extract_feature_edges": {
+    "validated_on": "generated meshes in tests/test_ops_smoke.py",
+    "params": {
+      "feature_angle": "30 degrees is VTK's default dihedral threshold: it catches machined edges and misses the facets of a smooth organ.",
+      "boundary_edges": "true: open boundaries are what you look for on a scan with holes.",
+      "non_manifold_edges": "true: non-manifold edges are the defects to fix before printing or simulation.",
+      "manifold_edges": "false: regular edges would be every edge of the mesh.",
+      "feature_edges": "On: sharp edges are included.",
+      "clear_data": "Off: keep the scalar arrays on the edges."
+    }
+  },
+  "simpleitk_registration.rigid": {
+    "validated_on": "RIRE CT / MR-T1 brain pair: 0.65 x 0.65 x 4 mm CT vs 1.25 x 1.25 x 4 mm MR, 40 mm initial offset, registered in 8.8 s (examples/register_ct_mr_rire, the README demo); the multimodal-rigid-registration skill reports 3.9 deg / 1 mm-class agreement with the RIRE truth",
+    "params": {
+      "learning_rate": "1.0 with optimizer scales from physical shift: each step moves the image by about one unit of the scaled parameters, fast on the coarse levels and still stable because the scales normalise rotations and translations.",
+      "num_iterations": "100 per level: Mattes MI on 1 % sampling plateaus within 50-80 iterations on head and abdomen volumes; the convergence window stops it earlier.",
+      "sampling_percentage": "1 % of the voxels is enough for the MI estimate on 256^3 volumes and makes each iteration cheap; raise to 5-15 % on small fields of view or very noisy images.",
+      "initializer": "GEOMETRY aligns the geometric centres of the two volumes, which works when both scans cover the same anatomy; MOMENTS (intensity centre of mass) is better when one field of view is much larger than the other.",
+      "metric": "Mattes mutual information is the only one of the four that works across modalities (CT vs MR): it assumes a statistical dependence, not a linear intensity relation.",
+      "number_of_histogram_bins": "50 bins: 32-64 is the sweet spot for the Parzen-window joint histogram, fewer is blurry, more is noisy.",
+      "sampling_strategy": "RANDOM adds a little stochasticity that helps the optimizer leave shallow local minima; REGULAR aliases with voxel grids.",
+      "interpolator": "LINEAR during optimisation is the standard trade-off; B-spline is slower and only pays off for the final resampling.",
+      "convergence_minimum_value": "1e-6 on the metric change over the window.",
+      "convergence_window_size": "10 iterations smooth the stochastic metric before the convergence test.",
+      "shrink_factors": "4,2,1: three resolution levels give the capture range to recover a 40 mm offset at the coarse level and sub-voxel precision at the fine one.",
+      "smoothing_sigmas": "2,1,0 mm match the shrink factors so each level sees a properly band-limited image.",
+      "smoothing_sigmas_in_physical_units": "On: sigmas in millimetres so anisotropic voxels (4 mm slices) are smoothed consistently.",
+      "optimizer_scales_from_physical_shift": "On: rotations in radians and translations in millimetres have different sensitivities; the physical-shift scales equalise them, which is the single setting that makes a fixed learning rate work across datasets."
+    }
+  },
+  "simpleitk_registration.advanced_rigid": {
+    "validated_on": "RIRE CT / MR pair with the exhaustive rotation pre-search (multimodal-rigid-registration skill); generated volumes in tests/test_ops_smoke.py",
+    "params": {
+      "learning_rate": "0.2 is lower than the plain rigid method because the exhaustive phase already lands near the optimum; smaller steps then avoid overshooting.",
+      "num_iterations": "200 per stage: the second stage starts close and the window stops it early.",
+      "sampling_percentage": "15 % of the voxels: the exhaustive search compares many poses and needs a less noisy metric than gradient descent does.",
+      "exhaustive_steps_per_axis": "12 steps per axis over the rotation range sample every 15 degrees, enough to land inside the capture range of the gradient stage.",
+      "metric": "Mattes MI for cross-modality.",
+      "number_of_histogram_bins": "50 bins: 32-64 is the sweet spot for the Parzen-window joint histogram, fewer is blurry, more is noisy.",
+      "sampling_strategy": "RANDOM sampling adds a little stochasticity that helps the optimizer leave shallow local minima; REGULAR aliases with voxel grids.",
+      "interpolator": "LINEAR interpolation during optimisation is the standard trade-off between speed and smoothness of the metric.",
+      "convergence_minimum_value": "1e-6 on the metric change over the window stops the optimizer once improvements are below noise.",
+      "convergence_window_size": "10 iterations smooth the stochastic metric before the convergence test.",
+      "shrink_factors": "4,2,1: three resolution levels give the capture range for large offsets at the coarse level and sub-voxel precision at the fine one.",
+      "smoothing_sigmas": "2,1,0 mm match the shrink factors so each level sees a properly band-limited image.",
+      "smoothing_sigmas_in_physical_units": "On: sigmas in millimetres so anisotropic voxels (4 mm slices) are smoothed consistently.",
+      "optimizer_scales_from_physical_shift": "On: rotations in radians and translations in millimetres have different sensitivities; physical-shift scales equalise them so one learning rate works across datasets."
+    }
+  },
+  "simpleitk_registration.affine": {
+    "validated_on": "generated volumes in tests/test_ops_smoke.py; same stack as rigid, which ran on the RIRE pair",
+    "params": {
+      "learning_rate": "1.0 with physical-shift scales, as for rigid.",
+      "num_iterations": "100 per level.",
+      "sampling_percentage": "1 % of the voxels is enough for the mutual-information estimate on 256^3 volumes and keeps each iteration cheap.",
+      "initializer": "GEOMETRY aligns the geometric centres before the first iteration; MOMENTS (intensity centre of mass) when one field of view is much larger than the other.",
+      "metric": "Mattes MI for cross-modality; mean squares is faster for same-modality follow-ups.",
+      "number_of_histogram_bins": "50 bins: 32-64 is the sweet spot for the Parzen-window joint histogram, fewer is blurry, more is noisy.",
+      "sampling_strategy": "RANDOM sampling adds a little stochasticity that helps the optimizer leave shallow local minima; REGULAR aliases with voxel grids.",
+      "interpolator": "LINEAR interpolation during optimisation is the standard trade-off between speed and smoothness of the metric.",
+      "convergence_minimum_value": "1e-6 on the metric change over the window stops the optimizer once improvements are below noise.",
+      "convergence_window_size": "10 iterations smooth the stochastic metric before the convergence test.",
+      "shrink_factors": "4,2,1: three resolution levels give the capture range for large offsets at the coarse level and sub-voxel precision at the fine one.",
+      "smoothing_sigmas": "2,1,0 mm match the shrink factors so each level sees a properly band-limited image.",
+      "smoothing_sigmas_in_physical_units": "On: sigmas in millimetres so anisotropic voxels (4 mm slices) are smoothed consistently.",
+      "optimizer_scales_from_physical_shift": "On: the 12 affine parameters mix scale, shear and translation, so scale normalisation matters even more than for rigid."
+    }
+  },
+  "simpleitk_registration.bspline": {
+    "validated_on": "POPI 4D-CT breathing phases (medical-volumes skill); generated volumes in tests/test_ops_smoke.py",
+    "params": {
+      "grid_spacing": "50 mm control-point spacing captures organ-scale motion (breathing, bowel) without fitting noise; 20-30 mm for finer local deformation.",
+      "num_iterations": "100 LBFGSB iterations: the deformable metric improves quickly then flattens.",
+      "bspline_order": "3 (cubic) is the standard smooth basis.",
+      "mesh_coarsening_factor": "4 starts the multi-resolution schedule with a coarser control mesh so large motion is recovered first.",
+      "sampling_percentage": "1 % of the voxels for the metric.",
+      "interpolator": "LINEAR interpolation during optimisation is the standard trade-off between speed and smoothness of the metric.",
+      "gradient_convergence_tolerance": "1e-5 is the LBFGSB default.",
+      "max_number_of_corrections": "5 stored corrections is the LBFGSB default memory.",
+      "cost_function_convergence_factor": "1e7 is the LBFGSB default (moderate accuracy).",
+      "scale_factors": "1,2,4 refine the control mesh across three levels."
+    }
+  },
+  "simpleitk_registration.demons": {
+    "validated_on": "generated volumes in tests/test_ops_smoke.py; same-modality use only (the metric is intensity difference)",
+    "params": {
+      "num_iterations": "20 demons iterations are enough for small same-modality deformations; the method is for follow-up scans, not CT-to-MR.",
+      "standard_deviations": "2.0 voxels of Gaussian smoothing of the displacement field keep it regular (no folding) at the cost of fine detail.",
+      "smooth_displacement_field": "On: smoothing the total field each iteration is what keeps demons from producing a torn deformation."
+    }
+  },
+  "simpleitk_registration.difference_analysis": {
+    "validated_on": "generated volumes in tests/test_ops_smoke.py",
+    "params": {
+      "lower_threshold": "50 intensity units: below that, differences are noise and interpolation.",
+      "upper_threshold": "400: above that, differences are bone or air boundaries that any residual misalignment produces; the band in between highlights soft-tissue change."
+    }
+  },
+  "simpleitk_segmentation.otsu_threshold": {
+    "validated_on": "MSD spleen CT through Volume.segment() (examples/spleen_ct_threshold_segmentation uses the manual window); generated volumes in tests/test_ops_smoke.py",
+    "params": {
+      "number_of_histogram_bins": "128 bins resolve the bimodal histogram of CT (air/tissue) or MR (background/foreground) without the noise of 512.",
+      "inside_value": "1: the foreground label, so the result is a LabelMap with label 1.",
+      "outside_value": "0 is the background label, so the result is a label map with a single foreground label."
+    }
+  },
+  "simpleitk_segmentation.manual_threshold": {
+    "validated_on": "MSD spleen CT, 30-200 HU soft-tissue window (examples/spleen_ct_threshold_segmentation); generated volumes in tests/test_ops_smoke.py",
+    "params": {
+      "lower": "100 HU is the placeholder bone/contrast threshold on CT; Volume.segment(lower, upper) takes the window you mean (30-200 HU soft tissue, 300+ bone).",
+      "upper": "1000 HU caps the window below metal and dense bone.",
+      "inside_value": "1: foreground label.",
+      "outside_value": "0 is the background label, so the result is a label map with a single foreground label."
+    }
+  },
+  "simpleitk_segmentation.connected_components": {
+    "validated_on": "MSD spleen CT after thresholding (examples/spleen_ct_threshold_segmentation, min_size 1000); generated volumes in tests/test_ops_smoke.py",
+    "params": {
+      "threshold": "100 intensity units binarises before labelling; on a LabelMap input use 0.5.",
+      "min_size": "15 voxels removes speckle components; raise to the hundreds or thousands to keep only organs.",
+      "upper_threshold": "255 is the upper bound for 8-bit inputs; raise it for HU.",
+      "fully_connected": "Off (6-connectivity): diagonal-only contacts do not join two structures, which keeps touching organs apart.",
+      "inside_value": "1: foreground label.",
+      "outside_value": "0 is the background label, so the result is a label map with a single foreground label."
+    }
+  },
+  "simpleitk_segmentation.watershed": {
+    "validated_on": "generated volumes in tests/test_ops_smoke.py",
+    "params": {
+      "threshold": "100 intensity units for the initial binarisation.",
+      "seed_radius": "10 mm: markers are placed where the distance map exceeds this radius, so only objects at least 2 cm across become basins.",
+      "min_object_size": "15 voxels drops speckle basins.",
+      "upper_threshold": "255 for 8-bit inputs.",
+      "opening_radius": "10,10,10 voxels of binary opening detach thin bridges between objects before the distance map.",
+      "closing_radius": "10,10,10 voxels of closing fill small holes inside objects.",
+      "distance_inside_is_positive": "Off: SimpleITK's convention, inside is negative.",
+      "distance_squared": "Off: true Euclidean distance in mm.",
+      "mark_watershed_line": "On: dam lines between basins are drawn, which shows where touching objects were split.",
+      "inside_value": "1: foreground label.",
+      "outside_value": "0 is the background label, so the result is a label map with a single foreground label."
+    }
+  },
+  "point_cloud_processing.mesh_to_pointcloud": {
+    "validated_on": "Stanford bunny and armadillo (Open3D data); generated meshes in tests/test_ops_smoke.py",
+    "params": {}
+  },
+  "pyvista_mesh_processing.pv_triangulate": {
+    "validated_on": "every Volume.to_mesh() surface is triangulated before saving (examples/hippocampus_mask_to_mesh); generated meshes in tests/test_ops_smoke.py",
+    "params": {}
+  }
+}

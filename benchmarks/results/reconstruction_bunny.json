@@ -1,0 +1,59 @@
+{
+ "config": {
+  "trials": 3,
+  "noise": 0.005,
+  "hole": 0.15
+ },
+ "summary": {
+  "open3d_default": {
+   "chamfer_median_m": 0.0007976999833730468,
+   "far_fraction_median": 0.034,
+   "seconds_median": 1.6856886999885319,
+   "trials": [
+    {
+     "chamfer_m": 0.0007980069269195673,
+     "far_fraction": 0.034,
+     "seconds": 1.350780399996438,
+     "triangles": 89574
+    },
+    {
+     "chamfer_m": 0.0007976999833730468,
+     "far_fraction": 0.0342,
+     "seconds": 1.6856886999885319,
+     "triangles": 90378
+    },
+    {
+     "chamfer_m": 0.0007567157245855574,
+     "far_fraction": 0.01872,
+     "seconds": 16.777900200002478,
+     "triangles": 89982
+    }
+   ]
+  },
+  "pardesline": {
+   "chamfer_median_m": 0.001141526044399173,
+   "far_fraction_median": 0.00834,
+   "seconds_median": 6.912804499996128,
+   "trials": [
+    {
+     "chamfer_m": 0.0011470803111006253,
+     "far_fraction": 0.00994,
+     "seconds": 5.087259300009464,
+     "triangles": 88422
+    },
+    {
+     "chamfer_m": 0.001141526044399173,
+     "far_fraction": 0.00704,
+     "seconds": 6.912804499996128,
+     "triangles": 89043
+    },
+    {
+     "chamfer_m": 0.0011195607442920493,
+     "far_fraction": 0.00834,
+     "seconds": 11.75743679999141,
+     "triangles": 88703
+    }
+   ]
+  }
+ }
+}

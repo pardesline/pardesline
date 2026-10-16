@@ -42,6 +42,11 @@ _NORMALS = ("nx", "ny", "nz")
 
 
 def is_array_file(path: str | os.PathLike) -> bool:
+    """True for ``.npy``, ``.npz``, ``.bin`` and ``.raw`` files.
+
+    Numbers that need a layout to mean anything.
+    """
+
     low = str(path).lower()
     return any(low.endswith(ext) for ext in ARRAY_EXTS)
 

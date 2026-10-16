@@ -29,7 +29,7 @@ python skills/jepa-pretraining/scripts/jepa3d_pretrain.py --dataset totalsegment
 python skills/jepa-pretraining/scripts/jepa3d_pretrain.py --smoke        # CPU, seconds
 ```
 
-Skill: [`jepa-pretraining`](../../skills/jepa-pretraining/SKILL.md).
+Skill: [`jepa-pretraining`](https://github.com/pardesline/pardesline/blob/main/skills/jepa-pretraining/SKILL.md).
 MCP: `list_datasets(medical_only=true)`, `get_skill("jepa-pretraining")`.
 
 ---
@@ -47,7 +47,7 @@ production design.
 python skills/dinov3-dense-features/scripts/dinov3_features.py ./frames --out ./feats --size 512   # patch tokens + PCA maps
 ```
 
-Skill: [`dinov3-dense-features`](../../skills/dinov3-dense-features/SKILL.md).
+Skill: [`dinov3-dense-features`](https://github.com/pardesline/pardesline/blob/main/skills/dinov3-dense-features/SKILL.md).
 MCP: `get_skill("dinov3-dense-features")`.
 
 ---
@@ -64,7 +64,7 @@ ViTDet simple feature pyramid, RPN, RoIAlign, box head, NMS.
 python skills/dinov3-dense-features/scripts/dinov3_faster_rcnn.py train --images ./echo --ann train.json --val-ann val.json --out ./runs/effusion
 ```
 
-Skill: [`dinov3-dense-features`](../../skills/dinov3-dense-features/SKILL.md) (section "Heads on a frozen backbone").
+Skill: [`dinov3-dense-features`](https://github.com/pardesline/pardesline/blob/main/skills/dinov3-dense-features/SKILL.md) (section "Heads on a frozen backbone").
 MCP: `get_skill("dinov3-dense-features", "scripts/dinov3_faster_rcnn.py")`.
 
 ---
@@ -82,7 +82,7 @@ python skills/gaussian-splatting/scripts/points_to_gaussians.py open3d_bunny bun
 ```
 
 Verified: 100 000 Gaussians written and read back (24.8 MB, 62 floats each).
-Skill: [`gaussian-splatting`](../../skills/gaussian-splatting/SKILL.md); datasets `c3vd_endoscopy_splats`, `hf_3d_arena`, `hf_kitti360_gs_subset`.
+Skill: [`gaussian-splatting`](https://github.com/pardesline/pardesline/blob/main/skills/gaussian-splatting/SKILL.md); datasets `c3vd_endoscopy_splats`, `hf_3d_arena`, `hf_kitti360_gs_subset`.
 MCP: `load_sample("c3vd_endoscopy_splats", 0, "splat")`.
 
 ---
@@ -106,7 +106,7 @@ points = surface.to_points(num_points=4096)  # for a point network
 field = surface.run("sdf.compute_sdf", voxel_size=1.0)  # implicit field
 ```
 
-Skill: [`3d-representations`](../../skills/3d-representations/SKILL.md) (conversion matrix, memory arithmetic, pitfalls).
+Skill: [`3d-representations`](https://github.com/pardesline/pardesline/blob/main/skills/3d-representations/SKILL.md) (conversion matrix, memory arithmetic, pitfalls).
 MCP: `get_skill("3d-representations")`, `to_mesh`, `run_method`.
 
 ---
@@ -125,7 +125,7 @@ aligned = scan.align(atlas)  # atlas moves, point order kept
 ```
 
 Verified: 99.2 % label agreement and 0.04° pose error on a synthetic scan.
-Skill: [`atlas-label-transfer`](../../skills/atlas-label-transfer/SKILL.md).
+Skill: [`atlas-label-transfer`](https://github.com/pardesline/pardesline/blob/main/skills/atlas-label-transfer/SKILL.md).
 MCP: `get_skill("atlas-label-transfer", "scripts/atlas_label_transfer.py")`.
 
 ---
@@ -144,7 +144,7 @@ the data contract and how to build labelled clouds from any label map.
 # python skills/pointnet-segmentation/scripts/pointnet_seg.py train --data ./hippo --out ./runs/hippo
 ```
 
-Skill: [`pointnet-segmentation`](../../skills/pointnet-segmentation/SKILL.md).
+Skill: [`pointnet-segmentation`](https://github.com/pardesline/pardesline/blob/main/skills/pointnet-segmentation/SKILL.md).
 MCP: `list_samples("msd_task04_hippocampus")`, `load_sample(..., "mask")`, `get_skill("pointnet-segmentation", "scripts/pointnet_seg.py")`.
 
 ---
@@ -162,7 +162,7 @@ python skills/vae-anomaly-detection/scripts/vae_anomaly.py train --normal ./heal
 python skills/vae-anomaly-detection/scripts/vae_anomaly.py score --weights ./runs/vae/vae.pt --images ./test --out ./scores
 ```
 
-Skill: [`vae-anomaly-detection`](../../skills/vae-anomaly-detection/SKILL.md).
+Skill: [`vae-anomaly-detection`](https://github.com/pardesline/pardesline/blob/main/skills/vae-anomaly-detection/SKILL.md).
 MCP: `get_skill("vae-anomaly-detection")`.
 
 ---
@@ -183,7 +183,7 @@ moved.transform["rotation_deg"], moved.transform["translation_mm"]
 ```
 
 Verified: `scripts/rigid_ct_mr.py` on the RIRE pair (3.9° rotation found, metric trace, checkerboard).
-Skill: [`multimodal-rigid-registration`](../../skills/multimodal-rigid-registration/SKILL.md).
+Skill: [`multimodal-rigid-registration`](https://github.com/pardesline/pardesline/blob/main/skills/multimodal-rigid-registration/SKILL.md).
 MCP: `load_sample("rire_brain", "training_001", "ct")`, `run_method("simpleitk_registration.rigid", ...)`.
 
 ---
@@ -205,7 +205,7 @@ aligned.transform["fitness"], aligned.transform["inlier_rmse"]
 
 Verified: `scripts/registration_eval.py` recovers a 35° synthetic transform on
 the bunny with 0.05° error.
-Skill: [`point-cloud-registration`](../../skills/point-cloud-registration/SKILL.md).
+Skill: [`point-cloud-registration`](https://github.com/pardesline/pardesline/blob/main/skills/point-cloud-registration/SKILL.md).
 MCP: `run_method("registration.ransac_icp_pipeline", input_path, moving_path=...)`.
 
 ---
@@ -224,7 +224,7 @@ MCP: `run_method("registration.ransac_icp_pipeline", input_path, moving_path=...
   (`obj.to_open3d()`, `obj.to_sitk()`, `obj.to_pyvista()`).
 - **Agents**: `pardesline mcp` gives all of it, plus these skills, to any MCP
   client without an account.
-- **Metrics**: [`evaluation-metrics-3d`](../../skills/evaluation-metrics-3d/SKILL.md) says which number to report and how.
+- **Metrics**: [`evaluation-metrics-3d`](https://github.com/pardesline/pardesline/blob/main/skills/evaluation-metrics-3d/SKILL.md) says which number to report and how.
 
 Posters by Jonathan Tabet, PardesLine. The images are part of the repository
 documentation under the project licence.

@@ -120,3 +120,25 @@ def test_accepts_nii_gz_wherever_nii_is_accepted():
     assert mod.accepts(".nii.gz") and mod.accepts(".NII.GZ") and mod.accepts(".nii")
     assert not mod.accepts(".gz") and not mod.accepts(".ply")
     assert not pl.catalog().module("point_cloud_processing").accepts(".nii.gz")
+
+
+def test_every_default_has_a_rationale_and_a_validation_regime():
+    """The differentiator is documented defaults: every parameter of every method
+    says why its default is what it is, and every method says on which bundled
+    data or test the defaults were checked (src/pardesline/catalog/data/_defaults.json)."""
+    missing_why, missing_validated = [], []
+    for mod in pl.catalog():
+        for meth in mod.methods.values():
+            if not meth.validated_on:
+                missing_validated.append(meth.qualname)
+            for p in meth.parameters:
+                if len(p.rationale.split()) < 3:
+                    missing_why.append(f"{meth.qualname}.{p.name}")
+    assert not missing_validated, f"methods without validated_on: {missing_validated}"
+    assert not missing_why, f"parameters without a rationale: {missing_why}"
+
+
+def test_describe_prints_the_rationale():
+    text = pl.describe("registration.ransac_icp_pipeline")
+    assert "defaults validated on:" in text and "why:" in text
+    assert "1.3 % of the bounding-box diagonal" in text

@@ -24,6 +24,8 @@ __all__ = ["UrlListSource"]
 
 
 class UrlListSource:
+    """One file per line of a remote text index (MedShapeNet), fetched by URL with Range support."""
+
     def __init__(
         self,
         name: str,
