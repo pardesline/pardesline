@@ -93,10 +93,9 @@ jobs:
         if: github.event_name == 'release' || (inputs.tag || '') != ''
         env:
           TAG: ${{ inputs.tag || github.ref_name }}
+          DOCS_SOCIAL: "true"
         run: |
           VERSION="${TAG#v}"
           MINOR="${VERSION%.*}"
           mike deploy --push --update-aliases --alias-type copy "$MINOR" latest
           mike set-default --push latest
-        env:
-          DOCS_SOCIAL: "true"
