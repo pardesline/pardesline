@@ -6,25 +6,69 @@
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": false,
   "changelog-sections": [
-    { "type": "feat", "section": "Added" },
-    { "type": "fix", "section": "Fixed" },
-    { "type": "perf", "section": "Changed" },
-    { "type": "refactor", "section": "Changed" },
-    { "type": "docs", "section": "Documentation" },
-    { "type": "ci", "section": "Infrastructure", "hidden": true },
-    { "type": "tests", "section": "Tests", "hidden": true },
-    { "type": "test", "section": "Tests", "hidden": true },
-    { "type": "chore", "hidden": true }
+    {
+      "type": "feat",
+      "section": "Added"
+    },
+    {
+      "type": "fix",
+      "section": "Fixed"
+    },
+    {
+      "type": "perf",
+      "section": "Changed"
+    },
+    {
+      "type": "refactor",
+      "section": "Changed"
+    },
+    {
+      "type": "docs",
+      "section": "Documentation"
+    },
+    {
+      "type": "ci",
+      "section": "Infrastructure",
+      "hidden": true
+    },
+    {
+      "type": "tests",
+      "section": "Tests",
+      "hidden": true
+    },
+    {
+      "type": "test",
+      "section": "Tests",
+      "hidden": true
+    },
+    {
+      "type": "chore",
+      "hidden": true
+    }
   ],
   "packages": {
     ".": {
       "package-name": "pardesline",
       "changelog-path": "CHANGELOG.md",
-      "version-file": "src/pardesline/_version.py",
       "extra-files": [
-        { "type": "json", "path": ".claude-plugin/plugin.json", "jsonpath": "$.version" },
-        { "type": "json", "path": ".claude-plugin/marketplace.json", "jsonpath": "$.plugins[0].version" },
-        { "type": "generic", "path": "CITATION.cff" }
+        {
+          "type": "generic",
+          "path": "src/pardesline/_version.py"
+        },
+        {
+          "type": "generic",
+          "path": "CITATION.cff"
+        },
+        {
+          "type": "json",
+          "path": ".claude-plugin/plugin.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": ".claude-plugin/marketplace.json",
+          "jsonpath": "$.plugins[0].version"
+        }
       ]
     }
   }

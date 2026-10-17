@@ -13,7 +13,17 @@
       "description": "Skills for the pardesline package: run the 73 algorithms locally with validated parameters, chain them on typed objects that keep frame/units/labels/licence/provenance, load public datasets or private folders by manifest, work with medical volumes, use the optional cloud client, and extend the package.",
       "version": "0.2.0",
       "homepage": "https://github.com/pardesline/pardesline#readme",
-      "keywords": ["3d-vision", "medical-imaging", "point-cloud", "mesh", "dicom", "registration", "open3d", "pyvista", "simpleitk"]
+      "keywords": [
+        "3d-vision",
+        "medical-imaging",
+        "point-cloud",
+        "mesh",
+        "dicom",
+        "registration",
+        "open3d",
+        "pyvista",
+        "simpleitk"
+      ]
     }
   ]
 }
