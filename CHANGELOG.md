@@ -4,6 +4,33 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.3.0](https://github.com/pardesline/pardesline/compare/v0.2.0...v0.3.0) (2026-10-17)
+
+
+### Fixed
+
+* **docs:** copy aliases for Pages, drop old landing page, no pip bump PRs ([aa996b9](https://github.com/pardesline/pardesline/commit/aa996b91f2278247d489c1d5ec22e79602a22e47))
+* **release:** bump _version.py and CITATION.cff through release-please ([ce80de9](https://github.com/pardesline/pardesline/commit/ce80de9e25ff2905e4a2cffc8c5e9c9a37925baa))
+
+
+### Documentation
+
+* carousel below the title at 560 px, posters ordered JEPA, DINOv3, echo, splats, representations, atlas, PointNet, VAE, CT/MR, ICP ([eea9723](https://github.com/pardesline/pardesline/commit/eea97237111a531925b81a04784f7417c6cfe492))
+* contributor funnel - issue forms, templates, support, issues to create ([5fbbc04](https://github.com/pardesline/pardesline/commit/5fbbc04dbdf13b6aea3b1deebff1b015d440df21))
+* documentation site, documented defaults, benchmarks, docstrings ([6e5e057](https://github.com/pardesline/pardesline/commit/6e5e057f35578efacde0fc62c3dd4eaee93f084d))
+* front-page README with poster carousel, docs pages, Pages landing, CITATION.cff ([55e7d74](https://github.com/pardesline/pardesline/commit/55e7d74481fbc72d9e6e34c726780b6d0a165c53))
+* launch kit, content calendar, final report ([44920e9](https://github.com/pardesline/pardesline/commit/44920e9ce5da9d6d5b9a2ada6605681e8c843a90))
+* README as a landing page, twelve runnable examples, small-archive fast path ([336fa2d](https://github.com/pardesline/pardesline/commit/336fa2d0bda987142ae05f14e2875e60140676e7))
+* relative image paths in the README (absolute raw URLs do not render on a private repository) ([97c8c33](https://github.com/pardesline/pardesline/commit/97c8c337e92b7ba3c61d8354595eb61f9d6f048d))
+* SEO foundation - keyword map, GitHub metadata, PyPI metadata ([fe4cd1f](https://github.com/pardesline/pardesline/commit/fe4cd1fe62200f97d83d59b984b44f32322380f4))
+* showcase of the ten pipelines; ci: pin ruff 0.17 ([fa53d61](https://github.com/pardesline/pardesline/commit/fa53d6125f83821dbd1ce383fa78d8b36541dd01))
+* stamp generated pages with the source's last commit date ([0642797](https://github.com/pardesline/pardesline/commit/06427978e26c9471ff9081999254e2e5c5ad56bd))
+
+
+### Infrastructure
+
+* scorecard-action 2.4.4, docs default version, branch protection option ([1b50ee7](https://github.com/pardesline/pardesline/commit/1b50ee7ec7cdfb36d779cc9d75f51894f15cff5d))
+
 ## [Unreleased]
 
 ### Added
