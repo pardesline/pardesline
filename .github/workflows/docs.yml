@@ -51,7 +51,7 @@ jobs:
         with:
           args: --no-progress --accept 200,206,429 --exclude-path site/assets --exclude 'localhost' --exclude 'pardesline.com' --exclude 'linkedin.com' --exclude 'pypistats' --max-concurrency 8 'site/**/*.html'
           fail: false
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: site
           path: site/
