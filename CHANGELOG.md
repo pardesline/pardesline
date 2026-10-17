@@ -4,7 +4,7 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## [0.3.0](https://github.com/pardesline/pardesline/compare/v0.2.0...v0.3.0) — 2026-10-17
+## [0.3.0](https://github.com/pardesline/pardesline/compare/v0.2.0...v0.3.0) â€” 2026-10-17
 
 The "reference repository" release: a documentation site, every default documented with its reason, thirteen executed examples, benchmarks, a contributor funnel and release automation. The package API is unchanged; two bugs found on the way are fixed.
 
