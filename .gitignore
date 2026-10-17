@@ -43,7 +43,3 @@ site/
 benchmarks/results/*.ply
 templates/new_pipeline/*.png
 templates/new_pipeline/result.json
-
-# LinkedIn launch assets (rendered locally)
-docs/seo/linkedin/*.pdf
-docs/seo/linkedin/preview/
