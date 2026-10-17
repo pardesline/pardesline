@@ -4,7 +4,7 @@ title: "pardesline: 3D vision and medical imaging in one Python package"
 authors:
   - family-names: Tabet
     given-names: Jonathan
-version: 0.2.0 # x-release-please-version
+version: 0.3.0 # x-release-please-version
 date-released: 2026-10-14
 license: Apache-2.0
 repository-code: "https://github.com/pardesline/pardesline"
