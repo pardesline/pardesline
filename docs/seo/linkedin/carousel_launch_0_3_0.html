@@ -1,0 +1,106 @@
+<link rel="stylesheet" href="blueprint.css">
+
+<!-- 1 COVER -->
+<div class="slide">
+  <span class="chip"><span class="dot"></span>Open source · 3D vision &amp; medical imaging · v0.3.0</span>
+  <div class="spacer"></div>
+  <h1>Your ICP <span class="accent">converged</span>.<br>The part is <span class="mag">32° off</span>.</h1>
+  <p class="sub">What the Open3D tutorial call does on a real partial scan, measured, and the defaults that fix it. 73 algorithms, 43 datasets, one Python package.</p>
+  <div class="spacer"></div>
+  <div class="foot"><span class="h">Jonathan Tabet · pardesline</span><span>Swipe →</span></div>
+</div>
+
+<!-- 2 THE MISTAKE -->
+<div class="slide">
+  <span class="chip"><span class="dot"></span>The mistake</span>
+  <div class="spacer"></div>
+  <h2>Trusting <span class="accent">fitness = 0.98</span>.</h2>
+  <p class="sub" style="margin-top:28px">Fitness counts pairs inside a fixed 0.02 threshold. From the identity start, the 70 % overlap already satisfies it.</p>
+  <p class="lead" style="margin-top:34px;color:#FB7185">ICP never left its starting basin. Rotation error: 32°. The number said success.</p>
+  <div class="spacer"></div>
+  <div class="foot"><span class="h">pardesline</span><span class="num">2 / 8</span></div>
+</div>
+
+<!-- 3 MEASURED -->
+<div class="slide">
+  <span class="chip"><span class="dot"></span>Measured · bunny, 35°, 70 % overlap, 0.5 % noise, 5 draws</span>
+  <div class="spacer"></div>
+  <h2>Three calls, same two clouds.</h2>
+  <div class="kv" style="margin-top:40px">
+    <div class="row"><div class="tick x">!</div><div class="b"><b>Tutorial ICP</b> <span class="m">— 32.5° off (median)</span></div></div>
+    <div class="row"><div class="tick x">!</div><div class="b"><b>Tutorial RANSAC, fixed 0.05 m voxel</b> <span class="m">— 134.5° off</span></div></div>
+    <div class="row"><div class="tick c">✓</div><div class="b"><b>Defaults derived from the data</b> <span class="m">— 0.11° off, RMSE at the noise floor</span></div></div>
+  </div>
+  <p class="body" style="margin-top:36px">Not a smarter algorithm. Every distance tied to the scan's own scale.</p>
+  <div class="spacer"></div>
+  <div class="foot"><span class="h">pardesline · benchmarks/registration_bunny.py</span><span class="num">3 / 8</span></div>
+</div>
+
+<!-- 4 THE FIX -->
+<div class="slide">
+  <span class="chip"><span class="dot"></span>The fix</span>
+  <div class="spacer"></div>
+  <h2>Tie every distance to the <span class="accent">scan's scale</span>.</h2>
+  <div class="kv" style="margin-top:40px">
+    <div class="row"><div class="tick c">1</div><div class="b"><b>voxel = 1.3 % of the bounding-box diagonal</b> <span class="m">— right for a 15 cm bunny and a 15 m facade.</span></div></div>
+    <div class="row"><div class="tick c">2</div><div class="b"><b>RANSAC on FPFH first, ICP second</b> <span class="m">— a 35° start is outside ICP's basin.</span></div></div>
+    <div class="row"><div class="tick g">3</div><div class="b"><b>Coarse to fine: 1.5 × voxel, then 0.4 × voxel</b> <span class="m">— point-to-plane, so the 30 % of points with no counterpart stop pulling.</span></div></div>
+  </div>
+  <div class="spacer"></div>
+  <div class="foot"><span class="h">pardesline</span><span class="num">4 / 8</span></div>
+</div>
+
+<!-- 5 WRITE IT DOWN -->
+<div class="slide">
+  <span class="chip"><span class="dot"></span>Write it down</span>
+  <div class="spacer"></div>
+  <h2>Every default has a <span class="accent">why</span>.</h2>
+  <p class="sub" style="margin-top:22px">371 parameters, 73 methods. Each one records the reason and the data it was checked on. A test fails if one is missing.</p>
+  <div class="card" style="margin-top:34px;font-family:ui-monospace,Consolas,monospace;font-size:24px;line-height:1.45">
+    <div style="color:var(--mut)">&gt;&gt;&gt; pl.describe("registration.ransac_icp_pipeline")</div>
+    <div style="margin-top:10px">voxel_size: float = 0.5 [0..0.9]</div>
+    <div style="color:var(--cyan)">why: 0 (auto) = 1.3 % of the bounding-box diagonal: every other distance is a multiple of it, so one number adapts the whole pipeline to a 15 cm part or a 15 m facade.</div>
+    <div style="margin-top:10px">distance_threshold_factor: float = 1.5 [0.5..3.0]</div>
+    <div style="color:var(--cyan)">why: 1.5x the voxel for RANSAC inliers: tolerant to scanner noise, still rejects outliers.</div>
+  </div>
+  <div class="spacer"></div>
+  <div class="foot"><span class="h">pardesline</span><span class="num">5 / 8</span></div>
+</div>
+
+<!-- 6 SAVE THIS -->
+<div class="slide">
+  <span class="chip"><span class="dot"></span>Save this</span>
+  <h2 style="margin-top:30px">Which registration, in 30 seconds</h2>
+  <div class="flow">
+    <div class="q">Clouds already within a few degrees? <span class="a">→ ICP, point-to-plane</span></div>
+    <div class="q">Unknown pose, large rotation? <span class="a">→ RANSAC on FPFH, then ICP</span></div>
+    <div class="q">The shape deforms (lungs, soft tissue)? <span class="a" style="color:var(--magenta)">→ Coherent Point Drift</span></div>
+    <div class="q">CT and MR of the same patient? <span class="a" style="color:var(--amber)">→ Mattes mutual information, rigid first</span></div>
+  </div>
+  <p class="body" style="margin-top:34px">The trap: running ICP on unregistered clouds, then blaming the scanner. It is not the data. It is the stage you skipped.</p>
+  <div class="spacer"></div>
+  <div class="foot"><span class="h">pardesline</span><span class="num">6 / 8</span></div>
+</div>
+
+<!-- 7 PAYOFF -->
+<div class="slide">
+  <span class="chip"><span class="dot"></span>…the one-line version</span>
+  <h2 style="margin-top:24px;font-family:ui-monospace,Consolas,monospace;font-size:50px">aligned = target.align(moving)</h2>
+  <div class="grid2" style="margin-top:28px">
+    <div><img class="shot" src="../../../examples/icp_registration_bunny/textbook_defaults.png" alt="textbook ICP, 32 degrees off"><p class="body" style="margin-top:10px;text-align:center;color:#FB7185">Textbook ICP · 32.0°</p></div>
+    <div><img class="shot" src="../../../examples/icp_registration_bunny/pardesline_defaults.png" alt="pardesline defaults, 0.14 degrees off"><p class="body" style="margin-top:10px;text-align:center;color:var(--green)">pardesline · 0.14°</p></div>
+  </div>
+  <p class="body" style="margin-top:26px">43 public 3D and medical datasets in one line, with their licences: <span style="color:var(--cyan)">pl.load("rire_brain")</span>. Open3D, PyVista and SimpleITK underneath. Apache-2.0, Python 3.10–3.13, an MCP server for AI agents.</p>
+  <div class="foot"><span class="h">github.com/pardesline/pardesline</span><span class="num">7 / 8</span></div>
+</div>
+
+<!-- 8 CTA -->
+<div class="slide">
+  <span class="chip"><span class="dot"></span>Open source, Apache-2.0</span>
+  <div class="spacer"></div>
+  <p class="cta-big">Comment <span class="kw">"REPO"</span> and I'll send you the repository and the benchmark page.</p>
+  <p class="cta-big" style="margin-top:26px;font-size:40px">I need contributors: a <span class="accent">dataset manifest</span>, a <span class="accent">default you disagree with</span>, a <span class="accent">scan that breaks it</span>.</p>
+  <p class="sub" style="margin-top:40px">Which default bit you last: the ICP threshold, or the Poisson depth?</p>
+  <div class="spacer"></div>
+  <div class="foot"><span class="h">Jonathan Tabet · pardesline</span><span>Follow for 3D vision &amp; medical imaging</span></div>
+</div>
