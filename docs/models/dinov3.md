@@ -133,4 +133,4 @@ patch tokens), [`scripts/dinov3_faster_rcnn.py`](https://github.com/pardesline/p
 feature pyramid + torchvision Faster R-CNN, training and evaluation on a COCO-
 style box dataset). Both need `torch`, `torchvision`, `transformers`.
 
-<sub>Source: `skills/dinov3-dense-features/SKILL.md`, published on 2026-10-17.</sub>
+<sub>Source: `skills/dinov3-dense-features/SKILL.md`, published on 2026-10-14.</sub>

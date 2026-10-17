@@ -148,4 +148,4 @@ through the PyVista adapter), `obj.to_numpy()` (points, vertices, or voxels
 as (z, y, x)). `os.fspath(obj)` gives the path, so any library reader accepts
 the object directly. Each raises `pl.MissingDependency` naming the extra.
 
-<sub>Source: `skills/object-model/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-17.</sub>
+<sub>Source: `skills/object-model/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-14.</sub>

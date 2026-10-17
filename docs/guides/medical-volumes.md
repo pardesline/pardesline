@@ -110,4 +110,4 @@ These are the exact functions the hosted registration studio runs.
 - Datasets: `rire_brain` (CT/MR pair), `popi_lung_4dct` (6 phases + mask),
   `liver_tumor_patient01` (CT + 3 observer masks), `visible_human_head_mri`.
 
-<sub>Source: `skills/medical-volumes/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-17.</sub>
+<sub>Source: `skills/medical-volumes/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-10.</sub>

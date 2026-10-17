@@ -161,4 +161,4 @@ Output: `.ply`. Script: `python -m pardesline.ops.point_cloud_reconstruction.bal
 - [Why our defaults work](why-our-defaults-work.md) · [The catalog and `pl.run`](../getting-started/concepts.md#catalog) · [API reference](../api/index.md)
 - `pl.describe("point_cloud_reconstruction")` prints this module from the installed package; `pl.describe("point_cloud_reconstruction.<method>")` one method with ranges and rationale.
 
-<sub>Generated from `src/pardesline/catalog/data/point_cloud_reconstruction.json` and `_defaults.json` on 2026-10-17.</sub>
+<sub>Generated from `src/pardesline/catalog/data/point_cloud_reconstruction.json` and `_defaults.json` on 2026-10-10.</sub>

@@ -10,9 +10,31 @@ default and the data the defaults were validated on. Nothing is typed by hand.
 
 from __future__ import annotations
 
-import datetime as _dt
 import sys
 from pathlib import Path
+
+
+def _source_date(rel: str) -> str:
+    """Date of the last commit touching ``rel`` (repo-relative), today when unknown.
+
+    Keeps the generated pages stable between runs: only a real change to the
+    source moves the stamp.
+    """
+    import datetime as _dt
+    import subprocess
+
+    try:
+        out = subprocess.run(
+            ["git", "log", "-1", "--format=%cs", "--", rel],
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd=Path(__file__).resolve().parents[2],
+        ).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        out = ""
+    return out or _dt.date.today().isoformat()
+
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "docs" / "algorithms"
@@ -166,7 +188,7 @@ def page(mod) -> str:
         "",
     ]
     L += [
-        f"<sub>Generated from `src/pardesline/catalog/data/{mod.id}.json` and `_defaults.json` on {_dt.date.today().isoformat()}.</sub>",
+        f"<sub>Generated from `src/pardesline/catalog/data/{mod.id}.json` and `_defaults.json` on {_source_date(f'src/pardesline/catalog/data/{mod.id}.json')}.</sub>",
         "",
     ]
     return "\n".join(L)

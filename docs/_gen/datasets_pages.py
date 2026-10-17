@@ -11,11 +11,33 @@ hook in ``docs/_gen/mkdocs_hook.py`` so the pages never go stale.
 
 from __future__ import annotations
 
-import datetime as _dt
 import json
 import re
 import sys
 from pathlib import Path
+
+
+def _source_date(rel: str) -> str:
+    """Date of the last commit touching ``rel`` (repo-relative), today when unknown.
+
+    Keeps the generated pages stable between runs: only a real change to the
+    source moves the stamp.
+    """
+    import datetime as _dt
+    import subprocess
+
+    try:
+        out = subprocess.run(
+            ["git", "log", "-1", "--format=%cs", "--", rel],
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd=Path(__file__).resolve().parents[2],
+        ).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        out = ""
+    return out or _dt.date.today().isoformat()
+
 
 ROOT = Path(__file__).resolve().parents[2]
 MANIFESTS = ROOT / "src" / "pardesline" / "data" / "manifests"
@@ -233,7 +255,7 @@ def page(m: dict) -> str:
         lines.append(f"- Tags: {tags}")
     lines.append("")
     lines.append(
-        f"<sub>Generated from `src/pardesline/data/manifests/{name}.json` on {_dt.date.today().isoformat()}.</sub>"
+        f"<sub>Generated from `src/pardesline/data/manifests/{name}.json` on {_source_date(f'src/pardesline/data/manifests/{name}.json')}.</sub>"
     )
     lines.append("")
     return "\n".join(lines)

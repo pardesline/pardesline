@@ -163,4 +163,4 @@ Output: `.ply`. Script: `python -m pardesline.ops.pyvista_pointcloud_processing.
 - [Why our defaults work](why-our-defaults-work.md) · [The catalog and `pl.run`](../getting-started/concepts.md#catalog) · [API reference](../api/index.md)
 - `pl.describe("pyvista_pointcloud_processing")` prints this module from the installed package; `pl.describe("pyvista_pointcloud_processing.<method>")` one method with ranges and rationale.
 
-<sub>Generated from `src/pardesline/catalog/data/pyvista_pointcloud_processing.json` and `_defaults.json` on 2026-10-17.</sub>
+<sub>Generated from `src/pardesline/catalog/data/pyvista_pointcloud_processing.json` and `_defaults.json` on 2026-10-10.</sub>

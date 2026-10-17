@@ -96,4 +96,4 @@ Output: `.ply`. Script: `python -m pardesline.ops.collision_detection.penetratio
 - [Why our defaults work](why-our-defaults-work.md) · [The catalog and `pl.run`](../getting-started/concepts.md#catalog) · [API reference](../api/index.md)
 - `pl.describe("collision_detection")` prints this module from the installed package; `pl.describe("collision_detection.<method>")` one method with ranges and rationale.
 
-<sub>Generated from `src/pardesline/catalog/data/collision_detection.json` and `_defaults.json` on 2026-10-17.</sub>
+<sub>Generated from `src/pardesline/catalog/data/collision_detection.json` and `_defaults.json` on 2026-10-10.</sub>

@@ -122,4 +122,4 @@ organ from different patients, `ds.filter(structure="liver")`),
 `totalsegmentator_ct` / `amos22` (build atlases), `c3vd_endoscopy_splats`
 (`points` role: scene-to-scene transfer).
 
-<sub>Source: `skills/atlas-label-transfer/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-17.</sub>
+<sub>Source: `skills/atlas-label-transfer/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-14.</sub>

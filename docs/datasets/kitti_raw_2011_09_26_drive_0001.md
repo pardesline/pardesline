@@ -61,4 +61,4 @@ ds.export("./standardized")        # PLY / MetaImage + sidecars + manifest.json
 - [Datasets catalog](index.md) · [How to download a medical imaging dataset in Python](../how-to/download-a-medical-imaging-dataset-in-python.md) · [Add a dataset](../contributing.md#adding-a-dataset)
 - Tags: `lidar`, `points`, `driving`, `kitti`, `stereo`, `non-commercial`
 
-<sub>Generated from `src/pardesline/data/manifests/kitti_raw_2011_09_26_drive_0001.json` on 2026-10-17.</sub>
+<sub>Generated from `src/pardesline/data/manifests/kitti_raw_2011_09_26_drive_0001.json` on 2026-10-14.</sub>

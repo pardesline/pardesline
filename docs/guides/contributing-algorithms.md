@@ -121,4 +121,4 @@ Bump `_version.py` and CHANGELOG, tag `vX.Y.Z`, create the release.
 - `.txt` is an accepted point-cloud extension for ops but too ambiguous for
   `pl.scan`, which skips it.
 
-<sub>Source: `skills/contributing-algorithms/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-17.</sub>
+<sub>Source: `skills/contributing-algorithms/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-14.</sub>

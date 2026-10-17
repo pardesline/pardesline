@@ -55,4 +55,4 @@ ds.export("./standardized")        # PLY / MetaImage + sidecars + manifest.json
 - [Datasets catalog](index.md) · [How to download a medical imaging dataset in Python](../how-to/download-a-medical-imaging-dataset-in-python.md) · [Add a dataset](../contributing.md#adding-a-dataset)
 - Tags: `mesh`, `gltf`, `objects`, `hf`, `objaverse`
 
-<sub>Generated from `src/pardesline/data/manifests/hf_objaverse_glb_shard.json` on 2026-10-17.</sub>
+<sub>Generated from `src/pardesline/data/manifests/hf_objaverse_glb_shard.json` on 2026-10-14.</sub>

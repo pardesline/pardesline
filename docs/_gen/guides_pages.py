@@ -10,9 +10,31 @@ the page.
 
 from __future__ import annotations
 
-import datetime as _dt
 import re
 from pathlib import Path
+
+
+def _source_date(rel: str) -> str:
+    """Date of the last commit touching ``rel`` (repo-relative), today when unknown.
+
+    Keeps the generated pages stable between runs: only a real change to the
+    source moves the stamp.
+    """
+    import datetime as _dt
+    import subprocess
+
+    try:
+        out = subprocess.run(
+            ["git", "log", "-1", "--format=%cs", "--", rel],
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd=Path(__file__).resolve().parents[2],
+        ).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        out = ""
+    return out or _dt.date.today().isoformat()
+
 
 ROOT = Path(__file__).resolve().parents[2]
 SKILLS = ROOT / "skills"
@@ -127,7 +149,7 @@ def model_page(slug: str, skill: str, title: str, example: str | None, ships: st
     L += [
         rest.strip(),
         "",
-        f"<sub>Source: `skills/{skill}/SKILL.md`, published on {_dt.date.today().isoformat()}.</sub>",
+        f"<sub>Source: `skills/{skill}/SKILL.md`, published on {_source_date(f'skills/{skill}/SKILL.md')}.</sub>",
         "",
     ]
     return "\n".join(L)
@@ -150,7 +172,7 @@ def guide_page(skill: str, title: str) -> str:
     L += [
         rest.strip(),
         "",
-        f"<sub>Source: `skills/{skill}/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on {_dt.date.today().isoformat()}.</sub>",
+        f"<sub>Source: `skills/{skill}/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on {_source_date(f'skills/{skill}/SKILL.md')}.</sub>",
         "",
     ]
     return "\n".join(L)

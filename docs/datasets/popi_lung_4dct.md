@@ -60,4 +60,4 @@ ds.export("./standardized")        # PLY / MetaImage + sidecars + manifest.json
 - [Datasets catalog](index.md) · [How to download a medical imaging dataset in Python](../how-to/download-a-medical-imaging-dataset-in-python.md) · [Add a dataset](../contributing.md#adding-a-dataset)
 - Tags: `medical`, `lung`, `ct`, `4d`, `deformable`, `registration`, `segmentation`
 
-<sub>Generated from `src/pardesline/data/manifests/popi_lung_4dct.json` on 2026-10-17.</sub>
+<sub>Generated from `src/pardesline/data/manifests/popi_lung_4dct.json` on 2026-10-10.</sub>

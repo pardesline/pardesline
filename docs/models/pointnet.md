@@ -125,4 +125,4 @@ Datasets: `msd_task04_hippocampus`, `amos22`, `totalsegmentator_ct`,
 `verse19_spine`, `medshapenet`, `hf_kitti360_gs_subset` (`points` +
 `point_segments` for scene segmentation), `kitti_raw_2011_09_26_drive_0001`.
 
-<sub>Source: `skills/pointnet-segmentation/SKILL.md`, published on 2026-10-17.</sub>
+<sub>Source: `skills/pointnet-segmentation/SKILL.md`, published on 2026-10-14.</sub>

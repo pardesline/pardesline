@@ -124,4 +124,4 @@ manifest for the next session.
 - Pairing heuristics are deliberately simple; when the folder layout is
   unusual, write the `samples` list in the manifest by hand.
 
-<sub>Source: `skills/scanning-private-folders/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-17.</sub>
+<sub>Source: `skills/scanning-private-folders/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-14.</sub>
