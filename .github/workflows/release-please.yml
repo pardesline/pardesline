@@ -1,10 +1,10 @@
 name: Release Please
 
 # Opens and maintains a release pull request from the conventional commits on
-# main (version bump in _version.py and the two plugin manifests, CHANGELOG
-# section). Merging it creates the tag and the GitHub release; publish.yml then
-# uploads to PyPI through Trusted Publishing and docs.yml deploys the
-# versioned documentation.
+# main (version bump in _version.py, CITATION.cff and the two plugin manifests,
+# CHANGELOG section). Merging it creates the tag and the GitHub release, then
+# this workflow dispatches publish.yml (PyPI through Trusted Publishing) and
+# docs.yml (versioned documentation) for that tag.
 
 on:
   push:
@@ -14,12 +14,24 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: write
 
 jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
       - uses: googleapis/release-please-action@v4
+        id: release
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+      # Releases created with the workflow token do not fire `release` events,
+      # so the PyPI upload and the versioned docs are dispatched explicitly.
+      - name: Publish to PyPI and deploy the versioned docs
+        if: steps.release.outputs.release_created == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag_name }}
+        run: |
+          gh workflow run publish.yml --ref main -f "tag=$TAG"
+          gh workflow run docs.yml --ref main -f "tag=$TAG"

@@ -20,6 +20,12 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to deploy as a versioned site (empty: deploy main as dev)"
+        required: false
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -35,6 +41,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ inputs.tag || github.ref }}
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
@@ -64,6 +71,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ inputs.tag || github.ref }}
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
@@ -75,16 +83,18 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Deploy dev docs (push to main)
-        if: github.event_name != 'release'
+        if: github.event_name != 'release' && (inputs.tag || '') == ''
         run: |
           mike deploy --push --update-aliases --alias-type copy dev latest
           mike set-default --push latest
         env:
           DOCS_SOCIAL: "true"
-      - name: Deploy versioned docs (release)
-        if: github.event_name == 'release'
+      - name: Deploy versioned docs (release or dispatched tag)
+        if: github.event_name == 'release' || (inputs.tag || '') != ''
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
+          VERSION="${TAG#v}"
           MINOR="${VERSION%.*}"
           mike deploy --push --update-aliases --alias-type copy "$MINOR" latest
           mike set-default --push latest
