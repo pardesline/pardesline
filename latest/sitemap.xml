@@ -1,511 +1,511 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/benchmarks/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/benchmarks/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/catalog/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/catalog/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/changelog/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/changelog/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/comparison/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/comparison/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/contributing/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/contributing/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/examples/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/examples/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/faq/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/faq/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/mcp/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/mcp/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/running-modes/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/running-modes/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/agents/mcp/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/agents/mcp/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/algorithms/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/algorithms/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/algorithms/collision_detection/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/algorithms/collision_detection/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/algorithms/deformable_registration/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/algorithms/deformable_registration/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/algorithms/features_extraction/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/algorithms/features_extraction/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/algorithms/lidar_camera_fusion/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/algorithms/lidar_camera_fusion/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/algorithms/lidar_scene_detection/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/algorithms/lidar_scene_detection/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/algorithms/mesh_processing/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/algorithms/mesh_processing/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/algorithms/point_cloud_processing/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/algorithms/point_cloud_processing/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/algorithms/point_cloud_reconstruction/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/algorithms/point_cloud_reconstruction/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/algorithms/point_cloud_segmentation/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/algorithms/point_cloud_segmentation/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/algorithms/pyvista_analysis/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/algorithms/pyvista_analysis/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/algorithms/pyvista_mesh_processing/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/algorithms/pyvista_mesh_processing/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/algorithms/pyvista_pointcloud_processing/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/algorithms/pyvista_pointcloud_processing/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/algorithms/pyvista_volume_processing/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/algorithms/pyvista_volume_processing/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/algorithms/registration/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/algorithms/registration/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/algorithms/sdf/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/algorithms/sdf/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/algorithms/simpleitk_registration/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/algorithms/simpleitk_registration/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/algorithms/simpleitk_segmentation/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/algorithms/simpleitk_segmentation/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/algorithms/stereo_3d_reconstruction/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/algorithms/stereo_3d_reconstruction/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/algorithms/voxel_to_mesh/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/algorithms/voxel_to_mesh/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/algorithms/why-our-defaults-work/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/algorithms/why-our-defaults-work/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/api/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/api/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/api/catalog/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/api/catalog/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/api/data/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/api/data/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/api/mcp_server/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/api/mcp_server/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/api/object/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/api/object/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/api/runner/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/api/runner/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/amos22/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/amos22/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/c3vd_endoscopy_splats/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/c3vd_endoscopy_splats/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/chaos_abdomen/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/chaos_abdomen/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/hf_3d_arena/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/hf_3d_arena/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/hf_abdomenatlas_mini/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/hf_abdomenatlas_mini/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/hf_biomedsegfm_3d_val/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/hf_biomedsegfm_3d_val/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/hf_ct_rate_valid/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/hf_ct_rate_valid/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/hf_kits23/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/hf_kits23/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/hf_kitti360_gs_subset/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/hf_kitti360_gs_subset/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/hf_nsclc_radiomics/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/hf_nsclc_radiomics/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/hf_objaverse_glb_shard/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/hf_objaverse_glb_shard/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/hf_openmind/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/hf_openmind/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/hf_uniocc_carla_mini/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/hf_uniocc_carla_mini/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/ixi_brain_mri/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/ixi_brain_mri/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/kitti_raw_2011_09_26_drive_0001/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/kitti_raw_2011_09_26_drive_0001/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/liver_tumor_patient01/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/liver_tumor_patient01/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/luna16/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/luna16/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/medshapenet/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/medshapenet/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/msd_task01_braintumour/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/msd_task01_braintumour/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/msd_task02_heart/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/msd_task02_heart/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/msd_task03_liver/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/msd_task03_liver/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/msd_task04_hippocampus/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/msd_task04_hippocampus/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/msd_task05_prostate/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/msd_task05_prostate/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/msd_task06_lung/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/msd_task06_lung/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/msd_task07_pancreas/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/msd_task07_pancreas/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/msd_task08_hepaticvessel/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/msd_task08_hepaticvessel/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/msd_task09_spleen/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/msd_task09_spleen/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/msd_task10_colon/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/msd_task10_colon/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/open3d_armadillo/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/open3d_armadillo/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/open3d_bunny/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/open3d_bunny/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/open3d_icp_demo/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/open3d_icp_demo/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/openneuro_ds000228/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/openneuro_ds000228/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/popi_lung_4dct/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/popi_lung_4dct/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/rire_brain/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/rire_brain/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/spider_lumbar_mri/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/spider_lumbar_mri/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/tcia_lidc_idri/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/tcia_lidc_idri/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/tcia_nsclc_radiomics_dicom/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/tcia_nsclc_radiomics_dicom/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/tcia_pancreas_ct/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/tcia_pancreas_ct/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/tcia_prostate_3t/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/tcia_prostate_3t/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/totalsegmentator_ct/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/totalsegmentator_ct/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/totalsegmentator_mri/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/totalsegmentator_mri/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/verse19_spine/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/verse19_spine/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/datasets/visible_human_head_mri/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/datasets/visible_human_head_mri/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/getting-started/concepts/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/getting-started/concepts/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/getting-started/install/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/getting-started/install/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/getting-started/tutorial/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/getting-started/tutorial/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/guides/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/guides/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/guides/3d-representations/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/guides/3d-representations/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/guides/atlas-label-transfer/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/guides/atlas-label-transfer/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/guides/catalog-and-run/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/guides/catalog-and-run/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/guides/contributing-algorithms/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/guides/contributing-algorithms/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/guides/datasets-and-manifests/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/guides/datasets-and-manifests/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/guides/gaussian-splatting/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/guides/gaussian-splatting/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/guides/mcp-server/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/guides/mcp-server/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/guides/medical-volumes/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/guides/medical-volumes/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/guides/multimodal-rigid-registration/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/guides/multimodal-rigid-registration/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/guides/object-model/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/guides/object-model/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/guides/point-cloud-registration/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/guides/point-cloud-registration/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/guides/scanning-private-folders/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/guides/scanning-private-folders/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/guides/using-pardesline/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/guides/using-pardesline/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/how-to/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/how-to/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/how-to/align-two-scans-in-python/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/how-to/align-two-scans-in-python/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/how-to/convert-a-dicom-series-to-nifti-in-python/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/how-to/convert-a-dicom-series-to-nifti-in-python/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/how-to/convert-a-point-cloud-to-gaussian-splats-in-python/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/how-to/convert-a-point-cloud-to-gaussian-splats-in-python/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/how-to/download-a-medical-imaging-dataset-in-python/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/how-to/download-a-medical-imaging-dataset-in-python/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/how-to/download-a-tcia-collection-in-python/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/how-to/download-a-tcia-collection-in-python/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/how-to/extract-dinov3-features-from-medical-images-in-python/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/how-to/extract-dinov3-features-from-medical-images-in-python/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/how-to/fix-icp-that-does-not-converge/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/how-to/fix-icp-that-does-not-converge/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/how-to/fix-ransac-global-registration-that-fails/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/how-to/fix-ransac-global-registration-that-fails/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/how-to/label-a-scan-from-an-atlas-in-python/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/how-to/label-a-scan-from-an-atlas-in-python/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/how-to/load-a-hugging-face-3d-dataset-in-python/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/how-to/load-a-hugging-face-3d-dataset-in-python/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/how-to/load-raw-npy-and-bin-point-clouds-with-a-layout/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/how-to/load-raw-npy-and-bin-point-clouds-with-a-layout/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/how-to/reconstruct-a-surface-from-a-point-cloud-in-python/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/how-to/reconstruct-a-surface-from-a-point-cloud-in-python/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/how-to/register-ct-and-mri-of-the-same-patient-in-python/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/how-to/register-ct-and-mri-of-the-same-patient-in-python/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/how-to/register-two-point-clouds-with-icp-in-python/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/how-to/register-two-point-clouds-with-icp-in-python/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/how-to/run-a-pretrained-3d-segmentation-model-on-your-ct-scans/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/how-to/run-a-pretrained-3d-segmentation-model-on-your-ct-scans/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/how-to/segment-organs-in-a-ct-scan-in-python/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/how-to/segment-organs-in-a-ct-scan-in-python/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/how-to/standardize-a-folder-of-medical-images-in-python/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/how-to/standardize-a-folder-of-medical-images-in-python/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/how-to/turn-a-segmentation-mask-into-a-mesh-in-python/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/how-to/turn-a-segmentation-mask-into-a-mesh-in-python/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/models/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/models/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/models/dinov3/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/models/dinov3/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/models/evaluation-metrics/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/models/evaluation-metrics/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/models/jepa/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/models/jepa/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/models/medical-segmentation/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/models/medical-segmentation/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/models/pointnet/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/models/pointnet/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/models/vae-anomaly/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/models/vae-anomaly/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
     <url>
-         <loc>https://pardesline.github.io/pardesline/0.3/showcase/</loc>
+         <loc>https://pardesline.github.io/pardesline/dev/showcase/</loc>
          <lastmod>2026-10-17</lastmod>
     </url>
 </urlset>
