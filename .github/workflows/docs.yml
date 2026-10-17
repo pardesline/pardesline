@@ -77,7 +77,7 @@ jobs:
       - name: Deploy dev docs (push to main)
         if: github.event_name != 'release'
         run: |
-          mike deploy --push --update-aliases dev latest
+          mike deploy --push --update-aliases --alias-type copy dev latest
           mike set-default --push latest
         env:
           DOCS_SOCIAL: "true"
@@ -86,7 +86,7 @@ jobs:
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           MINOR="${VERSION%.*}"
-          mike deploy --push --update-aliases "$MINOR" latest
+          mike deploy --push --update-aliases --alias-type copy "$MINOR" latest
           mike set-default --push latest
         env:
           DOCS_SOCIAL: "true"

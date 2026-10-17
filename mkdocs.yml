@@ -12,7 +12,6 @@ strict: true
 exclude_docs: |
   _gen/
   seo/
-  index.html
 
 theme:
   name: material
@@ -64,6 +63,8 @@ extra:
 
 plugins:
   - search
+  - mike:
+      alias_type: copy
   - gen-files:
       scripts:
         - docs/_gen/mkdocs_hook.py

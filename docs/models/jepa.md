@@ -117,4 +117,4 @@ reads any pardesline dataset volume role (resampled, windowed, cropped), and
 a linear-probe evaluation hook. Needs `torch`; runs on CPU at toy size for a
 smoke test.
 
-<sub>Source: `skills/jepa-pretraining/SKILL.md`, published on 2026-10-16.</sub>
+<sub>Source: `skills/jepa-pretraining/SKILL.md`, published on 2026-10-17.</sub>

@@ -109,4 +109,4 @@ folder of normal images, scoring of a folder with residual heatmaps (PNG) and
 image scores (CSV), evaluation (AUROC / AUPRC) when a labels file is given.
 Needs `torch`, `pillow`; runs a smoke test on synthetic images with `--smoke`.
 
-<sub>Source: `skills/vae-anomaly-detection/SKILL.md`, published on 2026-10-16.</sub>
+<sub>Source: `skills/vae-anomaly-detection/SKILL.md`, published on 2026-10-17.</sub>

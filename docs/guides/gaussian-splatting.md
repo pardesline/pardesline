@@ -116,4 +116,4 @@ surface), a per-frame sort, no explicit surface (normals, areas and volumes
 need extraction), and a dependence on good camera poses. For measurement,
 simulation or printing, convert to a mesh and validate it.
 
-<sub>Source: `skills/gaussian-splatting/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-16.</sub>
+<sub>Source: `skills/gaussian-splatting/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-17.</sub>

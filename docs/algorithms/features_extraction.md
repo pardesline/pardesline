@@ -97,4 +97,4 @@ Output: `.ply`. Script: `python -m pardesline.ops.features_extraction.curvature_
 - [Why our defaults work](why-our-defaults-work.md) · [The catalog and `pl.run`](../getting-started/concepts.md#catalog) · [API reference](../api/index.md)
 - `pl.describe("features_extraction")` prints this module from the installed package; `pl.describe("features_extraction.<method>")` one method with ranges and rationale.
 
-<sub>Generated from `src/pardesline/catalog/data/features_extraction.json` and `_defaults.json` on 2026-10-16.</sub>
+<sub>Generated from `src/pardesline/catalog/data/features_extraction.json` and `_defaults.json` on 2026-10-17.</sub>

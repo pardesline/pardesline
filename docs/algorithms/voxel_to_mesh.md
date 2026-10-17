@@ -75,4 +75,4 @@ Output: `.ply`. Script: `python -m pardesline.ops.voxel_to_mesh.binary_erosion -
 - [Why our defaults work](why-our-defaults-work.md) · [The catalog and `pl.run`](../getting-started/concepts.md#catalog) · [API reference](../api/index.md)
 - `pl.describe("voxel_to_mesh")` prints this module from the installed package; `pl.describe("voxel_to_mesh.<method>")` one method with ranges and rationale.
 
-<sub>Generated from `src/pardesline/catalog/data/voxel_to_mesh.json` and `_defaults.json` on 2026-10-16.</sub>
+<sub>Generated from `src/pardesline/catalog/data/voxel_to_mesh.json` and `_defaults.json` on 2026-10-17.</sub>

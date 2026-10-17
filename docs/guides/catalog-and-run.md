@@ -123,4 +123,4 @@ python -m pardesline.ops.registration.icp_refinement --input fixed.ply --output 
 Exit 0 means the output was written. Prefer `pl.run` from Python: it
 validates, names the output and captures the log.
 
-<sub>Source: `skills/catalog-and-run/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-16.</sub>
+<sub>Source: `skills/catalog-and-run/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-17.</sub>

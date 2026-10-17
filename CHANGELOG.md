@@ -23,6 +23,7 @@ All notable changes to this project are documented here. The format follows
 - PyPI metadata: description, 26 keywords, classifiers and project URLs unified on the documentation site.
 
 ### Fixed
+- Docs deployment: mike aliases are copies instead of symbolic links, which the GitHub Pages builder rejects; the old hand-written `docs/index.html` landing page is removed now that Pages serves the `gh-pages` branch.
 - Archive members whose names would escape the dataset cache (`../evil.bin`) are ignored at index time and refused by `fetch`.
 - `.nii.gz` files are accepted by every module that accepts `.nii` (`Volume.segment()` on a Decathlon volume raised "does not accept '.gz' files").
 

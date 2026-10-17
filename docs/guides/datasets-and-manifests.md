@@ -218,4 +218,4 @@ Validation errors raise `pl.ManifestError` with the field path. Cache:
 `pl.cache_dir()`, `pl.set_cache_dir(path)`, env `PARDESLINE_CACHE`;
 `huggingface_hub` keeps its own cache (`HF_HOME`).
 
-<sub>Source: `skills/datasets-and-manifests/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-16.</sub>
+<sub>Source: `skills/datasets-and-manifests/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-17.</sub>

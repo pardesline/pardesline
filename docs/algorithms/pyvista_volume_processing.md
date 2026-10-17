@@ -175,4 +175,4 @@ Output: `.vtu`. Script: `python -m pardesline.ops.pyvista_volume_processing.extr
 - [Why our defaults work](why-our-defaults-work.md) · [The catalog and `pl.run`](../getting-started/concepts.md#catalog) · [API reference](../api/index.md)
 - `pl.describe("pyvista_volume_processing")` prints this module from the installed package; `pl.describe("pyvista_volume_processing.<method>")` one method with ranges and rationale.
 
-<sub>Generated from `src/pardesline/catalog/data/pyvista_volume_processing.json` and `_defaults.json` on 2026-10-16.</sub>
+<sub>Generated from `src/pardesline/catalog/data/pyvista_volume_processing.json` and `_defaults.json` on 2026-10-17.</sub>

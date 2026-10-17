@@ -90,4 +90,4 @@ change with `pl.set_output_dir`), downloads cache in `~/.cache/pardesline`
 (`PARDESLINE_CACHE`). `pl.o3d`, `pl.pv`, `pl.sitk`, `pl.np` are the real
 libraries when installed, the cloud-executed mirrors otherwise.
 
-<sub>Source: `skills/using-pardesline/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-16.</sub>
+<sub>Source: `skills/using-pardesline/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-17.</sub>

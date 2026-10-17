@@ -94,4 +94,4 @@ Output: `.ply`. Script: `python -m pardesline.ops.lidar_camera_fusion.multi_reso
 - [Why our defaults work](why-our-defaults-work.md) · [The catalog and `pl.run`](../getting-started/concepts.md#catalog) · [API reference](../api/index.md)
 - `pl.describe("lidar_camera_fusion")` prints this module from the installed package; `pl.describe("lidar_camera_fusion.<method>")` one method with ranges and rationale.
 
-<sub>Generated from `src/pardesline/catalog/data/lidar_camera_fusion.json` and `_defaults.json` on 2026-10-16.</sub>
+<sub>Generated from `src/pardesline/catalog/data/lidar_camera_fusion.json` and `_defaults.json` on 2026-10-17.</sub>

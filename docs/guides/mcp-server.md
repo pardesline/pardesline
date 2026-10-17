@@ -79,4 +79,4 @@ and run in a worker thread; `build_server()` registers them. Tests:
 `tests/test_mcp_server.py` (in-process calls and a stdio round trip with the
 real client).
 
-<sub>Source: `skills/mcp-server/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-16.</sub>
+<sub>Source: `skills/mcp-server/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-17.</sub>

@@ -53,4 +53,4 @@ Commits, oldest first: `fe4cd1f` SEO foundation · `336fa2d` README + examples +
 - No Colab / Binder badges: the examples are scripts, not notebooks; converting them is a good first issue once Discussions bring the first contributors.
 - No benchmark for volume registration or segmentation defaults: listed on the benchmarks tracking issue.
 - The `gh` CLI is not installed on the maintainer's machine and no token was provided during the mission, so GitHub writes are scripted, not applied.
-- `docs/index.html` (the hand-written landing page) is kept until Pages switches to the MkDocs site, then it can be deleted.
+- `docs/index.html` (the hand-written landing page) was deleted on 2026-10-17 once Pages switched to the `gh-pages` branch. The first Pages build from that branch failed because mike's default alias is a symbolic link, which the Pages builder refuses; aliases are now copies (`alias_type: copy`).

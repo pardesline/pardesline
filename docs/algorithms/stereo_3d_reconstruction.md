@@ -92,4 +92,4 @@ Output: `.ply`. Script: `python -m pardesline.ops.stereo_3d_reconstruction.depth
 - [Why our defaults work](why-our-defaults-work.md) · [The catalog and `pl.run`](../getting-started/concepts.md#catalog) · [API reference](../api/index.md)
 - `pl.describe("stereo_3d_reconstruction")` prints this module from the installed package; `pl.describe("stereo_3d_reconstruction.<method>")` one method with ranges and rationale.
 
-<sub>Generated from `src/pardesline/catalog/data/stereo_3d_reconstruction.json` and `_defaults.json` on 2026-10-16.</sub>
+<sub>Generated from `src/pardesline/catalog/data/stereo_3d_reconstruction.json` and `_defaults.json` on 2026-10-17.</sub>

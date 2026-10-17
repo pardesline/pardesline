@@ -5,11 +5,11 @@ updates:
     schedule:
       interval: weekly
     labels: [dependencies]
+  # Library: lower bounds stay loose on purpose (Open3D 0.19 users, numpy 1.x).
+  # Version-bump PRs are off; security updates still open PRs.
   - package-ecosystem: pip
     directory: /
     schedule:
       interval: weekly
     labels: [dependencies]
-    groups:
-      python-dependencies:
-        patterns: ["*"]
+    open-pull-requests-limit: 0

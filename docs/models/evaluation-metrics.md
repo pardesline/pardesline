@@ -100,4 +100,4 @@ perceptual, lower better) on **held-out views**; training views say nothing.
 from metrics3d import dice, hd95, surface_dice, chamfer, f_score, pose_error
 ```
 
-<sub>Source: `skills/evaluation-metrics-3d/SKILL.md`, published on 2026-10-16.</sub>
+<sub>Source: `skills/evaluation-metrics-3d/SKILL.md`, published on 2026-10-17.</sub>

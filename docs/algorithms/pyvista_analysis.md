@@ -159,4 +159,4 @@ Output: `.ply`. Script: `python -m pardesline.ops.pyvista_analysis.extract_featu
 - [Why our defaults work](why-our-defaults-work.md) · [The catalog and `pl.run`](../getting-started/concepts.md#catalog) · [API reference](../api/index.md)
 - `pl.describe("pyvista_analysis")` prints this module from the installed package; `pl.describe("pyvista_analysis.<method>")` one method with ranges and rationale.
 
-<sub>Generated from `src/pardesline/catalog/data/pyvista_analysis.json` and `_defaults.json` on 2026-10-16.</sub>
+<sub>Generated from `src/pardesline/catalog/data/pyvista_analysis.json` and `_defaults.json` on 2026-10-17.</sub>

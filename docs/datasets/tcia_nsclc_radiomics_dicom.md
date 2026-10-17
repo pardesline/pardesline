@@ -59,4 +59,4 @@ ds.export("./standardized")        # PLY / MetaImage + sidecars + manifest.json
 - [Datasets catalog](index.md) · [How to download a medical imaging dataset in Python](../how-to/download-a-medical-imaging-dataset-in-python.md) · [Add a dataset](../contributing.md#adding-a-dataset)
 - Tags: `medical`, `dicom`, `tcia`, `ct`, `lung`, `oncology`, `rtstruct`
 
-<sub>Generated from `src/pardesline/data/manifests/tcia_nsclc_radiomics_dicom.json` on 2026-10-16.</sub>
+<sub>Generated from `src/pardesline/data/manifests/tcia_nsclc_radiomics_dicom.json` on 2026-10-17.</sub>

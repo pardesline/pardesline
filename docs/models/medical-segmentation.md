@@ -116,4 +116,4 @@ organs CT/MRI), `totalsegmentator_ct` / `totalsegmentator_mri`, `hf_kits23`,
 `verse19_spine`, `spider_lumbar_mri`, `hf_nsclc_radiomics`, `hf_biomedsegfm_3d_val`
 (pooled npz), `luna16` (detection), `tcia_lidc_idri` (DICOM + SEG).
 
-<sub>Source: `skills/medical-segmentation-models/SKILL.md`, published on 2026-10-16.</sub>
+<sub>Source: `skills/medical-segmentation-models/SKILL.md`, published on 2026-10-17.</sub>
