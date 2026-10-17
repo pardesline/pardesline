@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="96" viewBox="0 0 420 96" role="img" aria-label="pardesline">
+  <title>pardesline</title>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f0a05a"/>
+      <stop offset="1" stop-color="#e86f3a"/>
+    </linearGradient>
+  </defs>
+  <!-- glyph: three axes and a sparse point cloud -->
+  <g transform="translate(12,12)">
+    <rect x="0" y="0" width="72" height="72" rx="16" fill="#151a24"/>
+    <g stroke="#3a4454" stroke-width="2" fill="none" stroke-linecap="round">
+      <path d="M22 54 L22 18"/>
+      <path d="M22 54 L58 54"/>
+      <path d="M22 54 L10 66"/>
+    </g>
+    <g fill="url(#g)">
+      <circle cx="30" cy="40" r="3.2"/>
+      <circle cx="40" cy="33" r="3.2"/>
+      <circle cx="49" cy="27" r="3.2"/>
+      <circle cx="36" cy="46" r="2.6"/>
+      <circle cx="45" cy="41" r="2.6"/>
+      <circle cx="53" cy="36" r="2.6"/>
+      <circle cx="27" cy="29" r="2.2"/>
+      <circle cx="38" cy="23" r="2.2"/>
+      <circle cx="50" cy="46" r="2.2"/>
+    </g>
+  </g>
+  <text x="104" y="60" font-family="Segoe UI, Inter, Helvetica, Arial, sans-serif" font-size="44" font-weight="600" fill="#e8ecf2" letter-spacing="-0.5">pardes<tspan fill="#f0a05a">line</tspan></text>
+</svg>

@@ -5477,6 +5477,7 @@
 </ul>
 <h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
 <ul>
+<li>Docs deployment: mike aliases are copies instead of symbolic links, which the GitHub Pages builder rejects; the old hand-written <code>docs/index.html</code> landing page is removed now that Pages serves the <code>gh-pages</code> branch.</li>
 <li>Archive members whose names would escape the dataset cache (<code>../evil.bin</code>) are ignored at index time and refused by <code>fetch</code>.</li>
 <li><code>.nii.gz</code> files are accepted by every module that accepts <code>.nii</code> (<code>Volume.segment()</code> on a Decathlon volume raised "does not accept '.gz' files").</li>
 </ul>
