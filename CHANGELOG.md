@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.3.1](https://github.com/pardesline/pardesline/compare/v0.3.0...v0.3.1) (2026-10-22)
+
+
+### Fixed
+
+* **docs:** deep links to the docs site go through /latest/ ([6ce583e](https://github.com/pardesline/pardesline/commit/6ce583ef80f6236077cc845aae21ad5f7eef5f91))
+* **packaging:** absolute links in the PyPI description ([924c0d7](https://github.com/pardesline/pardesline/commit/924c0d7e8affc22adb854a6cb511d2f654d3fff3))
+
 ## [0.3.0](https://github.com/pardesline/pardesline/compare/v0.2.0...v0.3.0) — 2026-10-17
 
 The "reference repository" release: a documentation site, every default documented with its reason, thirteen executed examples, benchmarks, a contributor funnel and release automation. The package API is unchanged; two bugs found on the way are fixed.
