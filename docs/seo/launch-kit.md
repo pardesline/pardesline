@@ -120,7 +120,7 @@ I need you to contribute and make the future of 3D vision and medical imaging po
 Comment REPO and I will send you the repository and the benchmark page.
 ```
 
-First comment: `Repository: https://github.com/pardesline/pardesline · Benchmark: https://pardesline.github.io/pardesline/benchmarks/ · Why our defaults work: https://pardesline.github.io/pardesline/algorithms/why-our-defaults-work/`
+First comment: `Repository: https://github.com/pardesline/pardesline · Benchmark: https://pardesline.github.io/pardesline/latest/benchmarks/ · Why our defaults work: https://pardesline.github.io/pardesline/latest/algorithms/why-our-defaults-work/`
 
 ---
 

@@ -58,7 +58,7 @@ network; detection boxes from LiDAR train a point / pillar network.
 | mesh -> voxels / SDF | parametric | `voxel_to_mesh.voxelization` (`voxel_size`), `sdf.compute_sdf` (`voxel_size`, `level`) | voxel size sets the aliasing; SDF level 0 recovers the surface |
 | points -> voxels | parametric | `voxel_to_mesh.voxelization` after a surface, or an occupancy grid by binning | binning loses sub-voxel detail; keep the spacing in the frame |
 | volume -> points | parametric (spacing) | `LabelMap.to_mesh()` then `to_points()` | surface points only; for interior points, sample voxel centres with the affine |
-| points -> splat | initialisation only | `gaussian-splatting` skill, [`scripts/points_to_gaussians.py`](https://github.com/pardesline/pardesline/blob/main/skills/3d-representations/scripts/points_to_gaussians.py) | needs posed images to optimise; without them it is a visualisation |
+| points -> splat | initialisation only | `gaussian-splatting` skill, [`scripts/points_to_gaussians.py`](https://github.com/pardesline/pardesline/blob/main/skills/gaussian-splatting/scripts/points_to_gaussians.py) | needs posed images to optimise; without them it is a visualisation |
 | splat -> points | exact (means) | read the PLY, keep x y z (and f_dc as colour) | opacities below ~0.1 are usually floaters |
 | splat -> mesh | best effort | marching cubes on rendered depth / opacity fields (SuGaR, 2DGS) | research-grade; validate against a scan |
 

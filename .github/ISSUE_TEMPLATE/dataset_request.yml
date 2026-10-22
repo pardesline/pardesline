@@ -14,7 +14,7 @@ body:
     attributes:
       label: Where the files are
       description: A Hugging Face repo, a zip/tar URL, a TCIA collection, an S3 bucket, a URL index.
-      placeholder: "https://s3.bonescreen.de/public/VerSe-complete/dataset-01training.zip"
+      placeholder: "https://s3.bonescreen.de/public/VerSe-complete/dataset-verse19training.zip"
     validations:
       required: true
   - type: input

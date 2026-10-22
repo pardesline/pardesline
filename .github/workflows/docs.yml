@@ -10,6 +10,7 @@ on:
       - "skills/**"
       - "examples/**"
       - ".github/workflows/docs.yml"
+      - ".github/pages/**"
   pull_request:
     paths:
       - "docs/**"
@@ -82,11 +83,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      # main is "dev"; "latest" stays on the last release (moved only by the step below)
       - name: Deploy dev docs (push to main)
         if: github.event_name != 'release' && (inputs.tag || '') == ''
-        run: |
-          mike deploy --push --update-aliases --alias-type copy dev latest
-          mike set-default --push latest
+        run: mike deploy --push --alias-type copy dev
         env:
           DOCS_SOCIAL: "true"
       - name: Deploy versioned docs (release or dispatched tag)
@@ -99,3 +99,14 @@ jobs:
           MINOR="${VERSION%.*}"
           mike deploy --push --update-aliases --alias-type copy "$MINOR" latest
           mike set-default --push latest
+      # Unversioned links (/pardesline/datasets/x/) land on the same page under /latest/
+      - name: Root 404 page
+        run: |
+          git worktree add "$RUNNER_TEMP/gh-pages" gh-pages
+          git show origin/main:.github/pages/404.html > "$RUNNER_TEMP/gh-pages/404.html"
+          cd "$RUNNER_TEMP/gh-pages"
+          git add 404.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Root 404 page: send unversioned links to latest"
+            git push origin gh-pages
+          fi

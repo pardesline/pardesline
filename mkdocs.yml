@@ -65,6 +65,7 @@ plugins:
   - search
   - mike:
       alias_type: copy
+      canonical_version: latest
   - gen-files:
       scripts:
         - docs/_gen/mkdocs_hook.py

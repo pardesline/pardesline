@@ -271,7 +271,7 @@ def index(manifests: list[dict]) -> str:
     buf = io.StringIO()
     with redirect_stdout(buf):
         datasets_table.main()
-    table = buf.getvalue().replace("https://pardesline.github.io/pardesline/datasets/", "")
+    table = buf.getvalue().replace("https://pardesline.github.io/pardesline/latest/datasets/", "")
     table = re.sub(r"\]\(([a-z0-9_]+)/\)", r"](\1.md)", table)
     lines = [
         "---",

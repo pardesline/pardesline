@@ -13,7 +13,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 MANIFESTS = Path(__file__).resolve().parents[2] / "src" / "pardesline" / "data" / "manifests"
-DOCS = "https://pardesline.github.io/pardesline/datasets"
+DOCS = "https://pardesline.github.io/pardesline/latest/datasets"
 
 MODALITY_TAGS = {
     "ct": "CT",

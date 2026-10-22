@@ -151,5 +151,5 @@ First open-source release of the package. Licence: Apache-2.0.
 - The local MCP server.
 
 [0.3.0]: https://github.com/pardesline/pardesline/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/pardesline/pardesline/compare/v0.2.0a1...v0.2.0
-[0.2.0a1]: https://github.com/pardesline/pardesline/releases/tag/v0.2.0a1
+[0.2.0]: https://github.com/pardesline/pardesline/compare/21d6215...v0.2.0
+[0.2.0a1]: https://pypi.org/project/pardesline/0.2.0a1/

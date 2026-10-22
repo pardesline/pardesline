@@ -39,7 +39,7 @@ def _source_date(rel: str) -> str:
 ROOT = Path(__file__).resolve().parents[2]
 SKILLS = ROOT / "skills"
 DOCS = ROOT / "docs"
-SITE = "https://pardesline.github.io/pardesline"
+SITE = "https://pardesline.github.io/pardesline/latest"
 
 # Model pages: URL slug -> (skill folder, title as the search query, example folder, "what ships today")
 MODELS = {
@@ -106,13 +106,17 @@ def body(skill: str) -> tuple[str, str]:
     description = " ".join((desc.group(1) if desc else "").split())
     rest = text[m.end() :] if m else text
     rest = re.sub(r"^# .*\n", "", rest, count=1)  # the page sets its own H1
-    # scripts/ links -> GitHub
-    rest = re.sub(
-        r"`scripts/([A-Za-z0-9_\.]+)`",
-        rf"[`scripts/\1`](https://github.com/pardesline/pardesline/blob/main/skills/{skill}/scripts/\1)",
-        rest,
-    )
+    # scripts/ links -> GitHub, in the skill that ships the script (left as code when none does)
+    rest = re.sub(r"`scripts/([A-Za-z0-9_\.]+)`", lambda m: _script_link(skill, m.group(1)), rest)
     return description, rest
+
+
+def _script_link(skill: str, name: str) -> str:
+    owners = [skill] if (SKILLS / skill / "scripts" / name).is_file() else []
+    owners = owners or sorted(p.parent.parent.name for p in SKILLS.glob(f"*/scripts/{name}"))
+    if not owners:
+        return f"`scripts/{name}`"
+    return f"[`scripts/{name}`](https://github.com/pardesline/pardesline/blob/main/skills/{owners[0]}/scripts/{name})"
 
 
 def scripts_of(skill: str) -> list[str]:
