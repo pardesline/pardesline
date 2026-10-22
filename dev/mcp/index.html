@@ -5143,7 +5143,7 @@ pardesline<span class="w"> </span>mcp<span class="w"> </span>--transport<span cl
 </tr>
 <tr>
 <td>Gemini CLI</td>
-<td>the same block in <code>~/.gemini/settings.json</code></td>
+<td><code>gemini extensions install https://github.com/pardesline/pardesline</code> (the repo ships a <code>gemini-extension.json</code>), or the same block in <code>~/.gemini/settings.json</code></td>
 </tr>
 <tr>
 <td>Codex CLI</td>
@@ -5152,6 +5152,15 @@ pardesline<span class="w"> </span>mcp<span class="w"> </span>--transport<span cl
 </tbody>
 </table>
 <p>If <code>pardesline</code> is not on your PATH, the command is <code>python -m pardesline.mcp_server</code>.</p>
+<p><strong>Without installing first.</strong> <a href="https://docs.astral.sh/uv/">uv</a> runs the package with every backend in a cached environment (about a minute the first time, then instant):</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">"mcpServers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"pardesline"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uvx"</span><span class="p">,</span><span class="w"> </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"--with"</span><span class="p">,</span><span class="w"> </span><span class="s2">"pardesline[all]"</span><span class="p">,</span><span class="w"> </span><span class="s2">"pardesline"</span><span class="p">,</span><span class="w"> </span><span class="s2">"mcp"</span><span class="p">]}}}</span>
+</code></pre></div>
+<p><strong>With Docker.</strong> Open3D, VTK and SimpleITK come preinstalled; mount a folder at <code>/data</code> for the agent to scan or export into:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>pardesline-mcp<span class="w"> </span>https://github.com/pardesline/pardesline.git
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">"mcpServers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"pardesline"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"docker"</span><span class="p">,</span><span class="w"> </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"run"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-i"</span><span class="p">,</span><span class="w"> </span><span class="s2">"--rm"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-v"</span><span class="p">,</span><span class="w"> </span><span class="s2">"pardesline-cache:/home/app/.cache/pardesline"</span><span class="p">,</span><span class="w"> </span><span class="s2">"pardesline-mcp"</span><span class="p">]}}}</span>
+</code></pre></div>
+<p><strong>Registries.</strong> Every release is published to the official <a href="https://registry.modelcontextprotocol.io/">MCP Registry</a> as <code>io.github.pardesline/pardesline</code>, from <a href="https://github.com/pardesline/pardesline/blob/main/server.json"><code>server.json</code></a> at the repository root.</p>
 <p>The <code>skills/</code> folder holds twenty skills, grounded in the code and checked
 by the test suite (every module, method, parameter and dataset they mention
 must exist). Nine teach the package: <code>using-pardesline</code> (start here),
