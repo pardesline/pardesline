@@ -1,12 +1,11 @@
 [build-system]
-requires = ["hatchling>=1.25"]
+requires = ["hatchling>=1.25", "hatch-fancy-pypi-readme>=24.1"]
 build-backend = "hatchling.build"
 
 [project]
 name = "pardesline"
-dynamic = ["version"]
+dynamic = ["version", "readme"]
 description = "3D computer vision and medical imaging in Python: 43 public 3D and medical datasets loaded in one line with manifests and licences, 73 algorithms on point clouds, meshes and CT/MRI volumes (registration, segmentation, reconstruction), one typed object over Open3D, PyVista and SimpleITK, and an MCP server for AI agents."
-readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
 authors = [{ name = "Jonathan Tabet" }]
@@ -101,6 +100,26 @@ pardesline = "pardesline.cli:main"
 
 [tool.hatch.version]
 path = "src/pardesline/_version.py"
+
+# PyPI shows the README without the repository around it: relative links and
+# in-page anchors become absolute GitHub URLs there, and stay relative on GitHub.
+[tool.hatch.metadata.hooks.fancy-pypi-readme]
+content-type = "text/markdown"
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
+path = "README.md"
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
+pattern = '\]\(#'
+replacement = '](https://github.com/pardesline/pardesline#'
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
+pattern = '\]\((?!https?://|mailto:)([^)\s]+)\)'
+replacement = '](https://github.com/pardesline/pardesline/blob/main/\1)'
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
+pattern = '(href|src)="(?!https?://|mailto:|#)([^"]+)"'
+replacement = '\1="https://github.com/pardesline/pardesline/blob/main/\2"'
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pardesline"]
