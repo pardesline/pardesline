@@ -48,3 +48,30 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           skip-existing: true  # 0.2.0 was uploaded with twine; a release of an already-published version must not fail
+
+  # Lists the release in the official MCP Registry (registry.modelcontextprotocol.io) as
+  # io.github.pardesline/pardesline, from server.json at the tag. The registry checks that the
+  # PyPI description carries `mcp-name: io.github.pardesline/pardesline` (top of README.md),
+  # so this runs after the upload. GitHub OIDC proves the namespace: no secret is stored.
+  mcp-registry:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+      - name: Install mcp-publisher
+        run: curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
+      - name: Log in with the workflow identity
+        run: ./mcp-publisher login github-oidc
+      - name: Publish server.json
+        # PyPI can take a minute or two to serve the new version's description.
+        run: |
+          for attempt in 1 2 3 4 5; do
+            ./mcp-publisher publish && exit 0
+            sleep 60
+          done
+          exit 1

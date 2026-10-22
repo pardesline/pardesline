@@ -2,6 +2,8 @@
   <a href="https://pardesline.github.io/pardesline/"><img src="https://raw.githubusercontent.com/pardesline/pardesline/main/docs/assets/logo.svg" width="360" alt="pardesline logo: wordmark with a point-cloud glyph"></a>
 </p>
 
+<!-- mcp-name: io.github.pardesline/pardesline -->
+
 <h1 align="center">pardesline: 3D computer vision and medical imaging datasets, algorithms and models for Python</h1>
 
 <p align="center"><b>Load 43 public 3D and medical datasets in one line, run 73 algorithms on point clouds, meshes and CT/MRI volumes with defaults that hold on real scans, hand the result to Open3D, PyVista or SimpleITK, or to an AI agent through MCP.</b></p>

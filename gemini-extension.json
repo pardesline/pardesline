@@ -1,0 +1,11 @@
+{
+  "name": "pardesline",
+  "version": "0.3.0",
+  "description": "3D vision and medical imaging: 43 public datasets with their licences, 73 algorithms on point clouds, meshes and CT/MRI volumes, 20 expert guides, run locally.",
+  "mcpServers": {
+    "pardesline": {
+      "command": "uvx",
+      "args": ["--with", "pardesline[all]", "pardesline", "mcp"]
+    }
+  }
+}

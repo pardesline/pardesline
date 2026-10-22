@@ -168,3 +168,18 @@ def test_plugin_manifests_match_version():
     assert plugin["version"] == pl.__version__ == market["plugins"][0]["version"]
     assert plugin["name"] == market["plugins"][0]["name"] == "pardesline"
     assert market["plugins"][0]["source"] == "./"
+
+
+def test_registry_manifests_match_version_and_readme():
+    # The MCP Registry checks that the PyPI description carries `mcp-name: <server.json name>`.
+    server = json.loads((ROOT / "server.json").read_text(encoding="utf-8"))
+    gemini = json.loads((ROOT / "gemini-extension.json").read_text(encoding="utf-8"))
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert server["version"] == server["packages"][0]["version"] == pl.__version__
+    assert gemini["version"] == pl.__version__
+    assert f"<!-- mcp-name: {server['name']} -->" in readme
+    assert len(server["description"]) <= 100  # registry limit
+    assert server["packages"][0]["identifier"] == "pardesline"
+    assert server["packages"][0]["packageArguments"] == [{"type": "positional", "value": "mcp"}]
+    dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
+    assert f'io.modelcontextprotocol.server.name="{server["name"]}"' in dockerfile

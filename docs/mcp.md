@@ -19,10 +19,28 @@ pardesline mcp --transport streamable-http --port 8765    # http://127.0.0.1:876
 |---|---|
 | Claude Code | `claude mcp add pardesline -- pardesline mcp` (the repo ships a `.mcp.json`) |
 | Claude Desktop, Cursor | `"mcpServers": {"pardesline": {"command": "pardesline", "args": ["mcp"]}}` |
-| Gemini CLI | the same block in `~/.gemini/settings.json` |
+| Gemini CLI | `gemini extensions install https://github.com/pardesline/pardesline` (the repo ships a `gemini-extension.json`), or the same block in `~/.gemini/settings.json` |
 | Codex CLI | `[mcp_servers.pardesline] command = "pardesline" args = ["mcp"]` in `~/.codex/config.toml` |
 
 If `pardesline` is not on your PATH, the command is `python -m pardesline.mcp_server`.
+
+**Without installing first.** [uv](https://docs.astral.sh/uv/) runs the package with every backend in a cached environment (about a minute the first time, then instant):
+
+```json
+{"mcpServers": {"pardesline": {"command": "uvx", "args": ["--with", "pardesline[all]", "pardesline", "mcp"]}}}
+```
+
+**With Docker.** Open3D, VTK and SimpleITK come preinstalled; mount a folder at `/data` for the agent to scan or export into:
+
+```bash
+docker build -t pardesline-mcp https://github.com/pardesline/pardesline.git
+```
+
+```json
+{"mcpServers": {"pardesline": {"command": "docker", "args": ["run", "-i", "--rm", "-v", "pardesline-cache:/home/app/.cache/pardesline", "pardesline-mcp"]}}}
+```
+
+**Registries.** Every release is published to the official [MCP Registry](https://registry.modelcontextprotocol.io/) as `io.github.pardesline/pardesline`, from [`server.json`](https://github.com/pardesline/pardesline/blob/main/server.json) at the repository root.
 
 The `skills/` folder holds twenty skills, grounded in the code and checked
 by the test suite (every module, method, parameter and dataset they mention

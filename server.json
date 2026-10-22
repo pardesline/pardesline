@@ -1,0 +1,51 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.pardesline/pardesline",
+  "title": "pardesline",
+  "description": "3D vision and medical imaging: 43 datasets with licences, 73 algorithms on clouds, meshes, CT/MRI",
+  "websiteUrl": "https://pardesline.github.io/pardesline/latest/mcp/",
+  "repository": {
+    "url": "https://github.com/pardesline/pardesline",
+    "source": "github"
+  },
+  "version": "0.3.0",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "registryBaseUrl": "https://pypi.org",
+      "identifier": "pardesline",
+      "version": "0.3.0",
+      "runtimeHint": "uvx",
+      "runtimeArguments": [
+        {
+          "type": "named",
+          "name": "--with",
+          "value": "pardesline[all]",
+          "description": "Installs the optional backends (Open3D, PyVista, SimpleITK, huggingface_hub, mcp) next to the package."
+        }
+      ],
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "mcp"
+        }
+      ],
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "PARDESLINE_CACHE",
+          "description": "Download cache (default ~/.cache/pardesline).",
+          "isRequired": false
+        },
+        {
+          "name": "HF_TOKEN",
+          "description": "Hugging Face token, only for gated datasets whose terms you accepted (AbdomenAtlas, CT-RATE).",
+          "isRequired": false,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}
