@@ -248,7 +248,7 @@ def page(m: dict) -> str:
     lines.append("## Related")
     lines.append("")
     lines.append(
-        "- [Datasets catalog](index.md) · [How to download a medical imaging dataset in Python](../how-to/download-a-medical-imaging-dataset-in-python.md) · [Add a dataset](../contributing.md#adding-a-dataset)"
+        "- [Datasets catalog](index.md) · [How to download a medical imaging dataset in Python](../how-to/download-a-medical-imaging-dataset-in-python.md) · [Add a dataset](https://github.com/pardesline/pardesline/blob/main/CONTRIBUTING.md#adding-a-dataset)"
     )
     tags = ", ".join(f"`{t}`" for t in m.get("tags", []))
     if tags:

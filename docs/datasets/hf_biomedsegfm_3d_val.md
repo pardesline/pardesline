@@ -57,7 +57,7 @@ ds.export("./standardized")        # PLY / MetaImage + sidecars + manifest.json
 
 ## Related
 
-- [Datasets catalog](index.md) · [How to download a medical imaging dataset in Python](../how-to/download-a-medical-imaging-dataset-in-python.md) · [Add a dataset](../contributing.md#adding-a-dataset)
+- [Datasets catalog](index.md) · [How to download a medical imaging dataset in Python](../how-to/download-a-medical-imaging-dataset-in-python.md) · [Add a dataset](https://github.com/pardesline/pardesline/blob/main/CONTRIBUTING.md#adding-a-dataset)
 - Tags: `medical`, `ct`, `mri`, `pet`, `ultrasound`, `microscopy`, `segmentation`, `npz`, `hf`, `non-commercial`
 
 <sub>Generated from `src/pardesline/data/manifests/hf_biomedsegfm_3d_val.json` on 2026-10-14.</sub>

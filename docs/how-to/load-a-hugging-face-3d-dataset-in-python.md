@@ -53,4 +53,4 @@ BiomedSegFM ships `.npz` files; UniOcc ships occupancy grids. The manifests carr
 | `NeedsConfirmation` | answer the questions as keyword arguments, or `interactive=True` |
 | the repo has `parquet` tables, not files | that is a `datasets`-style repo: use `datasets.load_dataset`; pardesline is for file-based 3D repos |
 
-Related: [Datasets catalog](../datasets/index.md) · [Standardize a folder](standardize-a-folder-of-medical-images-in-python.md) · [Contributing a manifest](../contributing.md#adding-a-dataset)
+Related: [Datasets catalog](../datasets/index.md) · [Standardize a folder](standardize-a-folder-of-medical-images-in-python.md) · [Contributing a manifest](https://github.com/pardesline/pardesline/blob/main/CONTRIBUTING.md#adding-a-dataset)
