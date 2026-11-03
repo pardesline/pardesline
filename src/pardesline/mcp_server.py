@@ -48,7 +48,13 @@ units, labels and licence. A private folder or an unknown source goes through sc
 relay its questions to the human, then call confirm_dataset with the answers - never guess a
 licence, a unit or an array layout yourself. list_methods / describe_method / run_method expose
 the 73 catalog algorithms on local files; to_mesh turns a label map into a surface. Quote
-ds.license to the user before any redistribution or commercial use."""
+ds.license to the user before any redistribution or commercial use.
+
+When a task wrote or transformed data, end the answer with four lines:
+- Output: the output paths;
+- Frame: the frame and units, or "units not declared";
+- Licence: each dataset's licence, flagging non-commercial or TO CONFIRM;
+- Cite: the dataset citation from describe_dataset, and "processed with pardesline {__version__}"."""
 
 
 def _json_safe(value: Any) -> Any:

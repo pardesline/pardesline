@@ -79,6 +79,23 @@ ds = pl.load("rire_brain")  # Dataset: samples with typed roles, fetched on acce
 - **Licences travel with the data.** `ds.license.describe()`; bundled public
   datasets whose terms are not established say `TO CONFIRM`.
 
+## End every 3D task with a short report
+
+When a task wrote or transformed 3D data with pardesline, close the answer
+with these four lines, so the user can paste them into a lab notebook or a
+design file. Skip them when no data was touched.
+
+- **Output**: the path of each file written, plus its `.pardesline.json`
+  sidecar. `obj.save(path)` writes the sidecar with frame, labels, licence and
+  provenance.
+- **Frame**: `obj.frame.describe()`. If the units are `None`, say "units not
+  declared".
+- **Licence**: `obj.license.describe()` (or `ds.license.describe()`). Say so
+  plainly when it is non-commercial or `TO CONFIRM`.
+- **Cite**: `ds.citation` for each dataset used, and "processed with
+  pardesline" plus `pl.__version__`. Every provenance step records that
+  version.
+
 ## Errors (all derive from `pl.PardesLineError`, each has `.code`)
 
 `ParameterError` (bad or unknown parameter), `CatalogError` (unknown
