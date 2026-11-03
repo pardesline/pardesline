@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
     
     
       
@@ -31,10 +31,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -5215,10 +5215,15 @@ command (same arguments).</p>
 <td><code>to_mesh(path, label?, isovalue?, output_path?)</code></td>
 <td>exact surface of a label map, or an isosurface</td>
 </tr>
+<tr>
+<td><code>list_skills()</code>, <code>get_skill(name, file?)</code></td>
+<td>the 20 expert guides and their reference scripts</td>
+</tr>
 </tbody>
 </table>
 <p>Resources: <code>pardesline://datasets</code> (JSON list), <code>pardesline://manifest/{name}</code>
-(one manifest), <code>pardesline://catalog</code>. Prompt: <code>start_here</code>.</p>
+(one manifest), <code>pardesline://catalog</code>, <code>pardesline://skills</code>,
+<code>pardesline://skill/{name}</code>. Prompt: <code>start_here</code>.</p>
 <h2 id="the-question-contract-for-the-agent">The question contract (for the agent)<a class="headerlink" href="#the-question-contract-for-the-agent" title="Permanent link">&para;</a></h2>
 <p><code>scan_dataset</code> and a premature <code>confirm_dataset</code> return
 <code>{"error": "NeedsConfirmation", "questions": [{"field": "roles.sweep.layout", "message": ...}],
@@ -5244,7 +5249,7 @@ Tool bodies are synchronous (<code>impl_*</code> functions, testable without a s
 and run in a worker thread; <code>build_server()</code> registers them. Tests:
 <code>tests/test_mcp_server.py</code> (in-process calls and a stdio round trip with the
 real client).</p>
-<p><sub>Source: <code>skills/mcp-server/SKILL.md</code>, one of the twenty skills served by <code>pardesline mcp</code>; published on 2026-10-14.</sub></p>
+<p><sub>Source: <code>skills/mcp-server/SKILL.md</code>, one of the twenty skills served by <code>pardesline mcp</code>; published on 2026-11-03.</sub></p>
 
 
 
@@ -5382,10 +5387,10 @@ real client).</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       
