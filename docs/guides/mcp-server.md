@@ -46,9 +46,11 @@ command (same arguments).
 | `run_method(method, input_path, moving_path?, params?, output_path?, timeout?)` | one algorithm on a local file, parameters validated first |
 | `describe_object(path, layout?, kind?)` | what a local 3D file knows about itself |
 | `to_mesh(path, label?, isovalue?, output_path?)` | exact surface of a label map, or an isosurface |
+| `list_skills()`, `get_skill(name, file?)` | the 20 expert guides and their reference scripts |
 
 Resources: `pardesline://datasets` (JSON list), `pardesline://manifest/{name}`
-(one manifest), `pardesline://catalog`. Prompt: `start_here`.
+(one manifest), `pardesline://catalog`, `pardesline://skills`,
+`pardesline://skill/{name}`. Prompt: `start_here`.
 
 ## The question contract (for the agent)
 

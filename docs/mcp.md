@@ -2,10 +2,10 @@
 
 `pardesline mcp` exposes the datasets, the object model and the 73 algorithms
 to any Model Context Protocol client, on the user's machine, without an
-account. Twelve tools (`list_datasets`, `describe_dataset`, `list_samples`,
+account. Fourteen tools (`list_datasets`, `describe_dataset`, `list_samples`,
 `load_sample`, `scan_dataset`, `confirm_dataset`, `export_dataset`,
-`list_methods`, `describe_method`, `run_method`, `describe_object`, `to_mesh`),
-three resources and a `start_here` prompt. Questions the package will not
+`list_methods`, `describe_method`, `run_method`, `describe_object`, `to_mesh`,
+`list_skills`, `get_skill`), five resources and a `start_here` prompt. Questions the package will not
 guess (licence, units, array layout) come back as JSON for the agent to relay
 to the human.
 

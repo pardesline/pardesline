@@ -4,10 +4,11 @@ description: >-
   Run and use pardesline as a local MCP server (`pardesline mcp`, `pip install
   "pardesline[mcp]"`): the stdio / streamable-http transports, the configuration
   snippets for Claude Desktop, Claude Code, Cursor, Gemini CLI, Codex and generic
-  clients, the twelve tools (list_datasets, describe_dataset, list_samples,
+  clients, the fourteen tools (list_datasets, describe_dataset, list_samples,
   load_sample, scan_dataset, confirm_dataset, export_dataset, list_methods,
-  describe_method, run_method, describe_object, to_mesh), the resources
-  (`pardesline://datasets`, `pardesline://manifest/{name}`, `pardesline://catalog`),
+  describe_method, run_method, describe_object, to_mesh, list_skills, get_skill),
+  the resources (`pardesline://datasets`, `pardesline://manifest/{name}`,
+  `pardesline://catalog`, `pardesline://skills`, `pardesline://skill/{name}`),
   the `start_here` prompt, how questions come back as JSON for the agent to relay
   (never answered by guessing), and the error contract. Use when the user wants an AI
   agent to access the 43 datasets or the 73 algorithms through MCP, asks how to connect
@@ -55,9 +56,11 @@ command (same arguments).
 | `run_method(method, input_path, moving_path?, params?, output_path?, timeout?)` | one algorithm on a local file, parameters validated first |
 | `describe_object(path, layout?, kind?)` | what a local 3D file knows about itself |
 | `to_mesh(path, label?, isovalue?, output_path?)` | exact surface of a label map, or an isosurface |
+| `list_skills()`, `get_skill(name, file?)` | the 20 expert guides and their reference scripts |
 
 Resources: `pardesline://datasets` (JSON list), `pardesline://manifest/{name}`
-(one manifest), `pardesline://catalog`. Prompt: `start_here`.
+(one manifest), `pardesline://catalog`, `pardesline://skills`,
+`pardesline://skill/{name}`. Prompt: `start_here`.
 
 ## The question contract (for the agent)
 
