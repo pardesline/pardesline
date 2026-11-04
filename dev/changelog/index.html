@@ -5067,6 +5067,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#031-2026-11-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0.3.1 (2026-11-03)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.3.1 (2026-11-03)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#030-2026-10-17" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -5101,7 +5129,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#fixed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -5256,6 +5284,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#031-2026-11-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0.3.1 (2026-11-03)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.3.1 (2026-11-03)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#030-2026-10-17" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -5290,7 +5346,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#fixed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -5412,6 +5468,13 @@
 <p>All notable changes to this project are documented here. The format follows
 <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a> and the project uses
 <a href="https://semver.org/">Semantic Versioning</a>.</p>
+<h2 id="031-2026-11-03"><a href="https://github.com/pardesline/pardesline/compare/v0.3.0...v0.3.1">0.3.1</a> (2026-11-03)<a class="headerlink" href="#031-2026-11-03" title="Permanent link">&para;</a></h2>
+<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>docs:</strong> deep links to the docs site go through /latest/ (<a href="https://github.com/pardesline/pardesline/commit/6ce583ef80f6236077cc845aae21ad5f7eef5f91">6ce583e</a>)</li>
+<li><strong>mcp:</strong> agents close every data-writing task with a four-line report (<a href="https://github.com/pardesline/pardesline/commit/3cf0ff456cb1f2ad14c56c694bc17239207dfc9a">3cf0ff4</a>)</li>
+<li><strong>packaging:</strong> absolute links in the PyPI description (<a href="https://github.com/pardesline/pardesline/commit/924c0d7e8affc22adb854a6cb511d2f654d3fff3">924c0d7</a>)</li>
+</ul>
 <h2 id="030-2026-10-17"><a href="https://github.com/pardesline/pardesline/compare/v0.2.0...v0.3.0">0.3.0</a> — 2026-10-17<a class="headerlink" href="#030-2026-10-17" title="Permanent link">&para;</a></h2>
 <p>The "reference repository" release: a documentation site, every default documented with its reason, thirteen executed examples, benchmarks, a contributor funnel and release automation. The package API is unchanged; two bugs found on the way are fixed.</p>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
@@ -5435,7 +5498,7 @@
 <li><code>[local]</code> accepts Open3D 0.20, which ships Python 3.13 wheels: <code>pip install "pardesline[all]"</code> now works on 3.10-3.13 (the native test suite passes on 3.13 with 0.20).</li>
 <li>PyPI metadata: description, 26 keywords, classifiers and project URLs unified on the documentation site.</li>
 </ul>
-<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<h3 id="fixed_1">Fixed<a class="headerlink" href="#fixed_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>.nii.gz</code> files are accepted by every module that accepts <code>.nii</code> (<code>Volume.segment()</code> on a Decathlon volume raised "does not accept '.gz' files").</li>
 <li>Archive members whose names would escape the dataset cache (<code>../evil.bin</code>) are ignored at index time and refused by <code>fetch</code>.</li>
