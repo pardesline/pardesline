@@ -29,8 +29,10 @@ jobs:
       # so the PyPI upload and the versioned docs are dispatched explicitly.
       - name: Publish to PyPI and deploy the versioned docs
         if: steps.release.outputs.release_created == 'true'
+        # No checkout in this job: gh needs the repository spelled out.
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           TAG: ${{ steps.release.outputs.tag_name }}
         run: |
           gh workflow run publish.yml --ref main -f "tag=$TAG"
