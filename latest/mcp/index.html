@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://pardesline.github.io/pardesline/0.3/mcp/">
+        <link rel="canonical" href="https://pardesline.github.io/pardesline/latest/mcp/">
       
       
         <link rel="prev" href="../agents/mcp/">
@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../assets/icon.svg">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
     
     
       
@@ -31,10 +31,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -65,15 +65,15 @@
 <meta property="og:type" content="website" />
 <meta property="og:title" content="MCP reference - pardesline" />
 <meta property="og:description" content="3D computer vision and medical imaging in Python — datasets in one line, algorithms with defaults that work on real scans, models, MCP for AI agents." />
-<meta property="og:image" content="https://pardesline.github.io/pardesline/0.3/assets/images/social/mcp.png" />
+<meta property="og:image" content="https://pardesline.github.io/pardesline/latest/assets/images/social/mcp.png" />
 <meta property="og:image:type" content="image/png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:url" content="https://pardesline.github.io/pardesline/0.3/mcp/" />
+<meta property="og:url" content="https://pardesline.github.io/pardesline/latest/mcp/" />
 <meta property="twitter:card" content="summary_large_image" />
 <meta property="twitter:title" content="MCP reference - pardesline" />
 <meta property="twitter:description" content="3D computer vision and medical imaging in Python — datasets in one line, algorithms with defaults that work on real scans, models, MCP for AI agents." />
-<meta property="twitter:image" content="https://pardesline.github.io/pardesline/0.3/assets/images/social/mcp.png" />
+<meta property="twitter:image" content="https://pardesline.github.io/pardesline/latest/assets/images/social/mcp.png" />
 </head>
   
   
@@ -5115,10 +5115,10 @@
 <h1 id="the-mcp-server-for-ai-agents">The MCP server for AI agents<a class="headerlink" href="#the-mcp-server-for-ai-agents" title="Permanent link">&para;</a></h1>
 <p><code>pardesline mcp</code> exposes the datasets, the object model and the 73 algorithms
 to any Model Context Protocol client, on the user's machine, without an
-account. Twelve tools (<code>list_datasets</code>, <code>describe_dataset</code>, <code>list_samples</code>,
+account. Fourteen tools (<code>list_datasets</code>, <code>describe_dataset</code>, <code>list_samples</code>,
 <code>load_sample</code>, <code>scan_dataset</code>, <code>confirm_dataset</code>, <code>export_dataset</code>,
-<code>list_methods</code>, <code>describe_method</code>, <code>run_method</code>, <code>describe_object</code>, <code>to_mesh</code>),
-three resources and a <code>start_here</code> prompt. Questions the package will not
+<code>list_methods</code>, <code>describe_method</code>, <code>run_method</code>, <code>describe_object</code>, <code>to_mesh</code>,
+<code>list_skills</code>, <code>get_skill</code>), five resources and a <code>start_here</code> prompt. Questions the package will not
 guess (licence, units, array layout) come back as JSON for the agent to relay
 to the human.</p>
 <div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"pardesline[mcp]"</span>
@@ -5143,7 +5143,7 @@ pardesline<span class="w"> </span>mcp<span class="w"> </span>--transport<span cl
 </tr>
 <tr>
 <td>Gemini CLI</td>
-<td>the same block in <code>~/.gemini/settings.json</code></td>
+<td><code>gemini extensions install https://github.com/pardesline/pardesline</code> (the repo ships a <code>gemini-extension.json</code>), or the same block in <code>~/.gemini/settings.json</code></td>
 </tr>
 <tr>
 <td>Codex CLI</td>
@@ -5152,6 +5152,15 @@ pardesline<span class="w"> </span>mcp<span class="w"> </span>--transport<span cl
 </tbody>
 </table>
 <p>If <code>pardesline</code> is not on your PATH, the command is <code>python -m pardesline.mcp_server</code>.</p>
+<p><strong>Without installing first.</strong> <a href="https://docs.astral.sh/uv/">uv</a> runs the package with every backend in a cached environment (about a minute the first time, then instant):</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">"mcpServers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"pardesline"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uvx"</span><span class="p">,</span><span class="w"> </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"--with"</span><span class="p">,</span><span class="w"> </span><span class="s2">"pardesline[all]"</span><span class="p">,</span><span class="w"> </span><span class="s2">"pardesline"</span><span class="p">,</span><span class="w"> </span><span class="s2">"mcp"</span><span class="p">]}}}</span>
+</code></pre></div>
+<p><strong>With Docker.</strong> Open3D, VTK and SimpleITK come preinstalled; mount a folder at <code>/data</code> for the agent to scan or export into:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>pardesline-mcp<span class="w"> </span>https://github.com/pardesline/pardesline.git
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">"mcpServers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"pardesline"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"docker"</span><span class="p">,</span><span class="w"> </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"run"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-i"</span><span class="p">,</span><span class="w"> </span><span class="s2">"--rm"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-v"</span><span class="p">,</span><span class="w"> </span><span class="s2">"pardesline-cache:/home/app/.cache/pardesline"</span><span class="p">,</span><span class="w"> </span><span class="s2">"pardesline-mcp"</span><span class="p">]}}}</span>
+</code></pre></div>
+<p><strong>Registries.</strong> Every release is published to the official <a href="https://registry.modelcontextprotocol.io/">MCP Registry</a> as <code>io.github.pardesline/pardesline</code>, from <a href="https://github.com/pardesline/pardesline/blob/main/server.json"><code>server.json</code></a> at the repository root.</p>
 <p>The <code>skills/</code> folder holds twenty skills, grounded in the code and checked
 by the test suite (every module, method, parameter and dataset they mention
 must exist). Nine teach the package: <code>using-pardesline</code> (start here),
@@ -5367,10 +5376,10 @@ pipelines, and served to any MCP client through <code>list_skills</code> / <code
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       
