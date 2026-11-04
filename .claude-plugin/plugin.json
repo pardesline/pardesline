@@ -32,10 +32,11 @@
   ],
   "mcpServers": {
     "pardesline": {
-      "command": "pardesline",
+      "command": "python",
       "args": [
-        "mcp"
+        "${CLAUDE_PLUGIN_ROOT}/.claude-plugin/mcp_launcher.py"
       ]
     }
-  }
+  },
+  "icon": ".claude-plugin/icon.png"
 }
