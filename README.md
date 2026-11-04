@@ -313,7 +313,7 @@ pip install "pardesline[mcp]"
 claude mcp add pardesline -- pardesline mcp        # Claude Code; Claude Desktop, Cursor, Gemini CLI, Codex: {"command": "pardesline", "args": ["mcp"]}
 ```
 
-The server exposes the datasets, the algorithms, the object model and the twenty skills as tools: `list_datasets`, `describe_dataset`, `list_samples`, `load_sample`, `scan_dataset`, `confirm_dataset`, `export_dataset`, `list_methods`, `describe_method`, `run_method`, `describe_object`, `to_mesh`, `list_skills`, `get_skill`. An agent can browse the catalog, fetch one sample, run a pipeline, read the expert guide for the method it is about to use, and export standard files. Questions the package will not guess (licence, units, array layout) come back as JSON for the agent to relay to the human. No account, nothing leaves the machine. Client configurations and the full contract: [docs/mcp.md](docs/mcp.md).
+The server exposes the datasets, the algorithms, the object model and the twenty skills as tools: `list_datasets`, `describe_dataset`, `list_samples`, `load_sample`, `scan_dataset`, `confirm_dataset`, `export_dataset`, `list_methods`, `describe_method`, `run_method`, `describe_object`, `to_mesh`, `list_skills`, `get_skill`. An agent can browse the catalog, fetch one sample, run a pipeline, read the expert guide for the method it is about to use, and export standard files. Questions the package will not guess (licence, units, array layout) come back as JSON for the agent to relay to the human. No account, nothing leaves the machine ([PRIVACY.md](PRIVACY.md)). Client configurations and the full contract: [docs/mcp.md](docs/mcp.md).
 
 ## Roadmap
 
