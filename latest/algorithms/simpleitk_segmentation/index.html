@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.1">
     
     
       
@@ -478,6 +478,25 @@
     
   
   Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Correctness audit 2026-11
 
       </a>
     </li>
@@ -5177,6 +5196,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Correctness audit 2026-11
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../contributing/" class="md-nav__link">
         
   
@@ -5538,10 +5584,10 @@ where <span class="arithmatex">\(|R_i|\)</span> denotes the voxel count of regio
 <tr>
 <td><code>upper_threshold</code> <em>(advanced)</em></td>
 <td>float</td>
-<td><code>255.0</code></td>
+<td><code>""</code></td>
 <td>-1000.0 to 3000.0</td>
-<td>Upper bound for binarization.</td>
-<td>255 is the upper bound for 8-bit inputs; raise it for HU.</td>
+<td>Upper bound for binarization (default: the image maximum).</td>
+<td>Image maximum when not given: every voxel above the lower threshold is foreground. The old 255 default dropped bone and contrast (&gt; 255 HU) from CT.</td>
 </tr>
 <tr>
 <td><code>fully_connected</code> <em>(advanced)</em></td>
@@ -5571,18 +5617,19 @@ where <span class="arithmatex">\(|R_i|\)</span> denotes the voxel count of regio
 </table>
 <h3 id="watershed">watershed<a class="headerlink" href="#watershed" title="Permanent link">&para;</a></h3>
 <p><strong>1. Distance Transform</strong>
-From a binary mask <span class="arithmatex">\(B\)</span>, the Euclidean distance transform computes:
-$<span class="arithmatex">\(D(\mathbf{x}) = \min_{\mathbf{y} \in \partial B} \|\mathbf{x} - \mathbf{y}\|_2\)</span>$
-Local maxima of <span class="arithmatex">\(D\)</span> serve as seed points for the watershed.</p>
-<p><strong>2. Watershed Algorithm</strong>
-The watershed treats <span class="arithmatex">\(-D(\mathbf{x})\)</span> as a topographic surface. Starting from seed points (local minima of <span class="arithmatex">\(-D\)</span>), regions are grown by immersion — flooding the surface from each seed and building dams where floods from different seeds meet.</p>
-<p><strong>3. Pipeline</strong>
-The full pipeline is:
-1. Binary threshold: <span class="arithmatex">\(B = \{\mathbf{x} : I(\mathbf{x}) &gt; t\}\)</span>
-2. Morphological opening: remove small noise
-3. Distance transform: <span class="arithmatex">\(D(\mathbf{x})\)</span>
-4. Seed generation: local maxima of <span class="arithmatex">\(D\)</span> with radius <span class="arithmatex">\(r\)</span>
-5. Watershed: flood from seeds to produce labels</p>
+From the cleaned binary mask <span class="arithmatex">\(B\)</span>, the signed Euclidean distance map in mm (voxel spacing included) is negative inside the object:
+$<span class="arithmatex">\(D(\mathbf{x}) = -\min_{\mathbf{y} \in \partial B} \|\mathbf{x} - \mathbf{y}\|_2 \quad (\mathbf{x} \in B)\)</span>$</p>
+<p><strong>2. Seeds</strong>
+Seeds are the connected regions deeper than <code>seed_radius</code> mm (<span class="arithmatex">\(D &lt; -r\)</span>) with at least <code>min_object_size</code> voxels.</p>
+<p><strong>3. Watershed Algorithm</strong>
+<span class="arithmatex">\(D\)</span> is flooded from the seeds; dams are built where floods from different seeds meet. Labels are kept inside the mask only; a separate object with no seed of its own stays unlabelled.</p>
+<p><strong>4. Pipeline</strong>
+1. Binary threshold: <span class="arithmatex">\(B = \{\mathbf{x} : t \leq I(\mathbf{x}) \leq u\}\)</span> (<span class="arithmatex">\(u\)</span>: image maximum by default)
+2. Opening and closing by reconstruction (radii in voxels)
+3. Distance map in mm
+4. Seeds deeper than <span class="arithmatex">\(r\)</span>
+5. Watershed from the seeds
+6. Objects cut by the image border are removed</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pardesline</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 
 <span class="n">obj</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"input.vti"</span><span class="p">)</span>
@@ -5616,24 +5663,24 @@ The full pipeline is:
 <td>float</td>
 <td><code>10.0</code></td>
 <td>1.0 to 50.0</td>
-<td>Seed generation radius in mm.</td>
-<td>10 mm: markers are placed where the distance map exceeds this radius, so only objects at least 2 cm across become basins.</td>
+<td>Seed depth in mm: seeds are the regions farther than this from the object surface.</td>
+<td>10 mm: seeds are the parts of the mask deeper than 10 mm (physical distance, voxel spacing included), so only objects at least 2 cm across get a seed; lower it below the half-thickness of your objects, and above the depth of the necks that join touching objects.</td>
 </tr>
 <tr>
 <td><code>min_object_size</code></td>
 <td>int</td>
 <td><code>15</code></td>
 <td>1 to 1000</td>
-<td>Minimum object size after watershed.</td>
-<td>15 voxels drops speckle basins.</td>
+<td>Minimum seed size in voxels: seeds (regions deeper than seed_radius) smaller than this are discarded before flooding.</td>
+<td>15 voxels drops speckle seeds; it filters the seeds, not the final objects.</td>
 </tr>
 <tr>
 <td><code>upper_threshold</code> <em>(advanced)</em></td>
 <td>float</td>
-<td><code>255.0</code></td>
+<td><code>""</code></td>
 <td>-1000.0 to 3000.0</td>
-<td>Upper bound for initial binarization.</td>
-<td>255 for 8-bit inputs.</td>
+<td>Upper bound for initial binarization (default: the image maximum).</td>
+<td>Image maximum when not given: every voxel above the lower threshold is foreground. The old 255 default dropped bone and contrast (&gt; 255 HU) from CT.</td>
 </tr>
 <tr>
 <td><code>opening_radius</code> <em>(advanced)</em></td>
@@ -5656,16 +5703,16 @@ The full pipeline is:
 <td>bool</td>
 <td><code>false</code></td>
 <td></td>
-<td>SignedMaurerDistanceMap insideIsPositive.</td>
-<td>Off: SimpleITK's convention, inside is negative.</td>
+<td>Must be false (kept for compatibility): the seeds use the distance in mm, negative inside.</td>
+<td>Off, and true is refused: with inside positive the seed test selected the background.</td>
 </tr>
 <tr>
 <td><code>distance_squared</code> <em>(advanced)</em></td>
 <td>bool</td>
 <td><code>false</code></td>
 <td></td>
-<td>SignedMaurerDistanceMap squaredDistance.</td>
-<td>Off: true Euclidean distance in mm.</td>
+<td>Must be false (kept for compatibility): seed_radius is compared with the true distance in mm.</td>
+<td>Off, and true is refused: a squared distance is not comparable with seed_radius in mm.</td>
 </tr>
 <tr>
 <td><code>mark_watershed_line</code> <em>(advanced)</em></td>
@@ -5698,7 +5745,7 @@ The full pipeline is:
 <li><a href="../why-our-defaults-work/">Why our defaults work</a> · <a href="../../getting-started/concepts/#catalog">The catalog and <code>pl.run</code></a> · <a href="../../api/">API reference</a></li>
 <li><code>pl.describe("simpleitk_segmentation")</code> prints this module from the installed package; <code>pl.describe("simpleitk_segmentation.&lt;method&gt;")</code> one method with ranges and rationale.</li>
 </ul>
-<p><sub>Generated from <code>src/pardesline/catalog/data/simpleitk_segmentation.json</code> and <code>_defaults.json</code> on 2026-10-10.</sub></p>
+<p><sub>Generated from <code>src/pardesline/catalog/data/simpleitk_segmentation.json</code> and <code>_defaults.json</code> on 2026-11-15.</sub></p>
 
 
 
@@ -5842,7 +5889,7 @@ The full pipeline is:
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       

@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.1">
     
     
       
@@ -478,6 +478,25 @@
     
   
   Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Correctness audit 2026-11
 
       </a>
     </li>
@@ -5188,6 +5207,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Correctness audit 2026-11
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../contributing/" class="md-nav__link">
         
   
@@ -5414,26 +5460,26 @@
 <tr>
 <td><code>lower</code></td>
 <td>float</td>
-<td><code>0.0</code></td>
+<td><code>""</code></td>
 <td>-10000000000.0 to 10000000000.0</td>
-<td>Lower scalar bound.</td>
-<td>0 and upper 1 select a normalised scalar range; set them to your field's units (HU, reflectance).</td>
+<td>Lower scalar bound (required).</td>
+<td>Required: the old [0, 1] range assumed normalised scalars.</td>
 </tr>
 <tr>
 <td><code>upper</code></td>
 <td>float</td>
-<td><code>1.0</code></td>
+<td><code>""</code></td>
 <td>-10000000000.0 to 10000000000.0</td>
-<td>Upper scalar bound.</td>
-<td>1, see lower.</td>
+<td>Upper scalar bound (required).</td>
+<td>Required: the old [0, 1] range assumed normalised scalars.</td>
 </tr>
 <tr>
 <td><code>scalars</code></td>
 <td>string</td>
 <td><code>""</code></td>
 <td></td>
-<td>Scalar array name (empty = active scalars).</td>
-<td>Empty uses the active scalar array, which is what a freshly loaded file has.</td>
+<td>Array to test (required; 'elevation' = z for extract_points).</td>
+<td>Required: without it the script thresholded a quantity nobody asked for (distance to a unit plane, or z).</td>
 </tr>
 <tr>
 <td><code>invert</code> <em>(advanced)</em></td>
@@ -5486,7 +5532,7 @@
 </tbody>
 </table>
 <h3 id="pv_clip_plane">pv_clip_plane<a class="headerlink" href="#pv_clip_plane" title="Permanent link">&para;</a></h3>
-<p>Removes all geometry on the negative side of the plane <span class="arithmatex">\(\mathbf{n} \cdot (\mathbf{x} - \mathbf{o}) = 0\)</span>.</p>
+<p>Cuts the geometry with the plane <span class="arithmatex">\(\mathbf{n} \cdot (\mathbf{x} - \mathbf{o}) = 0\)</span>. With invert=true (default) it keeps the side opposite to the normal; with invert=false it keeps the side the normal points to. The origin defaults to the dataset centre.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pardesline</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 
 <span class="n">obj</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"input.ply"</span><span class="p">)</span>
@@ -5510,26 +5556,26 @@
 <tr>
 <td><code>origin_x</code></td>
 <td>float</td>
-<td><code>0.0</code></td>
+<td><code>""</code></td>
 <td>-10000000000.0 to 10000000000.0</td>
-<td>Plane origin X.</td>
-<td>0: the plane passes through the origin by default; set it to a point on the cut you want.</td>
+<td>Plane origin X (default: dataset centre).</td>
+<td>Dataset centre when not given: the old 0 cut data far from the origin arbitrarily or not at all.</td>
 </tr>
 <tr>
 <td><code>origin_y</code></td>
 <td>float</td>
-<td><code>0.0</code></td>
+<td><code>""</code></td>
 <td>-10000000000.0 to 10000000000.0</td>
-<td>Plane origin Y.</td>
-<td>0, see origin_x.</td>
+<td>Plane origin Y (default: dataset centre).</td>
+<td>Dataset centre when not given: the old 0 cut data far from the origin arbitrarily or not at all.</td>
 </tr>
 <tr>
 <td><code>origin_z</code></td>
 <td>float</td>
-<td><code>0.0</code></td>
+<td><code>""</code></td>
 <td>-10000000000.0 to 10000000000.0</td>
-<td>Plane origin Z.</td>
-<td>0, see origin_x.</td>
+<td>Plane origin Z (default: dataset centre).</td>
+<td>Dataset centre when not given: the old 0 cut data far from the origin arbitrarily or not at all.</td>
 </tr>
 <tr>
 <td><code>normal_x</code></td>
@@ -5560,7 +5606,7 @@
 <td>bool</td>
 <td><code>true</code></td>
 <td></td>
-<td>Which side to keep. True (default) keeps the side the normal points away from.</td>
+<td>True (default) keeps the side opposite to the normal; false keeps the side the normal points to.</td>
 <td>On keeps the side the normal points away from, VTK's convention for clip.</td>
 </tr>
 <tr>
@@ -5606,50 +5652,50 @@
 <tr>
 <td><code>x_min</code></td>
 <td>float</td>
-<td><code>-0.5</code></td>
+<td><code>""</code></td>
 <td>-10000000000.0 to 10000000000.0</td>
-<td>Box X minimum.</td>
-<td>-0.5 to 0.5 is a unit box around the origin, the placeholder for normalised data; set the box in file units.</td>
+<td>Box X minimum in file units (required).</td>
+<td>Required: the old +-0.5 box assumed unit-scale data and kept no point of a cloud in mm.</td>
 </tr>
 <tr>
 <td><code>x_max</code></td>
 <td>float</td>
-<td><code>0.5</code></td>
+<td><code>""</code></td>
 <td>-10000000000.0 to 10000000000.0</td>
-<td>Box X maximum.</td>
-<td>0.5, see x_min.</td>
+<td>Box X maximum in file units (required).</td>
+<td>Required: the old +-0.5 box assumed unit-scale data and kept no point of a cloud in mm.</td>
 </tr>
 <tr>
 <td><code>y_min</code></td>
 <td>float</td>
-<td><code>-0.5</code></td>
+<td><code>""</code></td>
 <td>-10000000000.0 to 10000000000.0</td>
-<td>Box Y minimum.</td>
-<td>-0.5, see x_min.</td>
+<td>Box Y minimum in file units (required).</td>
+<td>Required: the old +-0.5 box assumed unit-scale data and kept no point of a cloud in mm.</td>
 </tr>
 <tr>
 <td><code>y_max</code></td>
 <td>float</td>
-<td><code>0.5</code></td>
+<td><code>""</code></td>
 <td>-10000000000.0 to 10000000000.0</td>
-<td>Box Y maximum.</td>
-<td>0.5, see x_min.</td>
+<td>Box Y maximum in file units (required).</td>
+<td>Required: the old +-0.5 box assumed unit-scale data and kept no point of a cloud in mm.</td>
 </tr>
 <tr>
 <td><code>z_min</code></td>
 <td>float</td>
-<td><code>-0.5</code></td>
+<td><code>""</code></td>
 <td>-10000000000.0 to 10000000000.0</td>
-<td>Box Z minimum.</td>
-<td>-0.5, see x_min.</td>
+<td>Box Z minimum in file units (required).</td>
+<td>Required: the old +-0.5 box assumed unit-scale data and kept no point of a cloud in mm.</td>
 </tr>
 <tr>
 <td><code>z_max</code></td>
 <td>float</td>
-<td><code>0.5</code></td>
+<td><code>""</code></td>
 <td>-10000000000.0 to 10000000000.0</td>
-<td>Box Z maximum.</td>
-<td>0.5, see x_min.</td>
+<td>Box Z maximum in file units (required).</td>
+<td>Required: the old +-0.5 box assumed unit-scale data and kept no point of a cloud in mm.</td>
 </tr>
 <tr>
 <td><code>invert</code> <em>(advanced)</em></td>
@@ -5712,16 +5758,16 @@
 <td>bool</td>
 <td><code>false</code></td>
 <td></td>
-<td>Sample with replacement (allows duplicate picks).</td>
+<td>Sample with replacement: duplicates are written as separate points.</td>
 <td>Off: no duplicate picks.</td>
 </tr>
 <tr>
 <td><code>seed</code> <em>(advanced)</em></td>
 <td>int</td>
-<td><code>-1</code></td>
+<td><code>0</code></td>
 <td>-1 to 2147483647</td>
-<td>RNG seed for reproducibility; -1 = no seeding (non-deterministic, original behavior).</td>
-<td>-1 is non-deterministic, matching the original script; set a seed for reproducible figures.</td>
+<td>RNG seed: same seed, same points (negative = unseeded).</td>
+<td>0: a fixed seed makes the sample reproducible; -1 (the old default) changed the points on every run.</td>
 </tr>
 <tr>
 <td><code>adjacent_cells</code> <em>(advanced)</em></td>
@@ -5768,24 +5814,24 @@
 <td>string</td>
 <td><code>""</code></td>
 <td></td>
-<td>Scalar array name (empty = active scalars).</td>
-<td>Empty uses the active scalars.</td>
+<td>Array to test (required; 'elevation' = z for extract_points).</td>
+<td>Required: without it the script thresholded a quantity nobody asked for (distance to a unit plane, or z).</td>
 </tr>
 <tr>
 <td><code>lower</code></td>
 <td>float</td>
-<td><code>0.0</code></td>
+<td><code>""</code></td>
 <td>-10000000000.0 to 10000000000.0</td>
-<td>Lower bound for extraction.</td>
-<td>0 with upper 1 is a normalised range placeholder.</td>
+<td>Lower scalar bound (required).</td>
+<td>Required: the old [0, 1] range assumed normalised scalars.</td>
 </tr>
 <tr>
 <td><code>upper</code></td>
 <td>float</td>
-<td><code>1.0</code></td>
+<td><code>""</code></td>
 <td>-10000000000.0 to 10000000000.0</td>
-<td>Upper bound for extraction.</td>
-<td>1, see lower.</td>
+<td>Upper scalar bound (required).</td>
+<td>Required: the old [0, 1] range assumed normalised scalars.</td>
 </tr>
 <tr>
 <td><code>adjacent_cells</code> <em>(advanced)</em></td>
@@ -5810,7 +5856,7 @@
 <li><a href="../why-our-defaults-work/">Why our defaults work</a> · <a href="../../getting-started/concepts/#catalog">The catalog and <code>pl.run</code></a> · <a href="../../api/">API reference</a></li>
 <li><code>pl.describe("pyvista_pointcloud_processing")</code> prints this module from the installed package; <code>pl.describe("pyvista_pointcloud_processing.&lt;method&gt;")</code> one method with ranges and rationale.</li>
 </ul>
-<p><sub>Generated from <code>src/pardesline/catalog/data/pyvista_pointcloud_processing.json</code> and <code>_defaults.json</code> on 2026-10-10.</sub></p>
+<p><sub>Generated from <code>src/pardesline/catalog/data/pyvista_pointcloud_processing.json</code> and <code>_defaults.json</code> on 2026-11-15.</sub></p>
 
 
 
@@ -5954,7 +6000,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       

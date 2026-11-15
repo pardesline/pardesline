@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.1">
     
     
       
@@ -478,6 +478,25 @@
     
   
   Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Correctness audit 2026-11
 
       </a>
     </li>
@@ -5199,6 +5218,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Correctness audit 2026-11
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../contributing/" class="md-nav__link">
         
   
@@ -5476,10 +5522,10 @@
 <tr>
 <td><code>method</code> <em>(advanced)</em></td>
 <td>enum</td>
-<td><code>contour</code></td>
-<td><code>contour</code>, <code>marching_cubes</code>, <code>flying_edges</code></td>
-<td>Contouring algorithm.</td>
-<td>contour is VTK's generic filter; marching_cubes and flying_edges are faster on image data and give the same surface.</td>
+<td><code>auto</code></td>
+<td><code>auto</code>, <code>contour</code>, <code>marching_cubes</code>, <code>flying_edges</code></td>
+<td>Contouring algorithm (auto: flying_edges on image data; 'contour' ignores the direction matrix and is refused on oblique volumes).</td>
+<td>auto = flying_edges on ImageData: vtkContourFilter ignored the direction matrix (a 25-degree oblique ball came out 12.4 mm off); marching_cubes and flying_edges are exact.</td>
 </tr>
 <tr>
 <td><code>preference</code> <em>(advanced)</em></td>
@@ -5540,26 +5586,26 @@
 <tr>
 <td><code>origin_x</code></td>
 <td>float</td>
-<td><code>0.0</code></td>
+<td><code>""</code></td>
 <td>-10000000000.0 to 10000000000.0</td>
-<td>Slice origin X (0 = center).</td>
-<td>0 means the volume centre.</td>
+<td>Slice origin X (default: dataset centre).</td>
+<td>Dataset centre when not given. 0 used to mean 'centre', so a slice at the physical origin was moved.</td>
 </tr>
 <tr>
 <td><code>origin_y</code></td>
 <td>float</td>
-<td><code>0.0</code></td>
+<td><code>""</code></td>
 <td>-10000000000.0 to 10000000000.0</td>
-<td>Slice origin Y (0 = center).</td>
-<td>0 means the centre.</td>
+<td>Slice origin Y (default: dataset centre).</td>
+<td>Dataset centre when not given. 0 used to mean 'centre', so a slice at the physical origin was moved.</td>
 </tr>
 <tr>
 <td><code>origin_z</code></td>
 <td>float</td>
-<td><code>0.0</code></td>
+<td><code>""</code></td>
 <td>-10000000000.0 to 10000000000.0</td>
-<td>Slice origin Z (0 = center).</td>
-<td>0 means the centre.</td>
+<td>Slice origin Z (default: dataset centre).</td>
+<td>Dataset centre when not given. 0 used to mean 'centre', so a slice at the physical origin was moved.</td>
 </tr>
 <tr>
 <td><code>generate_triangles</code> <em>(advanced)</em></td>
@@ -5604,26 +5650,26 @@
 <tr>
 <td><code>x</code></td>
 <td>float</td>
-<td><code>0.0</code></td>
+<td><code>""</code></td>
 <td>-10000000000.0 to 10000000000.0</td>
-<td>X position for YZ slice (0 = center).</td>
-<td>0 means the centre of the volume.</td>
+<td>X position of the slice (default: dataset centre).</td>
+<td>Dataset centre when not given. 0 used to mean 'centre', so a slice at 0 was moved.</td>
 </tr>
 <tr>
 <td><code>y</code></td>
 <td>float</td>
-<td><code>0.0</code></td>
+<td><code>""</code></td>
 <td>-10000000000.0 to 10000000000.0</td>
-<td>Y position for XZ slice (0 = center).</td>
-<td>0 means the centre.</td>
+<td>Y position of the slice (default: dataset centre).</td>
+<td>Dataset centre when not given. 0 used to mean 'centre', so a slice at 0 was moved.</td>
 </tr>
 <tr>
 <td><code>z</code></td>
 <td>float</td>
-<td><code>0.0</code></td>
+<td><code>""</code></td>
 <td>-10000000000.0 to 10000000000.0</td>
-<td>Z position for XY slice (0 = center).</td>
-<td>0 means the centre.</td>
+<td>Z position of the slice (default: dataset centre).</td>
+<td>Dataset centre when not given. 0 used to mean 'centre', so a slice at 0 was moved.</td>
 </tr>
 <tr>
 <td><code>generate_triangles</code> <em>(advanced)</em></td>
@@ -5800,7 +5846,7 @@
 <li><a href="../why-our-defaults-work/">Why our defaults work</a> · <a href="../../getting-started/concepts/#catalog">The catalog and <code>pl.run</code></a> · <a href="../../api/">API reference</a></li>
 <li><code>pl.describe("pyvista_volume_processing")</code> prints this module from the installed package; <code>pl.describe("pyvista_volume_processing.&lt;method&gt;")</code> one method with ranges and rationale.</li>
 </ul>
-<p><sub>Generated from <code>src/pardesline/catalog/data/pyvista_volume_processing.json</code> and <code>_defaults.json</code> on 2026-10-10.</sub></p>
+<p><sub>Generated from <code>src/pardesline/catalog/data/pyvista_volume_processing.json</code> and <code>_defaults.json</code> on 2026-11-15.</sub></p>
 
 
 
@@ -5944,7 +5990,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       

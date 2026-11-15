@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.1">
     
     
       
@@ -478,6 +478,25 @@
     
   
   Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Correctness audit 2026-11
 
       </a>
     </li>
@@ -5127,6 +5146,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Correctness audit 2026-11
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../contributing/" class="md-nav__link">
         
   
@@ -5289,7 +5335,7 @@ description: Point cloud to mesh in Python: clean the cloud, estimate oriented n
 <ul>
 <li><code>depth</code> (Poisson): 9 gives 512 cells across the bounding cube; 8 is Open3D's default and blurs small features; 10–11 need hundreds of thousands of points. <a href="../../benchmarks/">Benchmark</a>.</li>
 <li><code>density_quantile</code>: 0.01 by default; 0.05–0.1 on very partial scans.</li>
-<li>Normals: estimated at <code>normal_radius=0.1</code> file units with <code>normal_orient_k=15</code> when the cloud has none. Scans in millimetres need <code>normal_radius</code> scaled (about 5–10× the point spacing).</li>
+<li>Normals: estimated when the cloud has none, with <code>normal_radius</code> = 3× the mean point spacing by default (<code>normal_radius=0</code>; give a value in file units to override) and <code>normal_orient_k=15</code>. The log reports the signed volume of the result: a negative value means inward-facing triangles.</li>
 </ul>
 <h2 id="check-the-result">Check the result<a class="headerlink" href="#check-the-result" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -5441,7 +5487,7 @@ description: Point cloud to mesh in Python: clean the cloud, estimate oriented n
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       

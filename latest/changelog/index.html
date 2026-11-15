@@ -16,14 +16,14 @@
         <link rel="prev" href="../faq/">
       
       
-        <link rel="next" href="../contributing/">
+        <link rel="next" href="../audit/2026-11-additional-findings/">
       
       
         
       
       
       <link rel="icon" href="../assets/icon.svg">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.1">
     
     
       
@@ -478,6 +478,25 @@
     
   
   Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../audit/2026-11-additional-findings/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Correctness audit 2026-11
 
       </a>
     </li>
@@ -5067,6 +5086,78 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#040-2026-11-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0.4.0 — 2026-11-15
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.4.0 — 2026-11-15">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed-results-that-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed: results that change
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed-defaults" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed defaults
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#new-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#silent-behaviours-that-are-now-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Silent behaviours that are now errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#031-2026-11-03" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -5237,6 +5328,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../audit/2026-11-additional-findings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Correctness audit 2026-11
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../contributing/" class="md-nav__link">
         
   
@@ -5282,6 +5400,78 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#040-2026-11-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0.4.0 — 2026-11-15
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.4.0 — 2026-11-15">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed-results-that-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed: results that change
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed-defaults" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed defaults
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#new-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#silent-behaviours-that-are-now-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Silent behaviours that are now errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#031-2026-11-03" class="md-nav__link">
@@ -5468,6 +5658,160 @@
 <p>All notable changes to this project are documented here. The format follows
 <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a> and the project uses
 <a href="https://semver.org/">Semantic Versioning</a>.</p>
+<h2 id="040-2026-11-15"><a href="https://github.com/pardesline/pardesline/compare/v0.3.1...v0.4.0">0.4.0</a> — 2026-11-15<a class="headerlink" href="#040-2026-11-15" title="Permanent link">&para;</a></h2>
+<p>The correctness release. A correctness audit of 2026-11-15 ran the algorithm scripts unchanged on
+synthetic data with known answers and found results that were wrong without any error. This
+release fixes the 48 bugs it listed that exist in this package, and 10 more found while fixing them
+(<a href="https://pardesline.github.io/pardesline/latest/audit/2026-11-additional-findings/">additional findings</a>).
+Every fix has a regression test that fails on 0.3.1 (<code>tests/test_regressions_*.py</code>, synthetic data,
+fixed seeds, no download). <strong>Numerical results change</strong> for the algorithms listed below, and several
+calls that used to "succeed" on meaningless defaults now stop with an error: read the three lists
+after the fixes before upgrading a pipeline.</p>
+<h3 id="fixed-results-that-change">Fixed: results that change<a class="headerlink" href="#fixed-results-that-change" title="Permanent link">&para;</a></h3>
+<p>Medical registration (<code>simpleitk_registration</code>, <code>pardesline.medical</code>)
+- <code>advanced_rigid</code>: the search and refinement transforms were composed in the wrong order
+  (O(M(p)) instead of M(O(p))); the rotation search sampled 5 % of the voxels at random at shrink 8
+  and picked wrong poses in 3 runs out of 4: it now uses every voxel of the coarse level.
+- <code>bspline</code>: the optimised control grid is the one <code>grid_spacing</code> asks for. It was about 4 times
+  coarser (the multi-level refinement never ran); the method now uses a 4-2-1 image pyramid.
+- <code>rigid</code>, <code>affine</code>, <code>advanced_rigid</code>, <code>bspline</code>: the random metric sampling is seeded; two runs on
+  the same input give the same transform (they differed by up to 0.09 rad).
+- Registration results are flat composite transforms: <code>save_transform(t, "x.h5")</code> works for every
+  method (it raised for advanced rigid and B-spline).
+- <code>demons</code> (JSON sidecar): <code>mean_displacement_mm</code> and <code>std_displacement_mm</code> are statistics of the
+  displacement length (the mean averaged signed x, y, z components and could be 0 for a 4 mm field).
+- <code>difference_analysis</code>: <code>high_diff_voxels</code> counts every difference above <code>lower_threshold</code>
+  (differences above 400 were left out).</p>
+<p>Medical segmentation (<code>simpleitk_segmentation</code>)
+- <code>otsu_threshold</code>, <code>connected_components</code>, <code>watershed</code>: voxels brighter than 255 are no longer
+  dropped (bone and contrast in CT).
+- <code>watershed</code>: returns the objects (it returned an empty label map); <code>seed_radius</code> is in mm as
+  documented (it was in voxels); objects cut by the image border are removed; a separate object too
+  thin for its own seed stays unlabelled instead of taking a neighbour's label.</p>
+<p>Volume input and output
+- <code>.vti</code> files are written and read with their direction matrix (oblique volumes were saved
+  axis-aligned: 11.9 mm off at 30 degrees).
+- <code>load_volume("x.vti")</code> reads <code>x.vti</code>; a sibling <code>x.mha</code> is no longer substituted.
+- DICOM folders whose files form no series are stacked by slice position (Image Position Patient
+  along the slice normal), not by file name.</p>
+<p>Point-cloud registration (<code>registration</code>)
+- <code>ransac_global</code>, <code>icp_refinement</code>, <code>ransac_icp_pipeline</code>: a <code>voxel_size</code> you give is used as given
+  (values outside 0.5-5 % of the diagonal were replaced by 1.3 %).
+- RANSAC is seeded and reproducible (Open3D's RANSAC threads share one random generator, so the
+  scripts run Open3D on one thread). <code>ransac_global</code> and the pipeline run 8 seeds and keep the pose
+  with the best threshold-free distance score; the pipeline also tests the 90/180/270-degree
+  symmetric poses and reports an ambiguous result. On a near-symmetric part, one seed was 91 to 180
+  degrees off in 3 to 6 runs out of 6; the pipeline now lands within 0.3 degree.
+- The pipeline refines in two ICP passes (1.5 then 0.4 voxel) with 100 iterations; one pass at 0.4
+  voxel stalled from RANSAC-sized errors in 18 of 20 starts.
+- The point-to-point fallback uses your convergence settings; when ICP finds nothing the RANSAC pose
+  is kept and labelled as such.
+- Outputs are the moving cloud as read (colours, normals, point order) transformed by T; they were
+  painted yellow with re-estimated normals.</p>
+<p>Deformable point clouds (<code>deformable_registration</code>)
+- <code>cpd_deformable</code>: <code>tolerance</code> reaches pycpd (it was passed under a name pycpd ignores); the
+  normalisation scale no longer grows with the point count; <code>beta</code> defaults to 2 (with 100 the
+  registration was worse than none: 1.11 -&gt; 1.34 mm; now about 0.2 mm on the same case).
+- <code>gaussian_deformation</code>: the field falls continuously to 0 at the radius (it jumped from 13.5 % of
+  the displacement to 0 there).</p>
+<p>Point-cloud processing
+- <code>ransac_plane</code>: the output keeps the input point order (inliers were moved first); plane equation
+  and inlier indices are written to the JSON sidecar; the plane fit is seeded. <code>ground_removal</code> and
+  <code>object_clustering</code> seed their plane fit too.
+- <code>pv_random_sample</code>: seeded by default; with <code>replace=true</code> the duplicates are written (the output
+  had fewer points than reported).</p>
+<p>Meshes, distance fields and collision
+- <code>compute_sdf</code> (and <code>occupancy_reconstruction</code>, <code>binary_erosion</code>): output faces point outward (the
+  SDF mesh was inside-out); no zero-area or duplicate faces by default.
+- Signed distances and occupancy decide inside / outside by a majority of 3 rays (<code>sign_rays</code>); one
+  ray counted a point 6.8 mm outside a sphere as inside.
+- <code>penetration_depth</code>, <code>sdf_collision</code>: the obstacle is placed against the surface actually met along
+  +x (it missed every non-spherical part, e.g. a cube); surface sampling is seeded; in
+  <code>sdf_collision</code> penetrating points are at the red end of the colormap (they were blue).
+- <code>poisson</code>, <code>ball_pivoting</code>: normals of a cloud without normals use a radius of 3 x the point spacing
+  (an absolute 0.1 gave inside-out, open surfaces on data in mm); the signed volume is logged.
+- <code>mesh_to_pcd_uniform</code>, <code>mesh_to_pcd_poisson_disk</code>: the seed is honoured (it was silently dropped).
+- <code>pv_contour</code>: surfaces of oblique volumes are in the right place (12.4 mm off at 25 degrees).
+- <code>pv_slice</code>, <code>pv_slice_orthogonal</code>: a coordinate of 0 is 0 (it meant "centre").
+- <code>detect_geometry_type</code>: a closed tetrahedron is a mesh; PolyData with only lines is <code>lines</code>.
+- The <code>.pcd</code> reader of <code>pardesline.medical.pyvista_adapter</code> finds x, y, z through the FIELDS header.
+- Raw arrays materialised as PLY: integer colours are written as given (0/1 values were scaled to 255).</p>
+<p>Skill scripts
+- <code>pointnet-segmentation/scripts/pointnet_seg.py</code>: <code>--seed</code> (default 0) on every command; <code>eval</code>
+  reports the same mIoU and <code>infer</code> the same labels on every run (both changed between runs).</p>
+<h3 id="changed-defaults">Changed defaults<a class="headerlink" href="#changed-defaults" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>simpleitk_segmentation.connected_components</code> / <code>watershed</code> <code>upper_threshold</code>: 255 -&gt; image maximum.</li>
+<li><code>simpleitk_registration.difference_analysis</code> <code>upper_threshold</code>: 400 -&gt; none.</li>
+<li><code>simpleitk_registration.bspline</code> <code>scale_factors</code>: <code>"1,2,4"</code> -&gt; <code>""</code> (the requested grid, LBFGSB);
+  <code>mesh_coarsening_factor</code> now applies only with <code>scale_factors</code>.</li>
+<li><code>registration.ransac_icp_pipeline</code> <code>icp_max_iteration</code>: 30 -&gt; 100. Catalog <code>voxel_size</code> default
+  0.5 -&gt; 0 (auto), as the scripts already did; its catalog maximum 0.9 is lifted.</li>
+<li><code>deformable_registration.cpd_deformable</code> <code>beta</code>: 100 -&gt; 2.</li>
+<li><code>pyvista_pointcloud_processing.pv_random_sample</code> <code>seed</code>: -1 -&gt; 0; <code>pv_clip_plane</code> origin: (0, 0, 0)
+  -&gt; dataset centre.</li>
+<li><code>mesh_processing.mesh_to_pcd_uniform</code> / <code>mesh_to_pcd_poisson_disk</code> <code>seed</code>: -1 -&gt; 0.</li>
+<li><code>point_cloud_reconstruction.poisson</code> / <code>ball_pivoting</code> <code>normal_radius</code>: 0.1 -&gt; 0 (3 x point spacing).</li>
+<li><code>sdf.compute_sdf</code> / <code>occupancy_reconstruction</code> <code>mc_allow_degenerate</code>: true -&gt; false.</li>
+<li><code>pyvista_volume_processing.pv_contour</code> <code>method</code>: <code>contour</code> -&gt; <code>auto</code>; <code>pv_slice</code> origin and
+  <code>pv_slice_orthogonal</code> x, y, z: 0 -&gt; dataset centre when not given.</li>
+</ul>
+<h3 id="new-parameters">New parameters<a class="headerlink" href="#new-parameters" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>seed</code> on <code>simpleitk_registration</code> rigid, affine, advanced_rigid, bspline (42; 0 is refused, it means
+  "wall clock" in SimpleITK), on <code>registration</code> ransac_global, icp_refinement, ransac_icp_pipeline,
+  on <code>point_cloud_segmentation.ransac_plane</code>, <code>lidar_scene_detection</code> ground_removal and
+  object_clustering, and on <code>collision_detection</code> sdf_collision and penetration_depth (0). The seed is
+  written to the JSON sidecars of the registration methods.</li>
+<li><code>registration.ransac_global</code> / <code>ransac_icp_pipeline</code>: <code>restarts</code> (8); the pipeline also
+  <code>icp_coarse_threshold_factor</code> (1.5), <code>symmetry_probe</code> (true), <code>score_upper_quantile</code> (0.9),
+  <code>ambiguity_margin</code> (0.10), <code>on_ambiguous</code> (<code>error</code> | <code>warn</code>).</li>
+<li><code>sign_rays</code> (3) on <code>sdf</code> compute_sdf, occupancy_reconstruction, sdf_voxel_visualization,
+  <code>voxel_to_mesh.binary_erosion</code> and both <code>collision_detection</code> methods.</li>
+<li><code>register_bspline(..., seed=)</code> and <code>seed</code> in <code>pardesline.medical</code> registration options.</li>
+<li>Registration JSON sidecars now carry <code>voxel_size</code>, <code>seed</code>, <code>status</code>, <code>result_stage</code>, <code>threshold</code>,
+  every candidate pose and the Open3D version.</li>
+</ul>
+<h3 id="silent-behaviours-that-are-now-errors">Silent behaviours that are now errors<a class="headerlink" href="#silent-behaviours-that-are-now-errors" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The six <code>simpleitk_registration</code> scripts, the three <code>registration</code> scripts and <code>cpd_deformable</code>
+  require <code>--moving</code> (without it they registered the input with a moved copy of itself).</li>
+<li><code>ransac_icp_pipeline</code> exits with code 3 when another pose scores within 10 % of the winner
+  (<code>status: "ambiguous"</code> in the JSON; the output is still written). Pass <code>on_ambiguous="warn"</code> to keep
+  the old behaviour of always returning the winner.</li>
+<li>Inputs without triangles are refused by <code>mesh_to_pointcloud</code>, the two mesh samplers, the three
+  <code>sdf</code> methods, <code>binary_erosion</code> and both collision methods (a point cloud used to be replaced by its
+  convex hull, an invented surface).</li>
+<li>Empty results exit with code 1: <code>object_clustering</code> with no non-ground point (it wrote its input),
+  <code>gaussian_deformation</code> reaching no point (it wrote its input), <code>pv_clip_box</code>, <code>pv_clip_plane</code>,
+  <code>pv_threshold</code>, <code>pv_extract_points</code>, <code>pv_extract_cells</code>, <code>pv_threshold_volume</code>, <code>pv_contour</code>.</li>
+<li>Required instead of unit-scale defaults: <code>gaussian_deformation</code> <code>radius</code> and <code>displacement</code>,
+  <code>pv_clip_box</code> bounds, <code>pv_threshold</code> / <code>pv_extract_points</code> <code>scalars</code>, <code>lower</code>, <code>upper</code>
+  (<code>pv_threshold</code> used to threshold the distance to an arbitrary plane), <code>ransac_plane</code>
+  <code>distance_threshold</code>.</li>
+<li><code>cpd_deformable --low_rank true</code> is refused (pycpd 2 ignored it); <code>--num_eig</code> is ignored with a warning.</li>
+<li><code>watershed</code> refuses <code>distance_inside_is_positive=true</code> and <code>distance_squared=true</code> (both broke the
+  seed test).</li>
+<li><code>pv_scalar_stats</code> refuses a vector array and asks for <code>scalars</code> when several arrays qualify.</li>
+<li><code>pv_contour</code> refuses <code>method="contour"</code> on an oblique volume.</li>
+<li>Unknown colormap numbers are refused by <code>intensity_colorization</code>, <code>depth_colorization</code> and
+  <code>height_colorization</code> (they fell back to another colormap).</li>
+<li><code>pardesline.medical</code>: an unknown metric or initializer name raises <code>ValueError</code> (they fell back to
+  Mattes MI and MOMENTS); DICOM files without position tags that form no series raise; writing an
+  oblique volume to <code>.vti</code> with PyVista &lt; 0.45 raises instead of dropping the direction.</li>
+<li><code>ransac_icp_pipeline --rotation_degrees</code> is accepted and ignored with a warning (it only drove the
+  removed demo mode).</li>
+</ul>
+<h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Help texts, catalog descriptions and theory now say what the code does: <code>intensity_colorization</code>
+  colours by distance from the origin (no intensity is read), <code>depth_colorization</code> by z,
+  <code>depth_filter</code> keeps quantiles of z, <code>roi_extraction</code> is centred on the median point,
+  <code>multi_resolution</code> is a side-by-side preview, <code>pv_distance</code> is the unsigned distance to the
+  bounding-box centre, <code>pv_clip_plane</code> keeps the side opposite to the normal by default, the B-spline
+  method has no bending-energy term, watershed seeds are depth thresholds.</li>
+<li><code>docs/audit/2026-11-additional-findings.md</code>: the 10 additional bugs, in the audit's format.</li>
+</ul>
 <h2 id="031-2026-11-03"><a href="https://github.com/pardesline/pardesline/compare/v0.3.0...v0.3.1">0.3.1</a> (2026-11-03)<a class="headerlink" href="#031-2026-11-03" title="Permanent link">&para;</a></h2>
 <h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
 <ul>
@@ -5683,13 +6027,13 @@
         
         
           
-          <a href="../contributing/" class="md-footer__link md-footer__link--next" aria-label="Next: Contributing">
+          <a href="../audit/2026-11-additional-findings/" class="md-footer__link md-footer__link--next" aria-label="Next: Correctness audit 2026-11">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Contributing
+                Correctness audit 2026-11
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -5771,7 +6115,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       

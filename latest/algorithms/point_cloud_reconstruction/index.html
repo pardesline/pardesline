@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.1">
     
     
       
@@ -478,6 +478,25 @@
     
   
   Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Correctness audit 2026-11
 
       </a>
     </li>
@@ -5177,6 +5196,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Correctness audit 2026-11
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../contributing/" class="md-nav__link">
         
   
@@ -5453,10 +5499,10 @@ The iso-surface is extracted at an appropriate level of <span class="arithmatex"
 <tr>
 <td><code>normal_radius</code> <em>(advanced)</em></td>
 <td>float</td>
-<td><code>0.1</code></td>
-<td>0.001 to 10.0</td>
-<td>Search radius for normal estimation when the cloud has no normals.</td>
-<td>0.1 in file units for normal estimation when the cloud has none; about 5-10x the point spacing on metre-scale data, scale it for millimetre scans.</td>
+<td><code>0.0</code></td>
+<td>0.0 to 1000000.0</td>
+<td>Normal estimation radius in file units when the cloud has no normals (0 = 3 x mean point spacing).</td>
+<td>0 = 3 x the mean nearest-neighbour spacing. The old absolute 0.1 left most neighbourhoods with fewer than 3 points on data in mm: 86 % of the normals were off by more than 30 degrees and Poisson returned an inside-out, open surface.</td>
 </tr>
 <tr>
 <td><code>normal_max_nn</code> <em>(advanced)</em></td>
@@ -5600,10 +5646,10 @@ Requires oriented normals <span class="arithmatex">\(\vec{n}_i\)</span> to deter
 <tr>
 <td><code>normal_radius</code> <em>(advanced)</em></td>
 <td>float</td>
-<td><code>0.1</code></td>
-<td>0.001 to 10.0</td>
-<td>Search radius for normal estimation when the cloud has no normals.</td>
-<td>0.1 in file units for normal estimation when the cloud has none.</td>
+<td><code>0.0</code></td>
+<td>0.0 to 1000000.0</td>
+<td>Normal estimation radius in file units when the cloud has no normals (0 = 3 x mean point spacing).</td>
+<td>0 = 3 x the mean nearest-neighbour spacing. The old absolute 0.1 left most neighbourhoods with fewer than 3 points on data in mm: 86 % of the normals were off by more than 30 degrees and Poisson returned an inside-out, open surface.</td>
 </tr>
 <tr>
 <td><code>normal_max_nn</code> <em>(advanced)</em></td>
@@ -5628,7 +5674,7 @@ Requires oriented normals <span class="arithmatex">\(\vec{n}_i\)</span> to deter
 <li><a href="../why-our-defaults-work/">Why our defaults work</a> · <a href="../../getting-started/concepts/#catalog">The catalog and <code>pl.run</code></a> · <a href="../../api/">API reference</a></li>
 <li><code>pl.describe("point_cloud_reconstruction")</code> prints this module from the installed package; <code>pl.describe("point_cloud_reconstruction.&lt;method&gt;")</code> one method with ranges and rationale.</li>
 </ul>
-<p><sub>Generated from <code>src/pardesline/catalog/data/point_cloud_reconstruction.json</code> and <code>_defaults.json</code> on 2026-10-10.</sub></p>
+<p><sub>Generated from <code>src/pardesline/catalog/data/point_cloud_reconstruction.json</code> and <code>_defaults.json</code> on 2026-11-15.</sub></p>
 
 
 
@@ -5772,7 +5818,7 @@ Requires oriented normals <span class="arithmatex">\(\vec{n}_i\)</span> to deter
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       

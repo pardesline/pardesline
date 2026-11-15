@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.1">
     
     
       
@@ -478,6 +478,25 @@
     
   
   Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Correctness audit 2026-11
 
       </a>
     </li>
@@ -5155,6 +5174,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Correctness audit 2026-11
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../contributing/" class="md-nav__link">
         
   
@@ -5359,16 +5405,16 @@ $<span class="arithmatex">\(E(W) = \frac{1}{2\sigma^2} \sum_n \|T(y_n) - x_n\|^2
 <td>float</td>
 <td><code>0.001</code></td>
 <td>0.0001 to 0.01</td>
-<td>Convergence tolerance.</td>
-<td>1e-3 relative change of the objective: tighter costs iterations without visible change in the displacement field.</td>
+<td>Convergence tolerance (passed to pycpd as tolerance).</td>
+<td>1e-3, pycpd's default; before 0.4.0 the value never reached pycpd (passed as 'tol').</td>
 </tr>
 <tr>
 <td><code>beta</code> <em>(advanced)</em></td>
 <td>float</td>
-<td><code>100.0</code></td>
+<td><code>2.0</code></td>
 <td>0.1 to 200.0</td>
-<td>CPD Gaussian-kernel width (smoothness).</td>
-<td>100 is pycpd's default Gaussian kernel width in file units, i.e. a very smooth, almost global deformation for unit-scale clouds; lower it to about the size of the structures you expect to move independently (10-20 mm for organs).</td>
+<td>CPD Gaussian-kernel width (smoothness), in units of the RMS radius of the two clouds.</td>
+<td>2.0 (pycpd's default) in the joint RMS-normalised frame: on a 6 mm bump the correspondence error fell from 1.11 to about 0.2 mm. The old default 100 made the kernel nearly constant (almost a translation) and gave worse than no registration.</td>
 </tr>
 <tr>
 <td><code>lambda_val</code> <em>(advanced)</em></td>
@@ -5391,22 +5437,24 @@ $<span class="arithmatex">\(E(W) = \frac{1}{2\sigma^2} \sum_n \|T(y_n) - x_n\|^2
 <td>bool</td>
 <td><code>false</code></td>
 <td></td>
-<td>Use low-rank Gaussian-kernel acceleration.</td>
-<td>Off below about 10k points; on above, where the full kernel matrix no longer fits in memory.</td>
+<td>Not supported by pycpd 2 (it ignored it silently): true is refused.</td>
+<td>Off; true is refused because pycpd 2.0 accepts and ignores it.</td>
 </tr>
 <tr>
 <td><code>num_eig</code> <em>(advanced)</em></td>
 <td>int</td>
 <td><code>100</code></td>
 <td>10 to 500</td>
-<td>Eigenvectors when low_rank=True.</td>
-<td>100 eigenvectors keep the low-rank approximation close to the full kernel at a fraction of the cost.</td>
+<td>Ignored: only meaningful with low_rank, which pycpd 2 does not support.</td>
+<td>Kept so that existing command lines parse; it has no effect.</td>
 </tr>
 </tbody>
 </table>
 <h3 id="gaussian_deformation">gaussian_deformation<a class="headerlink" href="#gaussian_deformation" title="Permanent link">&para;</a></h3>
-<p>A localized Gaussian deformation:
-$<span class="arithmatex">\(\mathbf{d}(\mathbf{p}) = d_{\max} \cdot \exp\left(-\frac{\|\mathbf{p} - \mathbf{c}\|^2}{2\sigma^2}\right) \cdot \hat{\mathbf{n}}\)</span>$</p>
+<p>A localized Gaussian deformation, continuous at the radius <span class="arithmatex">\(r\)</span>:
+$<span class="arithmatex">\(\mathbf{d}(\mathbf{p}) = d_{\max} \cdot rac{g(\|\mathbf{p} - \mathbf{c}\|) - g(r)}{1 - g(r)} \cdot \hat{\mathbf{n}}, \quad g(d) = \exp\left(-rac{d^2}{2\sigma^2}
+ight), \quad \|\mathbf{p} - \mathbf{c}\| &lt; r\)</span>$
+and 0 beyond <span class="arithmatex">\(r\)</span>.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pardesline</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 
 <span class="n">obj</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"input.ply"</span><span class="p">)</span>
@@ -5430,18 +5478,18 @@ $<span class="arithmatex">\(\mathbf{d}(\mathbf{p}) = d_{\max} \cdot \exp\left(-\
 <tr>
 <td><code>displacement</code></td>
 <td>float</td>
-<td><code>0.02</code></td>
-<td>0.001 to 0.1</td>
-<td>Maximum displacement at pressure center.</td>
-<td>0.02 in file units: a visible but plausible dent on a unit-scale object, used to synthesise test cases for non-rigid registration.</td>
+<td><code>""</code></td>
+<td>1e-09 to 1000000.0</td>
+<td>Maximum displacement at the pressure centre, in file units (required).</td>
+<td>Required: the old 0.02 suited unit-scale data only (no point moved on data in mm).</td>
 </tr>
 <tr>
 <td><code>radius</code></td>
 <td>float</td>
-<td><code>0.1</code></td>
-<td>0.01 to 0.5</td>
-<td>Radius of influence.</td>
-<td>0.1 in file units: the dent spans 10 % of a unit object.</td>
+<td><code>""</code></td>
+<td>1e-09 to 1000000.0</td>
+<td>Radius of influence, in file units (required); no point within it is an error.</td>
+<td>Required: the old 0.1 reached no point of a cloud in mm and the input was written back unchanged.</td>
 </tr>
 <tr>
 <td><code>sigma_factor</code> <em>(advanced)</em></td>
@@ -5458,7 +5506,7 @@ $<span class="arithmatex">\(\mathbf{d}(\mathbf{p}) = d_{\max} \cdot \exp\left(-\
 <li><a href="../why-our-defaults-work/">Why our defaults work</a> · <a href="../../getting-started/concepts/#catalog">The catalog and <code>pl.run</code></a> · <a href="../../api/">API reference</a></li>
 <li><code>pl.describe("deformable_registration")</code> prints this module from the installed package; <code>pl.describe("deformable_registration.&lt;method&gt;")</code> one method with ranges and rationale.</li>
 </ul>
-<p><sub>Generated from <code>src/pardesline/catalog/data/deformable_registration.json</code> and <code>_defaults.json</code> on 2026-10-10.</sub></p>
+<p><sub>Generated from <code>src/pardesline/catalog/data/deformable_registration.json</code> and <code>_defaults.json</code> on 2026-11-15.</sub></p>
 
 
 
@@ -5602,7 +5650,7 @@ $<span class="arithmatex">\(\mathbf{d}(\mathbf{p}) = d_{\max} \cdot \exp\left(-\
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       

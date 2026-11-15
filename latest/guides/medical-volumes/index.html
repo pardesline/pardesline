@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.1">
     
     
       
@@ -478,6 +478,25 @@
     
   
   Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Correctness audit 2026-11
 
       </a>
     </li>
@@ -5049,6 +5068,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Correctness audit 2026-11
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../contributing/" class="md-nav__link">
         
   
@@ -5115,8 +5161,9 @@
 <h1 id="medical-volumes-nifti-dicom-metaimage-label-maps">Medical volumes: NIfTI, DICOM, MetaImage, label maps<a class="headerlink" href="#medical-volumes-nifti-dicom-metaimage-label-maps" title="Permanent link">&para;</a></h1>
 <h1 id="medical-volumes">Medical volumes<a class="headerlink" href="#medical-volumes" title="Permanent link">&para;</a></h1>
 <p>Requires <code>pip install "pardesline[medical]"</code> (SimpleITK + PyVista). <code>.vti</code>
-outputs are written by every SimpleITK op and read back through the PyVista
-adapter; a sibling <code>.mha</code> next to a <code>.vti</code> is preferred when present (3x faster).</p>
+outputs are written by every SimpleITK op, with spacing, origin and direction
+matrix, and read back through the PyVista adapter. The file named is the file
+read: a sibling <code>.mha</code> is never substituted for a <code>.vti</code>.</p>
 <h2 id="load">Load<a class="headerlink" href="#load" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="n">ct</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"ct.nii.gz"</span><span class="p">)</span>  <span class="c1"># Volume; frame "LPS, mm (file)", affine from the header</span>
 <span class="n">ct</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"/data/p01/dicom"</span><span class="p">)</span>  <span class="c1"># a DICOM folder (one series) is a Volume too</span>
@@ -5147,20 +5194,30 @@ which is why the package states LPS/mm for these files. Index to world is
 (<code>mattes_mutual_information</code> | <code>mean_squares</code> | <code>correlation</code> |
 <code>joint_histogram_mi</code>), <code>initializer</code> (<code>GEOMETRY</code> | <code>MOMENTS</code>),
 <code>sampling_strategy</code>, <code>interpolator</code>, <code>shrink_factors="4,2,1"</code>,
-<code>smoothing_sigmas="2,1,0"</code>, <code>number_of_histogram_bins</code>. Use GEOMETRY (aligns
+<code>smoothing_sigmas="2,1,0"</code>, <code>number_of_histogram_bins</code>, <code>seed</code> (42; the
+random metric sampling is seeded, so a rerun gives the same transform; the seed
+is written to the JSON sidecar). Use GEOMETRY (aligns
 image centres); MOMENTS (mass centres) can fail on partial fields of view.
 Mutual information for multimodal pairs (CT/MR), mean squares for same
-modality. Deformable: <code>bspline(grid_spacing)</code>, <code>demons(num_iterations,
-standard_deviations)</code>. Rigid first, then affine, then B-spline.</p>
-<p>Passing <code>moving</code> is mandatory; the scripts' self-alignment demo mode is not
-reachable through the package.</p>
+modality. Deformable: <code>bspline(grid_spacing)</code> (the control grid is the one
+requested: round(extent / grid_spacing) cells per axis; <code>scale_factors="1,2,4"</code>
+refines a coarser grid per level instead), <code>demons(num_iterations,
+standard_deviations)</code>. Rigid first, then affine, then B-spline. Results are
+flattened composites, writable to <code>.h5</code> / <code>.tfm</code> with <code>save_transform</code>.</p>
+<p>Passing <code>moving</code> is mandatory: every registration script, and
+<code>difference_analysis</code>, exits with a usage error without <code>--moving</code>.</p>
 <h2 id="segmentation">Segmentation<a class="headerlink" href="#segmentation" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="n">mask</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">segment</span><span class="p">()</span>  <span class="c1"># Otsu -&gt; LabelMap {1: "foreground"}</span>
 <span class="n">mask</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">segment</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>  <span class="c1"># manual_threshold in intensity units (HU for CT)</span>
 <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">"simpleitk_segmentation.connected_components"</span><span class="p">,</span> <span class="n">min_size</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>  <span class="c1"># keep components &gt;= 500 voxels</span>
-<span class="n">ws</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">"simpleitk_segmentation.watershed"</span><span class="p">,</span> <span class="n">seed_radius</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
+<span class="n">ws</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">"simpleitk_segmentation.watershed"</span><span class="p">,</span> <span class="n">seed_radius</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>  <span class="c1"># seeds: deeper than 10 mm</span>
 <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">with_labels</span><span class="p">({</span><span class="mi">1</span><span class="p">:</span> <span class="s2">"bone"</span><span class="p">})</span>  <span class="c1"># name the label</span>
 </code></pre></div>
+<p><code>connected_components</code> and <code>watershed</code> binarise between <code>threshold</code> and
+<code>upper_threshold</code> (default: the image maximum, so bone and contrast stay in).
+Watershed seeds are the regions deeper than <code>seed_radius</code> <strong>mm</strong> inside the
+mask; objects cut by the image border are dropped, and a separate object too thin
+for a seed of its own stays unlabelled.</p>
 <p><code>Volume.segment</code> always returns a <code>LabelMap</code>. Other outputs are Volumes:
 declare them with <code>as_labels({...})</code> when they are label maps.</p>
 <h2 id="label-map-to-surface-exact-world-coordinates">Label map to surface (exact, world coordinates)<a class="headerlink" href="#label-map-to-surface-exact-world-coordinates" title="Permanent link">&para;</a></h2>
@@ -5196,7 +5253,7 @@ Segmentation: <code>threshold_otsu</code>, <code>threshold_manual</code>, <code>
 <li>Datasets: <code>rire_brain</code> (CT/MR pair), <code>popi_lung_4dct</code> (6 phases + mask),
   <code>liver_tumor_patient01</code> (CT + 3 observer masks), <code>visible_human_head_mri</code>.</li>
 </ul>
-<p><sub>Source: <code>skills/medical-volumes/SKILL.md</code>, one of the twenty skills served by <code>pardesline mcp</code>; published on 2026-10-10.</sub></p>
+<p><sub>Source: <code>skills/medical-volumes/SKILL.md</code>, one of the twenty skills served by <code>pardesline mcp</code>; published on 2026-11-15.</sub></p>
 
 
 
@@ -5340,7 +5397,7 @@ Segmentation: <code>threshold_otsu</code>, <code>threshold_manual</code>, <code>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       
