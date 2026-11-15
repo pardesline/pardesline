@@ -7,7 +7,14 @@
     "scheme": "archive",
     "url": "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task03_Liver.tar",
     "format": "tar",
-    "prefix": "Task03_Liver"
+    "prefix": "Task03_Liver",
+    "pins": {
+      "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task03_Liver.tar": {
+        "size_bytes": 28925891584,
+        "etag": "\"288b95e0d9ead5215f43f2aa9d786f2e-3449\"",
+        "checked": "2026-11-15"
+      }
+    }
   },
   "license": {
     "spdx": "CC-BY-SA-4.0",

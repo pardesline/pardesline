@@ -59,7 +59,9 @@ Shared registration parameters (print with `pl.describe("simpleitk_registration.
 `sampling_strategy`, `interpolator`, `shrink_factors="4,2,1"`,
 `smoothing_sigmas="2,1,0"`, `number_of_histogram_bins`, `seed` (42; the
 random metric sampling is seeded, so a rerun gives the same transform; the seed
-is written to the JSON sidecar). Use GEOMETRY (aligns
+is written to the JSON sidecar), `optimizer` (`regular_step` by default since
+0.5.0; plain `gradient_descent` stopped early or diverged on simple cases).
+Use GEOMETRY (aligns
 image centres); MOMENTS (mass centres) can fail on partial fields of view.
 Mutual information for multimodal pairs (CT/MR), mean squares for same
 modality. Deformable: `bspline(grid_spacing)` (the control grid is the one
@@ -70,6 +72,21 @@ flattened composites, writable to `.h5` / `.tfm` with `save_transform`.
 
 Passing `moving` is mandatory: every registration script, and
 `difference_analysis`, exits with a usage error without `--moving`.
+
+Every registration writes a `quality` block in its JSON sidecar (`reg.quality`):
+`overlap` (share of the fixed grid that maps inside the moving image),
+`similarity` (normalised mutual information minus 1: 0 for unrelated images,
+valid across modalities), `final_metric`, `stop_condition`, `iterations`,
+`floors`, `status`. Below `min_overlap` (0.25) or `min_similarity` (0.05) the
+script still writes its output and JSON, then exits with code 4 and the call
+raises `RunError`. The floors catch failed or meaningless registrations, not
+millimetre errors: validate with landmarks (TRE) when precision matters.
+`bspline_metric` chooses the deformable stage's metric (`mean_squares` for the
+same modality, `mattes_mutual_information` across modalities).
+
+Label maps keep their stored pixel type (`LabelMap.to_sitk()`), and
+`volume.resample(spacing=...)` uses nearest-neighbour interpolation for a label
+map (recorded in the provenance step).
 
 ## Segmentation
 

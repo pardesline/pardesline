@@ -6,7 +6,13 @@
   "source": {
     "scheme": "archive",
     "url": "https://zenodo.org/records/10047292/files/Totalsegmentator_dataset_v201.zip",
-    "format": "zip"
+    "format": "zip",
+    "pins": {
+      "https://zenodo.org/records/10047292/files/Totalsegmentator_dataset_v201.zip": {
+        "size_bytes": 23581218285,
+        "checked": "2026-11-15"
+      }
+    }
   },
   "license": {
     "spdx": "CC-BY-4.0",

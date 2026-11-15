@@ -7,7 +7,13 @@
     "scheme": "archive",
     "url": "https://zenodo.org/records/15732143/files/C3VD_endogslam_optimized.zip",
     "format": "zip",
-    "prefix": "C3VD_endogslam_optimized"
+    "prefix": "C3VD_endogslam_optimized",
+    "pins": {
+      "https://zenodo.org/records/15732143/files/C3VD_endogslam_optimized.zip": {
+        "size_bytes": 7846791107,
+        "checked": "2026-11-15"
+      }
+    }
   },
   "license": {
     "spdx": "CC-BY-4.0",

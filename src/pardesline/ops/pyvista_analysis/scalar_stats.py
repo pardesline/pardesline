@@ -36,14 +36,14 @@ def main():
                          list(mesh.point_data.keys()))
             sys.exit(1)
         elif mesh.n_points > 0:
-            # Use Z-coordinate as default scalar
-            logger.info("No point data available, using Z-coordinate as 'elevation'")
-            mesh["elevation"] = mesh.points[:, 2]
-            scalars_name = "elevation"
+            logger.error("No point data to describe; pass --scalars elevation for the z coordinate")
+            sys.exit(1)
         else:
             logger.error("No data available")
             sys.exit(1)
 
+    if scalars_name == "elevation" and "elevation" not in mesh.point_data:
+        mesh["elevation"] = mesh.points[:, 2]
     if scalars_name not in mesh.point_data:
         logger.error("'{}' not found. Available: {}", scalars_name, list(mesh.point_data.keys()))
         sys.exit(1)

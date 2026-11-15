@@ -17,7 +17,49 @@
       "https://zenodo.org/records/4121926/files/subset7.zip",
       "https://zenodo.org/records/4121926/files/subset8.zip",
       "https://zenodo.org/records/4121926/files/subset9.zip"
-    ]
+    ],
+    "pins": {
+      "https://zenodo.org/records/3723295/files/subset0.zip": {
+        "size_bytes": 6811924508,
+        "checked": "2026-11-15"
+      },
+      "https://zenodo.org/records/3723295/files/subset1.zip": {
+        "size_bytes": 6334778552,
+        "checked": "2026-11-15"
+      },
+      "https://zenodo.org/records/3723295/files/subset2.zip": {
+        "size_bytes": 7257937108,
+        "checked": "2026-11-15"
+      },
+      "https://zenodo.org/records/3723295/files/subset3.zip": {
+        "size_bytes": 6896620114,
+        "checked": "2026-11-15"
+      },
+      "https://zenodo.org/records/3723295/files/subset4.zip": {
+        "size_bytes": 6856144330,
+        "checked": "2026-11-15"
+      },
+      "https://zenodo.org/records/3723295/files/subset5.zip": {
+        "size_bytes": 6610460097,
+        "checked": "2026-11-15"
+      },
+      "https://zenodo.org/records/3723295/files/subset6.zip": {
+        "size_bytes": 6531050274,
+        "checked": "2026-11-15"
+      },
+      "https://zenodo.org/records/4121926/files/subset7.zip": {
+        "size_bytes": 6313598213,
+        "checked": "2026-11-15"
+      },
+      "https://zenodo.org/records/4121926/files/subset8.zip": {
+        "size_bytes": 6025767505,
+        "checked": "2026-11-15"
+      },
+      "https://zenodo.org/records/4121926/files/subset9.zip": {
+        "size_bytes": 6699650017,
+        "checked": "2026-11-15"
+      }
+    }
   },
   "license": {
     "spdx": "CC-BY-4.0",

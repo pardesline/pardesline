@@ -78,8 +78,8 @@
       "script": "threshold_volume.py",
       "output_extension": ".vtu",
       "parameters": [
-        { "name": "lower", "type": "float", "default": 0.0, "min": -1e10, "max": 1e10, "description": "Lower scalar bound." },
-        { "name": "upper", "type": "float", "default": 1.0, "min": -1e10, "max": 1e10, "description": "Upper scalar bound." },
+        { "name": "lower", "type": "float", "default": null, "min": -10000000000.0, "max": 10000000000.0, "description": "Lower scalar bound (required)." },
+        { "name": "upper", "type": "float", "default": null, "min": -10000000000.0, "max": 10000000000.0, "description": "Upper scalar bound (required)." },
         { "name": "scalars", "type": "string", "default": "", "description": "Scalar array name (empty = active scalars).", "advanced": true },
         { "name": "invert", "type": "bool", "default": false, "description": "Invert the threshold selection.", "advanced": true },
         { "name": "continuous", "type": "bool", "default": false, "description": "Use continuous cell range for thresholding.", "advanced": true },

@@ -8,7 +8,8 @@
     "repo_id": "allenai/objaverse",
     "paths": [
       "glbs/000-000"
-    ]
+    ],
+    "revision": "556637099bf4fa79ea7b239d0d9c328b8a2e9ac8"
   },
   "license": {
     "spdx": "ODC-By-1.0",

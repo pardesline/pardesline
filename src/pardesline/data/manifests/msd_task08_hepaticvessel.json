@@ -7,7 +7,14 @@
     "scheme": "archive",
     "url": "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task08_HepaticVessel.tar",
     "format": "tar",
-    "prefix": "Task08_HepaticVessel"
+    "prefix": "Task08_HepaticVessel",
+    "pins": {
+      "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task08_HepaticVessel.tar": {
+        "size_bytes": 9347254784,
+        "etag": "\"306e13e5f17d89b62a34ae2f6d58063d-1115\"",
+        "checked": "2026-11-15"
+      }
+    }
   },
   "license": {
     "spdx": "CC-BY-SA-4.0",

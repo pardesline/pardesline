@@ -35,6 +35,8 @@ def main():
                         ("1", "true", "yes", "on", "y", "t"), default=False,
                         help="Not supported by pycpd 2: true is refused")
     parser.add_argument("--num_eig", type=int, default=100, help="Ignored (only meaningful with low_rank)")
+    parser.add_argument("--min_fitness", type=float, default=0.5,
+                        help="Fail (exit 4) when fewer than this fraction of deformed moving points lie within 3 x the fixed point spacing of the fixed cloud")
     args = parser.parse_args()
     if args.low_rank:
         logger.error("--low_rank is not supported by the installed pycpd (2.x ignores it silently); "
@@ -128,6 +130,39 @@ def main():
                 len(combined_out.points))
     o3d.io.write_point_cloud(args.output, combined_out)
     logger.info("Saved to: {}", args.output)
+
+    # Quality: share of deformed moving points close to the fixed cloud (method-independent)
+    import json
+    from pathlib import Path
+    from scipy.spatial import cKDTree
+
+    tree = cKDTree(target_pts_world)
+    spacing = float(np.median(tree.query(target_pts_world, k=2)[0][:, 1]))
+    threshold = 3.0 * spacing
+    dist = tree.query(registered_world)[0]
+    inl = dist <= threshold
+    fitness = float(inl.mean())
+    quality = {
+        "fitness": round(fitness, 6),
+        "inlier_rmse": round(float(np.sqrt((dist[inl] ** 2).mean())), 6) if inl.any() else None,
+        "fitness_threshold": threshold,
+        "final_metric": final_sigma2,
+        "metric_name": "CPD sigma^2 in the normalised frame (lower is tighter)",
+        "stop_condition": f"{getattr(reg, 'iteration', None)} of {args.max_iterations} iterations, tolerance {args.tolerance}",
+        "iterations": getattr(reg, "iteration", None),
+        "floors": {"min_fitness": args.min_fitness},
+        "status": "ok" if fitness >= args.min_fitness else "below_floor",
+    }
+    json_path = Path(args.output).with_suffix(".json")
+    json_path.write_text(json.dumps({"method": "cpd_deformable", "quality": quality, "normalisation": {
+        "centre": center.tolist(), "scale": scale}, "beta": args.beta, "lambda_val": args.lambda_val,
+        "w": args.w, "output_layout": "fixed points first, then the deformed moving points in input order"},
+        indent=2))
+    logger.info("Quality: fitness {:.4f} at {:.4g}, status {}", fitness, threshold, quality["status"])
+    if quality["status"] != "ok":
+        logger.error("Registration quality below the floor: fitness {:.4f} < {} ({} written)", fitness,
+                     args.min_fitness, json_path)
+        sys.exit(4)
 
 
 if __name__ == "__main__":

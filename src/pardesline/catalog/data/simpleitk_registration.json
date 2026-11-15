@@ -67,7 +67,7 @@
         {
           "name": "num_iterations",
           "type": "int",
-          "default": 100,
+          "default": 300,
           "min": 10,
           "max": 500,
           "description": "Maximum number of optimizer iterations."
@@ -75,10 +75,10 @@
         {
           "name": "sampling_percentage",
           "type": "float",
-          "default": 0.01,
+          "default": 0.1,
           "min": 0.005,
           "max": 0.5,
-          "description": "Metric sampling percentage (0.01 = 1%)."
+          "description": "Metric sampling percentage (0.1 = 10%)."
         },
         {
           "name": "initializer",
@@ -191,6 +191,32 @@
           "max": 2147483647,
           "description": "Seed of the random metric sampling (positive integer): same seed, same transform.",
           "advanced": true
+        },
+        {
+          "name": "optimizer",
+          "type": "enum",
+          "default": "regular_step",
+          "options": ["regular_step", "gradient_descent"],
+          "description": "Optimiser: regular_step (step halved at each direction change) or gradient_descent (fixed learning rate, the pre-0.5 default).",
+          "advanced": true
+        },
+        {
+          "name": "min_overlap",
+          "type": "float",
+          "default": 0.25,
+          "min": 0.0,
+          "max": 1.0,
+          "advanced": true,
+          "description": "Quality floor: fail (exit code 4, output and JSON still written) when less than this fraction of the fixed grid maps inside the moving image."
+        },
+        {
+          "name": "min_similarity",
+          "type": "float",
+          "default": 0.05,
+          "min": 0.0,
+          "max": 1.0,
+          "advanced": true,
+          "description": "Quality floor: fail (exit code 4) when the normalised mutual information gain (NMI - 1) on the overlap is below this; 0 means unrelated images. Valid across modalities."
         }
       ]
     },
@@ -333,6 +359,32 @@
           "max": 2147483647,
           "description": "Seed of the random metric sampling (positive integer): same seed, same transform.",
           "advanced": true
+        },
+        {
+          "name": "optimizer",
+          "type": "enum",
+          "default": "regular_step",
+          "options": ["regular_step", "gradient_descent"],
+          "description": "Optimiser: regular_step (step halved at each direction change) or gradient_descent (fixed learning rate, the pre-0.5 default).",
+          "advanced": true
+        },
+        {
+          "name": "min_overlap",
+          "type": "float",
+          "default": 0.25,
+          "min": 0.0,
+          "max": 1.0,
+          "advanced": true,
+          "description": "Quality floor: fail (exit code 4, output and JSON still written) when less than this fraction of the fixed grid maps inside the moving image."
+        },
+        {
+          "name": "min_similarity",
+          "type": "float",
+          "default": 0.05,
+          "min": 0.0,
+          "max": 1.0,
+          "advanced": true,
+          "description": "Quality floor: fail (exit code 4) when the normalised mutual information gain (NMI - 1) on the overlap is below this; 0 means unrelated images. Valid across modalities."
         }
       ]
     },
@@ -353,7 +405,7 @@
         {
           "name": "num_iterations",
           "type": "int",
-          "default": 100,
+          "default": 300,
           "min": 10,
           "max": 500,
           "description": "Maximum number of optimizer iterations."
@@ -361,10 +413,10 @@
         {
           "name": "sampling_percentage",
           "type": "float",
-          "default": 0.01,
+          "default": 0.1,
           "min": 0.005,
           "max": 0.5,
-          "description": "Metric sampling percentage (0.01 = 1%)."
+          "description": "Metric sampling percentage (0.1 = 10%)."
         },
         {
           "name": "initializer",
@@ -477,6 +529,32 @@
           "max": 2147483647,
           "description": "Seed of the random metric sampling (positive integer): same seed, same transform.",
           "advanced": true
+        },
+        {
+          "name": "optimizer",
+          "type": "enum",
+          "default": "regular_step",
+          "options": ["regular_step", "gradient_descent"],
+          "description": "Optimiser: regular_step (step halved at each direction change) or gradient_descent (fixed learning rate, the pre-0.5 default).",
+          "advanced": true
+        },
+        {
+          "name": "min_overlap",
+          "type": "float",
+          "default": 0.25,
+          "min": 0.0,
+          "max": 1.0,
+          "advanced": true,
+          "description": "Quality floor: fail (exit code 4, output and JSON still written) when less than this fraction of the fixed grid maps inside the moving image."
+        },
+        {
+          "name": "min_similarity",
+          "type": "float",
+          "default": 0.05,
+          "min": 0.0,
+          "max": 1.0,
+          "advanced": true,
+          "description": "Quality floor: fail (exit code 4) when the normalised mutual information gain (NMI - 1) on the overlap is below this; 0 means unrelated images. Valid across modalities."
         }
       ]
     },
@@ -583,6 +661,32 @@
           "max": 2147483647,
           "description": "Seed of the random metric sampling (positive integer): same seed, same transform.",
           "advanced": true
+        },
+        {
+          "name": "min_overlap",
+          "type": "float",
+          "default": 0.25,
+          "min": 0.0,
+          "max": 1.0,
+          "advanced": true,
+          "description": "Quality floor: fail (exit code 4, output and JSON still written) when less than this fraction of the fixed grid maps inside the moving image."
+        },
+        {
+          "name": "min_similarity",
+          "type": "float",
+          "default": 0.05,
+          "min": 0.0,
+          "max": 1.0,
+          "advanced": true,
+          "description": "Quality floor: fail (exit code 4) when the normalised mutual information gain (NMI - 1) on the overlap is below this; 0 means unrelated images. Valid across modalities."
+        },
+        {
+          "name": "bspline_metric",
+          "type": "enum",
+          "default": "mean_squares",
+          "options": ["mean_squares", "mattes_mutual_information", "correlation"],
+          "advanced": true,
+          "description": "Metric of the B-spline stage: mean_squares (same modality and intensity scale only), mattes_mutual_information (across modalities) or correlation."
         }
       ]
     },
@@ -614,6 +718,24 @@
           "default": true,
           "description": "Smooth the total displacement field each iteration.",
           "advanced": true
+        },
+        {
+          "name": "min_overlap",
+          "type": "float",
+          "default": 0.25,
+          "min": 0.0,
+          "max": 1.0,
+          "advanced": true,
+          "description": "Quality floor: fail (exit code 4, output and JSON still written) when less than this fraction of the fixed grid maps inside the moving image."
+        },
+        {
+          "name": "min_similarity",
+          "type": "float",
+          "default": 0.05,
+          "min": 0.0,
+          "max": 1.0,
+          "advanced": true,
+          "description": "Quality floor: fail (exit code 4) when the normalised mutual information gain (NMI - 1) on the overlap is below this; 0 means unrelated images. Valid across modalities."
         }
       ]
     },

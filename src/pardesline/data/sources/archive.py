@@ -70,6 +70,7 @@ class _Ranged:
         self.client = client
         self.bytes_read = 0
         self.size: int | None = None
+        self.etag: str | None = None
         self.supports_ranges: bool | None = None
 
     def probe(self) -> None:
@@ -77,6 +78,7 @@ class _Ranged:
             r = self.client.get(self.url, headers={"Range": "bytes=0-0"})
         except httpx.HTTPError as exc:
             raise FetchError(f"cannot reach {self.url}: {exc}") from None
+        self.etag = r.headers.get("etag")
         if r.status_code == 206:
             self.supports_ranges = True
             cr = r.headers.get("content-range", "")
@@ -378,6 +380,7 @@ class RemoteArchiveSource:
         sha512: str | None = None,
         md5: str | None = None,
         cache: Path | None = None,
+        pins: dict[str, dict] | None = None,
     ):
         if format not in ("zip", "tar"):
             raise FetchError(f"unsupported archive format {format!r}; zip or uncompressed tar")
@@ -389,6 +392,7 @@ class RemoteArchiveSource:
         self.prefix = prefix.strip("/") + "/" if prefix else ""
         self.sha512 = sha512  # checksums apply to a single-archive source only
         self.md5 = md5
+        self.pins = dict(pins or {})  # url -> {"size_bytes", "etag", "checked"} from the manifest
         self.cache = cache if cache is not None else dataset_cache_dir(name)
         self._members: dict[str, Member] | None = None
         self._client: httpx.Client | None = None
@@ -406,8 +410,24 @@ class RemoteArchiveSource:
                 self._client = httpx.Client(follow_redirects=True, timeout=_TIMEOUT)
             r = _Ranged(self.urls[i], self._client)
             r.probe()
+            self._check_pin(r)
             self._ranged[i] = r
         return self._ranged[i]
+
+    def _check_pin(self, r: _Ranged) -> None:
+        """Refuse an archive that differs from the one the manifest pinned (size, ETag)."""
+        pin = self.pins.get(r.url)
+        if not pin:
+            return
+        if pin.get("size_bytes") and r.size != pin["size_bytes"]:
+            raise FetchError(
+                f"{r.url}: the server now serves {r.size} bytes, the manifest pinned {pin['size_bytes']} "
+                f"(read {pin.get('checked') or 'earlier'}): the archive changed; refusing to load other data."
+            )
+        if pin.get("etag") and r.etag and r.etag.strip('W/"') != str(pin["etag"]).strip('W/"'):
+            raise FetchError(
+                f"{r.url}: ETag {r.etag} differs from the pinned {pin['etag']}: the archive changed."
+            )
 
     def _index_path(self) -> Path:
         return self.cache / _INDEX_NAME

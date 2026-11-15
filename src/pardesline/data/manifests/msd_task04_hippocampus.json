@@ -7,7 +7,14 @@
     "scheme": "archive",
     "url": "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task04_Hippocampus.tar",
     "format": "tar",
-    "prefix": "Task04_Hippocampus"
+    "prefix": "Task04_Hippocampus",
+    "pins": {
+      "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task04_Hippocampus.tar": {
+        "size_bytes": 28425216,
+        "etag": "\"81aa748a1df6d95ecb6f1b5812f132b1-4\"",
+        "checked": "2026-11-15"
+      }
+    }
   },
   "license": {
     "spdx": "CC-BY-SA-4.0",

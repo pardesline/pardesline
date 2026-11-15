@@ -8,7 +8,8 @@
     "repo_id": "junma/CVPR-BiomedSegFM",
     "paths": [
       "3D_val_npz"
-    ]
+    ],
+    "revision": "343ddc66b80a3fbd2d85f7f196b3b3203faaa424"
   },
   "license": {
     "spdx": "CC-BY-NC-SA-4.0",

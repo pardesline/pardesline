@@ -289,3 +289,102 @@ on image data, and an explicit `contour` on an oblique volume exits with an erro
   augmentation during training; training randomness is expected, and their evaluation paths were
   not run here (the DINOv3 and JEPA scripts need model weights or datasets that are downloaded).
   Not checked against a known answer.
+
+## Core: saving, licences, catalog (0.5.0)
+
+Found while fixing the nine items of a downstream review of 0.3.1 (object saving, registration
+quality, licences, label volumes, runner, manifests).
+
+### X11. A non-commercial licence is lost when the object is saved
+
+- File: `src/pardesline/object/frame.py`, `License.to_dict`.
+- Faulty code:
+  ```python
+  return {k: v for k, v in asdict(self).items() if v not in (None, "unknown", False)}
+  ```
+- What goes wrong: `commercial=False` is dropped together with the values that state nothing, so
+  the sidecar written by `save()` (and every licence record returned to an agent) omits the
+  restriction; the object reloads as "commercial use unknown".
+- Measured: a CC-BY-NC-4.0 cloud saved and reloaded had `commercial=None`.
+- Corrected code: leave out only `None`, `redistribution="unknown"` and `requires_agreement=False`.
+- Severity: misleading output.
+- Test: `test_x11_non_commercial_survives_a_save`.
+
+### X12. Lengths in file units refused for data in millimetres
+
+- File: `src/pardesline/catalog/data/*.json`, twenty parameters (voxel sizes, radii, DBSCAN eps,
+  plane thresholds, alpha, SDF clamp band, collision obstacle size and overlap).
+- Faulty data: `"max": 0.05` for `compute_sdf.voxel_size`, `"max": 0.5` for
+  `voxel_downsample.voxel_size` and `dbscan_clustering.eps`, and so on.
+- What goes wrong: `pl.run` and the MCP run tool validate parameters against these bounds, so
+  every sensible value for data in millimetres raised `ParameterError`; only the unit-scale
+  defaults could run. Loud, but it made the methods unusable on most medical and industrial data.
+- Measured: the published 0.4.0 wheel refused `compute_sdf voxel_size=0.5`.
+- Corrected data: bounds (1e-9, 1e9) for lengths in file units (clamp band (-1e9, 0) / (0, 1e9)).
+- Severity: crash (refusal of valid input).
+- Test: `test_x12_lengths_in_file_units_accept_millimetre_values` (20 cases).
+
+### X13. `sdf_voxel_visualization` clamps the requested resolution
+
+- File: `src/pardesline/ops/sdf/sdf_voxel_visualization.py`, `main`.
+- Faulty code: `res = max(8, min(128, args.resolution))`.
+- What goes wrong: `--resolution 256` runs at 128 without a message.
+- Corrected code: a resolution outside 8-128 exits 1 with the allowed range.
+- Severity: misleading output.
+- Test: `test_p3_b02_x13_sdf_band_follows_the_grid_and_resolution_is_not_clamped`.
+
+### X14. Saves that wrote one format under another extension (beyond the reported `.stl` case)
+
+- File: `src/pardesline/object/__init__.py`, `Object.save`.
+- What goes wrong: three more paths copied bytes into a file of another type: a DICOM folder saved
+  to any volume extension received the materialised `.mha` bytes; a raw array saved to any
+  extension received the materialised `.ply` / `.mha` bytes; `x.mhd` saved as `y.mhd` copied a
+  header that still names `x.raw` as its data file.
+- Corrected code: every save goes through `convert.save_as` (copy for the same extension,
+  conversion when a writer exists, `ValueError` otherwise); `.mhd` is always rewritten.
+- Severity: wrong result silently.
+- Tests: `tests/test_regressions_save.py` (642 cells), `test_i02_mhd_saved_under_another_name_points_at_its_own_data`.
+
+### X15. Open3D writes GLB files other readers reject
+
+- Where: `open3d.io.write_triangle_mesh(..., ".glb")`, Open3D 0.19.
+- What goes wrong: the file has the `glTF` magic but Assimp reports "buffer view out of range"
+  and VTK "no valid BIN chunks"; Open3D itself reads it back with 0 triangles. The same mesh
+  written as `.gltf` reads back correctly with both readers.
+- Decision: `.glb` is not offered as a save target (refused with the list of targets); `.gltf` is.
+- Severity: wrong result silently (had it been offered).
+- Test: the `mesh.* -> .glb` cells of the save matrix expect a refusal.
+
+### Item notes
+
+- Item 3 (registration quality): the floors exposed second-batch entry P1-21 at once. Default
+  rigid registration (plain gradient descent, 1 % sampling) put a sphere shifted by 2 mm 7.5 m
+  away with exit code 0, and `tests/test_ops_smoke.py::test_volume_segmentation_and_registration`
+  passed on that result because it checked only that a transform was written. With the
+  regular-step optimiser (now the default) the same case lands within 0.06 mm.
+- Item 3: fitness cannot catch every wrong pose: on a 40 %-overlap pair, ICP alone slid 60 degrees
+  with fitness 0.84 (the pipeline reported that case as ambiguous). The floors catch failed and
+  meaningless registrations, not small errors.
+- Item 6: `load_volume` keeps float32 by default (registration and filtering expect it); label maps
+  are read with their stored type.
+- Item 8: archives are read by HTTP Range and are often several GB; the pin is the server's size
+  and ETag per URL, checked when the archive is opened, not a checksum of the content. Values read on
+  2026-11-15: 10 commit ids, 34 archive URLs (Amazon S3, IXI, KITTI and VerSe send an ETag; Zenodo
+  sends none, but a file of a published Zenodo record cannot be replaced). Live check: the pinned
+  MSD Task04 archive and the KiTS23 repo at its pinned commit both load.
+- Item 9: AMOS22, read 2026-11-15: Zenodo record 7262581 states CC-BY-4.0 (API and page), the
+  archive's `amos22/dataset.json` states CC-BY-SA 4.0, the challenge home page states nothing. The
+  manifest keeps the more restrictive CC-BY-SA-4.0 and its note records the three statements.
+
+### X7, continued: not repeatable on macOS
+
+The one-thread setting of X7 makes seeded RANSAC repeatable on Windows (checked locally) and Linux
+(CI), not on macOS: macOS CI of 0.4.0 (2026-11-15) gave different `ransac_global` poses for the same
+seed with `OMP_NUM_THREADS=1` set before Open3D was imported (checked: importing the package does not
+load Open3D earlier). The likely cause is that Open3D's macOS build parallelises RANSAC with a
+scheduler that ignores this variable; this was not confirmed on a Mac. Status: documented
+limitation; `test_p2_a03_x07_same_seed_same_result` is an expected failure on macOS only. The same
+CI run showed seeded SimpleITK affine registrations differing by about 1e-7 in the matrix
+(micrometres): `test_p1_19_registration_is_reproducible_by_default` now compares the displacement of
+points (< 1e-4 mm) instead of the raw parameters to 1e-9. The best-of-8 RANSAC test allowed 10 degrees
+for a coarse pose; macOS gave 15.6: its bound is now 30 degrees, still far from a 90-180 degree flip.

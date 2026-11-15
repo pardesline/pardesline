@@ -49,8 +49,8 @@
           "name": "voxel_size",
           "type": "float",
           "default": 0.01,
-          "min": 0.002,
-          "max": 0.05,
+          "min": 1e-09,
+          "max": 1000000000.0,
           "description": "Voxel size for the SDF grid. Smaller = more detail but slower."
         },
         {
@@ -129,8 +129,8 @@
           "name": "voxel_size",
           "type": "float",
           "default": 0.01,
-          "min": 0.002,
-          "max": 0.05,
+          "min": 1e-09,
+          "max": 1000000000.0,
           "description": "Voxel size for the occupancy grid."
         },
         {
@@ -216,18 +216,18 @@
         {
           "name": "min_clamp",
           "type": "float",
-          "default": -0.1,
-          "min": -1.0,
+          "default": null,
+          "min": -1000000000.0,
           "max": 0.0,
-          "description": "Minimum SDF clamp value (interior threshold)."
+          "description": "Minimum SDF value kept, in file units (default: minus one grid step)."
         },
         {
           "name": "max_clamp",
           "type": "float",
-          "default": 0.1,
+          "default": null,
           "min": 0.0,
-          "max": 1.0,
-          "description": "Maximum SDF clamp value (exterior threshold)."
+          "max": 1000000000.0,
+          "description": "Maximum SDF value kept, in file units (default: one grid step)."
         },
         {
           "name": "padding_factor",

@@ -356,19 +356,34 @@ def impl_run_method(
 ) -> dict:
     """Run a catalog method on a file with validated parameters.
 
-    Returns the output path and the recorded provenance step.
+    Returns the output path, the recorded provenance step, the result's licence (the most
+    restrictive of the inputs'), its frame and, for registrations, the quality record. Writes
+    ``<output>.pardesline.json`` next to the output (frame, licence, provenance).
     """
 
-    import pardesline as pl
+    from pardesline.object import SIDECAR_SUFFIX, wrap
 
-    res = pl.run(method, input_path, output_path, moving=moving_path, params=params or {}, timeout=timeout)
+    obj = wrap(input_path)  # reads the input's sidecar: frame, licence, provenance
+    lines: list[str] = []
+    out = obj.run(
+        method, moving=moving_path, output=output_path, timeout=timeout, on_log=lines.append, **(params or {})
+    )
+    side = out.path.with_name(out.path.name + SIDECAR_SUFFIX)
+    side.write_text(json.dumps(_json_safe(out.to_manifest_dict()), indent=2), encoding="utf-8")
+    step = out.provenance[-1]
+    reg = out.registration_sidecar
     return {
-        "output": str(res.output),
-        "sidecar": str(res.sidecar) if res.sidecar else None,
-        "duration_s": round(res.duration_s, 3),
-        "method": res.method.qualname,
-        "params": res.params,
-        "log_tail": "\n".join(res.log.strip().splitlines()[-15:]),
+        "output": str(out.path),
+        "sidecar": str(out.path.with_suffix(".json")) if reg else None,
+        "object_sidecar": str(side),
+        "duration_s": step.get("duration_s"),
+        "method": f"{step.get('module')}.{step.get('method')}",
+        "params": step.get("params"),
+        "license": out.license.to_dict(),
+        "license_text": out.license.describe(),
+        "frame": out.frame.to_dict(),
+        "quality": _json_safe(reg.get("quality")) if isinstance(reg, dict) else None,
+        "log_tail": "\n".join("\n".join(lines).strip().splitlines()[-15:]),
     }
 
 

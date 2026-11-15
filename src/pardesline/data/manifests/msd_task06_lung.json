@@ -7,7 +7,14 @@
     "scheme": "archive",
     "url": "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task06_Lung.tar",
     "format": "tar",
-    "prefix": "Task06_Lung"
+    "prefix": "Task06_Lung",
+    "pins": {
+      "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task06_Lung.tar": {
+        "size_bytes": 9163696640,
+        "etag": "\"2300833f4f186bb04eb81014f857eeea-1093\"",
+        "checked": "2026-11-15"
+      }
+    }
   },
   "license": {
     "spdx": "CC-BY-SA-4.0",

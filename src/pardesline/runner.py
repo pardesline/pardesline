@@ -134,7 +134,11 @@ def _stream(cmd: list[str], timeout: float, on_log, on_progress, cwd) -> tuple[i
     env.setdefault("MPLBACKEND", "Agg")
     env.setdefault("PYVISTA_OFF_SCREEN", "true")
     env.setdefault("LOGURU_COLORIZE", "False")
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env, cwd=cwd)
+    # stdin=DEVNULL: a child must never read the caller's standard input (under the MCP server
+    # that stream is the protocol).
+    proc = subprocess.Popen(
+        cmd, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env, cwd=cwd
+    )
     timed_out = False
 
     def _kill() -> None:
@@ -254,8 +258,20 @@ def run(
             f"{spec.qualname} timed out after {timeout:.0f}s.", command=cmd, returncode=None, log=log
         )
     if returncode != 0:
+        reason = {
+            3: "the registration is ambiguous: another pose scores almost as well",
+            4: "the registration quality is below the floor (min_fitness / min_overlap / min_similarity)",
+        }.get(returncode)
+        detail = (
+            f" {reason}; the output and {output_path.with_suffix('.json').name} were written for inspection."
+            if reason
+            else ""
+        )
         raise RunError(
-            f"{spec.qualname} failed (exit code {returncode}).", command=cmd, returncode=returncode, log=log
+            f"{spec.qualname} failed (exit code {returncode}).{detail}",
+            command=cmd,
+            returncode=returncode,
+            log=log,
         )
     if not output_path.is_file():
         raise RunError(

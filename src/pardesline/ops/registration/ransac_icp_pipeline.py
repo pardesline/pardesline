@@ -94,6 +94,8 @@ def main():
     parser.add_argument("--icp_max_iteration", type=int, default=100)
     parser.add_argument("--icp_relative_fitness", type=float, default=1e-6)
     parser.add_argument("--icp_relative_rmse", type=float, default=1e-6)
+    parser.add_argument("--min_fitness", type=float, default=C.DEFAULT_MIN_FITNESS,
+                        help="Fail (exit 4) when fewer than this fraction of moving points lie within 1.5 x voxel of the fixed cloud after registration")
     args = parser.parse_args()
     if args.restarts < 1:
         parser.error("--restarts must be at least 1")
@@ -174,7 +176,16 @@ def main():
     logger.info("Saved the moving cloud ({} points, attributes as read) transformed to: {}", n, args.output)
 
     json_path = Path(args.output).with_suffix('.json')
+    quality = C.quality_block(
+        source, target, T, C.QUALITY_THRESHOLD_FACTOR * v, min_fitness=args.min_fitness,
+        stop_condition=f"{args.restarts} RANSAC restarts, ICP passes {[round(x, 6) for x in thresholds]} "
+                       "(Open3D does not report whether ICP converged or hit max_iteration)",
+        iterations=None, final_metric=best["score"],
+        metric_name="threshold-free score: mean of the 0.1..q distance quantiles (lower is better)")
+    if quality["status"] == "ok" and status == "ambiguous":
+        quality["status"] = "ambiguous"
     matrix_dict = {
+        "quality": quality,
         "transformation_matrix": T.tolist(),
         "convention": "p_fixed = T @ [p_moving, 1]",
         "status": status,
@@ -196,6 +207,7 @@ def main():
     }
     json_path.write_text(json.dumps(matrix_dict, indent=2))
     logger.info("Transformation matrix saved: {}", json_path)
+    C.exit_if_below_floor(quality, json_path)
     if status == "ambiguous":
         msg = ("AMBIGUOUS: another pose scores within {:.0f} % of the winner (near-symmetric part?); "
                "see 'clusters' in {}").format(100 * args.ambiguity_margin, json_path)

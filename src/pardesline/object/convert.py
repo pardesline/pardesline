@@ -15,7 +15,121 @@ import numpy as np
 
 from ..errors import MissingDependency
 
-__all__ = ["dicom_to_mha", "read_volume", "read_volume_header", "volume_to_mesh"]
+__all__ = [
+    "SAVE_WRITERS",
+    "content_kind",
+    "dicom_to_mha",
+    "read_volume",
+    "read_volume_header",
+    "save_as",
+    "volume_to_mesh",
+]
+
+# What ``Object.save`` can write, by the CONTENT of the source (a .ply with triangles is a mesh).
+# Same extension: the file is copied. Another extension listed here: converted by a reader and a
+# writer. Anything else: refused with an error, never a file whose content does not match its
+# extension.
+SAVE_WRITERS: dict[str, frozenset[str]] = {
+    "pointcloud": frozenset({".ply", ".pcd", ".xyz", ".pts"}),
+    # .glb is not offered: Open3D 0.19 writes GLB files that Assimp and VTK reject (bad buffer view).
+    "mesh": frozenset({".ply", ".stl", ".obj", ".off", ".gltf", ".vtp", ".vtk"}),
+    "volume": frozenset({".mha", ".mhd", ".nrrd", ".nii", ".nii.gz", ".vti"}),
+    "transform": frozenset({".tfm", ".h5", ".hdf5", ".mat", ".txt"}),
+}
+
+
+def _ext(path: str | os.PathLike) -> str:
+    name = Path(path).name.lower()
+    return ".nii.gz" if name.endswith(".nii.gz") else Path(path).suffix.lower()
+
+
+def content_kind(path: str | os.PathLike, kind: str) -> str:
+    """The kind of what a file holds, for saving: ``labels`` is a volume, and a ``.ply``
+    typed as a point cloud is a mesh when it has triangles."""
+    if kind == "labels":
+        return "volume"
+    if kind in ("pointcloud", "mesh") and _ext(path) == ".ply":
+        try:
+            import open3d as o3d
+        except ImportError:
+            raise MissingDependency("Open3D", "local") from None
+        return "mesh" if len(o3d.io.read_triangle_mesh(str(path)).triangles) > 0 else "pointcloud"
+    return kind
+
+
+def save_as(src: str | os.PathLike, kind: str, dest: str | os.PathLike) -> str:
+    """Write ``src`` (content ``kind``) to ``dest``: ``"copied"`` when the extensions match,
+    ``"converted"`` when a writer exists for the target, ``ValueError`` otherwise."""
+    import shutil
+
+    src, dest = Path(src), Path(dest)
+    s_ext, d_ext = _ext(src), _ext(dest)
+    if s_ext == d_ext and s_ext != ".mhd":  # an .mhd header names its .raw file: always rewritten
+        shutil.copyfile(src, dest)
+        return "copied"
+    ckind = content_kind(src, kind)
+    allowed = SAVE_WRITERS.get(ckind, frozenset())
+    if d_ext not in allowed:
+        hint = f"; it can be saved as {', '.join(sorted(allowed))}" if allowed else ""
+        if ckind == "mesh" and d_ext in SAVE_WRITERS["pointcloud"]:
+            hint += " (sample it into points first: to_points())"
+        raise ValueError(f"cannot save a {ckind} ({src.name}) as {d_ext}{hint}")
+    if ckind == "pointcloud":
+        import open3d as o3d
+
+        pcd = o3d.io.read_point_cloud(str(src))
+        if pcd.is_empty() or not o3d.io.write_point_cloud(str(dest), pcd):
+            raise ValueError(f"could not convert {src.name} to {d_ext}")
+    elif ckind == "mesh":
+        vtk_side = {".vtp", ".vtk"}
+        if s_ext in vtk_side or d_ext in vtk_side:
+            try:
+                import pyvista as pv
+            except ImportError:
+                raise MissingDependency("PyVista", "local") from None
+        if s_ext in vtk_side:  # VTK reader, triangles kept
+            poly = pv.read(str(src))
+            if not isinstance(poly, pv.PolyData):
+                poly = poly.extract_surface()
+            poly = poly.triangulate()
+            verts = np.asarray(poly.points, dtype=float)
+            tris = np.asarray(poly.faces).reshape(-1, 4)[:, 1:] if poly.n_cells else np.zeros((0, 3), int)
+        else:  # Open3D reader
+            import open3d as o3d
+
+            m = o3d.io.read_triangle_mesh(str(src))
+            verts, tris = np.asarray(m.vertices, dtype=float), np.asarray(m.triangles)
+        if len(tris) == 0:
+            raise ValueError(f"{src.name} has no triangles: not a mesh")
+        if d_ext in vtk_side:
+            faces = np.column_stack([np.full(len(tris), 3), tris]).ravel()
+            pv.PolyData(verts, faces).save(str(dest))
+        else:
+            import open3d as o3d
+
+            m = o3d.geometry.TriangleMesh(o3d.utility.Vector3dVector(verts), o3d.utility.Vector3iVector(tris))
+            m.compute_triangle_normals()
+            m.compute_vertex_normals()
+            if not o3d.io.write_triangle_mesh(str(dest), m):
+                raise ValueError(f"could not convert {src.name} to {d_ext}")
+    elif ckind == "volume":
+        sitk = _sitk()
+        from ..medical._service import load_volume, volume_to_vti
+
+        img = load_volume(src, pixel_type=None)  # stored pixel type: label ids stay exact
+        if d_ext == ".vti":
+            volume_to_vti(img, dest)
+        else:
+            sitk.WriteImage(img, str(dest))
+    elif ckind == "transform":
+        sitk = _sitk()
+        from ..medical._service import save_transform
+
+        save_transform(sitk.ReadTransform(str(src)), dest)
+    if not dest.is_file() or dest.stat().st_size == 0:
+        raise ValueError(f"writing {dest.name} produced no file")
+    return "converted"
+
 
 _VTK_EXTS = (".vti", ".vtu", ".vtk")
 

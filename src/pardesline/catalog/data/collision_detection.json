@@ -33,8 +33,8 @@
           "name": "obstacle_radius",
           "type": "float",
           "default": 0.5,
-          "min": 0.1,
-          "max": 5.0,
+          "min": 1e-09,
+          "max": 1000000000.0,
           "description": "Radius of the synthetic obstacle sphere."
         },
         {
@@ -70,16 +70,16 @@
           "name": "obstacle_radius",
           "type": "float",
           "default": 0.5,
-          "min": 0.1,
-          "max": 5.0,
+          "min": 1e-09,
+          "max": 1000000000.0,
           "description": "Radius of the synthetic obstacle sphere."
         },
         {
           "name": "overlap_distance",
           "type": "float",
           "default": 0.15,
-          "min": 0.01,
-          "max": 2.0,
+          "min": 1e-09,
+          "max": 1000000000.0,
           "description": "Distance the obstacle overlaps with the input geometry."
         },
         { "name": "num_samples", "type": "int", "default": 50000, "min": 5000, "max": 200000, "description": "Number of surface sample points for SDF evaluation.", "advanced": true },

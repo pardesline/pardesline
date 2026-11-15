@@ -15,7 +15,9 @@ def main():
     parser = argparse.ArgumentParser(description="Alpha Shape Reconstruction")
     parser.add_argument("--input", required=True, help="Input point cloud file")
     parser.add_argument("--output", required=True, help="Output mesh file")
-    parser.add_argument("--alpha", type=float, default=0.03, help="Alpha parameter")
+    parser.add_argument("--alpha", type=float, default=0.03, help="Alpha parameter, in file units")
+    parser.add_argument("--auto_retry", type=lambda v: str(v).strip().lower() in ("1", "true", "yes", "on", "y", "t"),
+                        default=False, help="When the alpha gives an empty mesh, retry with 0.1-1 x the bounding-box diagonal (the alpha used is written to the JSON)")
     args = parser.parse_args()
 
     logger.info(f"Loading: {args.input}")
@@ -42,6 +44,10 @@ def main():
 
     logger.info(f"Mesh: {len(mesh.vertices)} vertices, {len(mesh.triangles)} triangles")
 
+    alpha_used = args.alpha
+    if len(mesh.vertices) == 0 and not args.auto_retry:
+        logger.error("Empty mesh with alpha={} (in file units): give a larger alpha, or --auto_retry true", args.alpha)
+        sys.exit(1)
     if len(mesh.vertices) == 0:
         logger.warning("Empty mesh -- trying larger alpha values")
         import numpy as np
@@ -55,6 +61,7 @@ def main():
                 pcd, auto_alpha, tetra_mesh, pt_map
             )
             if len(mesh.vertices) > 0:
+                alpha_used = auto_alpha
                 mesh.compute_vertex_normals()
                 logger.info(f"Mesh: {len(mesh.vertices)} vertices, {len(mesh.triangles)} triangles")
                 break
@@ -64,6 +71,12 @@ def main():
         sys.exit(1)
 
     o3d.io.write_triangle_mesh(args.output, mesh)
+    import json
+    from pathlib import Path
+    Path(args.output).with_suffix('.json').write_text(json.dumps({
+        "alpha_requested": args.alpha, "alpha_used": float(alpha_used),
+        "retried": bool(alpha_used != args.alpha), "vertices": len(mesh.vertices),
+        "triangles": len(mesh.triangles), "watertight": bool(mesh.is_watertight())}, indent=2))
     logger.info(f"Saved to: {args.output}")
 
 

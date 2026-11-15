@@ -11,7 +11,29 @@
       "http://biomedic.doc.ic.ac.uk/brain-development/downloads/IXI/IXI-T2.tar",
       "http://biomedic.doc.ic.ac.uk/brain-development/downloads/IXI/IXI-PD.tar",
       "http://biomedic.doc.ic.ac.uk/brain-development/downloads/IXI/IXI-MRA.tar"
-    ]
+    ],
+    "pins": {
+      "http://biomedic.doc.ic.ac.uk/brain-development/downloads/IXI/IXI-T1.tar": {
+        "size_bytes": 4840816640,
+        "etag": "\"120890000-504d8cd6ce25a\"",
+        "checked": "2026-11-15"
+      },
+      "http://biomedic.doc.ic.ac.uk/brain-development/downloads/IXI/IXI-T2.tar": {
+        "size_bytes": 3853445120,
+        "etag": "\"e5aee800-504d8d8ead982\"",
+        "checked": "2026-11-15"
+      },
+      "http://biomedic.doc.ic.ac.uk/brain-development/downloads/IXI/IXI-PD.tar": {
+        "size_bytes": 4068966400,
+        "etag": "\"f2878000-504d8bf6541e7\"",
+        "checked": "2026-11-15"
+      },
+      "http://biomedic.doc.ic.ac.uk/brain-development/downloads/IXI/IXI-MRA.tar": {
+        "size_bytes": 12377712640,
+        "etag": "\"2e1c4e800-504d8ae7e6cfa\"",
+        "checked": "2026-11-15"
+      }
+    }
   },
   "license": {
     "spdx": "CC-BY-SA-3.0",

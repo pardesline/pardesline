@@ -100,8 +100,8 @@
     "validated_on": "generated meshes in tests/test_ops_smoke.py",
     "params": {
       "resolution": "32 voxels per axis (32 768 cells) renders in a second and still shows the shape of the field; it is a visualisation, not the SDF you compute with.",
-      "min_clamp": "-0.1 clamps the interior so colours stay readable near the surface instead of saturating at the object centre.",
-      "max_clamp": "0.1 clamps the exterior for the same reason.",
+      "min_clamp": "One grid step: a band one voxel thick around the surface. The old +-0.1 kept 1.6 % of the nodes of a sphere of radius 10.",
+      "max_clamp": "One grid step: a band one voxel thick around the surface. The old +-0.1 kept 1.6 % of the nodes of a sphere of radius 10.",
       "padding_factor": "15 % of the extent as margin shows the field decaying outside the object.",
       "colormap": "coolwarm is diverging around zero, which is what a signed field needs: blue inside, red outside.",
       "sign_rays": "3: the sign is the majority of three rays. With one ray (Open3D's default) a ray grazing an edge counted a point 6.8 mm outside a sphere as inside and set the reported maximum depth to 6.83 instead of 2.0."
@@ -115,7 +115,7 @@
       "width": "0 means depth drives the resolution; set a width in file units when you know the target cell size (e.g. 1 mm).",
       "linear_fit": "Off: the default iso-vertex placement is smoother; linear fit is faster and slightly blockier.",
       "n_threads": "-1 uses every core.",
-      "density_quantile": "0.01 removes the 1 % of vertices with the least sample support: that is where Poisson balloons over holes and partial views, so the output is a clean, density-trimmed surface rather than a bubble; raise to 0.05-0.1 on very partial scans.",
+      "density_quantile": "0: no trimming, the Poisson surface stays closed (sphere: watertight, volume 4187.7 for an exact 4188.8). 0.01 opened it (not watertight, 4099.3); raise it only to cut extrapolated sheets.",
       "normal_radius": "0 = 3 x the mean nearest-neighbour spacing. The old absolute 0.1 left most neighbourhoods with fewer than 3 points on data in mm: 86 % of the normals were off by more than 30 degrees and Poisson returned an inside-out, open surface.",
       "normal_max_nn": "30 neighbours is enough for a stable covariance; more smooths sharp edges.",
       "normal_orient_k": "15 neighbours for consistent orientation: Poisson needs normals pointing the same way, and a small k keeps the propagation local on thin parts."
@@ -130,7 +130,8 @@
   "point_cloud_reconstruction.alpha_shape": {
     "validated_on": "generated clouds in tests/test_ops_smoke.py",
     "params": {
-      "alpha": "0.03 in file units is a tight fit on metre-scale objects with centimetre point spacing; alpha must be larger than the largest gap you want bridged and smaller than the smallest concavity you want kept."
+      "alpha": "0.03 in file units is a tight fit on metre-scale objects with centimetre point spacing; alpha must be larger than the largest gap you want bridged and smaller than the smallest concavity you want kept.",
+      "auto_retry": "Off: a retried alpha of 30 on a torus filled the hole (genus 0 blob); the alpha actually used was only in the log. On: the retry happens and is recorded."
     }
   },
   "point_cloud_reconstruction.ball_pivoting": {
@@ -159,7 +160,8 @@
       "ransac_max_iteration": "100 000 iterations with the early-stop confidence below converge in seconds on 20k-point clouds.",
       "ransac_confidence": "0.999 stops once the best model is that likely to be the true one.",
       "seed": "0: Open3D's RANSAC draws from a global generator; seeding it makes a run reproducible. Recorded in the JSON.",
-      "restarts": "8 runs: one unseeded run landed 92 degrees off in 1 of 3 tries on a 120-degree pair; the best of 8 by distance score is robust and costs 8 RANSAC runs."
+      "restarts": "8 runs: one unseeded run landed 92 degrees off in 1 of 3 tries on a 120-degree pair; the best of 8 by distance score is robust and costs 8 RANSAC runs.",
+      "min_fitness": "0.5: on synthetic pairs, correct poses scored 0.80-0.96 (including 1.5 mm noise and 40 % overlap) and unrelated shapes or disjoint parts 0.17-0.41. Fitness is relative to the moving cloud: lower the floor when only part of the moving cloud is expected to overlap the fixed one. 0 disables the check."
     }
   },
   "registration.icp_refinement": {
@@ -184,7 +186,8 @@
       "ransac_max_iteration": "100 000 pre-pass iterations.",
       "ransac_confidence": "0.999 early stop.",
       "ransac_seed_fitness": "0.3: below this pre-pass fitness the features were not informative and ICP starts from the centre-of-mass alignment instead of a wrong pose.",
-      "seed": "0: makes the RANSAC pre-pass, hence the ICP start and result, reproducible. Recorded in the JSON."
+      "seed": "0: makes the RANSAC pre-pass, hence the ICP start and result, reproducible. Recorded in the JSON.",
+      "min_fitness": "0.5: on synthetic pairs, correct poses scored 0.80-0.96 (including 1.5 mm noise and 40 % overlap) and unrelated shapes or disjoint parts 0.17-0.41. Fitness is relative to the moving cloud: lower the floor when only part of the moving cloud is expected to overlap the fixed one. 0 disables the check."
     }
   },
   "registration.ransac_icp_pipeline": {
@@ -214,7 +217,8 @@
       "symmetry_probe": "On: restarts only see poses RANSAC happens to reach; the probe also refines the symmetric alternatives so that a near-symmetric part is reported as ambiguous instead of silently flipped.",
       "score_upper_quantile": "0.9: the score ignores the 10 % farthest points (non-overlapping parts, outliers); lower it when the overlap is smaller.",
       "ambiguity_margin": "0.10: a different pose within 10 % of the winner's score cannot be told apart reliably.",
-      "on_ambiguous": "error: an ambiguous pose is a measurement nobody should use without looking; warn keeps the winner."
+      "on_ambiguous": "error: an ambiguous pose is a measurement nobody should use without looking; warn keeps the winner.",
+      "min_fitness": "0.5: on synthetic pairs, correct poses scored 0.80-0.96 (including 1.5 mm noise and 40 % overlap) and unrelated shapes or disjoint parts 0.17-0.41. Fitness is relative to the moving cloud: lower the floor when only part of the moving cloud is expected to overlap the fixed one. 0 disables the check."
     }
   },
   "deformable_registration.cpd_deformable": {
@@ -226,7 +230,8 @@
       "lambda_val": "2.0 regularisation weight: the pycpd default, balancing fit against smoothness; raise it when the field folds.",
       "w": "0 assumes no outliers; set 0.1-0.3 when the fixed cloud has clutter the moving cloud should not reach.",
       "low_rank": "Off; true is refused because pycpd 2.0 accepts and ignores it.",
-      "num_eig": "Kept so that existing command lines parse; it has no effect."
+      "num_eig": "Kept so that existing command lines parse; it has no effect.",
+      "min_fitness": "0.5, the same floor as the rigid methods: a deformation that leaves most of the moving cloud away from the fixed one has failed. 0 disables the check."
     }
   },
   "deformable_registration.gaussian_deformation": {
@@ -549,8 +554,8 @@
   "pyvista_volume_processing.pv_threshold_volume": {
     "validated_on": "generated grids in tests/test_ops_smoke.py",
     "params": {
-      "lower": "0 with upper 1 is a normalised placeholder; use Hounsfield units on CT.",
-      "upper": "1, see lower.",
+      "lower": "Required: the old [0, 1] assumed normalised data and kept a 1 mm shell of a distance field in mm.",
+      "upper": "Required: the old [0, 1] assumed normalised data and kept a 1 mm shell of a distance field in mm.",
       "scalars": "Empty uses the active scalars.",
       "invert": "Off: keep the inside of the range.",
       "continuous": "Off: a cell is kept on its own scalar value, not on the range it spans.",
@@ -584,7 +589,7 @@
   "pyvista_analysis.pv_glyph": {
     "validated_on": "generated meshes in tests/test_ops_smoke.py",
     "params": {
-      "scale_factor": "0.01 in file units draws normal arrows of 1 % of a unit object, visible without hiding the surface.",
+      "scale_factor": "0 = 5 % of the largest extent: the old 0.01 drew arrows 0.02 long on a sphere of radius 10.",
       "vector_name": "Normals is the array every mesh has after compute_normals.",
       "scale": "Off: all arrows the same length, so direction is what you see.",
       "tolerance": "-1 lets PyVista choose the glyph merge tolerance.",
@@ -619,8 +624,8 @@
     "validated_on": "RIRE CT / MR-T1 brain pair: 0.65 x 0.65 x 4 mm CT vs 1.25 x 1.25 x 4 mm MR, 40 mm initial offset, registered in 8.8 s (examples/register_ct_mr_rire, the README demo); the multimodal-rigid-registration skill reports 3.9 deg / 1 mm-class agreement with the RIRE truth",
     "params": {
       "learning_rate": "1.0 with optimizer scales from physical shift: each step moves the image by about one unit of the scaled parameters, fast on the coarse levels and still stable because the scales normalise rotations and translations.",
-      "num_iterations": "100 per level: Mattes MI on 1 % sampling plateaus within 50-80 iterations on head and abdomen volumes; the convergence window stops it earlier.",
-      "sampling_percentage": "1 % of the voxels is enough for the MI estimate on 256^3 volumes and makes each iteration cheap; raise to 5-15 % on small fields of view or very noisy images.",
+      "num_iterations": "300 iterations of regular-step descent: it stops earlier when the step falls below 1e-4; 100 with plain gradient descent stopped after about 10 on simple cases.",
+      "sampling_percentage": "10 % of the voxels: 1 % at shrink 4 is a few dozen samples and gave 4-10 mm errors; 10 % reached sub-millimetre on the synthetic pairs.",
       "initializer": "GEOMETRY aligns the geometric centres of the two volumes, which works when both scans cover the same anatomy; MOMENTS (intensity centre of mass) is better when one field of view is much larger than the other.",
       "metric": "Mattes mutual information is the only one of the four that works across modalities (CT vs MR): it assumes a statistical dependence, not a linear intensity relation.",
       "number_of_histogram_bins": "50 bins: 32-64 is the sweet spot for the Parzen-window joint histogram, fewer is blurry, more is noisy.",
@@ -632,7 +637,10 @@
       "smoothing_sigmas": "2,1,0 mm match the shrink factors so each level sees a properly band-limited image.",
       "smoothing_sigmas_in_physical_units": "On: sigmas in millimetres so anisotropic voxels (4 mm slices) are smoothed consistently.",
       "optimizer_scales_from_physical_shift": "On: rotations in radians and translations in millimetres have different sensitivities; the physical-shift scales equalise them, which is the single setting that makes a fixed learning rate work across datasets.",
-      "seed": "42, any fixed positive value: the random metric sampling draws the same voxels on every run, so the same inputs give the same transform (unseeded runs differed by up to 0.09 rad). 0 is refused: SimpleITK reads it as 'wall clock'. Reported in the JSON sidecar."
+      "seed": "42, any fixed positive value: the random metric sampling draws the same voxels on every run, so the same inputs give the same transform (unseeded runs differed by up to 0.09 rad). 0 is refused: SimpleITK reads it as 'wall clock'. Reported in the JSON sidecar.",
+      "min_overlap": "0.25: correct registrations of the synthetic pairs kept 0.74-0.92 of the fixed grid inside the moving image; a transform that leaves the images apart scores 0. 0 disables the check.",
+      "min_similarity": "0.05: exact alignments scored 0.66-0.77 (same modality and a non-monotonic multimodal mapping), related but imprecise ones (4.7-7.5 mm TRE) 0.14-0.21, unrelated content (noise, shuffled voxels) below 0.007. The floor catches failed or meaningless registrations, not millimetre errors. 0 disables the check.",
+      "optimizer": "regular_step: on synthetic pairs (sphere shifted 2 mm, blobs rotated 8 deg, same and multimodal) it reached 0.01-0.76 mm; plain gradient descent with a fixed rate stopped early (5-10 mm) or diverged (7.5 m with exit 0 on the shifted sphere, exceptions on the multimodal pair)."
     }
   },
   "simpleitk_registration.advanced_rigid": {
@@ -652,15 +660,18 @@
       "smoothing_sigmas": "2,1,0 mm match the shrink factors so each level sees a properly band-limited image.",
       "smoothing_sigmas_in_physical_units": "On: sigmas in millimetres so anisotropic voxels (4 mm slices) are smoothed consistently.",
       "optimizer_scales_from_physical_shift": "On: rotations in radians and translations in millimetres have different sensitivities; physical-shift scales equalise them so one learning rate works across datasets.",
-      "seed": "42, any fixed positive value: the random metric sampling draws the same voxels on every run, so the same inputs give the same transform (unseeded runs differed by up to 0.09 rad). 0 is refused: SimpleITK reads it as 'wall clock'. Reported in the JSON sidecar."
+      "seed": "42, any fixed positive value: the random metric sampling draws the same voxels on every run, so the same inputs give the same transform (unseeded runs differed by up to 0.09 rad). 0 is refused: SimpleITK reads it as 'wall clock'. Reported in the JSON sidecar.",
+      "min_overlap": "0.25: correct registrations of the synthetic pairs kept 0.74-0.92 of the fixed grid inside the moving image; a transform that leaves the images apart scores 0. 0 disables the check.",
+      "min_similarity": "0.05: exact alignments scored 0.66-0.77 (same modality and a non-monotonic multimodal mapping), related but imprecise ones (4.7-7.5 mm TRE) 0.14-0.21, unrelated content (noise, shuffled voxels) below 0.007. The floor catches failed or meaningless registrations, not millimetre errors. 0 disables the check.",
+      "optimizer": "regular_step: on synthetic pairs (sphere shifted 2 mm, blobs rotated 8 deg, same and multimodal) it reached 0.01-0.76 mm; plain gradient descent with a fixed rate stopped early (5-10 mm) or diverged (7.5 m with exit 0 on the shifted sphere, exceptions on the multimodal pair)."
     }
   },
   "simpleitk_registration.affine": {
     "validated_on": "generated volumes in tests/test_ops_smoke.py; same stack as rigid, which ran on the RIRE pair",
     "params": {
       "learning_rate": "1.0 with physical-shift scales, as for rigid.",
-      "num_iterations": "100 per level.",
-      "sampling_percentage": "1 % of the voxels is enough for the mutual-information estimate on 256^3 volumes and keeps each iteration cheap.",
+      "num_iterations": "300 iterations of regular-step descent: it stops earlier when the step falls below 1e-4; 100 with plain gradient descent stopped after about 10 on simple cases.",
+      "sampling_percentage": "10 % of the voxels: 1 % at shrink 4 is a few dozen samples and gave 4-10 mm errors; 10 % reached sub-millimetre on the synthetic pairs.",
       "initializer": "GEOMETRY aligns the geometric centres before the first iteration; MOMENTS (intensity centre of mass) when one field of view is much larger than the other.",
       "metric": "Mattes MI for cross-modality; mean squares is faster for same-modality follow-ups.",
       "number_of_histogram_bins": "50 bins: 32-64 is the sweet spot for the Parzen-window joint histogram, fewer is blurry, more is noisy.",
@@ -672,7 +683,10 @@
       "smoothing_sigmas": "2,1,0 mm match the shrink factors so each level sees a properly band-limited image.",
       "smoothing_sigmas_in_physical_units": "On: sigmas in millimetres so anisotropic voxels (4 mm slices) are smoothed consistently.",
       "optimizer_scales_from_physical_shift": "On: the 12 affine parameters mix scale, shear and translation, so scale normalisation matters even more than for rigid.",
-      "seed": "42, any fixed positive value: the random metric sampling draws the same voxels on every run, so the same inputs give the same transform (unseeded runs differed by up to 0.09 rad). 0 is refused: SimpleITK reads it as 'wall clock'. Reported in the JSON sidecar."
+      "seed": "42, any fixed positive value: the random metric sampling draws the same voxels on every run, so the same inputs give the same transform (unseeded runs differed by up to 0.09 rad). 0 is refused: SimpleITK reads it as 'wall clock'. Reported in the JSON sidecar.",
+      "min_overlap": "0.25: correct registrations of the synthetic pairs kept 0.74-0.92 of the fixed grid inside the moving image; a transform that leaves the images apart scores 0. 0 disables the check.",
+      "min_similarity": "0.05: exact alignments scored 0.66-0.77 (same modality and a non-monotonic multimodal mapping), related but imprecise ones (4.7-7.5 mm TRE) 0.14-0.21, unrelated content (noise, shuffled voxels) below 0.007. The floor catches failed or meaningless registrations, not millimetre errors. 0 disables the check.",
+      "optimizer": "regular_step: on synthetic pairs (sphere shifted 2 mm, blobs rotated 8 deg, same and multimodal) it reached 0.01-0.76 mm; plain gradient descent with a fixed rate stopped early (5-10 mm) or diverged (7.5 m with exit 0 on the shifted sphere, exceptions on the multimodal pair)."
     }
   },
   "simpleitk_registration.bspline": {
@@ -688,7 +702,10 @@
       "max_number_of_corrections": "5 stored corrections is the LBFGSB default memory.",
       "cost_function_convergence_factor": "1e7 is the LBFGSB default (moderate accuracy).",
       "scale_factors": "Empty: LBFGSB optimises the grid of grid_spacing over a 4-2-1 pyramid. With a single level the old '1,2,4' default never refined, so the grid was 4x coarser than requested; refinement now switches to the line-search optimiser (LBFGSB rejects a parameter count that changes between levels).",
-      "seed": "42, any fixed positive value: the random metric sampling draws the same voxels on every run, so the same inputs give the same transform (unseeded runs differed by up to 0.09 rad). 0 is refused: SimpleITK reads it as 'wall clock'. Reported in the JSON sidecar."
+      "seed": "42, any fixed positive value: the random metric sampling draws the same voxels on every run, so the same inputs give the same transform (unseeded runs differed by up to 0.09 rad). 0 is refused: SimpleITK reads it as 'wall clock'. Reported in the JSON sidecar.",
+      "min_overlap": "0.25: correct registrations of the synthetic pairs kept 0.74-0.92 of the fixed grid inside the moving image; a transform that leaves the images apart scores 0. 0 disables the check.",
+      "min_similarity": "0.05: exact alignments scored 0.66-0.77 (same modality and a non-monotonic multimodal mapping), related but imprecise ones (4.7-7.5 mm TRE) 0.14-0.21, unrelated content (noise, shuffled voxels) below 0.007. The floor catches failed or meaningless registrations, not millimetre errors. 0 disables the check.",
+      "bspline_metric": "mean_squares, the fastest, is right for follow-up scans of the same modality; it was the only choice before 0.5.0, which made the deformable stage meaningless for CT-MR."
     }
   },
   "simpleitk_registration.demons": {
@@ -696,7 +713,9 @@
     "params": {
       "num_iterations": "20 demons iterations are enough for small same-modality deformations; the method is for follow-up scans, not CT-to-MR.",
       "standard_deviations": "2.0 voxels of Gaussian smoothing of the displacement field keep it regular (no folding) at the cost of fine detail.",
-      "smooth_displacement_field": "On: smoothing the total field each iteration is what keeps demons from producing a torn deformation."
+      "smooth_displacement_field": "On: smoothing the total field each iteration is what keeps demons from producing a torn deformation.",
+      "min_overlap": "0.25: correct registrations of the synthetic pairs kept 0.74-0.92 of the fixed grid inside the moving image; a transform that leaves the images apart scores 0. 0 disables the check.",
+      "min_similarity": "0.05: exact alignments scored 0.66-0.77 (same modality and a non-monotonic multimodal mapping), related but imprecise ones (4.7-7.5 mm TRE) 0.14-0.21, unrelated content (noise, shuffled voxels) below 0.007. The floor catches failed or meaningless registrations, not millimetre errors. 0 disables the check."
     }
   },
   "simpleitk_registration.difference_analysis": {

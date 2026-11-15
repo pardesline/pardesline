@@ -9,7 +9,17 @@
     "urls": [
       "https://zenodo.org/records/10159290/files/images.zip",
       "https://zenodo.org/records/10159290/files/masks.zip"
-    ]
+    ],
+    "pins": {
+      "https://zenodo.org/records/10159290/files/images.zip": {
+        "size_bytes": 3700562886,
+        "checked": "2026-11-15"
+      },
+      "https://zenodo.org/records/10159290/files/masks.zip": {
+        "size_bytes": 58222897,
+        "checked": "2026-11-15"
+      }
+    }
   },
   "license": {
     "spdx": "CC-BY-4.0",

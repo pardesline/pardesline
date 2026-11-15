@@ -38,7 +38,8 @@ sidecar). If the units are wrong (mm vs m) every radius is wrong: check
 `cloud.frame.describe()` first.
 
 RANSAC is random. Every registration script takes `seed` (default 0) and pins
-Open3D to one thread, so a run is reproducible; `ransac_global` and
+Open3D to one thread, so a run is reproducible on Linux and Windows (not on macOS, where
+Open3D's RANSAC varied between runs under the same seed in CI); `ransac_global` and
 `ransac_icp_pipeline` also run `restarts` seeds (default 8) and keep the pose
 with the best threshold-free score (mean of the 10-90 % quantiles of the
 moving-to-fixed distances). A single run is not trustworthy on near-symmetric
@@ -48,6 +49,14 @@ principal axis; when a different pose scores within `ambiguity_margin` (10 %)
 it reports `status: "ambiguous"` and exits with code 3 (`on_ambiguous="warn"`
 to only log it). Outputs are the moving cloud as read (colours, normals,
 point order) transformed by T.
+
+Every registration (`ransac_global`, `icp_refinement`, `ransac_icp_pipeline`,
+`cpd_deformable`) writes a `quality` block: `fitness` (share of the moving
+points within 1.5 voxel of the fixed cloud after the transform), `inlier_rmse`,
+`final_metric`, `stop_condition`, `floors`, `status`. Below `min_fitness` (0.5)
+the output and JSON are written and the script exits with code 4. On synthetic
+pairs correct poses scored 0.80-0.96 and unrelated shapes 0.17-0.41; lower the
+floor when only part of the moving cloud overlaps the fixed one.
 
 ### FPFH in two sentences
 For each point, the Simplified Point Feature Histogram encodes the angles

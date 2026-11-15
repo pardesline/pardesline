@@ -58,3 +58,27 @@ def signed_distance(scene, query, nsamples: int = DEFAULT_SIGN_RAYS):
 def occupancy(scene, query, nsamples: int = DEFAULT_SIGN_RAYS):
     """Occupancy (1 inside) decided by a majority of ``nsamples`` rays."""
     return scene.compute_occupancy(query, nsamples=check_sign_rays(nsamples)).numpy()
+
+
+MAX_GRID_NODES = 50_000_000  # about 0.6 GB for the float32 query points alone
+
+
+def check_grid_budget(shape, voxel_size: float) -> None:
+    """Exit 1 before allocating a grid that would exhaust memory (a unit-scale voxel size on data in
+    millimetres asks for billions of nodes)."""
+    n = int(np.prod([int(s) for s in shape]))
+    if n > MAX_GRID_NODES:
+        scale = (n / MAX_GRID_NODES) ** (1 / 3)
+        logger.error("A {} grid is {:,} nodes (limit {:,}): voxel_size {} is too small for this object; "
+                     "use at least {:.4g} (file units)", tuple(shape), n, MAX_GRID_NODES, voxel_size,
+                     voxel_size * scale * 1.01)
+        sys.exit(1)
+
+
+def warn_if_not_watertight(mesh) -> bool:
+    """Signs and occupancy assume a closed surface: say so when the input is not one."""
+    ok = bool(mesh.is_watertight())
+    if not ok:
+        logger.warning("The input mesh is not watertight: inside/outside (signs, occupancy) is only "
+                       "meaningful for a closed surface; check the result")
+    return ok

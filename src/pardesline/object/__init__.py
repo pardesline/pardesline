@@ -35,7 +35,7 @@ from ..runner import output_dir
 from ..runner import run as _run
 from . import arrays, convert
 from .arrays import ARRAY_EXTS, is_array_file
-from .frame import FORMAT_FRAMES, ITK_VOLUME_EXTS, Frame, License
+from .frame import FORMAT_FRAMES, ITK_VOLUME_EXTS, Frame, License, combine_licenses
 
 __all__ = [
     "ALIASES",
@@ -348,6 +348,13 @@ class Object:
         return self._registration_sidecar  # type: ignore[return-value]
 
     @property
+    def quality(self) -> dict[str, Any] | None:
+        """The quality record of a registration output (``status``, ``fitness`` or ``overlap`` and
+        ``similarity``, ``stop_condition``, ``iterations``, ``floors``), from its JSON sidecar."""
+        sc = self.registration_sidecar
+        return sc.get("quality") if isinstance(sc, dict) else None
+
+    @property
     def transform(self) -> dict[str, Any] | None:
         """The estimated transform of a registration output, when present."""
         sc = self.registration_sidecar
@@ -457,18 +464,48 @@ class Object:
             kwargs["on_log"] = on_log
         if on_progress is not None:
             kwargs["on_progress"] = on_progress
+        moving_obj: Object | None = moving if isinstance(moving, Object) else None
+        if moving is not None and moving_obj is None:
+            with contextlib.suppress(OSError, ValueError, FileNotFoundError):
+                moving_obj = wrap(moving)  # reads its sidecar: licence, frame
         res = _run(spec.module_id, spec.id, self._op_input(), **kwargs)
         step = res.provenance()
         step["step"] = "run"
         step["input_provenance"] = list(self.provenance)
-        if isinstance(moving, Object) and moving.provenance:
-            step["moving_provenance"] = list(moving.provenance)
-        return wrap(
+        if moving_obj is not None and moving_obj.provenance:
+            step["moving_provenance"] = list(moving_obj.provenance)
+        if moving is not None:
+            lic = combine_licenses(
+                [self.license, moving_obj.license if moving_obj is not None else License()],
+                [f"input {self.path.name}", f"moving {Path(str(moving_path)).name}"],
+            )
+        else:
+            lic = self.license
+        out = wrap(
             res.output,
-            frame=self.frame if self.frame.source != "file" else self.frame.override(affine=None),
-            license=self.license,
+            frame=self.frame.override(affine=None, source="derived"),
+            license=lic,
             provenance=[*self.provenance, step],
             read_sidecar=False,
+        )
+        out.frame = self._derived_frame(out)
+        return out
+
+    def _derived_frame(self, out: Object) -> Frame:
+        """The frame of an operation's output: axes and units carried over from the input (or
+        stated by the output's own header), source ``derived``, and the affine of the output
+        grid as written (so a grid-preserving operation keeps the input's affine and any other
+        gets its own), or None when the output is not a volume or its grid cannot be read."""
+        affine = None
+        if out.kind in ("volume", "labels"):
+            with contextlib.suppress(Exception):
+                affine = convert.read_volume_header(out._op_input())["affine"]
+        return Frame(
+            axes=out.frame.axes or self.frame.axes,
+            units=out.frame.units or self.frame.units,
+            affine=affine,
+            crs=out.frame.crs or self.frame.crs,
+            source="derived",
         )
 
     # Friendly aliases (explicit so editors can complete them).
@@ -536,10 +573,14 @@ class Object:
         return d
 
     def save(self, dest: str | os.PathLike, *, sidecar: bool = True) -> Path:
-        """Copy the file (plus its registration sidecar and ``.raw`` sibling
-        for ``.mhd``) to ``dest`` - a directory keeps the current name - and
-        write ``<dest>.pardesline.json`` with frame, labels, licence and
-        provenance. Returns the new path."""
+        """Write the object to ``dest`` - a directory keeps the current name - and
+        ``<dest>.pardesline.json`` with frame, labels, licence and provenance.
+
+        Same extension: the file is copied (with its registration ``.json``). Another
+        extension: the content is converted when a writer exists for it
+        (``convert.SAVE_WRITERS``: point clouds, meshes, volumes with their stored pixel type,
+        transforms); otherwise ``ValueError``. A file whose content does not match its
+        extension is never written. Returns the new path."""
         wants_dir = str(dest).endswith(("/", os.sep))
         dest = Path(dest).expanduser()
         if wants_dir or dest.is_dir():
@@ -548,19 +589,16 @@ class Object:
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest_ext = extension_of(dest) if not dest.is_dir() else ""
         if self.is_raw_array and dest_ext and not is_array_file(dest):
-            shutil.copyfile(self._materialise_array(), dest)  # standard file from the layout
-        elif self.path.is_dir() and dest_ext in ITK_VOLUME_EXTS:
-            shutil.copyfile(self._op_input(), dest)  # DICOM series as one volume file
+            # standard file from the layout, converted when the target is another format
+            convert.save_as(self._materialise_array(), self.kind, dest)
+        elif self.path.is_dir() and dest_ext:
+            convert.save_as(self._op_input(), "volume", dest)  # DICOM series as one volume file
         elif self.path.is_dir():
             if dest.exists():
                 shutil.rmtree(dest)
             shutil.copytree(self.path, dest)
         else:
-            shutil.copyfile(self.path, dest)
-            if self.extension == ".mhd":
-                raw = self.path.with_suffix(".raw")
-                if raw.is_file():
-                    shutil.copyfile(raw, dest.with_suffix(".raw"))
+            convert.save_as(self.path, self.kind, dest)  # copy, or convert, or refuse
             reg = self.path.with_suffix(".json")
             if reg.is_file() and reg != self.path:
                 shutil.copyfile(reg, dest.with_suffix(".json"))
@@ -605,11 +643,14 @@ class Object:
             from ..medical import load_dicom, load_volume
         except ImportError:
             raise MissingDependency("SimpleITK", "medical") from None
+        # A label map keeps its stored pixel type (float32 is exact only up to 2**24);
+        # grey-level volumes are read as float32 as before.
+        pixel = {} if self.kind != "labels" else {"pixel_type": None}
         if self.path.is_dir():
             return load_dicom(self.path)
         if self.is_raw_array:
-            return load_volume(self._op_input())
-        return load_volume(self.path)
+            return load_volume(self._op_input(), **pixel)
+        return load_volume(self.path, **pixel)
 
     def to_numpy(self):
         """Points (N,3) for clouds, vertices for meshes, voxels (z,y,x) for volumes."""
@@ -685,7 +726,7 @@ class Volume(Object):
             step["label_name"] = self.labels[label]
         return Mesh(
             out,
-            frame=self.frame.override(affine=None),
+            frame=self.frame.override(affine=None, source="derived"),
             license=self.license,
             provenance=[*self.provenance, step],
             read_sidecar=False,
@@ -705,6 +746,60 @@ class Volume(Object):
             bounds: dict[str, Any] = {k: v for k, v in (("lower", lower), ("upper", upper)) if v is not None}
             out = self.run("simpleitk_segmentation.manual_threshold", **bounds, **params)
         return LabelMap._from_object(out, labels={1: "foreground"})
+
+    def resample(
+        self,
+        spacing: tuple[float, float, float] | None = None,
+        size: tuple[int, int, int] | None = None,
+        *,
+        interpolator: str | None = None,
+        output: str | os.PathLike | None = None,
+    ) -> Volume:
+        """Resample onto a new spacing (or size), keeping origin, direction and pixel type.
+
+        ``interpolator`` defaults to ``nearest`` for a label map (no label value is invented)
+        and ``linear`` otherwise; the choice is recorded in the provenance step.
+        """
+        from ..medical import resample as _resample
+        from ..medical import save_volume
+
+        interp = interpolator or ("nearest" if self.kind == "labels" else "linear")
+        if self.kind == "labels" and interp != "nearest":
+            logger.warning(
+                "{}: resampling a label map with {} interpolation invents label values", self.name, interp
+            )
+        img = self.to_sitk()
+        res = _resample(img, new_spacing=spacing, new_size=size, interpolator=interp)
+        ext = self.extension if self.extension in (".mha", ".nrrd", ".nii", ".nii.gz") else ".mha"
+        key = abs(hash((str(self.path), spacing, size, interp))) % 10**8
+        out = (
+            Path(output)
+            if output
+            else output_dir() / f"{self.path.name.split('.')[0]}_resampled_{key:08d}{ext}"
+        )
+        out.parent.mkdir(parents=True, exist_ok=True)
+        save_volume(res, out)
+        step = {
+            "step": "convert",
+            "op": "resample",
+            "interpolator": interp,
+            "spacing": [float(s) for s in res.GetSpacing()],
+            "size": [int(s) for s in res.GetSize()],
+            "input": str(self.path),
+            "output": str(out),
+            "pardesline": __version__,
+        }
+        new = wrap(
+            out,
+            kind=self.kind,
+            frame=self.frame.override(affine=None, source="derived"),
+            labels=self.labels,
+            license=self.license,
+            provenance=[*self.provenance, step],
+            read_sidecar=False,
+        )
+        new.frame = self._derived_frame(new)
+        return new  # type: ignore[return-value]
 
     def as_labels(self, labels: dict[int, str] | None = None) -> LabelMap:
         """Declare this volume a label map (voxel value = class id)."""
