@@ -5448,6 +5448,14 @@ $<span class="arithmatex">\(E(W) = \frac{1}{2\sigma^2} \sum_n \|T(y_n) - x_n\|^2
 <td>Ignored: only meaningful with low_rank, which pycpd 2 does not support.</td>
 <td>Kept so that existing command lines parse; it has no effect.</td>
 </tr>
+<tr>
+<td><code>min_fitness</code> <em>(advanced)</em></td>
+<td>float</td>
+<td><code>0.5</code></td>
+<td>0.0 to 1.0</td>
+<td>Quality floor: fail (exit code 4, output and JSON still written) when fewer than this fraction of deformed moving points lie within 3 x the fixed point spacing of the fixed cloud.</td>
+<td>0.5, the same floor as the rigid methods: a deformation that leaves most of the moving cloud away from the fixed one has failed. 0 disables the check.</td>
+</tr>
 </tbody>
 </table>
 <h3 id="gaussian_deformation">gaussian_deformation<a class="headerlink" href="#gaussian_deformation" title="Permanent link">&para;</a></h3>

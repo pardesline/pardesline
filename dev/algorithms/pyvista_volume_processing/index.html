@@ -5714,18 +5714,18 @@
 <tr>
 <td><code>lower</code></td>
 <td>float</td>
-<td><code>0.0</code></td>
+<td><code>""</code></td>
 <td>-10000000000.0 to 10000000000.0</td>
-<td>Lower scalar bound.</td>
-<td>0 with upper 1 is a normalised placeholder; use Hounsfield units on CT.</td>
+<td>Lower scalar bound (required).</td>
+<td>Required: the old [0, 1] assumed normalised data and kept a 1 mm shell of a distance field in mm.</td>
 </tr>
 <tr>
 <td><code>upper</code></td>
 <td>float</td>
-<td><code>1.0</code></td>
+<td><code>""</code></td>
 <td>-10000000000.0 to 10000000000.0</td>
-<td>Upper scalar bound.</td>
-<td>1, see lower.</td>
+<td>Upper scalar bound (required).</td>
+<td>Required: the old [0, 1] assumed normalised data and kept a 1 mm shell of a distance field in mm.</td>
 </tr>
 <tr>
 <td><code>scalars</code> <em>(advanced)</em></td>

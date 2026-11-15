@@ -4963,6 +4963,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pardesline.object.Object.quality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        quality
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pardesline.object.Object.transform" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -5348,6 +5359,17 @@
     <span class="md-ellipsis">
       
         segment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pardesline.object.Volume.resample" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        resample
       
     </span>
   </a>
@@ -5888,6 +5910,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pardesline.object.Object.quality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        quality
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pardesline.object.Object.transform" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -6280,6 +6313,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pardesline.object.Volume.resample" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        resample
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pardesline.object.Volume.as_labels" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -6650,6 +6694,31 @@ description: pardesline.object: Object and its subclasses PointCloud, Mesh, Volu
 
 
 
+<h3 id="pardesline.object.Object.quality" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">quality</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#pardesline.object.Object.quality" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">quality</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The quality record of a registration output (<code>status</code>, <code>fitness</code> or <code>overlap</code> and
+<code>similarity</code>, <code>stop_condition</code>, <code>iterations</code>, <code>floors</code>), from its JSON sidecar.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
 <h3 id="pardesline.object.Object.transform" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">transform</span>
 
@@ -7009,10 +7078,13 @@ that inherits the frame and licence and records the step.</p>
 
     <div class="doc doc-contents ">
 
-        <p>Copy the file (plus its registration sidecar and <code>.raw</code> sibling
-for <code>.mhd</code>) to <code>dest</code> - a directory keeps the current name - and
-write <code>&lt;dest&gt;.pardesline.json</code> with frame, labels, licence and
-provenance. Returns the new path.</p>
+        <p>Write the object to <code>dest</code> - a directory keeps the current name - and
+<code>&lt;dest&gt;.pardesline.json</code> with frame, labels, licence and provenance.</p>
+<p>Same extension: the file is copied (with its registration <code>.json</code>). Another
+extension: the content is converted when a writer exists for it
+(<code>convert.SAVE_WRITERS</code>: point clouds, meshes, volumes with their stored pixel type,
+transforms); otherwise <code>ValueError</code>. A file whose content does not match its
+extension is never written. Returns the new path.</p>
 
 
     </div>
@@ -7421,6 +7493,28 @@ GEOMETRY initialisation). The transform is in <code>.transform</code>.</p>
 
         <p>Threshold segmentation: Otsu when no bounds are given, otherwise
 <code>lower</code>/<code>upper</code> in intensity units. Returns a LabelMap with label 1.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pardesline.object.Volume.resample" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">resample</span>
+
+
+<a href="#pardesline.object.Volume.resample" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">resample</span><span class="p">(</span><span class="n">spacing</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">interpolator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Volume</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Resample onto a new spacing (or size), keeping origin, direction and pixel type.</p>
+<p><code>interpolator</code> defaults to <code>nearest</code> for a label map (no label value is invented)
+and <code>linear</code> otherwise; the choice is recorded in the provenance step.</p>
 
 
     </div>

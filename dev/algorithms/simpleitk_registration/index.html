@@ -5508,18 +5508,18 @@ The optimization proceeds from coarse to fine resolution, avoiding local minima.
 <tr>
 <td><code>num_iterations</code></td>
 <td>int</td>
-<td><code>100</code></td>
+<td><code>300</code></td>
 <td>10 to 500</td>
 <td>Maximum number of optimizer iterations.</td>
-<td>100 per level: Mattes MI on 1 % sampling plateaus within 50-80 iterations on head and abdomen volumes; the convergence window stops it earlier.</td>
+<td>300 iterations of regular-step descent: it stops earlier when the step falls below 1e-4; 100 with plain gradient descent stopped after about 10 on simple cases.</td>
 </tr>
 <tr>
 <td><code>sampling_percentage</code></td>
 <td>float</td>
-<td><code>0.01</code></td>
+<td><code>0.1</code></td>
 <td>0.005 to 0.5</td>
-<td>Metric sampling percentage (0.01 = 1%).</td>
-<td>1 % of the voxels is enough for the MI estimate on 256^3 volumes and makes each iteration cheap; raise to 5-15 % on small fields of view or very noisy images.</td>
+<td>Metric sampling percentage (0.1 = 10%).</td>
+<td>10 % of the voxels: 1 % at shrink 4 is a few dozen samples and gave 4-10 mm errors; 10 % reached sub-millimetre on the synthetic pairs.</td>
 </tr>
 <tr>
 <td><code>initializer</code> <em>(advanced)</em></td>
@@ -5616,6 +5616,30 @@ The optimization proceeds from coarse to fine resolution, avoiding local minima.
 <td>1 to 2147483647</td>
 <td>Seed of the random metric sampling (positive integer): same seed, same transform.</td>
 <td>42, any fixed positive value: the random metric sampling draws the same voxels on every run, so the same inputs give the same transform (unseeded runs differed by up to 0.09 rad). 0 is refused: SimpleITK reads it as 'wall clock'. Reported in the JSON sidecar.</td>
+</tr>
+<tr>
+<td><code>optimizer</code> <em>(advanced)</em></td>
+<td>enum</td>
+<td><code>regular_step</code></td>
+<td><code>regular_step</code>, <code>gradient_descent</code></td>
+<td>Optimiser: regular_step (step halved at each direction change) or gradient_descent (fixed learning rate, the pre-0.5 default).</td>
+<td>regular_step: on synthetic pairs (sphere shifted 2 mm, blobs rotated 8 deg, same and multimodal) it reached 0.01-0.76 mm; plain gradient descent with a fixed rate stopped early (5-10 mm) or diverged (7.5 m with exit 0 on the shifted sphere, exceptions on the multimodal pair).</td>
+</tr>
+<tr>
+<td><code>min_overlap</code> <em>(advanced)</em></td>
+<td>float</td>
+<td><code>0.25</code></td>
+<td>0.0 to 1.0</td>
+<td>Quality floor: fail (exit code 4, output and JSON still written) when less than this fraction of the fixed grid maps inside the moving image.</td>
+<td>0.25: correct registrations of the synthetic pairs kept 0.74-0.92 of the fixed grid inside the moving image; a transform that leaves the images apart scores 0. 0 disables the check.</td>
+</tr>
+<tr>
+<td><code>min_similarity</code> <em>(advanced)</em></td>
+<td>float</td>
+<td><code>0.05</code></td>
+<td>0.0 to 1.0</td>
+<td>Quality floor: fail (exit code 4) when the normalised mutual information gain (NMI - 1) on the overlap is below this; 0 means unrelated images. Valid across modalities.</td>
+<td>0.05: exact alignments scored 0.66-0.77 (same modality and a non-monotonic multimodal mapping), related but imprecise ones (4.7-7.5 mm TRE) 0.14-0.21, unrelated content (noise, shuffled voxels) below 0.007. The floor catches failed or meaningless registrations, not millimetre errors. 0 disables the check.</td>
 </tr>
 </tbody>
 </table>
@@ -5769,6 +5793,30 @@ The search recovers large rotations (up to 180 degrees) that gradient descent al
 <td>Seed of the random metric sampling (positive integer): same seed, same transform.</td>
 <td>42, any fixed positive value: the random metric sampling draws the same voxels on every run, so the same inputs give the same transform (unseeded runs differed by up to 0.09 rad). 0 is refused: SimpleITK reads it as 'wall clock'. Reported in the JSON sidecar.</td>
 </tr>
+<tr>
+<td><code>optimizer</code> <em>(advanced)</em></td>
+<td>enum</td>
+<td><code>regular_step</code></td>
+<td><code>regular_step</code>, <code>gradient_descent</code></td>
+<td>Optimiser: regular_step (step halved at each direction change) or gradient_descent (fixed learning rate, the pre-0.5 default).</td>
+<td>regular_step: on synthetic pairs (sphere shifted 2 mm, blobs rotated 8 deg, same and multimodal) it reached 0.01-0.76 mm; plain gradient descent with a fixed rate stopped early (5-10 mm) or diverged (7.5 m with exit 0 on the shifted sphere, exceptions on the multimodal pair).</td>
+</tr>
+<tr>
+<td><code>min_overlap</code> <em>(advanced)</em></td>
+<td>float</td>
+<td><code>0.25</code></td>
+<td>0.0 to 1.0</td>
+<td>Quality floor: fail (exit code 4, output and JSON still written) when less than this fraction of the fixed grid maps inside the moving image.</td>
+<td>0.25: correct registrations of the synthetic pairs kept 0.74-0.92 of the fixed grid inside the moving image; a transform that leaves the images apart scores 0. 0 disables the check.</td>
+</tr>
+<tr>
+<td><code>min_similarity</code> <em>(advanced)</em></td>
+<td>float</td>
+<td><code>0.05</code></td>
+<td>0.0 to 1.0</td>
+<td>Quality floor: fail (exit code 4) when the normalised mutual information gain (NMI - 1) on the overlap is below this; 0 means unrelated images. Valid across modalities.</td>
+<td>0.05: exact alignments scored 0.66-0.77 (same modality and a non-monotonic multimodal mapping), related but imprecise ones (4.7-7.5 mm TRE) 0.14-0.21, unrelated content (noise, shuffled voxels) below 0.007. The floor catches failed or meaningless registrations, not millimetre errors. 0 disables the check.</td>
+</tr>
 </tbody>
 </table>
 <h3 id="affine">affine<a class="headerlink" href="#affine" title="Permanent link">&para;</a></h3>
@@ -5812,18 +5860,18 @@ Compared to rigid (6 DOF), affine adds:
 <tr>
 <td><code>num_iterations</code></td>
 <td>int</td>
-<td><code>100</code></td>
+<td><code>300</code></td>
 <td>10 to 500</td>
 <td>Maximum number of optimizer iterations.</td>
-<td>100 per level.</td>
+<td>300 iterations of regular-step descent: it stops earlier when the step falls below 1e-4; 100 with plain gradient descent stopped after about 10 on simple cases.</td>
 </tr>
 <tr>
 <td><code>sampling_percentage</code></td>
 <td>float</td>
-<td><code>0.01</code></td>
+<td><code>0.1</code></td>
 <td>0.005 to 0.5</td>
-<td>Metric sampling percentage (0.01 = 1%).</td>
-<td>1 % of the voxels is enough for the mutual-information estimate on 256^3 volumes and keeps each iteration cheap.</td>
+<td>Metric sampling percentage (0.1 = 10%).</td>
+<td>10 % of the voxels: 1 % at shrink 4 is a few dozen samples and gave 4-10 mm errors; 10 % reached sub-millimetre on the synthetic pairs.</td>
 </tr>
 <tr>
 <td><code>initializer</code> <em>(advanced)</em></td>
@@ -5920,6 +5968,30 @@ Compared to rigid (6 DOF), affine adds:
 <td>1 to 2147483647</td>
 <td>Seed of the random metric sampling (positive integer): same seed, same transform.</td>
 <td>42, any fixed positive value: the random metric sampling draws the same voxels on every run, so the same inputs give the same transform (unseeded runs differed by up to 0.09 rad). 0 is refused: SimpleITK reads it as 'wall clock'. Reported in the JSON sidecar.</td>
+</tr>
+<tr>
+<td><code>optimizer</code> <em>(advanced)</em></td>
+<td>enum</td>
+<td><code>regular_step</code></td>
+<td><code>regular_step</code>, <code>gradient_descent</code></td>
+<td>Optimiser: regular_step (step halved at each direction change) or gradient_descent (fixed learning rate, the pre-0.5 default).</td>
+<td>regular_step: on synthetic pairs (sphere shifted 2 mm, blobs rotated 8 deg, same and multimodal) it reached 0.01-0.76 mm; plain gradient descent with a fixed rate stopped early (5-10 mm) or diverged (7.5 m with exit 0 on the shifted sphere, exceptions on the multimodal pair).</td>
+</tr>
+<tr>
+<td><code>min_overlap</code> <em>(advanced)</em></td>
+<td>float</td>
+<td><code>0.25</code></td>
+<td>0.0 to 1.0</td>
+<td>Quality floor: fail (exit code 4, output and JSON still written) when less than this fraction of the fixed grid maps inside the moving image.</td>
+<td>0.25: correct registrations of the synthetic pairs kept 0.74-0.92 of the fixed grid inside the moving image; a transform that leaves the images apart scores 0. 0 disables the check.</td>
+</tr>
+<tr>
+<td><code>min_similarity</code> <em>(advanced)</em></td>
+<td>float</td>
+<td><code>0.05</code></td>
+<td>0.0 to 1.0</td>
+<td>Quality floor: fail (exit code 4) when the normalised mutual information gain (NMI - 1) on the overlap is below this; 0 means unrelated images. Valid across modalities.</td>
+<td>0.05: exact alignments scored 0.66-0.77 (same modality and a non-monotonic multimodal mapping), related but imprecise ones (4.7-7.5 mm TRE) 0.14-0.21, unrelated content (noise, shuffled voxels) below 0.007. The floor catches failed or meaningless registrations, not millimetre errors. 0 disables the check.</td>
 </tr>
 </tbody>
 </table>
@@ -6042,6 +6114,30 @@ The transform maps fixed points to moving points: <span class="arithmatex">\(p \
 <td>Seed of the random metric sampling (positive integer): same seed, same transform.</td>
 <td>42, any fixed positive value: the random metric sampling draws the same voxels on every run, so the same inputs give the same transform (unseeded runs differed by up to 0.09 rad). 0 is refused: SimpleITK reads it as 'wall clock'. Reported in the JSON sidecar.</td>
 </tr>
+<tr>
+<td><code>min_overlap</code> <em>(advanced)</em></td>
+<td>float</td>
+<td><code>0.25</code></td>
+<td>0.0 to 1.0</td>
+<td>Quality floor: fail (exit code 4, output and JSON still written) when less than this fraction of the fixed grid maps inside the moving image.</td>
+<td>0.25: correct registrations of the synthetic pairs kept 0.74-0.92 of the fixed grid inside the moving image; a transform that leaves the images apart scores 0. 0 disables the check.</td>
+</tr>
+<tr>
+<td><code>min_similarity</code> <em>(advanced)</em></td>
+<td>float</td>
+<td><code>0.05</code></td>
+<td>0.0 to 1.0</td>
+<td>Quality floor: fail (exit code 4) when the normalised mutual information gain (NMI - 1) on the overlap is below this; 0 means unrelated images. Valid across modalities.</td>
+<td>0.05: exact alignments scored 0.66-0.77 (same modality and a non-monotonic multimodal mapping), related but imprecise ones (4.7-7.5 mm TRE) 0.14-0.21, unrelated content (noise, shuffled voxels) below 0.007. The floor catches failed or meaningless registrations, not millimetre errors. 0 disables the check.</td>
+</tr>
+<tr>
+<td><code>bspline_metric</code> <em>(advanced)</em></td>
+<td>enum</td>
+<td><code>mean_squares</code></td>
+<td><code>mean_squares</code>, <code>mattes_mutual_information</code>, <code>correlation</code></td>
+<td>Metric of the B-spline stage: mean_squares (same modality and intensity scale only), mattes_mutual_information (across modalities) or correlation.</td>
+<td>mean_squares, the fastest, is right for follow-up scans of the same modality; it was the only choice before 0.5.0, which made the deformable stage meaningless for CT-MR.</td>
+</tr>
 </tbody>
 </table>
 <h3 id="demons">demons<a class="headerlink" href="#demons" title="Permanent link">&para;</a></h3>
@@ -6096,6 +6192,22 @@ After each iteration, the displacement field is convolved with a Gaussian kernel
 <td></td>
 <td>Smooth the total displacement field each iteration.</td>
 <td>On: smoothing the total field each iteration is what keeps demons from producing a torn deformation.</td>
+</tr>
+<tr>
+<td><code>min_overlap</code> <em>(advanced)</em></td>
+<td>float</td>
+<td><code>0.25</code></td>
+<td>0.0 to 1.0</td>
+<td>Quality floor: fail (exit code 4, output and JSON still written) when less than this fraction of the fixed grid maps inside the moving image.</td>
+<td>0.25: correct registrations of the synthetic pairs kept 0.74-0.92 of the fixed grid inside the moving image; a transform that leaves the images apart scores 0. 0 disables the check.</td>
+</tr>
+<tr>
+<td><code>min_similarity</code> <em>(advanced)</em></td>
+<td>float</td>
+<td><code>0.05</code></td>
+<td>0.0 to 1.0</td>
+<td>Quality floor: fail (exit code 4) when the normalised mutual information gain (NMI - 1) on the overlap is below this; 0 means unrelated images. Valid across modalities.</td>
+<td>0.05: exact alignments scored 0.66-0.77 (same modality and a non-monotonic multimodal mapping), related but imprecise ones (4.7-7.5 mm TRE) 0.14-0.21, unrelated content (noise, shuffled voxels) below 0.007. The floor catches failed or meaningless registrations, not millimetre errors. 0 disables the check.</td>
 </tr>
 </tbody>
 </table>

@@ -5429,7 +5429,7 @@ The surface is reconstructed at the zero-level set <span class="arithmatex">\(\{
 <td><code>voxel_size</code></td>
 <td>float</td>
 <td><code>0.01</code></td>
-<td>0.002 to 0.05</td>
+<td>1e-09 to 1000000000.0</td>
 <td>Voxel size for the SDF grid. Smaller = more detail but slower.</td>
 <td>0.01 in file units for a 100-voxel grid on a unit object; the SDF cost grows with the cube of the resolution.</td>
 </tr>
@@ -5519,7 +5519,7 @@ $<span class="arithmatex">\(o(x) = \begin{cases} 1 &amp; \text{if } x \text{ is 
 <td><code>voxel_size</code></td>
 <td>float</td>
 <td><code>0.01</code></td>
-<td>0.002 to 0.05</td>
+<td>1e-09 to 1000000000.0</td>
 <td>Voxel size for the occupancy grid.</td>
 <td>Same grid as compute_sdf for comparable results.</td>
 </tr>
@@ -5627,18 +5627,18 @@ The SDF provides constant-time collision queries: a point <span class="arithmate
 <tr>
 <td><code>min_clamp</code></td>
 <td>float</td>
-<td><code>-0.1</code></td>
-<td>-1.0 to 0.0</td>
-<td>Minimum SDF clamp value (interior threshold).</td>
-<td>-0.1 clamps the interior so colours stay readable near the surface instead of saturating at the object centre.</td>
+<td><code>""</code></td>
+<td>-1000000000.0 to 0.0</td>
+<td>Minimum SDF value kept, in file units (default: minus one grid step).</td>
+<td>One grid step: a band one voxel thick around the surface. The old +-0.1 kept 1.6 % of the nodes of a sphere of radius 10.</td>
 </tr>
 <tr>
 <td><code>max_clamp</code></td>
 <td>float</td>
-<td><code>0.1</code></td>
-<td>0.0 to 1.0</td>
-<td>Maximum SDF clamp value (exterior threshold).</td>
-<td>0.1 clamps the exterior for the same reason.</td>
+<td><code>""</code></td>
+<td>0.0 to 1000000000.0</td>
+<td>Maximum SDF value kept, in file units (default: one grid step).</td>
+<td>One grid step: a band one voxel thick around the surface. The old +-0.1 kept 1.6 % of the nodes of a sphere of radius 10.</td>
 </tr>
 <tr>
 <td><code>padding_factor</code> <em>(advanced)</em></td>

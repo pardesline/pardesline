@@ -5447,7 +5447,7 @@
 <td><code>voxel_size</code></td>
 <td>float</td>
 <td><code>0.02</code></td>
-<td>0.001 to 0.5</td>
+<td>1e-09 to 1000000000.0</td>
 <td>Size of each voxel cube. Smaller = more detail.</td>
 <td>0.02 in file units: on a metre-scale object or room it keeps one point per 2 cm, enough for registration features and clustering; set it to 2-5x the point spacing of your scanner (0.5 mm for CBCT, 0.1 m for outdoor LiDAR), because the value is absolute, not relative to the object.</td>
 </tr>
@@ -5530,7 +5530,7 @@ $<span class="arithmatex">\(\mu_i = \frac{1}{k} \sum_{j=1}^{k} \|p_i - p_{nn_j}\
 <td><code>radius</code></td>
 <td>float</td>
 <td><code>0.05</code></td>
-<td>0.001 to 1.0</td>
+<td>1e-09 to 1000000000.0</td>
 <td>Search radius for counting neighbors.</td>
 <td>0.05 in file units: a point with fewer than min_neighbors within 5 cm is isolated on a metre-scale scan; scale with the point spacing (about 10x the spacing).</td>
 </tr>
@@ -5574,7 +5574,7 @@ Useful as a preprocessing step when algorithms require point cloud input (e.g., 
 <li><a href="../why-our-defaults-work/">Why our defaults work</a> · <a href="../../getting-started/concepts/#catalog">The catalog and <code>pl.run</code></a> · <a href="../../api/">API reference</a></li>
 <li><code>pl.describe("point_cloud_processing")</code> prints this module from the installed package; <code>pl.describe("point_cloud_processing.&lt;method&gt;")</code> one method with ranges and rationale.</li>
 </ul>
-<p><sub>Generated from <code>src/pardesline/catalog/data/point_cloud_processing.json</code> and <code>_defaults.json</code> on 2026-10-10.</sub></p>
+<p><sub>Generated from <code>src/pardesline/catalog/data/point_cloud_processing.json</code> and <code>_defaults.json</code> on 2026-11-15.</sub></p>
 
 
 

@@ -5177,7 +5177,8 @@ tutorial setting; a value you give is used as given and written to the JSON
 sidecar). If the units are wrong (mm vs m) every radius is wrong: check
 <code>cloud.frame.describe()</code> first.</p>
 <p>RANSAC is random. Every registration script takes <code>seed</code> (default 0) and pins
-Open3D to one thread, so a run is reproducible; <code>ransac_global</code> and
+Open3D to one thread, so a run is reproducible on Linux and Windows (not on macOS, where
+Open3D's RANSAC varied between runs under the same seed in CI); <code>ransac_global</code> and
 <code>ransac_icp_pipeline</code> also run <code>restarts</code> seeds (default 8) and keep the pose
 with the best threshold-free score (mean of the 10-90 % quantiles of the
 moving-to-fixed distances). A single run is not trustworthy on near-symmetric
@@ -5187,6 +5188,13 @@ principal axis; when a different pose scores within <code>ambiguity_margin</code
 it reports <code>status: "ambiguous"</code> and exits with code 3 (<code>on_ambiguous="warn"</code>
 to only log it). Outputs are the moving cloud as read (colours, normals,
 point order) transformed by T.</p>
+<p>Every registration (<code>ransac_global</code>, <code>icp_refinement</code>, <code>ransac_icp_pipeline</code>,
+<code>cpd_deformable</code>) writes a <code>quality</code> block: <code>fitness</code> (share of the moving
+points within 1.5 voxel of the fixed cloud after the transform), <code>inlier_rmse</code>,
+<code>final_metric</code>, <code>stop_condition</code>, <code>floors</code>, <code>status</code>. Below <code>min_fitness</code> (0.5)
+the output and JSON are written and the script exits with code 4. On synthetic
+pairs correct poses scored 0.80-0.96 and unrelated shapes 0.17-0.41; lower the
+floor when only part of the moving cloud overlaps the fixed one.</p>
 <h3 id="fpfh-in-two-sentences">FPFH in two sentences<a class="headerlink" href="#fpfh-in-two-sentences" title="Permanent link">&para;</a></h3>
 <p>For each point, the Simplified Point Feature Histogram encodes the angles
 (alpha, phi, theta of the Darboux frame) between its normal and the normals of

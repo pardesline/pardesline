@@ -5458,7 +5458,7 @@ $<span class="arithmatex">\(c_i = \text{colormap}\left(\frac{z_i - z_{\min}}{z_{
 <td><code>distance_threshold</code></td>
 <td>float</td>
 <td><code>0.3</code></td>
-<td>0.01 to 2.0</td>
+<td>1e-09 to 1000000000.0</td>
 <td>Distance threshold for ground plane inliers.</td>
 <td>0.3 m: a road is not flat over a 100 m sweep (camber, slope, curb), so a 30 cm band keeps the whole surface as ground while a car's lowest points (sills at 0.4-0.5 m) stay out; lower to 0.1 m for indoor floors.</td>
 </tr>
@@ -5518,7 +5518,7 @@ $<span class="arithmatex">\(c_i = \text{colormap}\left(\frac{z_i - z_{\min}}{z_{
 <td><code>ground_threshold</code></td>
 <td>float</td>
 <td><code>0.3</code></td>
-<td>0.01 to 2.0</td>
+<td>1e-09 to 1000000000.0</td>
 <td>Distance threshold for ground removal before clustering.</td>
 <td>0.3 m, as in ground_removal: the band that follows a real road's camber and slope.</td>
 </tr>
@@ -5526,7 +5526,7 @@ $<span class="arithmatex">\(c_i = \text{colormap}\left(\frac{z_i - z_{\min}}{z_{
 <td><code>cluster_eps</code></td>
 <td>float</td>
 <td><code>0.5</code></td>
-<td>0.1 to 5.0</td>
+<td>1e-09 to 1000000000.0</td>
 <td>DBSCAN epsilon for object clustering.</td>
 <td>0.5 m: the HDL-64E spacing between rings reaches 0.3-0.5 m at 30 m, so a smaller epsilon splits one car into ring-stripes; a larger one merges parked cars.</td>
 </tr>
