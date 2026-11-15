@@ -49,6 +49,14 @@ it reports `status: "ambiguous"` and exits with code 3 (`on_ambiguous="warn"`
 to only log it). Outputs are the moving cloud as read (colours, normals,
 point order) transformed by T.
 
+Every registration (`ransac_global`, `icp_refinement`, `ransac_icp_pipeline`,
+`cpd_deformable`) writes a `quality` block: `fitness` (share of the moving
+points within 1.5 voxel of the fixed cloud after the transform), `inlier_rmse`,
+`final_metric`, `stop_condition`, `floors`, `status`. Below `min_fitness` (0.5)
+the output and JSON are written and the script exits with code 4. On synthetic
+pairs correct poses scored 0.80-0.96 and unrelated shapes 0.17-0.41; lower the
+floor when only part of the moving cloud overlaps the fixed one.
+
 ### FPFH in two sentences
 For each point, the Simplified Point Feature Histogram encodes the angles
 (alpha, phi, theta of the Darboux frame) between its normal and the normals of

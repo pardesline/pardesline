@@ -4,6 +4,81 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.5.0] — unreleased
+
+The core release: what `save` writes, what a registration tells its caller, which licence a result
+carries and how label volumes are read, fixed after a downstream review of 0.3.1, plus the second
+batch of the 2026-11-15 audit. 0.4.0 was already published, so these changes open 0.5.0: several
+calls now raise where they returned, which before 1.0 is a minor version.
+
+### Fixed: results that change
+- Default rigid and affine volume registration use regular-step gradient descent, 300 iterations
+  and 10 % sampling: a sphere shifted by 2 mm had "registered" 7.5 m away with exit code 0, and
+  rotated blobs ended 5-9 mm off; now 0.01-0.76 mm on the same synthetic pairs.
+- `Object.save` converts when the extension changes (or raises): `save("x.stl")` on a PLY mesh wrote
+  PLY bytes; a DICOM folder or a raw array saved under another extension, and `x.mhd` saved as
+  `y.mhd` (header still pointing at `x.raw`), are fixed too.
+- The frame of an operation's output says `derived` (it said `file`) and carries the affine of the
+  output grid.
+- A result made from several inputs carries the most restrictive licence (a commercial fixed input
+  plus a non-commercial moving input gave a "commercial use allowed" result); unknown stays unknown.
+- A saved non-commercial object keeps `commercial: false` (it reloaded as unknown).
+- Label maps keep their stored pixel type: label ids above 2^24 are exact.
+- `poisson` no longer trims 1 % of the vertices by default (the trimming opened closed surfaces).
+- Lengths in file units accept millimetre values in `pl.run` (twenty catalog bounds sized for
+  unit-scale data refused them).
+
+### Changed defaults
+- `simpleitk_registration` rigid / affine: `num_iterations` 100 -> 300, `sampling_percentage`
+  0.01 -> 0.1, new `optimizer` `regular_step` (was plain gradient descent); advanced_rigid's
+  refinement uses `regular_step` too.
+- `point_cloud_reconstruction.poisson` `density_quantile` 0.01 -> 0.
+- `pyvista_analysis.pv_glyph` `scale_factor` 0.01 -> 0 (= 5 % of the largest extent).
+- `sdf.sdf_voxel_visualization` `min_clamp` / `max_clamp` -0.1 / 0.1 -> minus / plus one grid step.
+
+### New parameters
+- `min_fitness` (0.5) on `registration` ransac_global, icp_refinement, ransac_icp_pipeline and
+  `deformable_registration.cpd_deformable`; `min_overlap` (0.25) and `min_similarity` (0.05) on
+  `simpleitk_registration` rigid, advanced_rigid, affine, bspline, demons.
+- `optimizer` on rigid, advanced_rigid, affine; `bspline_metric` on bspline; `auto_retry` on
+  `point_cloud_reconstruction.alpha_shape`.
+- Python API: `load_volume(path, pixel_type=None)`, `resample(..., interpolator=)`,
+  `Volume.resample()` / `LabelMap.resample()` (nearest for label maps), `register_*(...,
+  quality={})`, `registration_quality()`, `check_registration_quality()`,
+  `object.frame.combine_licenses()` and `LICENSE_ORDER`, `Object.quality`,
+  `convert.save_as()` and `SAVE_WRITERS`, manifest `source.pins`, `data.pinning.pin_status()`.
+
+### New result fields
+- Registration sidecars: `quality` with `status` (`ok`, `below_floor`, `ambiguous`), `fitness`,
+  `inlier_rmse`, `fitness_threshold` (point clouds) or `overlap`, `similarity` (volumes),
+  `final_metric`, `metric_name`, `stop_condition`, `iterations`, `floors`. `cpd_deformable` now
+  writes a sidecar; `alpha_shape` writes one with the alpha used.
+- MCP `run_method`: `license`, `license_text`, `frame`, `quality`, `object_sidecar`; it writes
+  `<output>.pardesline.json`.
+- Provenance of `resample`: the interpolator used.
+
+### Behaviours that are now errors
+- A registration below its quality floor writes its output and JSON, then exits with code 4
+  (`RunError` "the registration quality is below the floor").
+- Saving to an extension with no writer for the content raises `ValueError` (for example a mesh
+  to `.pcd`, a point cloud to `.stl`, anything to `.glb`: Open3D 0.19 writes GLB files that
+  other readers reject).
+- `pv_threshold_volume` needs `--lower` and `--upper`; `pv_scalar_stats` without point data needs
+  `--scalars elevation`; `alpha_shape` with an alpha that gives an empty mesh exits 1 unless
+  `auto_retry`; `sdf_voxel_visualization --resolution` outside 8-128 exits 1 (it was clamped);
+  dense SDF / occupancy / erosion grids above 50 million nodes exit 1 with the voxel size to use;
+  an archive whose size or ETag differs from its manifest pin is refused.
+- `resample(interpolator=...)` with an unknown name raises `ValueError`.
+
+### Also
+- Child processes of the runner get `stdin=DEVNULL` (they inherited the MCP server's protocol stream).
+- SDF, occupancy, erosion and collision warn when the input mesh is not watertight.
+- Manifests: `tests/test_manifest_pinning.py` fails on a new manifest that is neither pinned nor
+  listed as knowingly unpinned with a reason; 30 bundled manifests await a network read of their
+  commit id or archive size/ETag.
+- Texts: voxelization outputs surface voxels; Taubin smoothing is low-shrinkage, not
+  volume-preserving; a false comment on multi-scale ICP is gone.
+
 ## [0.4.0](https://github.com/pardesline/pardesline/compare/v0.3.1...v0.4.0) — 2026-11-15
 
 The correctness release. A correctness audit of 2026-11-15 ran the algorithm scripts unchanged on
