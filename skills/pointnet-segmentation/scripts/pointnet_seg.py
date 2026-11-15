@@ -266,13 +266,14 @@ def cmd_infer(args):
     # all points, in chunks that fit the network's expected size
     n = ckpt["num_points"]
     labels = np.zeros(len(xyz), dtype=np.int64)
-    order = np.random.permutation(len(xyz))
+    order = np.random.default_rng(args.seed).permutation(len(xyz))
     for start in range(0, len(order), n):
         idx = order[start : start + n]
-        if len(idx) < n:
-            idx = np.concatenate([idx, np.random.choice(order, n - len(idx))])
+        real = len(idx)
+        if real < n:  # pad the last chunk; padding points keep the label of their own chunk
+            idx = np.concatenate([idx, np.random.default_rng(args.seed + 1).choice(order, n - real)])
         logits, _ = model(torch.from_numpy(feats[idx].T[None]).to(device))
-        labels[idx] = logits.argmax(1)[0].cpu().numpy()
+        labels[idx[:real]] = logits.argmax(1)[0].cpu().numpy()[:real]
     out = write_ply(args.output, xyz, {"label": labels})
     counts = {ckpt["classes"][str(k)]: int((labels == k).sum()) for k in np.unique(labels)}
     print(json.dumps({"output": str(out), "counts": counts, "frame": cloud.frame.describe()}, indent=2))
@@ -296,7 +297,19 @@ def main():
     i.add_argument("--weights", required=True)
     i.add_argument("--input", required=True)
     i.add_argument("--output", required=True)
+    for sp in (t, e, i):
+        sp.add_argument(
+            "--seed",
+            type=int,
+            default=0,
+            help="seed of NumPy, Python and torch (point sampling, augmentation, initialisation)",
+        )
     args = ap.parse_args()
+    import random
+
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
     {"train": cmd_train, "eval": cmd_eval, "infer": cmd_infer}[args.cmd](args)
 
 

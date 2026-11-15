@@ -164,12 +164,16 @@ def write_ply(path: str | os.PathLike, xyz: np.ndarray, attrs: dict[str, np.ndar
         ("z", "double", xyz[:, 2]),
     ]
     rgb = None
+    rgb_is_float = False
     for names in (_RGB, _RGB_LONG):
         if all(k in attrs for k in names):
+            rgb_is_float = any(np.asarray(attrs[k]).dtype.kind == "f" for k in names)
             rgb = np.stack([np.asarray(attrs.pop(k), dtype=np.float64) for k in names], axis=1)
             break
     if rgb is not None:
-        if rgb.max() <= 1.0:
+        # Floating-point colours in [0, 1] are scaled to 0-255; integer colours are written as
+        # given (an integer cloud whose values happen to be 0/1 is not scaled up to 0/255).
+        if rgb_is_float and rgb.max() <= 1.0:
             rgb = rgb * 255.0
         rgb = np.clip(np.rint(rgb), 0, 255).astype(np.uint8)
         for i, name in enumerate(_RGB_LONG):

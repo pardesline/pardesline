@@ -218,3 +218,74 @@ log the signed volume so that the case would be visible.
 `method="marching_cubes"` honours the direction matrix as `flying_edges` does (centroid error 0 on
 the 25-degree oblique ball); only `contour` ignores it. The new `auto` default picks `flying_edges`
 on image data, and an explicit `contour` on an oblique volume exits with an error.
+
+## Code the audit did not open: loading, object model, conversions, skill scripts
+
+### X9. `write_ply` scales integer colours by 255 when their maximum is at most 1
+
+- File: `src/pardesline/object/arrays.py`, function `write_ply` (used to materialise raw arrays
+  such as KITTI `.bin` or `.npy` point clouds as PLY).
+- Faulty code:
+  ```python
+  rgb = np.stack([np.asarray(attrs.pop(k), dtype=np.float64) for k in names], axis=1)
+  if rgb.max() <= 1.0:
+      rgb = rgb * 255.0
+  ```
+- What goes wrong: the scale of the colours is guessed from their values, after they have been cast
+  to float. Integer colours whose values happen to be 0 or 1 (a mask or label encoded in a colour
+  channel, a very dark cloud) are written as 0 / 255.
+- Measured: uint8 colours `[[0, 1, 0], [1, 1, 1], [0, 0, 1]]` were written as `[[0, 255, 0], ...]`.
+- Corrected code: scale only floating-point colours whose maximum is at most 1; integer colours are
+  written as given.
+- Severity: wrong result silently (rare input).
+- Tests: `test_x09_integer_colours_are_written_as_given` (fails on 0.3.1),
+  `test_x09_float_colours_in_unit_range_are_scaled` (guard: passes on both).
+
+### Checked without finding a bug
+
+- `object/frame.py`, `object/convert.py`: the frame of an ITK volume comes from its header (LPS, mm);
+  formats that carry no frame stay unknown; the 4x4 affine scales the direction columns by the
+  spacing (index -> world); `volume_to_mesh` keeps the direction matrix (contour on an `ImageData`
+  with `direction_matrix`, flying edges).
+- `object/arrays.py`: headerless arrays need an explicit dtype and shape; `(L, W, H)` grids are
+  transposed to SimpleITK's `(z, y, x)`; `.npy` / `.npz` dtypes are cross-checked, not cast.
+- Runner and catalog: parameters are validated against the catalog and passed only when given, so a
+  `null` default leaves the script's own default in force.
+- Skill scripts that run without PyTorch: `metrics3d.py` self-test, `rigid_ct_mr.py` (seeded
+  sampling, composite unwrapped), `registration_eval.py` and `atlas_label_transfer.py` (pose error
+  in the moving-to-fixed convention used by the scripts).
+
+### X10. PointNet skill script: evaluation and inference change from run to run
+
+- File: `skills/pointnet-segmentation/scripts/pointnet_seg.py`, `NpzClouds.__getitem__` (used by
+  `eval`) and `cmd_infer`.
+- Faulty code:
+  ```python
+  idx = np.random.choice(len(pts), self.num_points, replace=len(pts) < self.num_points)  # unseeded
+  ...
+  order = np.random.permutation(len(xyz))
+  for start in range(0, len(order), n):
+      idx = order[start : start + n]
+      if len(idx) < n:
+          idx = np.concatenate([idx, np.random.choice(order, n - len(idx))])
+      logits, _ = model(torch.from_numpy(feats[idx].T[None]).to(device))
+      labels[idx] = logits.argmax(1)[0].cpu().numpy()
+  ```
+- What goes wrong: nothing is seeded. `eval` scores a random subsample of each cloud, so the
+  reported accuracy and mIoU differ between runs with the same weights. `infer` cuts the cloud into
+  random chunks (PointNet's global feature depends on the chunk), and the points used to pad the last
+  chunk overwrite the labels they already received in their own chunk.
+- Measured (PyTorch 2.15 CPU, two-class sphere data, 15 training epochs): two `eval` runs gave mIoU
+  0.596 and 0.608; three `infer` runs on one 1300-point scan differed in 7 labels.
+- Corrected code: a `--seed` option (default 0) on every command seeds NumPy, Python and torch;
+  inference draws its chunk order from `default_rng(seed)` and keeps only the predictions of the
+  real points of the padded chunk.
+- Severity: misleading output (non-reproducible scores and labels).
+- Test: `test_x10_pointnet_eval_and_inference_are_reproducible` (needs torch; skipped without it).
+
+### Suspicions not reproduced or not reachable
+
+- The other PyTorch skill scripts (`vae_anomaly.py`, `dinov3_*`, `jepa3d_pretrain.py`) use random
+  augmentation during training; training randomness is expected, and their evaluation paths were
+  not run here (the DINOv3 and JEPA scripts need model weights or datasets that are downloaded).
+  Not checked against a known answer.
