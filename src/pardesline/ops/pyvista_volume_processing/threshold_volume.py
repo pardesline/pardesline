@@ -13,8 +13,8 @@ def main():
     parser = argparse.ArgumentParser(description="Volume threshold")
     parser.add_argument("--input", required=True)
     parser.add_argument("--output", required=True)
-    parser.add_argument("--lower", type=float, default=0.0)
-    parser.add_argument("--upper", type=float, default=1.0)
+    parser.add_argument("--lower", type=float, default=None, help="Lower bound (required)")
+    parser.add_argument("--upper", type=float, default=None, help="Upper bound (required)")
     parser.add_argument("--scalars", type=str, default="",
                         help="Scalar array name (empty = active scalars).")
     parser.add_argument("--invert", type=_b, default=False,
@@ -41,6 +41,11 @@ def main():
     logger.info("Available cell data: {}", list(ds.cell_data.keys()))
 
     scalars = args.scalars if args.scalars else None
+    if args.lower is None or args.upper is None:
+        arr = ds.get_array(scalars) if scalars else ds.active_scalars
+        rng = (float(arr.min()), float(arr.max())) if arr is not None else None
+        logger.error("--lower and --upper are required (the old 0..1 assumed normalised data); range: {}", rng)
+        sys.exit(1)
     logger.info("Applying volume threshold filter [{}, {}]", args.lower, args.upper)
     result = ds.threshold(
         value=[args.lower, args.upper],

@@ -32,7 +32,8 @@ def main():
     parser.add_argument("--width", type=float, default=0.0, help="Target octree width (0 = use depth instead)")
     parser.add_argument("--linear_fit", type=_b, default=False, help="Use linear interpolation to estimate iso-surface positions")
     parser.add_argument("--n_threads", type=int, default=-1, help="Number of threads (-1 = all available)")
-    parser.add_argument("--density_quantile", type=float, default=0.01, help="Density quantile below which vertices are removed as noise")
+    parser.add_argument("--density_quantile", type=float, default=0.0,
+                        help="Density quantile below which vertices are removed as noise (0 = none; any trimming opens the closed Poisson surface)")
     parser.add_argument("--normal_radius", type=float, default=0.0,
                         help="Normal estimation search radius in file units, when normals are absent (0 = 3 x mean point spacing)")
     parser.add_argument("--normal_max_nn", type=int, default=30, help="Normal estimation max neighbours (when normals absent)")
@@ -80,7 +81,8 @@ def main():
     logger.info(f"Density threshold (quantile={args.density_quantile}): {density_threshold:.6f}, removing {np.sum(vertices_to_remove)} low-density vertices")
     mesh.remove_vertices_by_mask(vertices_to_remove)
 
-    logger.info(f"Mesh: {len(mesh.vertices)} vertices, {len(mesh.triangles)} faces")
+    logger.info(f"Mesh: {len(mesh.vertices)} vertices, {len(mesh.triangles)} faces, "
+                f"watertight: {mesh.is_watertight()}")
 
     # Save
     from pardesline.ops._mesh_common import signed_volume

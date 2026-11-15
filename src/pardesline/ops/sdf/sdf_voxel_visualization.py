@@ -18,7 +18,7 @@ import open3d as o3d
 import matplotlib
 from loguru import logger
 
-from pardesline.ops._mesh_common import require_triangles, signed_distance
+from pardesline.ops._mesh_common import require_triangles, signed_distance, warn_if_not_watertight
 
 
 def main():
@@ -27,10 +27,10 @@ def main():
     parser.add_argument("--output", required=True, help="Output point cloud (PLY)")
     parser.add_argument("--resolution", type=int, default=32,
                         help="Grid resolution per axis (8-128)")
-    parser.add_argument("--min_clamp", type=float, default=-0.1,
-                        help="Min SDF clamp value")
-    parser.add_argument("--max_clamp", type=float, default=0.1,
-                        help="Max SDF clamp value")
+    parser.add_argument("--min_clamp", type=float, default=None,
+                        help="Min SDF clamp value in file units (default: minus one grid step)")
+    parser.add_argument("--max_clamp", type=float, default=None,
+                        help="Max SDF clamp value in file units (default: one grid step)")
     # Advanced knobs (SDK/API).
     parser.add_argument("--padding_factor", type=float, default=0.15,
                         help="Bbox padding as a fraction of the max extent")
@@ -52,6 +52,7 @@ def main():
 
     # Build convex hull if no triangles (e.g. point cloud input)
     require_triangles(mesh)
+    warn_if_not_watertight(mesh)
 
     logger.info("Computing vertex normals")
     mesh.compute_vertex_normals()
@@ -73,7 +74,10 @@ def main():
     logger.info(f"Bounding box extent: {extent}, padding: {pad:.4f}")
 
     # Generate regular 3D grid
-    res = max(8, min(128, args.resolution))
+    if not 8 <= args.resolution <= 128:
+        logger.error("--resolution must be between 8 and 128 nodes per axis (got {})", args.resolution)
+        sys.exit(1)
+    res = args.resolution
     xs = np.linspace(min_bound[0], max_bound[0], res)
     ys = np.linspace(min_bound[1], max_bound[1], res)
     zs = np.linspace(min_bound[2], max_bound[2], res)
@@ -92,8 +96,10 @@ def main():
     logger.info(f"SDF range: [{sdf_values.min():.6f}, {sdf_values.max():.6f}]")
 
     # Clamp SDF values
-    min_clamp = args.min_clamp
-    max_clamp = args.max_clamp
+    step = float(np.max((np.asarray(max_bound) - np.asarray(min_bound)) / (res - 1)))
+    min_clamp = -step if args.min_clamp is None else args.min_clamp
+    max_clamp = step if args.max_clamp is None else args.max_clamp
+    logger.info("SDF band kept: [{:.6g}, {:.6g}] (grid step {:.6g})", min_clamp, max_clamp, step)
 
     # Filter: keep only voxels within the SDF range [min_clamp, max_clamp].
     # This removes the far-exterior shell (all red) and deep-interior bulk (all blue),

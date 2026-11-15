@@ -37,6 +37,9 @@ def main():
     parser.add_argument("--gradient_convergence_tolerance", type=float, default=1e-5)
     parser.add_argument("--max_number_of_corrections", type=int, default=5)
     parser.add_argument("--cost_function_convergence_factor", type=float, default=1e7)
+    parser.add_argument("--bspline_metric", default="mean_squares",
+                        choices=["mean_squares", "mattes_mutual_information", "correlation"],
+                        help="Metric of the B-spline stage: mean_squares (same modality only) or mutual information")
     parser.add_argument("--scale_factors", type=str, default="",
                         help="Grid refinement per pyramid level, e.g. 1,2,4 (empty: the grid of --grid_spacing)")
     parser.add_argument("--seed", type=int, default=DEFAULT_SEED,
@@ -67,7 +70,8 @@ def main():
         gradient_convergence_tolerance=args.gradient_convergence_tolerance,
         max_number_of_corrections=args.max_number_of_corrections,
         cost_function_convergence_factor=args.cost_function_convergence_factor,
-        scale_factors=args.scale_factors, seed=args.seed)
+        scale_factors=args.scale_factors, seed=args.seed,
+        bspline_metric=args.bspline_metric)
 
     print("PROGRESS:85", flush=True)
     logger.info("Saving registered volume: {}", args.output)

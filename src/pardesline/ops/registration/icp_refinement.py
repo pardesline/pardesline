@@ -211,7 +211,8 @@ def main():
 
     # Tutorial-strict refinement on full-resolution: single pass,
     # threshold = voxel_size * 0.4, point-to-plane (with point-to-point fallback).
-    # Multi-scale was tested and over-fits below the data noise floor.
+    # Fitness and RMSE are comparable only at the same threshold: a smaller threshold gives a lower
+    # fitness by definition, which is not over-fitting.
     refine_threshold = args.voxel_size * args.refine_threshold_factor
     logger.info("Refining on full-res ({}, threshold={:.5f})", args.icp_estimation_method, refine_threshold)
     refined = _icp(source, target, refine_threshold, result.transformation, primary_est,

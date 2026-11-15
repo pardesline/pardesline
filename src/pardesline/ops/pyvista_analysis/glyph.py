@@ -13,7 +13,8 @@ def main():
     parser = argparse.ArgumentParser(description="Generate glyph arrows from vectors")
     parser.add_argument("--input", required=True)
     parser.add_argument("--output", required=True)
-    parser.add_argument("--scale_factor", type=float, default=0.01)
+    parser.add_argument("--scale_factor", type=float, default=0.0,
+                        help="Glyph scale in file units (0 = 5 percent of the largest extent)")
     parser.add_argument("--vector_name", type=str, default="Normals")
     parser.add_argument("--scale", type=_b, default=False,
                         help="Scale glyphs by scalar/vector magnitude.")
@@ -44,6 +45,10 @@ def main():
             logger.error("Vector '{}' not found. Available: {}", args.vector_name, available)
             sys.exit(1)
 
+    if args.scale_factor <= 0:
+        b = mesh.bounds
+        args.scale_factor = 0.05 * max(b[1] - b[0], b[3] - b[2], b[5] - b[4])
+        logger.info("scale_factor auto: 5 % of the largest extent = {:.6g}", args.scale_factor)
     logger.info("Generating glyphs from '{}' with scale_factor={}", args.vector_name, args.scale_factor)
     tolerance = None if args.tolerance is None or args.tolerance < 0 else args.tolerance
     result = mesh.glyph(

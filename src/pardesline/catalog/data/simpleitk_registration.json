@@ -679,6 +679,14 @@
           "max": 1.0,
           "advanced": true,
           "description": "Quality floor: fail (exit code 4) when the normalised mutual information gain (NMI - 1) on the overlap is below this; 0 means unrelated images. Valid across modalities."
+        },
+        {
+          "name": "bspline_metric",
+          "type": "enum",
+          "default": "mean_squares",
+          "options": ["mean_squares", "mattes_mutual_information", "correlation"],
+          "advanced": true,
+          "description": "Metric of the B-spline stage: mean_squares (same modality and intensity scale only), mattes_mutual_information (across modalities) or correlation."
         }
       ]
     },

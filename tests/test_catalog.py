@@ -21,8 +21,9 @@ def test_counts_match_the_platform():
     assert len(cat.methods) == 73
     # 0.4.0: +4 seed (simpleitk), +10 (registration), +3 seed (RANSAC plane fits),
     # +6 sign_rays and +2 seed (distance fields, collision);
-    # 0.5.0: +4 min_fitness, +10 min_overlap / min_similarity (registration quality floors), +3 optimizer
-    assert sum(len(m.parameters) for m in cat.methods) == 413
+    # 0.5.0: +4 min_fitness, +10 min_overlap / min_similarity (registration quality floors), +3 optimizer,
+    # +bspline_metric, +auto_retry (second batch)
+    assert sum(len(m.parameters) for m in cat.methods) == 415
 
 
 def test_ids_are_unique_and_well_formed():

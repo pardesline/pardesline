@@ -100,8 +100,8 @@
     "validated_on": "generated meshes in tests/test_ops_smoke.py",
     "params": {
       "resolution": "32 voxels per axis (32 768 cells) renders in a second and still shows the shape of the field; it is a visualisation, not the SDF you compute with.",
-      "min_clamp": "-0.1 clamps the interior so colours stay readable near the surface instead of saturating at the object centre.",
-      "max_clamp": "0.1 clamps the exterior for the same reason.",
+      "min_clamp": "One grid step: a band one voxel thick around the surface. The old +-0.1 kept 1.6 % of the nodes of a sphere of radius 10.",
+      "max_clamp": "One grid step: a band one voxel thick around the surface. The old +-0.1 kept 1.6 % of the nodes of a sphere of radius 10.",
       "padding_factor": "15 % of the extent as margin shows the field decaying outside the object.",
       "colormap": "coolwarm is diverging around zero, which is what a signed field needs: blue inside, red outside.",
       "sign_rays": "3: the sign is the majority of three rays. With one ray (Open3D's default) a ray grazing an edge counted a point 6.8 mm outside a sphere as inside and set the reported maximum depth to 6.83 instead of 2.0."
@@ -115,7 +115,7 @@
       "width": "0 means depth drives the resolution; set a width in file units when you know the target cell size (e.g. 1 mm).",
       "linear_fit": "Off: the default iso-vertex placement is smoother; linear fit is faster and slightly blockier.",
       "n_threads": "-1 uses every core.",
-      "density_quantile": "0.01 removes the 1 % of vertices with the least sample support: that is where Poisson balloons over holes and partial views, so the output is a clean, density-trimmed surface rather than a bubble; raise to 0.05-0.1 on very partial scans.",
+      "density_quantile": "0: no trimming, the Poisson surface stays closed (sphere: watertight, volume 4187.7 for an exact 4188.8). 0.01 opened it (not watertight, 4099.3); raise it only to cut extrapolated sheets.",
       "normal_radius": "0 = 3 x the mean nearest-neighbour spacing. The old absolute 0.1 left most neighbourhoods with fewer than 3 points on data in mm: 86 % of the normals were off by more than 30 degrees and Poisson returned an inside-out, open surface.",
       "normal_max_nn": "30 neighbours is enough for a stable covariance; more smooths sharp edges.",
       "normal_orient_k": "15 neighbours for consistent orientation: Poisson needs normals pointing the same way, and a small k keeps the propagation local on thin parts."
@@ -130,7 +130,8 @@
   "point_cloud_reconstruction.alpha_shape": {
     "validated_on": "generated clouds in tests/test_ops_smoke.py",
     "params": {
-      "alpha": "0.03 in file units is a tight fit on metre-scale objects with centimetre point spacing; alpha must be larger than the largest gap you want bridged and smaller than the smallest concavity you want kept."
+      "alpha": "0.03 in file units is a tight fit on metre-scale objects with centimetre point spacing; alpha must be larger than the largest gap you want bridged and smaller than the smallest concavity you want kept.",
+      "auto_retry": "Off: a retried alpha of 30 on a torus filled the hole (genus 0 blob); the alpha actually used was only in the log. On: the retry happens and is recorded."
     }
   },
   "point_cloud_reconstruction.ball_pivoting": {
@@ -553,8 +554,8 @@
   "pyvista_volume_processing.pv_threshold_volume": {
     "validated_on": "generated grids in tests/test_ops_smoke.py",
     "params": {
-      "lower": "0 with upper 1 is a normalised placeholder; use Hounsfield units on CT.",
-      "upper": "1, see lower.",
+      "lower": "Required: the old [0, 1] assumed normalised data and kept a 1 mm shell of a distance field in mm.",
+      "upper": "Required: the old [0, 1] assumed normalised data and kept a 1 mm shell of a distance field in mm.",
       "scalars": "Empty uses the active scalars.",
       "invert": "Off: keep the inside of the range.",
       "continuous": "Off: a cell is kept on its own scalar value, not on the range it spans.",
@@ -588,7 +589,7 @@
   "pyvista_analysis.pv_glyph": {
     "validated_on": "generated meshes in tests/test_ops_smoke.py",
     "params": {
-      "scale_factor": "0.01 in file units draws normal arrows of 1 % of a unit object, visible without hiding the surface.",
+      "scale_factor": "0 = 5 % of the largest extent: the old 0.01 drew arrows 0.02 long on a sphere of radius 10.",
       "vector_name": "Normals is the array every mesh has after compute_normals.",
       "scale": "Off: all arrows the same length, so direction is what you see.",
       "tolerance": "-1 lets PyVista choose the glyph merge tolerance.",
@@ -703,7 +704,8 @@
       "scale_factors": "Empty: LBFGSB optimises the grid of grid_spacing over a 4-2-1 pyramid. With a single level the old '1,2,4' default never refined, so the grid was 4x coarser than requested; refinement now switches to the line-search optimiser (LBFGSB rejects a parameter count that changes between levels).",
       "seed": "42, any fixed positive value: the random metric sampling draws the same voxels on every run, so the same inputs give the same transform (unseeded runs differed by up to 0.09 rad). 0 is refused: SimpleITK reads it as 'wall clock'. Reported in the JSON sidecar.",
       "min_overlap": "0.25: correct registrations of the synthetic pairs kept 0.74-0.92 of the fixed grid inside the moving image; a transform that leaves the images apart scores 0. 0 disables the check.",
-      "min_similarity": "0.05: exact alignments scored 0.66-0.77 (same modality and a non-monotonic multimodal mapping), related but imprecise ones (4.7-7.5 mm TRE) 0.14-0.21, unrelated content (noise, shuffled voxels) below 0.007. The floor catches failed or meaningless registrations, not millimetre errors. 0 disables the check."
+      "min_similarity": "0.05: exact alignments scored 0.66-0.77 (same modality and a non-monotonic multimodal mapping), related but imprecise ones (4.7-7.5 mm TRE) 0.14-0.21, unrelated content (noise, shuffled voxels) below 0.007. The floor catches failed or meaningless registrations, not millimetre errors. 0 disables the check.",
+      "bspline_metric": "mean_squares, the fastest, is right for follow-up scans of the same modality; it was the only choice before 0.5.0, which made the deformable stage meaningless for CT-MR."
     }
   },
   "simpleitk_registration.demons": {

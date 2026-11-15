@@ -216,18 +216,18 @@
         {
           "name": "min_clamp",
           "type": "float",
-          "default": -0.1,
+          "default": null,
           "min": -1000000000.0,
           "max": 0.0,
-          "description": "Minimum SDF clamp value (interior threshold)."
+          "description": "Minimum SDF value kept, in file units (default: minus one grid step)."
         },
         {
           "name": "max_clamp",
           "type": "float",
-          "default": 0.1,
+          "default": null,
           "min": 0.0,
           "max": 1000000000.0,
-          "description": "Maximum SDF clamp value (exterior threshold)."
+          "description": "Maximum SDF value kept, in file units (default: one grid step)."
         },
         {
           "name": "padding_factor",

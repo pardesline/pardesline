@@ -50,7 +50,7 @@
       "script": "glyph.py",
       "output_extension": ".ply",
       "parameters": [
-        { "name": "scale_factor", "type": "float", "default": 0.01, "min": 0.0001, "max": 1.0, "description": "Scale factor for glyph size." },
+        { "name": "scale_factor", "type": "float", "default": 0.0, "min": 0.0, "max": 1000000000.0, "description": "Glyph scale in file units (0 = 5 percent of the largest extent)." },
         { "name": "vector_name", "type": "string", "default": "Normals", "description": "Vector array to orient glyphs (e.g. Normals)." },
         { "name": "scale", "type": "bool", "default": false, "description": "Scale glyphs by scalar/vector magnitude.", "advanced": true },
         { "name": "tolerance", "type": "float", "default": -1.0, "min": -1.0, "max": 1.0, "description": "Merge tolerance as fraction of bbox (-1 = auto/None).", "advanced": true },

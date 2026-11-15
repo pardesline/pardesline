@@ -1,7 +1,8 @@
 """
 Mesh Voxelization — adapted from PardesLine 03_mesh_pcd_to_volume.
 
-Creates a voxel grid from a mesh and outputs the voxel centers as a point cloud.
+Creates a voxel grid of the mesh SURFACE (voxels crossed by triangles; the interior is not filled)
+and outputs the voxel centers as a point cloud.
 
 CONTRACT:
   python voxelization.py --input <mesh_file> --output <pcd_file> [--voxel_size F]

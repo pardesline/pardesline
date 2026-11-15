@@ -1,4 +1,4 @@
-"""Taubin smoothing of a mesh (volume-preserving)."""
+"""Taubin smoothing of a mesh (low-shrinkage: limits volume loss, does not guarantee preservation)."""
 import argparse
 import sys
 import pyvista as pv

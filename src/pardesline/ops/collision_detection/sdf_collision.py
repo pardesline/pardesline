@@ -14,7 +14,7 @@ import numpy as np
 import open3d as o3d
 from loguru import logger
 
-from pardesline.ops._mesh_common import require_triangles, signed_distance
+from pardesline.ops._mesh_common import require_triangles, signed_distance, warn_if_not_watertight
 
 
 def main():
@@ -41,6 +41,7 @@ def main():
 
     # If point cloud, build convex hull
     require_triangles(mesh)
+    warn_if_not_watertight(mesh)
 
     mesh.compute_vertex_normals()
     logger.info("Mesh: {} vertices, {} triangles", len(mesh.vertices), len(mesh.triangles))

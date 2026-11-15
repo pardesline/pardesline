@@ -737,7 +737,8 @@ def register_bspline(fixed: sitk.Image, moving: sitk.Image, grid_spacing: float 
                      cost_function_convergence_factor: float = 1e7,
                      scale_factors: str = "",
                      seed: int = DEFAULT_SEED,
-                     quality: dict | None = None) -> tuple[sitk.Image, sitk.Transform]:
+                     quality: dict | None = None,
+                     bspline_metric: str = "mean_squares") -> tuple[sitk.Image, sitk.Transform]:
     """B-spline FFD registration - from 06_advanced_registration.ipynb.
 
     Affine pre-registration, then a cubic B-spline whose control grid has
@@ -763,7 +764,17 @@ def register_bspline(fixed: sitk.Image, moving: sitk.Image, grid_spacing: float 
     initial_transform = sitk.BSplineTransformInitializer(fixed, mesh_size, order=int(bspline_order))
 
     registration_method = sitk.ImageRegistrationMethod()
-    registration_method.SetMetricAsMeanSquares()
+    # mean squares compares intensities directly (same modality and scale only); mutual information
+    # or correlation for other pairs
+    if bspline_metric == "mean_squares":
+        registration_method.SetMetricAsMeanSquares()
+    elif bspline_metric == "mattes_mutual_information":
+        registration_method.SetMetricAsMattesMutualInformation(numberOfHistogramBins=50)
+    elif bspline_metric == "correlation":
+        registration_method.SetMetricAsCorrelation()
+    else:
+        raise ValueError(f"bspline_metric must be mean_squares, mattes_mutual_information or correlation, "
+                         f"got {bspline_metric!r}")
     registration_method.SetMetricSamplingStrategy(registration_method.RANDOM)
     registration_method.SetMetricSamplingPercentage(float(sampling_percentage), seed)
     registration_method.SetInterpolator(_SITK_INTERP[str(interpolator).upper()])

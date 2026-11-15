@@ -11,7 +11,7 @@ import numpy as np
 import open3d as o3d
 from loguru import logger
 
-from pardesline.ops._mesh_common import require_triangles, signed_distance, orient_outward
+from pardesline.ops._mesh_common import require_triangles, signed_distance, orient_outward, check_grid_budget, warn_if_not_watertight
 
 
 def main():
@@ -43,6 +43,7 @@ def main():
     logger.info(f"Mesh: {len(mesh.vertices)} vertices, {len(mesh.triangles)} triangles")
 
     require_triangles(mesh)
+    warn_if_not_watertight(mesh)
 
     logger.info("Computing vertex normals")
     mesh.compute_vertex_normals()
@@ -63,6 +64,7 @@ def main():
     ys = np.arange(min_bound[1], max_bound[1] + 1e-12, args.voxel_size)
     zs = np.arange(min_bound[2], max_bound[2] + 1e-12, args.voxel_size)
     grid_shape = (len(xs), len(ys), len(zs))
+    check_grid_budget(grid_shape, args.voxel_size)
 
     logger.info(f"Grid: {grid_shape}, total voxels: {np.prod(grid_shape)}")
 
