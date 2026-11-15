@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.1">
     
     
       
@@ -478,6 +478,25 @@
     
   
   Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Correctness audit 2026-11
 
       </a>
     </li>
@@ -5166,6 +5185,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Correctness audit 2026-11
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../contributing/" class="md-nav__link">
         
   
@@ -5378,10 +5424,10 @@ T^* = \arg\min_{\mathbf{R}, \mathbf{t}} \sum_{i=1}^{N} \|\mathbf{R} p_i + \mathb
 <tr>
 <td><code>voxel_size</code></td>
 <td>float</td>
-<td><code>0.5</code></td>
-<td>0 to 0.9</td>
-<td>Voxel size for downsampling. 0 = auto-detect (1.3% of bbox diagonal, matches Open3D tutorial).</td>
-<td>0.5 is a placeholder for the platform UI; 0 (auto) is what the one-call API passes: 1.3 % of the bounding-box diagonal, so the feature scale follows the object instead of a fixed number that is wrong for both a 15 cm part and a 15 m facade.</td>
+<td><code>0.0</code></td>
+<td>0 to 1000000.0</td>
+<td>Voxel size for downsampling, in file units, used as given. 0 = auto (1.3% of the fixed bounding-box diagonal).</td>
+<td>0 (auto) = 1.3 % of the bounding-box diagonal of the fixed cloud; every other distance is a multiple of it. A value you give is used as given (a warning is logged outside 0.5-5 % of the diagonal) and written to the JSON sidecar; it was silently replaced before 0.4.0.</td>
 </tr>
 <tr>
 <td><code>normal_radius_factor</code> <em>(advanced)</em></td>
@@ -5471,6 +5517,22 @@ T^* = \arg\min_{\mathbf{R}, \mathbf{t}} \sum_{i=1}^{N} \|\mathbf{R} p_i + \mathb
 <td>RANSAC early-stop confidence.</td>
 <td>0.999 stops once the best model is that likely to be the true one.</td>
 </tr>
+<tr>
+<td><code>seed</code> <em>(advanced)</em></td>
+<td>int</td>
+<td><code>0</code></td>
+<td>0 to 2147483647</td>
+<td>First RANSAC seed; restart k uses seed + k. Same seed, same result.</td>
+<td>0: Open3D's RANSAC draws from a global generator; seeding it makes a run reproducible. Recorded in the JSON.</td>
+</tr>
+<tr>
+<td><code>restarts</code> <em>(advanced)</em></td>
+<td>int</td>
+<td><code>8</code></td>
+<td>1 to 100</td>
+<td>Number of RANSAC runs; the pose with the best threshold-free distance score wins.</td>
+<td>8 runs: one unseeded run landed 92 degrees off in 1 of 3 tries on a 120-degree pair; the best of 8 by distance score is robust and costs 8 RANSAC runs.</td>
+</tr>
 </tbody>
 </table>
 <h3 id="icp_refinement">icp_refinement<a class="headerlink" href="#icp_refinement" title="Permanent link">&para;</a></h3>
@@ -5499,10 +5561,10 @@ T^* = \arg\min_{\mathbf{R}, \mathbf{t}} \sum_{i=1}^{N} \|\mathbf{R} p_i + \mathb
 <tr>
 <td><code>voxel_size</code></td>
 <td>float</td>
-<td><code>0.5</code></td>
-<td>0 to 0.9</td>
-<td>Voxel size for downsampling. 0 = auto-detect (1.3% of bbox diagonal, matches Open3D tutorial).</td>
-<td>0 (auto) picks 1.3 % of the bounding-box diagonal; the explicit 0.5 is the platform UI placeholder.</td>
+<td><code>0.0</code></td>
+<td>0 to 1000000.0</td>
+<td>Voxel size for downsampling, in file units, used as given. 0 = auto (1.3% of the fixed bounding-box diagonal).</td>
+<td>0 (auto) = 1.3 % of the bounding-box diagonal of the fixed cloud; every other distance is a multiple of it. A value you give is used as given (a warning is logged outside 0.5-5 % of the diagonal) and written to the JSON sidecar; it was silently replaced before 0.4.0.</td>
 </tr>
 <tr>
 <td><code>max_iterations</code></td>
@@ -5648,6 +5710,14 @@ T^* = \arg\min_{\mathbf{R}, \mathbf{t}} \sum_{i=1}^{N} \|\mathbf{R} p_i + \mathb
 <td>Min RANSAC fitness to seed ICP (else center-of-mass init).</td>
 <td>0.3: below this pre-pass fitness the features were not informative and ICP starts from the centre-of-mass alignment instead of a wrong pose.</td>
 </tr>
+<tr>
+<td><code>seed</code> <em>(advanced)</em></td>
+<td>int</td>
+<td><code>0</code></td>
+<td>0 to 2147483647</td>
+<td>Seed of the RANSAC pre-pass that gives ICP its starting pose.</td>
+<td>0: makes the RANSAC pre-pass, hence the ICP start and result, reproducible. Recorded in the JSON.</td>
+</tr>
 </tbody>
 </table>
 <h3 id="ransac_icp_pipeline">ransac_icp_pipeline<a class="headerlink" href="#ransac_icp_pipeline" title="Permanent link">&para;</a></h3>
@@ -5676,18 +5746,18 @@ T^* = \arg\min_{\mathbf{R}, \mathbf{t}} \sum_{i=1}^{N} \|\mathbf{R} p_i + \mathb
 <tr>
 <td><code>voxel_size</code></td>
 <td>float</td>
-<td><code>0.5</code></td>
-<td>0 to 0.9</td>
-<td>Voxel size for downsampling. 0 = auto-detect (1.3% of bbox diagonal, matches Open3D tutorial).</td>
-<td>0 (auto) = 1.3 % of the bounding-box diagonal: every other distance is a multiple of it, so one number adapts the whole pipeline to a 15 cm part or a 15 m facade; the explicit 0.5 is the platform UI placeholder.</td>
+<td><code>0.0</code></td>
+<td>0 to 1000000.0</td>
+<td>Voxel size for downsampling, in file units, used as given. 0 = auto (1.3% of the fixed bounding-box diagonal).</td>
+<td>0 (auto) = 1.3 % of the bounding-box diagonal of the fixed cloud; every other distance is a multiple of it. A value you give is used as given (a warning is logged outside 0.5-5 % of the diagonal) and written to the JSON sidecar; it was silently replaced before 0.4.0.</td>
 </tr>
 <tr>
 <td><code>rotation_degrees</code></td>
 <td>float</td>
 <td><code>45.0</code></td>
 <td>5.0 to 90.0</td>
-<td>Synthetic rotation for DEMO MODE only (when no moving cloud is connected). Ignored in real registration.</td>
-<td>45 degrees is used only in demo mode (no moving cloud): a synthetic rotation large enough to defeat plain ICP so the global stage is visibly needed.</td>
+<td>Ignored: it set the rotation of the self-registration demo, removed in 0.4.0 (--moving is required).</td>
+<td>Kept so that existing command lines still parse; it has no effect and a non-default value logs a warning.</td>
 </tr>
 <tr>
 <td><code>normal_radius_factor</code> <em>(advanced)</em></td>
@@ -5782,8 +5852,16 @@ T^* = \arg\min_{\mathbf{R}, \mathbf{t}} \sum_{i=1}^{N} \|\mathbf{R} p_i + \mathb
 <td>float</td>
 <td><code>0.4</code></td>
 <td>0.2 to 2.0</td>
-<td>ICP correspondence distance as a multiple of voxel_size.</td>
+<td>Final ICP pass at this multiple of the voxel size.</td>
 <td>0.4x the voxel for the final ICP: tight, so the refinement is driven by true overlap and not by the partial-view points that have no counterpart.</td>
+</tr>
+<tr>
+<td><code>icp_coarse_threshold_factor</code> <em>(advanced)</em></td>
+<td>float</td>
+<td><code>1.5</code></td>
+<td>0.0 to 10.0</td>
+<td>First ICP pass at this multiple of the voxel size, before the final pass (0 = single pass).</td>
+<td>1.5x the voxel: a single pass at 0.4v ended above 0.1 mm error from 15 of 20 starts off by 3 degrees and 2 voxels (the size of RANSAC errors); 1.5v then 0.4v converged from all 20.</td>
 </tr>
 <tr>
 <td><code>icp_estimation_method</code> <em>(advanced)</em></td>
@@ -5796,10 +5874,10 @@ T^* = \arg\min_{\mathbf{R}, \mathbf{t}} \sum_{i=1}^{N} \|\mathbf{R} p_i + \mathb
 <tr>
 <td><code>icp_max_iteration</code> <em>(advanced)</em></td>
 <td>int</td>
-<td><code>30</code></td>
+<td><code>100</code></td>
 <td>1 to 2000</td>
 <td>Max ICP iterations.</td>
-<td>30 iterations after a good global pose is enough; the relative thresholds usually stop it earlier.</td>
+<td>100 iterations per ICP pass: the relative thresholds usually stop earlier; 30 cut the coarse pass short.</td>
 </tr>
 <tr>
 <td><code>icp_relative_fitness</code> <em>(advanced)</em></td>
@@ -5817,6 +5895,54 @@ T^* = \arg\min_{\mathbf{R}, \mathbf{t}} \sum_{i=1}^{N} \|\mathbf{R} p_i + \mathb
 <td>ICP stop threshold on RMSE change.</td>
 <td>1e-6 stop on RMSE plateau.</td>
 </tr>
+<tr>
+<td><code>seed</code> <em>(advanced)</em></td>
+<td>int</td>
+<td><code>0</code></td>
+<td>0 to 2147483647</td>
+<td>First RANSAC seed; restart k uses seed + k. Same seed, same result.</td>
+<td>0: RANSAC seeds seed, seed+1, ...: the whole run is reproducible. Recorded in the JSON.</td>
+</tr>
+<tr>
+<td><code>restarts</code> <em>(advanced)</em></td>
+<td>int</td>
+<td><code>8</code></td>
+<td>1 to 100</td>
+<td>Number of RANSAC seeds, each refined by ICP; the best-scoring pose wins.</td>
+<td>8 seeds: one seed landed in a 90 or 180 degree flip in 3 of 6 to 6 of 6 runs on near-symmetric boxes; the best of 8 by a threshold-free score was right on every seed tried.</td>
+</tr>
+<tr>
+<td><code>symmetry_probe</code> <em>(advanced)</em></td>
+<td>bool</td>
+<td><code>true</code></td>
+<td></td>
+<td>Also refine the winner turned 90/180/270 degrees about each principal axis, to test symmetric alternatives.</td>
+<td>On: restarts only see poses RANSAC happens to reach; the probe also refines the symmetric alternatives so that a near-symmetric part is reported as ambiguous instead of silently flipped.</td>
+</tr>
+<tr>
+<td><code>score_upper_quantile</code> <em>(advanced)</em></td>
+<td>float</td>
+<td><code>0.9</code></td>
+<td>0.1 to 1.0</td>
+<td>Highest distance quantile in the pose score; keep it below the fraction of the moving cloud that overlaps the fixed one.</td>
+<td>0.9: the score ignores the 10 % farthest points (non-overlapping parts, outliers); lower it when the overlap is smaller.</td>
+</tr>
+<tr>
+<td><code>ambiguity_margin</code> <em>(advanced)</em></td>
+<td>float</td>
+<td><code>0.1</code></td>
+<td>0.0 to 1.0</td>
+<td>A different pose scoring within this relative margin of the winner makes the result ambiguous.</td>
+<td>0.10: a different pose within 10 % of the winner's score cannot be told apart reliably.</td>
+</tr>
+<tr>
+<td><code>on_ambiguous</code> <em>(advanced)</em></td>
+<td>enum</td>
+<td><code>error</code></td>
+<td><code>error</code>, <code>warn</code></td>
+<td>error: exit code 3 when the result is ambiguous (output and JSON still written); warn: log and exit 0.</td>
+<td>error: an ambiguous pose is a measurement nobody should use without looking; warn keeps the winner.</td>
+</tr>
 </tbody>
 </table>
 <h2 id="related">Related<a class="headerlink" href="#related" title="Permanent link">&para;</a></h2>
@@ -5824,7 +5950,7 @@ T^* = \arg\min_{\mathbf{R}, \mathbf{t}} \sum_{i=1}^{N} \|\mathbf{R} p_i + \mathb
 <li><a href="../why-our-defaults-work/">Why our defaults work</a> · <a href="../../getting-started/concepts/#catalog">The catalog and <code>pl.run</code></a> · <a href="../../api/">API reference</a></li>
 <li><code>pl.describe("registration")</code> prints this module from the installed package; <code>pl.describe("registration.&lt;method&gt;")</code> one method with ranges and rationale.</li>
 </ul>
-<p><sub>Generated from <code>src/pardesline/catalog/data/registration.json</code> and <code>_defaults.json</code> on 2026-10-10.</sub></p>
+<p><sub>Generated from <code>src/pardesline/catalog/data/registration.json</code> and <code>_defaults.json</code> on 2026-11-15.</sub></p>
 
 
 
@@ -5968,7 +6094,7 @@ T^* = \arg\min_{\mathbf{R}, \mathbf{t}} \sum_{i=1}^{N} \|\mathbf{R} p_i + \mathb
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       

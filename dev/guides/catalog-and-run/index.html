@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.1">
     
     
       
@@ -478,6 +478,25 @@
     
   
   Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Correctness audit 2026-11
 
       </a>
     </li>
@@ -5049,6 +5068,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Correctness audit 2026-11
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../contributing/" class="md-nav__link">
         
   
@@ -5244,7 +5290,7 @@ estimated transform (<code>rotation_deg</code>, <code>translation_mm</code>, mat
 density_quantile, normal_radius)</code>, <code>pv_decimate(target_reduction)</code>,
 <code>pv_smooth_laplacian(n_iterations)</code>, <code>mesh_to_pcd_poisson_disk(num_points)</code>,
 <code>icp_refinement(voxel_size, max_iterations &gt;= 100, icp_estimation_method)</code>,
-<code>ransac_icp_pipeline(voxel_size, rotation_degrees)</code>,
+<code>ransac_icp_pipeline(voxel_size, seed, restarts)</code>,
 <code>dbscan_clustering(eps, min_points)</code>, <code>rigid(num_iterations, metric,
 initializer=GEOMETRY|MOMENTS, sampling_percentage, shrink_factors="4,2,1")</code>,
 <code>manual_threshold(lower, upper)</code>, <code>connected_components(min_size)</code>.</p>
@@ -5294,7 +5340,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pardesline.ops.registrat
 </code></pre></div>
 <p>Exit 0 means the output was written. Prefer <code>pl.run</code> from Python: it
 validates, names the output and captures the log.</p>
-<p><sub>Source: <code>skills/catalog-and-run/SKILL.md</code>, one of the twenty skills served by <code>pardesline mcp</code>; published on 2026-10-10.</sub></p>
+<p><sub>Source: <code>skills/catalog-and-run/SKILL.md</code>, one of the twenty skills served by <code>pardesline mcp</code>; published on 2026-11-15.</sub></p>
 
 
 
@@ -5438,7 +5484,7 @@ validates, names the output and captures the log.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       

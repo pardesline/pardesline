@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.1">
     
     
       
@@ -478,6 +478,25 @@
     
   
   Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Correctness audit 2026-11
 
       </a>
     </li>
@@ -5199,6 +5218,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Correctness audit 2026-11
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../contributing/" class="md-nav__link">
         
   
@@ -5563,18 +5609,26 @@ The optimization proceeds from coarse to fine resolution, avoiding local minima.
 <td>Auto-estimate per-parameter optimizer scales.</td>
 <td>On: rotations in radians and translations in millimetres have different sensitivities; the physical-shift scales equalise them, which is the single setting that makes a fixed learning rate work across datasets.</td>
 </tr>
+<tr>
+<td><code>seed</code> <em>(advanced)</em></td>
+<td>int</td>
+<td><code>42</code></td>
+<td>1 to 2147483647</td>
+<td>Seed of the random metric sampling (positive integer): same seed, same transform.</td>
+<td>42, any fixed positive value: the random metric sampling draws the same voxels on every run, so the same inputs give the same transform (unseeded runs differed by up to 0.09 rad). 0 is refused: SimpleITK reads it as 'wall clock'. Reported in the JSON sidecar.</td>
+</tr>
 </tbody>
 </table>
 <h3 id="advanced_rigid">advanced_rigid<a class="headerlink" href="#advanced_rigid" title="Permanent link">&para;</a></h3>
 <p><strong>1. Two-Stage Composite Approach</strong>
-From the reference implementation (modulesReg.py::registration_advanced), this method uses a two-stage approach: first, a geometry-based initial transform centers the images, then a second optimized Euler3D transform is applied. The final result is a CompositeTransform combining both stages.</p>
+Stage 1 is an exhaustive search over the three Euler angles (<code>exhaustive_steps_per_axis</code> steps of <span class="arithmatex">\(\pi\)</span>/steps on each axis, translations fixed) at a coarse level (shrink 8, smoothing 4 mm), starting from a moments (centre of mass) alignment, with the metric evaluated on every voxel of that level. Stage 2 optimises a second Euler3D transform <span class="arithmatex">\(O\)</span> with the first one <span class="arithmatex">\(M\)</span> as moving initial transform. The result is the CompositeTransform <span class="arithmatex">\(p \mapsto M(O(p))\)</span>, which maps fixed points to moving points.</p>
 <p><strong>2. Conservative Parameters</strong>
 Compared to basic rigid registration:
 - Learning rate: 0.2 (vs 1.0) for more stable convergence
 - Sampling: 15% (vs 1%) for better metric estimation
 - Iterations: 200 (vs 100) for thorough optimization</p>
 <p><strong>3. Advantages</strong>
-The two-stage approach prevents the optimizer from getting stuck in local minima near the initial position, and the higher sampling percentage produces smoother metric landscapes.</p>
+The search recovers large rotations (up to 180 degrees) that gradient descent alone cannot, and the refinement removes the residual of the search grid.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pardesline</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 
 <span class="n">fixed</span><span class="p">,</span> <span class="n">moving</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"fixed.nii.gz"</span><span class="p">),</span> <span class="n">pl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"moving.nii.gz"</span><span class="p">)</span>
@@ -5706,6 +5760,14 @@ The two-stage approach prevents the optimizer from getting stuck in local minima
 <td></td>
 <td>Auto-estimate per-parameter optimizer scales.</td>
 <td>On: rotations in radians and translations in millimetres have different sensitivities; physical-shift scales equalise them so one learning rate works across datasets.</td>
+</tr>
+<tr>
+<td><code>seed</code> <em>(advanced)</em></td>
+<td>int</td>
+<td><code>42</code></td>
+<td>1 to 2147483647</td>
+<td>Seed of the random metric sampling (positive integer): same seed, same transform.</td>
+<td>42, any fixed positive value: the random metric sampling draws the same voxels on every run, so the same inputs give the same transform (unseeded runs differed by up to 0.09 rad). 0 is refused: SimpleITK reads it as 'wall clock'. Reported in the JSON sidecar.</td>
 </tr>
 </tbody>
 </table>
@@ -5851,6 +5913,14 @@ Compared to rigid (6 DOF), affine adds:
 <td>Auto-estimate per-parameter optimizer scales.</td>
 <td>On: the 12 affine parameters mix scale, shear and translation, so scale normalisation matters even more than for rigid.</td>
 </tr>
+<tr>
+<td><code>seed</code> <em>(advanced)</em></td>
+<td>int</td>
+<td><code>42</code></td>
+<td>1 to 2147483647</td>
+<td>Seed of the random metric sampling (positive integer): same seed, same transform.</td>
+<td>42, any fixed positive value: the random metric sampling draws the same voxels on every run, so the same inputs give the same transform (unseeded runs differed by up to 0.09 rad). 0 is refused: SimpleITK reads it as 'wall clock'. Reported in the JSON sidecar.</td>
+</tr>
 </tbody>
 </table>
 <h3 id="bspline">bspline<a class="headerlink" href="#bspline" title="Permanent link">&para;</a></h3>
@@ -5858,11 +5928,12 @@ Compared to rigid (6 DOF), affine adds:
 The displacement field is parameterized by a regular grid of <span class="arithmatex">\(n_x \times n_y \times n_z\)</span> control points <span class="arithmatex">\(\{\phi_{i,j,k}\}\)</span>. The deformation at any point <span class="arithmatex">\(\mathbf{x}\)</span> is interpolated using cubic B-spline basis functions:
 $<span class="arithmatex">\(T(\mathbf{x}) = \mathbf{x} + \sum_{l=0}^{3} \sum_{m=0}^{3} \sum_{n=0}^{3} B_l(u) B_m(v) B_n(w) \, \phi_{i+l, j+m, k+n}\)</span>$
 where <span class="arithmatex">\((u, v, w)\)</span> are the local coordinates within the control point cell.</p>
-<p><strong>2. Multi-Scale Refinement</strong>
-Registration proceeds from coarse grids (large <code>grid_spacing</code>) to fine grids, progressively capturing finer deformations. The LBFGSB optimizer handles the large number of parameters efficiently.</p>
+<p><strong>2. Grid and pyramid</strong>
+The mesh has round(extent / <code>grid_spacing</code>) cells per axis. After an affine pre-registration, LBFGSB optimises the control points over a three-level image pyramid (shrink 4, 2, 1; smoothing 2, 1, 0 mm). With <code>scale_factors</code> (e.g. 1,2,4) the mesh instead starts <code>mesh_coarsening_factor</code> times coarser and is refined at each level, with a line-search gradient optimiser.</p>
 <p><strong>3. Regularization</strong>
-The bending energy of the B-spline ensures smooth deformations:
-$<span class="arithmatex">\(\mathcal{R}_{\text{bend}} = \int \left\| \nabla^2 T(\mathbf{x}) \right\|^2 d\mathbf{x}\)</span>$</p>
+There is no explicit penalty term: smoothness comes from the grid spacing, the pyramid and the number of iterations. Check the result for folding (Jacobian determinant of the transform on the whole grid).</p>
+<p><strong>4. Result</strong>
+The transform maps fixed points to moving points: <span class="arithmatex">\(p \mapsto A(B(p))\)</span>, the B-spline first, then the affine.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pardesline</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 
 <span class="n">fixed</span><span class="p">,</span> <span class="n">moving</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"fixed.nii.gz"</span><span class="p">),</span> <span class="n">pl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"moving.nii.gz"</span><span class="p">)</span>
@@ -5888,8 +5959,8 @@ $<span class="arithmatex">\(\mathcal{R}_{\text{bend}} = \int \left\| \nabla^2 T(
 <td>float</td>
 <td><code>50.0</code></td>
 <td>10.0 to 100.0</td>
-<td>Control point grid spacing in mm.</td>
-<td>50 mm control-point spacing captures organ-scale motion (breathing, bowel) without fitting noise; 20-30 mm for finer local deformation.</td>
+<td>Control point grid spacing in mm: the optimised mesh has round(extent / grid_spacing) cells per axis.</td>
+<td>50 mm control-point spacing captures organ-scale motion (breathing, bowel) without fitting noise; 20-30 mm for finer local deformation. Checked: 24 mm on a 96 mm volume gives a 4x4x4 mesh.</td>
 </tr>
 <tr>
 <td><code>num_iterations</code></td>
@@ -5912,8 +5983,8 @@ $<span class="arithmatex">\(\mathcal{R}_{\text{bend}} = \int \left\| \nabla^2 T(
 <td>int</td>
 <td><code>4</code></td>
 <td>1 to 8</td>
-<td>Extra coarsening divisor applied to the control-point mesh.</td>
-<td>4 starts the multi-resolution schedule with a coarser control mesh so large motion is recovered first.</td>
+<td>Divides the initial control mesh when scale_factors refines it; ignored without scale_factors.</td>
+<td>4, used only with scale_factors: the mesh starts 4x coarser and is refined at each level so large motion is recovered first.</td>
 </tr>
 <tr>
 <td><code>sampling_percentage</code> <em>(advanced)</em></td>
@@ -5958,10 +6029,18 @@ $<span class="arithmatex">\(\mathcal{R}_{\text{bend}} = \int \left\| \nabla^2 T(
 <tr>
 <td><code>scale_factors</code> <em>(advanced)</em></td>
 <td>list</td>
-<td><code>1,2,4</code></td>
+<td><code>""</code></td>
 <td></td>
-<td>B-spline multi-resolution scale factors (comma-separated).</td>
-<td>1,2,4 refine the control mesh across three levels.</td>
+<td>Optional grid refinement per pyramid level, e.g. 1,2,4 (empty: optimise the grid of grid_spacing directly).</td>
+<td>Empty: LBFGSB optimises the grid of grid_spacing over a 4-2-1 pyramid. With a single level the old '1,2,4' default never refined, so the grid was 4x coarser than requested; refinement now switches to the line-search optimiser (LBFGSB rejects a parameter count that changes between levels).</td>
+</tr>
+<tr>
+<td><code>seed</code> <em>(advanced)</em></td>
+<td>int</td>
+<td><code>42</code></td>
+<td>1 to 2147483647</td>
+<td>Seed of the random metric sampling (positive integer): same seed, same transform.</td>
+<td>42, any fixed positive value: the random metric sampling draws the same voxels on every run, so the same inputs give the same transform (unseeded runs differed by up to 0.09 rad). 0 is refused: SimpleITK reads it as 'wall clock'. Reported in the JSON sidecar.</td>
 </tr>
 </tbody>
 </table>
@@ -6059,10 +6138,10 @@ Mean, max, and standard deviation of the difference image quantify overall regis
 <tr>
 <td><code>upper_threshold</code></td>
 <td>float</td>
-<td><code>400.0</code></td>
+<td><code>""</code></td>
 <td>100.0 to 3000.0</td>
-<td>Upper threshold for difference analysis.</td>
-<td>400: above that, differences are bone or air boundaries that any residual misalignment produces; the band in between highlights soft-tissue change.</td>
+<td>Upper bound of the high-difference range (default: none, every difference above lower_threshold counts).</td>
+<td>None: every difference above lower_threshold counts as misalignment. The old 400 bound left the largest differences out of high_diff_voxels, so a worse alignment could score better.</td>
 </tr>
 </tbody>
 </table>
@@ -6071,7 +6150,7 @@ Mean, max, and standard deviation of the difference image quantify overall regis
 <li><a href="../why-our-defaults-work/">Why our defaults work</a> · <a href="../../getting-started/concepts/#catalog">The catalog and <code>pl.run</code></a> · <a href="../../api/">API reference</a></li>
 <li><code>pl.describe("simpleitk_registration")</code> prints this module from the installed package; <code>pl.describe("simpleitk_registration.&lt;method&gt;")</code> one method with ranges and rationale.</li>
 </ul>
-<p><sub>Generated from <code>src/pardesline/catalog/data/simpleitk_registration.json</code> and <code>_defaults.json</code> on 2026-10-10.</sub></p>
+<p><sub>Generated from <code>src/pardesline/catalog/data/simpleitk_registration.json</code> and <code>_defaults.json</code> on 2026-11-15.</sub></p>
 
 
 
@@ -6215,7 +6294,7 @@ Mean, max, and standard deviation of the difference image quantify overall regis
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       

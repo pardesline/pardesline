@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.1">
     
     
       
@@ -478,6 +478,25 @@
     
   
   Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Correctness audit 2026-11
 
       </a>
     </li>
@@ -5155,6 +5174,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Correctness audit 2026-11
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../contributing/" class="md-nav__link">
         
   
@@ -5327,12 +5373,10 @@ Z = \frac{f \cdot B}{d}
 <p>For point cloud analysis, depth-based operations include colorization by Euclidean distance and depth-range filtering for region-of-interest extraction.</p>
 <h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
 <h3 id="depth_colorization">depth_colorization<a class="headerlink" href="#depth_colorization" title="Permanent link">&para;</a></h3>
-<p><strong>1. Distance Computation</strong>
-For each point <span class="arithmatex">\(p_i\)</span> in the cloud, the Euclidean distance from the origin (camera center) is computed:
-$<span class="arithmatex">\(d_i = \|p_i - \mathbf{o}\|_2 = \sqrt{x_i^2 + y_i^2 + z_i^2}\)</span>$</p>
+<p><strong>1. Value</strong>
+Each point is coloured by its z coordinate (not its distance from the origin): <span class="arithmatex">\(v_i = z_i\)</span>, which equals the depth only in a camera frame whose z axis is the optical axis.</p>
 <p><strong>2. Normalization and Colormap</strong>
-Distances are normalized to <span class="arithmatex">\([0, 1]\)</span> and mapped through a perceptually uniform colormap (jet, viridis, plasma, or turbo):
-$<span class="arithmatex">\(c_i = \text{colormap}\left(\frac{d_i - d_{\min}}{d_{\max} - d_{\min}}\right)\)</span>$</p>
+The values are normalised to <span class="arithmatex">\([0, 1]\)</span> over the cloud and mapped through the selected colormap (0=jet, 1=viridis, 2=plasma, 3=turbo).</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pardesline</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 
 <span class="n">obj</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"input.ply"</span><span class="p">)</span>
@@ -5364,12 +5408,10 @@ $<span class="arithmatex">\(c_i = \text{colormap}\left(\frac{d_i - d_{\min}}{d_{
 </tbody>
 </table>
 <h3 id="depth_filter">depth_filter<a class="headerlink" href="#depth_filter" title="Permanent link">&para;</a></h3>
-<p><strong>1. Percentile-Based Filtering</strong>
-Instead of absolute depth thresholds, the filter uses percentiles of the distance distribution for robustness across different scales:
-$<span class="arithmatex">\(P_{\text{keep}} = \{p_i : q_{\min} \leq d_i \leq q_{\max}\}\)</span>$
-where <span class="arithmatex">\(q_{\min}, q_{\max}\)</span> are the <code>min_depth</code> and <code>max_depth</code> percentiles of <span class="arithmatex">\(\{d_i\}\)</span>.</p>
-<p><strong>2. Application</strong>
-Useful for removing background points (far range) or ground plane (near range) in LiDAR and depth camera data.</p>
+<p><strong>1. Quantile-Based Filtering</strong>
+The filter keeps the points whose z coordinate lies between two quantiles of the z distribution:
+$<span class="arithmatex">\(P_{\text{keep}} = \{p_i : Q_z(q_{\min}) \leq z_i \leq Q_z(q_{\max})\}\)</span>$
+where <span class="arithmatex">\(q_{\min}, q_{\max}\)</span> are <code>min_depth</code> and <code>max_depth</code> as fractions (0-1). They are quantiles, not depths: the defaults (0.1, 0.9) keep about 80 % of the points whatever the geometry.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pardesline</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 
 <span class="n">obj</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"input.ply"</span><span class="p">)</span>
@@ -5395,7 +5437,7 @@ Useful for removing background points (far range) or ground plane (near range) i
 <td>float</td>
 <td><code>0.1</code></td>
 <td>0.0 to 1.0</td>
-<td>Lower depth percentile (0-1 fraction).</td>
+<td>Lower quantile of z (fraction 0-1), not a depth.</td>
 <td>Dropping the nearest 10 % removes the lens-edge and occlusion artefacts stereo matching produces close to the camera.</td>
 </tr>
 <tr>
@@ -5403,7 +5445,7 @@ Useful for removing background points (far range) or ground plane (near range) i
 <td>float</td>
 <td><code>0.9</code></td>
 <td>0.0 to 1.0</td>
-<td>Upper depth percentile (0-1 fraction).</td>
+<td>Upper quantile of z (fraction 0-1), not a depth.</td>
 <td>Dropping the farthest 10 % removes the sky and the far-range noise where disparity is below one pixel.</td>
 </tr>
 </tbody>
@@ -5413,7 +5455,7 @@ Useful for removing background points (far range) or ground plane (near range) i
 <li><a href="../why-our-defaults-work/">Why our defaults work</a> · <a href="../../getting-started/concepts/#catalog">The catalog and <code>pl.run</code></a> · <a href="../../api/">API reference</a></li>
 <li><code>pl.describe("stereo_3d_reconstruction")</code> prints this module from the installed package; <code>pl.describe("stereo_3d_reconstruction.&lt;method&gt;")</code> one method with ranges and rationale.</li>
 </ul>
-<p><sub>Generated from <code>src/pardesline/catalog/data/stereo_3d_reconstruction.json</code> and <code>_defaults.json</code> on 2026-10-10.</sub></p>
+<p><sub>Generated from <code>src/pardesline/catalog/data/stereo_3d_reconstruction.json</code> and <code>_defaults.json</code> on 2026-11-15.</sub></p>
 
 
 
@@ -5557,7 +5599,7 @@ Useful for removing background points (far range) or ground plane (near range) i
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       

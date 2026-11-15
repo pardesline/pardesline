@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.1">
     
     
       
@@ -478,6 +478,25 @@
     
   
   Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Correctness audit 2026-11
 
       </a>
     </li>
@@ -5166,6 +5185,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Correctness audit 2026-11
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../contributing/" class="md-nav__link">
         
   
@@ -5344,7 +5390,7 @@
 \]</div>
 <h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
 <h3 id="intensity_colorization">intensity_colorization<a class="headerlink" href="#intensity_colorization" title="Permanent link">&para;</a></h3>
-<p>Points colored by distance from origin using a selected colormap.</p>
+<p>Points coloured by their distance from the origin (0, 0, 0), taken as the sensor position, using the selected colormap. No intensity or reflectance field is read: despite the method id, this is a distance colourisation.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pardesline</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 
 <span class="n">obj</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"input.ply"</span><span class="p">)</span>
@@ -5369,14 +5415,14 @@
 <td><code>colormap</code></td>
 <td>int</td>
 <td><code>0</code></td>
-<td>0 to 3</td>
-<td>0=jet, 1=viridis, 2=inferno, 3=coolwarm</td>
+<td>0 to 2</td>
+<td>Colormap of the distance from the origin: 0=custom warm-to-cool ramp, 1=viridis, 2=plasma.</td>
 <td>0 (jet) for reflectance: lane paint and plates saturate to red, asphalt stays blue, which is what people look for in an intensity view.</td>
 </tr>
 </tbody>
 </table>
 <h3 id="roi_extraction">roi_extraction<a class="headerlink" href="#roi_extraction" title="Permanent link">&para;</a></h3>
-<p>Extract a sub-volume defined by axis-aligned percentage bounds.</p>
+<p>Keeps the points inside an axis-aligned box centred on the MEDIAN point of the cloud, whose size per axis is the given fraction of the cloud's extent along that axis.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pardesline</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 
 <span class="n">obj</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"input.ply"</span><span class="p">)</span>
@@ -5402,7 +5448,7 @@
 <td>float</td>
 <td><code>0.5</code></td>
 <td>0.0 to 1.0</td>
-<td>% of X-range to keep (centered).</td>
+<td>Fraction (0-1) of the X extent kept, centred on the median point.</td>
 <td>Keep the central 50 % along x: the near field in front of and behind the sensor, where the camera overlap is.</td>
 </tr>
 <tr>
@@ -5410,7 +5456,7 @@
 <td>float</td>
 <td><code>0.5</code></td>
 <td>0.0 to 1.0</td>
-<td>% of Y-range to keep (centered).</td>
+<td>Fraction (0-1) of the Y extent kept, centred on the median point.</td>
 <td>Keep the central 50 % along y: the lane and its neighbours.</td>
 </tr>
 <tr>
@@ -5418,13 +5464,13 @@
 <td>float</td>
 <td><code>0.8</code></td>
 <td>0.0 to 1.0</td>
-<td>% of Z-range to keep (centered).</td>
+<td>Fraction (0-1) of the Z extent kept, centred on the median point.</td>
 <td>Keep 80 % along z: drops only the extreme returns (tree tops, below-ground reflections).</td>
 </tr>
 </tbody>
 </table>
 <h3 id="multi_resolution">multi_resolution<a class="headerlink" href="#multi_resolution" title="Permanent link">&para;</a></h3>
-<p>Near regions use fine voxels, far regions use coarse voxels.</p>
+<p>Preview layout: the cloud is voxel-down-sampled at <code>levels</code> voxel sizes (base * factor^level) and the copies are placed side by side along +x, so the output coordinates of every level but the first are shifted and do not match the input.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pardesline</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 
 <span class="n">obj</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"input.ply"</span><span class="p">)</span>
@@ -5476,7 +5522,7 @@
 <li><a href="../why-our-defaults-work/">Why our defaults work</a> · <a href="../../getting-started/concepts/#catalog">The catalog and <code>pl.run</code></a> · <a href="../../api/">API reference</a></li>
 <li><code>pl.describe("lidar_camera_fusion")</code> prints this module from the installed package; <code>pl.describe("lidar_camera_fusion.&lt;method&gt;")</code> one method with ranges and rationale.</li>
 </ul>
-<p><sub>Generated from <code>src/pardesline/catalog/data/lidar_camera_fusion.json</code> and <code>_defaults.json</code> on 2026-10-10.</sub></p>
+<p><sub>Generated from <code>src/pardesline/catalog/data/lidar_camera_fusion.json</code> and <code>_defaults.json</code> on 2026-11-15.</sub></p>
 
 
 
@@ -5620,7 +5666,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       

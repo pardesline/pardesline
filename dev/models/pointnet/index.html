@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.1">
     
     
       
@@ -478,6 +478,25 @@
     
   
   Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Correctness audit 2026-11
 
       </a>
     </li>
@@ -5057,6 +5076,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Correctness audit 2026-11
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../contributing/" class="md-nav__link">
         
   
@@ -5217,7 +5263,10 @@ label points by tooth from an existing annotation.</p>
 </ul>
 <p><a href="https://github.com/pardesline/pardesline/blob/main/skills/pointnet-segmentation/scripts/pointnet_seg.py"><code>scripts/pointnet_seg.py</code></a> is a complete PyTorch reference (model, dataset
 loader for the <code>.npz</code> contract, training loop, evaluation, inference that
-writes a labelled PLY readable by pardesline). It needs <code>torch</code>.</p>
+writes a labelled PLY readable by pardesline). It needs <code>torch</code>. Every
+command takes <code>--seed</code> (default 0): point subsampling, augmentation and weight
+initialisation are seeded, so <code>eval</code> reports the same mIoU and <code>infer</code> the same
+labels on every run (before 0.4.0 both changed from run to run).</p>
 <h2 id="evaluation">Evaluation<a class="headerlink" href="#evaluation" title="Permanent link">&para;</a></h2>
 <p>Per-class IoU and mIoU on points; because sampling is uniform, points-IoU
 approximates surface-area IoU. Add a <strong>boundary error</strong>: fraction of
@@ -5275,7 +5324,7 @@ compare volumes.</p>
 <p>Datasets: <code>msd_task04_hippocampus</code>, <code>amos22</code>, <code>totalsegmentator_ct</code>,
 <code>verse19_spine</code>, <code>medshapenet</code>, <code>hf_kitti360_gs_subset</code> (<code>points</code> +
 <code>point_segments</code> for scene segmentation), <code>kitti_raw_2011_09_26_drive_0001</code>.</p>
-<p><sub>Source: <code>skills/pointnet-segmentation/SKILL.md</code>, published on 2026-10-14.</sub></p>
+<p><sub>Source: <code>skills/pointnet-segmentation/SKILL.md</code>, published on 2026-11-15.</sub></p>
 
 
 
@@ -5419,7 +5468,7 @@ compare volumes.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       

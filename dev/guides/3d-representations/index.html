@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.1">
     
     
       
@@ -478,6 +478,25 @@
     
   
   Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Correctness audit 2026-11
 
       </a>
     </li>
@@ -5049,6 +5068,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../../audit/2026-11-additional-findings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Correctness audit 2026-11
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../contributing/" class="md-nav__link">
         
   
@@ -5135,7 +5181,7 @@ attributes) and converts between them only where the conversion is well posed.</
 <tbody>
 <tr>
 <td>Stores</td>
-<td _x_y_z_="(x,y,z," attrs_="attrs)">unordered set</td>
+<td _x_y_z_ attrs_>unordered set</td>
 <td>vertices + faces (+ topology)</td>
 <td>regular grid of occupancy / density / signed distance</td>
 <td>set of anisotropic Gaussians: mean, covariance (scale + quaternion), opacity, SH colour</td>
@@ -5334,11 +5380,13 @@ one mesh each), <code>kitti_raw_2011_09_26_drive_0001</code> (LiDAR points, sens
 <span class="n">mask</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"msd_task02_heart"</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">split</span><span class="o">=</span><span class="s2">"Tr"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mask</span>  <span class="c1"># LabelMap, LPS mm</span>
 <span class="n">surface</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">to_mesh</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># exact boundary</span>
 <span class="n">points</span> <span class="o">=</span> <span class="n">surface</span><span class="o">.</span><span class="n">to_points</span><span class="p">(</span><span class="n">num_points</span><span class="o">=</span><span class="mi">4096</span><span class="p">)</span>  <span class="c1"># for a point network</span>
-<span class="n">sdf</span> <span class="o">=</span> <span class="n">surface</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">"sdf.compute_sdf"</span><span class="p">,</span> <span class="n">voxel_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>  <span class="c1"># implicit field + marching cubes</span>
+<span class="n">sdf</span> <span class="o">=</span> <span class="n">surface</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">"sdf.compute_sdf"</span><span class="p">,</span> <span class="n">voxel_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>  <span class="c1"># implicit field + marching cubes, faces outward</span>
+<span class="c1"># The input must be a mesh (a point cloud is refused, not replaced by its convex hull); inside/outside</span>
+<span class="c1"># is the majority of sign_rays=3 rays (one ray can flip a sign at a grazing edge).</span>
 <span class="n">surface</span><span class="o">.</span><span class="n">provenance</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">"exact"</span><span class="p">],</span> <span class="n">points</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>  <span class="c1"># True, "LPS, mm (file)"</span>
 </code></pre></div>
 <p>See <code>references/conversion-matrix.md</code> for the formulas behind each arrow.</p>
-<p><sub>Source: <code>skills/3d-representations/SKILL.md</code>, one of the twenty skills served by <code>pardesline mcp</code>; published on 2026-10-14.</sub></p>
+<p><sub>Source: <code>skills/3d-representations/SKILL.md</code>, one of the twenty skills served by <code>pardesline mcp</code>; published on 2026-11-15.</sub></p>
 
 
 
@@ -5482,7 +5530,7 @@ one mesh each), <code>kitti_raw_2011_09_26_drive_0001</code> (LiDAR points, sens
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       
