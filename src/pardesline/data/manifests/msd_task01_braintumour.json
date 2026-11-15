@@ -7,7 +7,14 @@
     "scheme": "archive",
     "url": "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task01_BrainTumour.tar",
     "format": "tar",
-    "prefix": "Task01_BrainTumour"
+    "prefix": "Task01_BrainTumour",
+    "pins": {
+      "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task01_BrainTumour.tar": {
+        "size_bytes": 7608266240,
+        "etag": "\"dfd1b5a5df62dadb48cad3d347148c70-907\"",
+        "checked": "2026-11-15"
+      }
+    }
   },
   "license": {
     "spdx": "CC-BY-SA-4.0",

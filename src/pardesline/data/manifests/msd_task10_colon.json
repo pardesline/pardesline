@@ -7,7 +7,14 @@
     "scheme": "archive",
     "url": "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task10_Colon.tar",
     "format": "tar",
-    "prefix": "Task10_Colon"
+    "prefix": "Task10_Colon",
+    "pins": {
+      "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task10_Colon.tar": {
+        "size_bytes": 6242760704,
+        "etag": "\"6b639adce21b4e4fffc3b61ee5682559-745\"",
+        "checked": "2026-11-15"
+      }
+    }
   },
   "license": {
     "spdx": "CC-BY-SA-4.0",

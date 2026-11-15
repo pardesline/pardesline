@@ -7,7 +7,14 @@
     "scheme": "archive",
     "url": "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task07_Pancreas.tar",
     "format": "tar",
-    "prefix": "Task07_Pancreas"
+    "prefix": "Task07_Pancreas",
+    "pins": {
+      "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task07_Pancreas.tar": {
+        "size_bytes": 12289971712,
+        "etag": "\"7b7524e869b49821724aa61235443ae1-1466\"",
+        "checked": "2026-11-15"
+      }
+    }
   },
   "license": {
     "spdx": "CC-BY-SA-4.0",

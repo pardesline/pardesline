@@ -7,7 +7,13 @@
     "scheme": "archive",
     "url": "https://zenodo.org/records/3431873/files/CHAOS_Train_Sets.zip",
     "format": "zip",
-    "prefix": "Train_Sets"
+    "prefix": "Train_Sets",
+    "pins": {
+      "https://zenodo.org/records/3431873/files/CHAOS_Train_Sets.zip": {
+        "size_bytes": 890771694,
+        "checked": "2026-11-15"
+      }
+    }
   },
   "license": {
     "spdx": "CC-BY-NC-SA-4.0",

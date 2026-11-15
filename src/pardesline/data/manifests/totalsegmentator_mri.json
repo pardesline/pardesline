@@ -6,7 +6,13 @@
   "source": {
     "scheme": "archive",
     "url": "https://zenodo.org/records/11367005/files/TotalsegmentatorMRI_dataset_v100.zip",
-    "format": "zip"
+    "format": "zip",
+    "pins": {
+      "https://zenodo.org/records/11367005/files/TotalsegmentatorMRI_dataset_v100.zip": {
+        "size_bytes": 2385236867,
+        "checked": "2026-11-15"
+      }
+    }
   },
   "license": {
     "spdx": "CC-BY-NC-SA-2.0",

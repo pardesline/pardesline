@@ -80,9 +80,13 @@ calls now raise where they returned, which before 1.0 is a minor version.
 ### Also
 - Child processes of the runner get `stdin=DEVNULL` (they inherited the MCP server's protocol stream).
 - SDF, occupancy, erosion and collision warn when the input mesh is not watertight.
-- Manifests: `tests/test_manifest_pinning.py` fails on a new manifest that is neither pinned nor
-  listed as knowingly unpinned with a reason; 30 bundled manifests await a network read of their
-  commit id or archive size/ETag.
+- Manifests say exactly which data they load: the 10 Hugging Face manifests are pinned to the
+  commit read on 2026-11-15 (they followed the moving `main`), the 20 archive manifests record the
+  size (and ETag when the server sends one) of every archive URL, and an archive that changed is
+  refused. Six sources that the format cannot pin yet (one S3 bucket, four TCIA collections, one
+  URL list) are listed with their reason; `tests/test_manifest_pinning.py` fails on any other.
+- AMOS22 licence: the Zenodo record states CC-BY-4.0, the archive's `dataset.json` CC-BY-SA 4.0;
+  the more restrictive, CC-BY-SA-4.0, stays recorded, with both statements and the date read.
 - Texts: voxelization outputs surface voxels; Taubin smoothing is low-shrinkage, not
   volume-preserving; a false comment on multi-scale ICP is gone.
 

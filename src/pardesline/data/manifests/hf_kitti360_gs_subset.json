@@ -8,7 +8,8 @@
     "repo_id": "GaussianWorld/kitti_360_subset_chunk_gs_preprocessed",
     "paths": [
       "test"
-    ]
+    ],
+    "revision": "94d5689e7dc327739538ffa67a59fa55c2f91159"
   },
   "license": {
     "spdx": "CC-BY-NC-SA-3.0",

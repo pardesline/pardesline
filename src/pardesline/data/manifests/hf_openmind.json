@@ -8,7 +8,8 @@
     "repo_id": "MIC-DKFZ/OpenMind",
     "paths": [
       "OpenMind/ds000001"
-    ]
+    ],
+    "revision": "7a1d5ce1ff35de400b7f4c0dc957a69c5b581409"
   },
   "license": {
     "spdx": "CC-BY-4.0",

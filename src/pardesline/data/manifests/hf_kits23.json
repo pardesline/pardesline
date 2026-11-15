@@ -9,7 +9,8 @@
     "paths": [
       "images",
       "segmentations"
-    ]
+    ],
+    "revision": "65f1f295873a326230153c7e1de0c7dba10f0b29"
   },
   "license": {
     "spdx": "CC-BY-NC-SA-4.0",

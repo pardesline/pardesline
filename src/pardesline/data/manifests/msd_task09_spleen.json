@@ -7,7 +7,14 @@
     "scheme": "archive",
     "url": "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task09_Spleen.tar",
     "format": "tar",
-    "prefix": "Task09_Spleen"
+    "prefix": "Task09_Spleen",
+    "pins": {
+      "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task09_Spleen.tar": {
+        "size_bytes": 1610352640,
+        "etag": "\"a9423005e6378fc0dd63c7ff21dbe64e-192\"",
+        "checked": "2026-11-15"
+      }
+    }
   },
   "license": {
     "spdx": "CC-BY-SA-4.0",

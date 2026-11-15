@@ -20,58 +20,7 @@ __all__ = ["KNOWINGLY_UNPINNED", "pin_status"]
 
 _COMMIT = re.compile(r"^[0-9a-f]{40}$")
 
-_PENDING_HF = (
-    "hub source on the moving 'main' revision; pinning needs the current commit id, read from "
-    "the Hub API (network) - pending the owner's go-ahead (2026-11)"
-)
-_PENDING_ARCHIVE = (
-    "remote archive without checksum or size/ETag pin; reading them needs a HEAD request per "
-    "URL (network) - pending the owner's go-ahead (2026-11)"
-)
-
 KNOWINGLY_UNPINNED: dict[str, str] = {
-    # Hugging Face repos: commit ids not yet read
-    **{
-        name: _PENDING_HF
-        for name in (
-            "hf_3d_arena",
-            "hf_abdomenatlas_mini",
-            "hf_biomedsegfm_3d_val",
-            "hf_ct_rate_valid",
-            "hf_kits23",
-            "hf_kitti360_gs_subset",
-            "hf_nsclc_radiomics",
-            "hf_objaverse_glb_shard",
-            "hf_openmind",
-            "hf_uniocc_carla_mini",
-        )
-    },
-    # remote archives: sizes / ETags not yet read
-    **{
-        name: _PENDING_ARCHIVE
-        for name in (
-            "amos22",
-            "c3vd_endoscopy_splats",
-            "chaos_abdomen",
-            "ixi_brain_mri",
-            "kitti_raw_2011_09_26_drive_0001",
-            "luna16",
-            "msd_task01_braintumour",
-            "msd_task02_heart",
-            "msd_task03_liver",
-            "msd_task04_hippocampus",
-            "msd_task05_prostate",
-            "msd_task06_lung",
-            "msd_task07_pancreas",
-            "msd_task08_hepaticvessel",
-            "msd_task09_spleen",
-            "msd_task10_colon",
-            "spider_lumbar_mri",
-            "totalsegmentator_ct",
-            "totalsegmentator_mri",
-            "verse19_spine",
-        )
-    },
     # sources that cannot be pinned by the manifest format today
     "openneuro_ds000228": (
         "public S3 bucket listed with ListObjectsV2: objects can be added or replaced; "

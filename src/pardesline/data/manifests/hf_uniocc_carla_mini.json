@@ -8,7 +8,8 @@
     "repo_id": "tasl-lab/uniocc",
     "paths": [
       "Carla-10Hz-mini"
-    ]
+    ],
+    "revision": "e81775b36e376f591a1145ca054b72fd541a67eb"
   },
   "license": {
     "spdx": "MIT",

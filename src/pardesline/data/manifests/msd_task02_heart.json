@@ -7,7 +7,14 @@
     "scheme": "archive",
     "url": "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task02_Heart.tar",
     "format": "tar",
-    "prefix": "Task02_Heart"
+    "prefix": "Task02_Heart",
+    "pins": {
+      "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task02_Heart.tar": {
+        "size_bytes": 455721472,
+        "etag": "\"97314f628d2575c7608f8b310465accd-55\"",
+        "checked": "2026-11-15"
+      }
+    }
   },
   "license": {
     "spdx": "CC-BY-SA-4.0",

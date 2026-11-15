@@ -368,7 +368,13 @@ quality, licences, label volumes, runner, manifests).
 - Item 6: `load_volume` keeps float32 by default (registration and filtering expect it); label maps
   are read with their stored type.
 - Item 8: archives are read by HTTP Range and are often several GB; the pin is the server's size
-  and ETag per URL, checked when the archive is opened, not a checksum of the content.
+  and ETag per URL, checked when the archive is opened, not a checksum of the content. Values read on
+  2026-11-15: 10 commit ids, 34 archive URLs (Amazon S3, IXI, KITTI and VerSe send an ETag; Zenodo
+  sends none, but a file of a published Zenodo record cannot be replaced). Live check: the pinned
+  MSD Task04 archive and the KiTS23 repo at its pinned commit both load.
+- Item 9: AMOS22, read 2026-11-15: Zenodo record 7262581 states CC-BY-4.0 (API and page), the
+  archive's `amos22/dataset.json` states CC-BY-SA 4.0, the challenge home page states nothing. The
+  manifest keeps the more restrictive CC-BY-SA-4.0 and its note records the three statements.
 
 ### X7, continued: not repeatable on macOS
 

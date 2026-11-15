@@ -10,7 +10,24 @@
       "https://s3.bonescreen.de/public/VerSe-complete/dataset-verse19training.zip",
       "https://s3.bonescreen.de/public/VerSe-complete/dataset-verse19validation.zip",
       "https://s3.bonescreen.de/public/VerSe-complete/dataset-verse19test.zip"
-    ]
+    ],
+    "pins": {
+      "https://s3.bonescreen.de/public/VerSe-complete/dataset-verse19training.zip": {
+        "size_bytes": 6991481921,
+        "etag": "\"365fb00b3eaf63da43d0fbe3353db957-13\"",
+        "checked": "2026-11-15"
+      },
+      "https://s3.bonescreen.de/public/VerSe-complete/dataset-verse19validation.zip": {
+        "size_bytes": 2162900394,
+        "etag": "\"ae959543d1a50b909f4cfaba05e9bed3-4\"",
+        "checked": "2026-11-15"
+      },
+      "https://s3.bonescreen.de/public/VerSe-complete/dataset-verse19test.zip": {
+        "size_bytes": 3099555838,
+        "etag": "\"b86ec6e73d1ce2bd1191c9c4355fff32-6\"",
+        "checked": "2026-11-15"
+      }
+    }
   },
   "license": {
     "spdx": "CC-BY-SA-4.0",

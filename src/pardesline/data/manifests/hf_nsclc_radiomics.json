@@ -8,7 +8,8 @@
     "repo_id": "farrell236/NSCLC-Radiomics-NIFTI",
     "paths": [
       "NSCLC-Radiomics-NIFTI"
-    ]
+    ],
+    "revision": "a23d5b824e2bf93e29bdc94188f157fa9eb2f3ca"
   },
   "license": {
     "spdx": "CC-BY-3.0",

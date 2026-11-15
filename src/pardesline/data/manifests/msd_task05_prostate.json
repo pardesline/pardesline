@@ -7,7 +7,14 @@
     "scheme": "archive",
     "url": "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task05_Prostate.tar",
     "format": "tar",
-    "prefix": "Task05_Prostate"
+    "prefix": "Task05_Prostate",
+    "pins": {
+      "https://msd-for-monai.s3-us-west-2.amazonaws.com/Task05_Prostate.tar": {
+        "size_bytes": 239839232,
+        "etag": "\"db8d37ca8a0acb20f0e6f044dc000d99-29\"",
+        "checked": "2026-11-15"
+      }
+    }
   },
   "license": {
     "spdx": "CC-BY-SA-4.0",
