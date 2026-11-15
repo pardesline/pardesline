@@ -1,7 +1,8 @@
 """
 Depth Colorization — adapted from PardesLine 09_stereo_disparity_3D.
 
-Colors a point cloud based on depth (Z-coordinate) using a colormap.
+Colors a point cloud by its z coordinate using a colormap. z equals depth only in a camera
+frame whose z axis is the optical axis.
 
 CONTRACT:
   python depth_colorization.py --input <pcd_file> --output <pcd_file> [--colormap N]
@@ -18,7 +19,8 @@ def main():
     parser = argparse.ArgumentParser(description="Depth Colorization")
     parser.add_argument("--input", required=True, help="Input point cloud file")
     parser.add_argument("--output", required=True, help="Output point cloud file")
-    parser.add_argument("--colormap", type=int, default=0, help="Colormap: 0=jet, 1=viridis, 2=plasma, 3=turbo")
+    parser.add_argument("--colormap", type=int, default=0, choices=[0, 1, 2, 3],
+                        help="Colormap: 0=jet, 1=viridis, 2=plasma, 3=turbo")
     args = parser.parse_args()
 
     logger.info("Loading point cloud from {}", args.input)

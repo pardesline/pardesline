@@ -13,12 +13,12 @@ def main():
     parser = argparse.ArgumentParser(description="Clip by bounding box")
     parser.add_argument("--input", required=True)
     parser.add_argument("--output", required=True)
-    parser.add_argument("--x_min", type=float, default=-0.5)
-    parser.add_argument("--x_max", type=float, default=0.5)
-    parser.add_argument("--y_min", type=float, default=-0.5)
-    parser.add_argument("--y_max", type=float, default=0.5)
-    parser.add_argument("--z_min", type=float, default=-0.5)
-    parser.add_argument("--z_max", type=float, default=0.5)
+    parser.add_argument("--x_min", type=float, default=None, help="Box bound in file units (required)")
+    parser.add_argument("--x_max", type=float, default=None, help="Box bound in file units (required)")
+    parser.add_argument("--y_min", type=float, default=None, help="Box bound in file units (required)")
+    parser.add_argument("--y_max", type=float, default=None, help="Box bound in file units (required)")
+    parser.add_argument("--z_min", type=float, default=None, help="Box bound in file units (required)")
+    parser.add_argument("--z_max", type=float, default=None, help="Box bound in file units (required)")
     # Advanced PyVista clip_box() knobs. NOTE: invert defaults to False here to match
     # the script's original hardcoded invert=False (PyVista's own default is True).
     parser.add_argument("--invert", type=_b, default=False)
@@ -31,6 +31,9 @@ def main():
     logger.info("Loaded dataset: {} points, {} cells", ds.n_points, ds.n_cells)
 
     bounds = [args.x_min, args.x_max, args.y_min, args.y_max, args.z_min, args.z_max]
+    if any(b is None for b in bounds):
+        logger.error("All six bounds (--x_min ... --z_max) are required; data bounds are {}", list(ds.bounds))
+        sys.exit(1)
     logger.info("Clip box bounds: {}", bounds)
     logger.info("Advanced: invert={}, merge_points={}, crinkle={}", args.invert, args.merge_points, args.crinkle)
 
@@ -41,6 +44,9 @@ def main():
         logger.info("Converting result to PolyData via extract_surface")
         result = result.extract_surface()
 
+    if result.n_points == 0:
+        logger.error("The box kept no point; data bounds are {}", list(ds.bounds))
+        sys.exit(1)
     result.save(args.output)
     logger.info("Clipped by box: {} -> {} points", ds.n_points, result.n_points)
 

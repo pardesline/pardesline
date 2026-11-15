@@ -31,8 +31,9 @@ Severity words: wrong result silently / crash / misleading output / cosmetic.
   ```python
   def compute_difference_thresholded(fixed, registered, lower_threshold=50.0, upper_threshold=400.0):
       ...
-      thresholded = sitk.BinaryThreshold(diff, lowerThreshold=lower_threshold,
-                                          upperThreshold=upper_threshold, insideValue=1, outsideValue=0)
+      thresholded = sitk.BinaryThreshold(
+          diff, lowerThreshold=lower_threshold, upperThreshold=upper_threshold, insideValue=1, outsideValue=0
+      )
       high_diff_voxels = int(np.count_nonzero(sitk.GetArrayFromImage(thresholded)))
   ```
 - What goes wrong: `high_diff_voxels` / `high_diff_percentage`, the summary of misalignment, count
@@ -82,9 +83,11 @@ Severity words: wrong result silently / crash / misleading output / cosmetic.
   `register_rigid`).
 - Faulty code:
   ```python
-  init_method = (sitk.CenteredTransformInitializerFilter.GEOMETRY
-                if method == "GEOMETRY" else
-                sitk.CenteredTransformInitializerFilter.MOMENTS)
+  init_method = (
+      sitk.CenteredTransformInitializerFilter.GEOMETRY
+      if method == "GEOMETRY"
+      else sitk.CenteredTransformInitializerFilter.MOMENTS
+  )
   ```
 - What goes wrong: any value other than the exact string `"GEOMETRY"` (for example `"geometry"`, as
   `register_affine` accepts, or a typo) runs the MOMENTS initializer without a message.
@@ -111,3 +114,82 @@ Severity words: wrong result silently / crash / misleading output / cosmetic.
   other name.
 - Severity: wrong result silently (Python API; the command line restricts the choices).
 - Test: `test_x04_unknown_metric_name_is_an_error`.
+
+## Point clouds
+
+### X5. CPD registers the fixed cloud with a deformed copy of itself when `--moving` is omitted
+
+- File: `src/pardesline/ops/deformable_registration/cpd_deformable.py`, `main`, the `else` branch
+  after `if args.moving:` (lines 56-82 of 0.3.1).
+- Faulty code:
+  ```python
+  parser.add_argument("--moving", default=None, ...)
+  ...
+  else:
+      logger.info("No --moving provided, creating synthetic deformed target (demo mode)")
+      source_pts_world = target_pts_world.copy()
+  ```
+- What goes wrong: the same failure as audit entries P1-20 and P2-A1, in a script the audit did not
+  list for it: a forgotten argument produces a normal-looking output of a registration that never
+  involved the second cloud, with exit code 0.
+- Measured: `cpd_deformable.py --input fixed.ply --output o.ply` exited 0 and wrote a result.
+- Corrected code: `--moving` is required (argparse exits with code 2 without it); the demo branch is
+  removed.
+- Severity: misleading output.
+- Test: `test_x05_cpd_requires_moving`.
+
+### X6. RANSAC plane fits are not seeded
+
+- Files: `src/pardesline/ops/point_cloud_segmentation/ransac_plane.py`,
+  `src/pardesline/ops/lidar_scene_detection/ground_removal.py`,
+  `src/pardesline/ops/lidar_scene_detection/object_clustering.py` (`pcd.segment_plane(...)`).
+- What goes wrong: `segment_plane` draws its samples from Open3D's global random generator, which no
+  script seeded: the plane, the inliers and everything downstream (ground removal, clusters) change
+  from run to run. Same class as audit entry P2-A3, in three scripts it did not list.
+- Measured: on the audit's SCENE (plane of 8000 points, two spheres, 150 outliers) with 20
+  iterations, repeated runs gave different inlier sets before the fix and identical ones after.
+- Corrected code: a `seed` parameter (default 0) and `o3d.utility.random.seed(args.seed)` before
+  `segment_plane`, plus the single-thread setting of X7.
+- Severity: misleading output (non-reproducible results).
+- Test: `test_x06_plane_ransac_is_seeded` (two scripts; object_clustering shares the code path).
+
+### X7. Seeding Open3D's RANSAC does not make it reproducible (the audit's fix for P2-A3 is incomplete)
+
+- Files: `src/pardesline/ops/registration/*.py` and the three scripts of X6.
+- What goes wrong: Open3D runs RANSAC iterations in parallel OpenMP threads that draw from one
+  global generator, so the sequence each iteration receives depends on thread scheduling. With
+  `o3d.utility.random.seed(s)` alone, as the audit proposes, two runs with the same seed still differ.
+  The audit's claim "with a fixed seed, repeated runs gave identical matrices" did not hold here
+  (Open3D 0.19.0, Windows, 16 threads).
+- Measured: `ransac_global` on a near-symmetric 4000-point pair, `--seed 5 --restarts 2`, three runs:
+  rotation errors 5.06, 7.15 and 5.06 degrees with the default thread count; 5.06 degrees three
+  times with `OMP_NUM_THREADS=1` (run time 13.5 s -> 19.7 s for the three runs).
+- Corrected code: each RANSAC script sets the variable before importing Open3D:
+  ```python
+  import os
+
+  os.environ["OMP_NUM_THREADS"] = "1"  # must precede "import open3d"
+  ```
+  It takes effect in the process that runs the script (the runner always starts one); a caller that
+  imports a script's `main` into a process where Open3D is already loaded keeps its thread count.
+- Severity: misleading output (non-reproducible results under a seed).
+- Test: `test_p2_a03_x07_same_seed_same_result`, `test_x06_plane_ransac_is_seeded` (both run the
+  scripts in a fresh interpreter, as the runner does).
+
+### X8. `height_colorization` accepts any colormap number
+
+- File: `src/pardesline/ops/lidar_scene_detection/height_colorization.py`, `main`.
+- Faulty code: `cmap_name = cmap_names.get(args.colormap, 'viridis')`.
+- What goes wrong: a number outside 0-3 silently uses viridis (same pattern as P2-A16's colormap
+  legends).
+- Measured: `--colormap 9` exited 0.
+- Corrected code: `choices=[0, 1, 2, 3]` (argparse error otherwise); catalog `max` 3.
+- Severity: cosmetic.
+- Test: `test_x08_height_colorization_unknown_colormap_is_an_error`.
+
+### Note on audit entry P2-A4 (two ICP passes)
+
+Two passes (1.5 v then 0.4 v) are a large improvement but not a complete fix on near-symmetric
+parts: from 20 starts off by 5 degrees and N(0, 2v), one pass at 0.4 v ended above 0.1 mm in 18,
+two passes in 1 (box-like part with small features). The remaining case is what the pipeline's
+restarts with a threshold-free score and the symmetry probe are for.

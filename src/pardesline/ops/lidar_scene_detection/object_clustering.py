@@ -7,6 +7,12 @@ CONTRACT:
   python object_clustering.py --input <pcd_file> --output <pcd_file> [--ground_threshold F] [--cluster_eps F] [--min_cluster_points N]
 """
 
+import os
+
+# Open3D draws RANSAC samples from one global generator in parallel threads: a seeded run
+# is reproducible only on one thread (audit 2026-11, X7). Must precede "import open3d".
+os.environ["OMP_NUM_THREADS"] = "1"
+
 import argparse
 import sys
 import numpy as np
@@ -25,6 +31,7 @@ def main():
     parser.add_argument("--num_iterations", type=int, default=1000, help="Ground-plane RANSAC iterations")
     parser.add_argument("--print_progress", type=lambda v: str(v).strip().lower() in
                         ("1", "true", "yes", "on", "y", "t"), default=False, help="Print DBSCAN progress")
+    parser.add_argument("--seed", type=int, default=0, help="Seed of the ground-plane RANSAC")
     args = parser.parse_args()
 
     logger.info("Loading point cloud from {}", args.input)
@@ -40,6 +47,7 @@ def main():
 
     # Step 1: Remove ground
     logger.info("Step 1: RANSAC ground plane segmentation")
+    o3d.utility.random.seed(args.seed)
     plane_model, inliers = pcd.segment_plane(
         distance_threshold=args.ground_threshold,
         ransac_n=args.ransac_n,
@@ -50,9 +58,9 @@ def main():
                 len(non_ground.points), len(inliers))
 
     if non_ground.is_empty():
-        logger.error("No non-ground points found")
-        o3d.io.write_point_cloud(args.output, pcd)
-        sys.exit(0)
+        logger.error("No non-ground points found (ground_threshold {} too large for the data unit?)",
+                     args.ground_threshold)
+        sys.exit(1)
 
     # Step 2: DBSCAN clustering
     logger.info("Step 2: DBSCAN clustering (eps={}, min_points={})",

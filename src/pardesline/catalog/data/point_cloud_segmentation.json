@@ -35,10 +35,10 @@
         {
           "name": "distance_threshold",
           "type": "float",
-          "default": 0.01,
+          "default": null,
           "min": 0.001,
-          "max": 0.1,
-          "description": "Maximum distance from point to plane for inlier."
+          "max": 1000000.0,
+          "description": "Inlier distance threshold in file units (required; about 2-3x the noise of the plane)."
         },
         {
           "name": "num_iterations",
@@ -64,6 +64,15 @@
           "min": 0,
           "max": 1,
           "description": "Expected probability of finding the best plane (early-stop confidence).",
+          "advanced": true
+        },
+        {
+          "name": "seed",
+          "type": "int",
+          "default": 0,
+          "min": 0,
+          "max": 2147483647,
+          "description": "Seed of Open3D's RANSAC plane fit (same seed, same plane).",
           "advanced": true
         }
       ]

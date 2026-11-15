@@ -1,7 +1,8 @@
 """
 Intensity Colorization — adapted from PardesLine 11_lidar_cam_aligned_viewer.
 
-Colors point cloud by intensity/reflectance (if available) or by distance from sensor.
+Colors a point cloud by the distance of each point from the origin (0, 0, 0), taken as
+the sensor position. No intensity or reflectance field is read.
 
 CONTRACT:
   python intensity_colorization.py --input <pcd_file> --output <pcd_file> [--colormap N]
@@ -18,7 +19,8 @@ def main():
     parser = argparse.ArgumentParser(description="Intensity Colorization")
     parser.add_argument("--input", required=True, help="Input point cloud file")
     parser.add_argument("--output", required=True, help="Output point cloud file")
-    parser.add_argument("--colormap", type=int, default=0, help="Colormap: 0=distance, 1=viridis, 2=plasma")
+    parser.add_argument("--colormap", type=int, default=0, choices=[0, 1, 2],
+                        help="Colormap of the distance: 0=custom warm-to-cool ramp, 1=viridis, 2=plasma")
     args = parser.parse_args()
 
     logger.info("Loading point cloud from {}", args.input)

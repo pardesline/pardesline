@@ -5,10 +5,12 @@ Registers a moving point cloud onto a fixed point cloud using Coherent Point Dri
 
 CONTRACT:
   python cpd_deformable.py --input <fixed.ply> --output <registered.ply> \
-      [--moving <moving.ply>] [--beta F] [--lambda_val F] [--max_iterations N]
+      --moving <moving.ply> [--beta F] [--lambda_val F] [--max_iterations N]
 
-If --moving is provided, deforms moving (source) to fit fixed (target).
-If --moving is omitted, creates a synthetic Gaussian-deformed target for demo purposes.
+Deforms moving (source) to fit fixed (target). Both clouds are normalised with one
+centre and one scale (the root-mean-square distance of all points to the joint
+centroid), so beta (kernel width) and lambda_val (pycpd alpha) mean the same for any
+unit and point count.
 """
 
 import argparse
@@ -22,8 +24,8 @@ def main():
     parser = argparse.ArgumentParser(description="CPD Deformable Registration")
     parser.add_argument("--input", required=True, help="Fixed (target) point cloud file")
     parser.add_argument("--output", required=True, help="Output point cloud file")
-    parser.add_argument("--moving", default=None, help="Moving (source) point cloud to register to fixed")
-    parser.add_argument("--beta", type=float, default=100.0, help="CPD smoothness parameter")
+    parser.add_argument("--moving", required=True, help="Moving (source) point cloud to register to fixed")
+    parser.add_argument("--beta", type=float, default=2.0, help="CPD Gaussian kernel width, in normalised units")
     parser.add_argument("--lambda_val", type=float, default=2.0, help="CPD regularization weight")
     parser.add_argument("--max_iterations", type=int, default=100, help="Max CPD iterations")
     parser.add_argument("--tolerance", type=float, default=0.001, help="Convergence tolerance")
@@ -31,9 +33,15 @@ def main():
     parser.add_argument("--w", type=float, default=0.0, help="Outlier/noise weight")
     parser.add_argument("--low_rank", type=lambda v: str(v).strip().lower() in
                         ("1", "true", "yes", "on", "y", "t"), default=False,
-                        help="Use low-rank Gaussian-kernel acceleration")
-    parser.add_argument("--num_eig", type=int, default=100, help="Eigenvectors when low_rank=True")
+                        help="Not supported by pycpd 2: true is refused")
+    parser.add_argument("--num_eig", type=int, default=100, help="Ignored (only meaningful with low_rank)")
     args = parser.parse_args()
+    if args.low_rank:
+        logger.error("--low_rank is not supported by the installed pycpd (2.x ignores it silently); "
+                     "run without it")
+        sys.exit(1)
+    if args.num_eig != 100:
+        logger.warning("--num_eig is ignored: it only applies to low_rank, which pycpd 2.x does not support")
 
     logger.info("Loading fixed (target) point cloud: {}", args.input)
     logger.info("Parameters: beta={}, lambda_val={}, max_iterations={}, tolerance={}",
@@ -45,46 +53,19 @@ def main():
     target_pts_world = np.asarray(target_pcd_in.points)
     logger.info("Fixed has {} points", len(target_pts_world))
 
-    if args.moving:
-        logger.info("Loading moving (source) point cloud: {}", args.moving)
-        source_pcd_in = o3d.io.read_point_cloud(args.moving)
-        if source_pcd_in.is_empty():
-            logger.error("Moving point cloud is empty")
-            sys.exit(1)
-        source_pts_world = np.asarray(source_pcd_in.points)
-        logger.info("Moving has {} points (real registration)", len(source_pts_world))
-    else:
-        logger.info("No --moving provided, creating synthetic deformed target (demo mode)")
-        # Synthetic mode: source = original, target = deformed copy
-        from scipy.spatial import cKDTree
-        source_pts_world = target_pts_world.copy()
-        cloud_center = np.mean(target_pts_world, axis=0)
-        x_left = np.min(target_pts_world[:, 0])
-        bbox_diag = float(np.linalg.norm(target_pts_world.max(axis=0) - target_pts_world.min(axis=0)))
-        pressure_center = np.array([x_left, cloud_center[1], cloud_center[2]])
-        radius = 0.1 * bbox_diag
-        direction = np.array([1.0, 0.0, 0.0])
-        max_displacement = 0.003 * bbox_diag
-
-        tree = cKDTree(target_pts_world)
-        affected = tree.query_ball_point(pressure_center, r=radius)
-        deformation = np.zeros_like(target_pts_world)
-        if len(affected) > 0:
-            affected_pts = target_pts_world[affected]
-            distances = np.linalg.norm(affected_pts - pressure_center, axis=1)
-            sigma = radius / 2.0
-            weights = np.exp(-(distances ** 2) / (2 * sigma ** 2))
-            displacements = weights[:, np.newaxis] * max_displacement * direction
-            for i, idx in enumerate(affected):
-                deformation[idx] = displacements[i]
-        target_pts_world = source_pts_world + deformation
-        logger.info("Synthetic deformation applied to {} points (radius={}, max_displacement={})",
-                    len(affected), radius, max_displacement)
+    logger.info("Loading moving (source) point cloud: {}", args.moving)
+    source_pcd_in = o3d.io.read_point_cloud(args.moving)
+    if source_pcd_in.is_empty():
+        logger.error("Moving point cloud is empty")
+        sys.exit(1)
+    source_pts_world = np.asarray(source_pcd_in.points)
+    logger.info("Moving has {} points", len(source_pts_world))
 
     # Joint normalization: use combined center+scale so source/target share a frame
     combined = np.vstack([source_pts_world, target_pts_world])
     center = np.mean(combined, axis=0)
-    scale = np.linalg.norm(combined - center)
+    # RMS distance to the joint centroid (np.linalg.norm of the whole array grew with sqrt(N))
+    scale = float(np.sqrt(((combined - center) ** 2).sum(axis=1).mean()))
     if scale == 0:
         logger.error("Degenerate point cloud (scale=0)")
         sys.exit(1)
@@ -107,10 +88,8 @@ def main():
         beta=args.beta,
         alpha=args.lambda_val,
         max_iterations=args.max_iterations,
-        tol=args.tolerance,
+        tolerance=args.tolerance,  # pycpd 2 name; 'tol', 'low_rank', 'num_eig' were swallowed
         w=args.w,
-        low_rank=args.low_rank,
-        num_eig=args.num_eig,
     )
 
     logger.info("Running CPD registration...")

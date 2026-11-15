@@ -1,7 +1,9 @@
 """
 Depth Filter — adapted from PardesLine 09_stereo_disparity_3D.
 
-Filters a point cloud to keep only points within a depth range.
+Keeps the points whose z coordinate lies between two QUANTILES of z: --min_depth and
+--max_depth are fractions (0-1) of the z distribution, not depths, so the defaults keep
+about 80 % of the points whatever the geometry.
 
 CONTRACT:
   python depth_filter.py --input <pcd_file> --output <pcd_file> [--min_depth F] [--max_depth F]
@@ -18,8 +20,8 @@ def main():
     parser = argparse.ArgumentParser(description="Depth Range Filter")
     parser.add_argument("--input", required=True, help="Input point cloud file")
     parser.add_argument("--output", required=True, help="Output point cloud file")
-    parser.add_argument("--min_depth", type=float, default=0.1, help="Min depth percentile (0-1)")
-    parser.add_argument("--max_depth", type=float, default=0.9, help="Max depth percentile (0-1)")
+    parser.add_argument("--min_depth", type=float, default=0.1, help="Lower quantile of z (fraction 0-1), not a depth")
+    parser.add_argument("--max_depth", type=float, default=0.9, help="Upper quantile of z (fraction 0-1), not a depth")
     args = parser.parse_args()
 
     logger.info("Loading point cloud from {}", args.input)

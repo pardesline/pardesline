@@ -26,7 +26,7 @@
       },
       "gaussian_deformation": {
         "title": "Gaussian Pressure Deformation",
-        "content": "A localized Gaussian deformation:\n$$\\mathbf{d}(\\mathbf{p}) = d_{\\max} \\cdot \\exp\\left(-\\frac{\\|\\mathbf{p} - \\mathbf{c}\\|^2}{2\\sigma^2}\\right) \\cdot \\hat{\\mathbf{n}}$$"
+        "content": "A localized Gaussian deformation, continuous at the radius $r$:\n$$\\mathbf{d}(\\mathbf{p}) = d_{\\max} \\cdot \frac{g(\\|\\mathbf{p} - \\mathbf{c}\\|) - g(r)}{1 - g(r)} \\cdot \\hat{\\mathbf{n}}, \\quad g(d) = \\exp\\left(-\frac{d^2}{2\\sigma^2}\right), \\quad \\|\\mathbf{p} - \\mathbf{c}\\| < r$$\nand 0 beyond $r$."
       }
     }
   },
@@ -52,13 +52,13 @@
           "default": 0.001,
           "min": 0.0001,
           "max": 0.01,
-          "description": "Convergence tolerance."
+          "description": "Convergence tolerance (passed to pycpd as tolerance)."
         },
         {
           "name": "beta",
           "type": "float",
-          "default": 100.0,
-          "description": "CPD Gaussian-kernel width (smoothness).",
+          "default": 2.0,
+          "description": "CPD Gaussian-kernel width (smoothness), in units of the RMS radius of the two clouds.",
           "advanced": true,
           "min": 0.1,
           "max": 200.0
@@ -85,14 +85,14 @@
           "name": "low_rank",
           "type": "bool",
           "default": false,
-          "description": "Use low-rank Gaussian-kernel acceleration.",
+          "description": "Not supported by pycpd 2 (it ignored it silently): true is refused.",
           "advanced": true
         },
         {
           "name": "num_eig",
           "type": "int",
           "default": 100,
-          "description": "Eigenvectors when low_rank=True.",
+          "description": "Ignored: only meaningful with low_rank, which pycpd 2 does not support.",
           "advanced": true,
           "min": 10,
           "max": 500
@@ -108,18 +108,18 @@
         {
           "name": "displacement",
           "type": "float",
-          "default": 0.02,
-          "min": 0.001,
-          "max": 0.1,
-          "description": "Maximum displacement at pressure center."
+          "default": null,
+          "min": 1e-09,
+          "max": 1000000.0,
+          "description": "Maximum displacement at the pressure centre, in file units (required)."
         },
         {
           "name": "radius",
           "type": "float",
-          "default": 0.1,
-          "min": 0.01,
-          "max": 0.5,
-          "description": "Radius of influence."
+          "default": null,
+          "min": 1e-09,
+          "max": 1000000.0,
+          "description": "Radius of influence, in file units (required); no point within it is an error."
         },
         {
           "name": "sigma_factor",

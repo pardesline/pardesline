@@ -18,9 +18,9 @@ def main():
     parser = argparse.ArgumentParser(description="ROI Extraction")
     parser.add_argument("--input", required=True, help="Input point cloud file")
     parser.add_argument("--output", required=True, help="Output point cloud file")
-    parser.add_argument("--x_range", type=float, default=0.5, help="X range factor (0-1) centered on median")
-    parser.add_argument("--y_range", type=float, default=0.5, help="Y range factor (0-1)")
-    parser.add_argument("--z_range", type=float, default=0.8, help="Z range factor (0-1)")
+    parser.add_argument("--x_range", type=float, default=0.5, help="Fraction (0-1) of the x extent kept, centred on the median point (not the box centre)")
+    parser.add_argument("--y_range", type=float, default=0.5, help="Fraction (0-1) of the y extent kept, centred on the median point")
+    parser.add_argument("--z_range", type=float, default=0.8, help="Fraction (0-1) of the z extent kept, centred on the median point")
     args = parser.parse_args()
 
     logger.info("Loading point cloud from {}", args.input)

@@ -46,10 +46,10 @@
         {
           "name": "voxel_size",
           "type": "float",
-          "default": 0.5,
+          "default": 0.0,
           "min": 0,
-          "max": 0.9,
-          "description": "Voxel size for downsampling. 0 = auto-detect (1.3% of bbox diagonal, matches Open3D tutorial)."
+          "max": 1000000.0,
+          "description": "Voxel size for downsampling, in file units, used as given. 0 = auto (1.3% of the fixed bounding-box diagonal)."
         },
         {
           "name": "normal_radius_factor",
@@ -145,6 +145,24 @@
           "min": 0.9,
           "max": 0.9999,
           "advanced": true
+        },
+        {
+          "name": "seed",
+          "type": "int",
+          "default": 0,
+          "min": 0,
+          "max": 2147483647,
+          "advanced": true,
+          "description": "First RANSAC seed; restart k uses seed + k. Same seed, same result."
+        },
+        {
+          "name": "restarts",
+          "type": "int",
+          "default": 8,
+          "min": 1,
+          "max": 100,
+          "advanced": true,
+          "description": "Number of RANSAC runs; the pose with the best threshold-free distance score wins."
         }
       ]
     },
@@ -157,10 +175,10 @@
         {
           "name": "voxel_size",
           "type": "float",
-          "default": 0.5,
+          "default": 0.0,
           "min": 0,
-          "max": 0.9,
-          "description": "Voxel size for downsampling. 0 = auto-detect (1.3% of bbox diagonal, matches Open3D tutorial)."
+          "max": 1000000.0,
+          "description": "Voxel size for downsampling, in file units, used as given. 0 = auto (1.3% of the fixed bounding-box diagonal)."
         },
         {
           "name": "max_iterations",
@@ -320,6 +338,15 @@
           "min": 0.0,
           "max": 1.0,
           "advanced": true
+        },
+        {
+          "name": "seed",
+          "type": "int",
+          "default": 0,
+          "min": 0,
+          "max": 2147483647,
+          "advanced": true,
+          "description": "Seed of the RANSAC pre-pass that gives ICP its starting pose."
         }
       ]
     },
@@ -332,10 +359,10 @@
         {
           "name": "voxel_size",
           "type": "float",
-          "default": 0.5,
+          "default": 0.0,
           "min": 0,
-          "max": 0.9,
-          "description": "Voxel size for downsampling. 0 = auto-detect (1.3% of bbox diagonal, matches Open3D tutorial)."
+          "max": 1000000.0,
+          "description": "Voxel size for downsampling, in file units, used as given. 0 = auto (1.3% of the fixed bounding-box diagonal)."
         },
         {
           "name": "rotation_degrees",
@@ -343,7 +370,7 @@
           "default": 45.0,
           "min": 5.0,
           "max": 90.0,
-          "description": "Synthetic rotation for DEMO MODE only (when no moving cloud is connected). Ignored in real registration.",
+          "description": "Ignored: it set the rotation of the self-registration demo, removed in 0.4.0 (--moving is required).",
           "demo_only": true
         },
         {
@@ -445,9 +472,18 @@
           "name": "icp_threshold_factor",
           "type": "float",
           "default": 0.4,
-          "description": "ICP correspondence distance as a multiple of voxel_size.",
+          "description": "Final ICP pass at this multiple of the voxel size.",
           "min": 0.2,
           "max": 2.0,
+          "advanced": true
+        },
+        {
+          "name": "icp_coarse_threshold_factor",
+          "type": "float",
+          "default": 1.5,
+          "min": 0.0,
+          "max": 10.0,
+          "description": "First ICP pass at this multiple of the voxel size, before the final pass (0 = single pass).",
           "advanced": true
         },
         {
@@ -464,7 +500,7 @@
         {
           "name": "icp_max_iteration",
           "type": "int",
-          "default": 30,
+          "default": 100,
           "description": "Max ICP iterations.",
           "min": 1,
           "max": 2000,
@@ -486,6 +522,57 @@
           "description": "ICP stop threshold on RMSE change.",
           "min": 1e-08,
           "max": 0.001,
+          "advanced": true
+        },
+        {
+          "name": "seed",
+          "type": "int",
+          "default": 0,
+          "min": 0,
+          "max": 2147483647,
+          "advanced": true,
+          "description": "First RANSAC seed; restart k uses seed + k. Same seed, same result."
+        },
+        {
+          "name": "restarts",
+          "type": "int",
+          "default": 8,
+          "min": 1,
+          "max": 100,
+          "advanced": true,
+          "description": "Number of RANSAC seeds, each refined by ICP; the best-scoring pose wins."
+        },
+        {
+          "name": "symmetry_probe",
+          "type": "bool",
+          "default": true,
+          "description": "Also refine the winner turned 90/180/270 degrees about each principal axis, to test symmetric alternatives.",
+          "advanced": true
+        },
+        {
+          "name": "score_upper_quantile",
+          "type": "float",
+          "default": 0.9,
+          "min": 0.1,
+          "max": 1.0,
+          "description": "Highest distance quantile in the pose score; keep it below the fraction of the moving cloud that overlaps the fixed one.",
+          "advanced": true
+        },
+        {
+          "name": "ambiguity_margin",
+          "type": "float",
+          "default": 0.1,
+          "min": 0.0,
+          "max": 1.0,
+          "description": "A different pose scoring within this relative margin of the winner makes the result ambiguous.",
+          "advanced": true
+        },
+        {
+          "name": "on_ambiguous",
+          "type": "enum",
+          "default": "error",
+          "options": ["error", "warn"],
+          "description": "error: exit code 3 when the result is ambiguous (output and JSON still written); warn: log and exit 0.",
           "advanced": true
         }
       ]

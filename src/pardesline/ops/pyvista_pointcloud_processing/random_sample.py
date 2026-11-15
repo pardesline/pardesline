@@ -19,7 +19,7 @@ def main():
     # seed=-1 sentinel means no seeding (original behavior, uses global RNG state);
     # adjacent_cells / include_cells passed to extract_points (PyVista defaults True).
     parser.add_argument("--replace", type=_b, default=False)
-    parser.add_argument("--seed", type=int, default=-1)
+    parser.add_argument("--seed", type=int, default=0, help="Random seed (same seed, same points)")
     parser.add_argument("--adjacent_cells", type=_b, default=True)
     parser.add_argument("--include_cells", type=_b, default=True)
     args = parser.parse_args()
@@ -40,14 +40,23 @@ def main():
         logger.error("Input has no points")
         sys.exit(1)
 
-    if args.seed >= 0:
-        logger.info("Seeding RNG with seed={}", args.seed)
-        np.random.seed(args.seed)
+    rng = np.random.default_rng(args.seed if args.seed >= 0 else None)
+    if args.seed < 0:
+        logger.warning("seed {} < 0: unseeded, the selection changes from run to run", args.seed)
 
     n_keep = max(1, int(n * args.fraction))
     logger.info("Selecting {} points from {} total", n_keep, n)
-    indices = np.random.choice(n, size=n_keep, replace=args.replace)
-    indices.sort()
+    indices = np.sort(rng.choice(n, size=n_keep, replace=args.replace))
+
+    if args.replace:
+        # extract_points collapses repeated indices: write the duplicates explicitly.
+        result = pv.PolyData(np.asarray(ds.points)[indices])
+        for name in ds.point_data.keys():
+            result.point_data[name] = np.asarray(ds.point_data[name])[indices]
+        result.save(args.output)
+        logger.info("Random sample with replacement: {} -> {} points ({} distinct)", n, result.n_points,
+                    len(np.unique(indices)))
+        return
 
     logger.info("Extracting sampled points")
     result = ds.extract_points(indices, adjacent_cells=args.adjacent_cells, include_cells=args.include_cells)

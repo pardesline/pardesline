@@ -7,6 +7,12 @@ CONTRACT:
   python ground_removal.py --input <pcd_file> --output <pcd_file> [--distance_threshold F]
 """
 
+import os
+
+# Open3D draws RANSAC samples from one global generator in parallel threads: a seeded run
+# is reproducible only on one thread (audit 2026-11, X7). Must precede "import open3d".
+os.environ["OMP_NUM_THREADS"] = "1"
+
 import argparse
 import sys
 import numpy as np
@@ -21,6 +27,7 @@ def main():
     parser.add_argument("--distance_threshold", type=float, default=0.3, help="Distance threshold for ground plane")
     parser.add_argument("--ransac_n", type=int, default=3, help="Points sampled per RANSAC iteration")
     parser.add_argument("--num_iterations", type=int, default=1000, help="RANSAC iterations")
+    parser.add_argument("--seed", type=int, default=0, help="Seed of Open3D's RANSAC")
     args = parser.parse_args()
 
     logger.info("Loading point cloud from {}", args.input)
@@ -35,6 +42,7 @@ def main():
 
     # RANSAC plane segmentation
     logger.info("Running RANSAC plane segmentation (ransac_n=3, iterations=1000)")
+    o3d.utility.random.seed(args.seed)
     plane_model, inliers = pcd.segment_plane(
         distance_threshold=args.distance_threshold,
         ransac_n=args.ransac_n,

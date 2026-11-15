@@ -113,8 +113,15 @@ def asym_object_points(n: int, seed: int = 0, feature: float = 1.0) -> np.ndarra
     return np.vstack(pts)
 
 
-def registration_pair(n: int = 6000, rot_deg=(20.0, -35.0, 120.0), shift=(15.0, -8.0, 5.0),
-                      overlap: float = 0.7, noise: float = 0.1, seed: int = 0, feature: float = 1.0):
+def registration_pair(
+    n: int = 6000,
+    rot_deg=(20.0, -35.0, 120.0),
+    shift=(15.0, -8.0, 5.0),
+    overlap: float = 0.7,
+    noise: float = 0.1,
+    seed: int = 0,
+    feature: float = 1.0,
+):
     """(fixed, moving, T) in mm: two independent samplings of the asymmetric object, the
     moving one cropped to ``overlap`` of its points and moved; T maps moving onto fixed."""
     rng = np.random.default_rng(seed + 1000)

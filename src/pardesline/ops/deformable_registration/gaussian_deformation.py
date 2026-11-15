@@ -1,10 +1,15 @@
 """
 Gaussian Deformation — adapted from PardesLine functions_for_deformation.
 
-Applies a localized Gaussian pressure deformation to a point cloud.
+Applies a localized Gaussian pressure deformation to a point cloud: every point within
+--radius of the pressure centre (min x, mean y, mean z) moves along +x by
+displacement * (g(d) - g(r)) / (1 - g(r)), g(d) = exp(-d^2 / (2 sigma^2)),
+sigma = sigma_factor * radius. The field equals --displacement at the centre and falls
+continuously to 0 at the radius (a plain truncated Gaussian jumped from 13.5 % of the
+displacement to 0 there, tearing the surface). Lengths are in the unit of the file.
 
 CONTRACT:
-  python gaussian_deformation.py --input <pcd_file> --output <pcd_file> [--radius F] [--displacement F]
+  python gaussian_deformation.py --input <pcd_file> --output <pcd_file> --radius F --displacement F
 """
 
 import argparse
@@ -18,8 +23,8 @@ def main():
     parser = argparse.ArgumentParser(description="Gaussian Deformation")
     parser.add_argument("--input", required=True, help="Input point cloud file")
     parser.add_argument("--output", required=True, help="Output point cloud file")
-    parser.add_argument("--radius", type=float, default=0.1, help="Radius of influence")
-    parser.add_argument("--displacement", type=float, default=0.02, help="Max displacement at center")
+    parser.add_argument("--radius", type=float, required=True, help="Radius of influence, in file units")
+    parser.add_argument("--displacement", type=float, required=True, help="Max displacement at center, in file units")
     parser.add_argument("--sigma_factor", type=float, default=0.5,
                         help="Gaussian falloff sigma as a fraction of radius")
     args = parser.parse_args()
@@ -53,10 +58,15 @@ def main():
     sigma = args.radius * args.sigma_factor
     logger.info("Gaussian sigma={:.6f}, querying neighbors within radius={}", sigma, args.radius)
 
+    if len(affected) == 0:
+        logger.error("No point within radius {} of the pressure centre {} (data bounds {} .. {}): "
+                     "nothing would move", args.radius, pressure_center, points.min(axis=0), points.max(axis=0))
+        sys.exit(1)
     if len(affected) > 0:
         affected_pts = points[affected]
         distances = np.linalg.norm(affected_pts - pressure_center, axis=1)
-        weights = np.exp(-(distances ** 2) / (2 * sigma ** 2))
+        g_r = np.exp(-(args.radius ** 2) / (2 * sigma ** 2))
+        weights = (np.exp(-(distances ** 2) / (2 * sigma ** 2)) - g_r) / (1.0 - g_r)  # 0 at the radius
         displacements = weights[:, np.newaxis] * args.displacement * direction
         for i, idx in enumerate(affected):
             deformation[idx] = displacements[i]

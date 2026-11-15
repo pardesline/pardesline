@@ -13,9 +13,9 @@ def main():
     parser = argparse.ArgumentParser(description="Clip by plane")
     parser.add_argument("--input", required=True)
     parser.add_argument("--output", required=True)
-    parser.add_argument("--origin_x", type=float, default=0.0)
-    parser.add_argument("--origin_y", type=float, default=0.0)
-    parser.add_argument("--origin_z", type=float, default=0.0)
+    parser.add_argument("--origin_x", type=float, default=None, help="Plane origin x (default: dataset centre)")
+    parser.add_argument("--origin_y", type=float, default=None, help="Plane origin y (default: dataset centre)")
+    parser.add_argument("--origin_z", type=float, default=None, help="Plane origin z (default: dataset centre)")
     parser.add_argument("--normal_x", type=float, default=1.0)
     parser.add_argument("--normal_y", type=float, default=0.0)
     parser.add_argument("--normal_z", type=float, default=0.0)
@@ -29,7 +29,7 @@ def main():
     ds = pv.read(args.input)
     logger.info("Loaded dataset: {} points, {} cells", ds.n_points, ds.n_cells)
 
-    origin = (args.origin_x, args.origin_y, args.origin_z)
+    origin = tuple(ds.center[i] if v is None else v for i, v in enumerate((args.origin_x, args.origin_y, args.origin_z)))
     normal = (args.normal_x, args.normal_y, args.normal_z)
     logger.info("Clip plane parameters: origin={}, normal={}", origin, normal)
     logger.info("Advanced: invert={}, value={}, crinkle={}", args.invert, args.value, args.crinkle)
@@ -41,6 +41,10 @@ def main():
         logger.info("Converting result to PolyData via extract_surface")
         result = result.extract_surface()
 
+    if result.n_points == 0:
+        logger.error("The clip kept no point (origin {}, normal {}, invert {}); data bounds are {}",
+                     origin, normal, args.invert, list(ds.bounds))
+        sys.exit(1)
     result.save(args.output)
     logger.info("Clipped by plane: {} -> {} points", ds.n_points, result.n_points)
 

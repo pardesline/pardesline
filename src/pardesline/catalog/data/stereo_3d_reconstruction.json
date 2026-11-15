@@ -22,11 +22,11 @@
     "methods": {
       "depth_colorization": {
         "title": "Depth Colorization",
-        "content": "**1. Distance Computation**\nFor each point $p_i$ in the cloud, the Euclidean distance from the origin (camera center) is computed:\n$$d_i = \\|p_i - \\mathbf{o}\\|_2 = \\sqrt{x_i^2 + y_i^2 + z_i^2}$$\n\n**2. Normalization and Colormap**\nDistances are normalized to $[0, 1]$ and mapped through a perceptually uniform colormap (jet, viridis, plasma, or turbo):\n$$c_i = \\text{colormap}\\left(\\frac{d_i - d_{\\min}}{d_{\\max} - d_{\\min}}\\right)$$"
+        "content": "**1. Value**\nEach point is coloured by its z coordinate (not its distance from the origin): $v_i = z_i$, which equals the depth only in a camera frame whose z axis is the optical axis.\n\n**2. Normalization and Colormap**\nThe values are normalised to $[0, 1]$ over the cloud and mapped through the selected colormap (0=jet, 1=viridis, 2=plasma, 3=turbo)."
       },
       "depth_filter": {
         "title": "Depth Range Filter",
-        "content": "**1. Percentile-Based Filtering**\nInstead of absolute depth thresholds, the filter uses percentiles of the distance distribution for robustness across different scales:\n$$P_{\\text{keep}} = \\{p_i : q_{\\min} \\leq d_i \\leq q_{\\max}\\}$$\nwhere $q_{\\min}, q_{\\max}$ are the `min_depth` and `max_depth` percentiles of $\\{d_i\\}$.\n\n**2. Application**\nUseful for removing background points (far range) or ground plane (near range) in LiDAR and depth camera data."
+        "content": "**1. Quantile-Based Filtering**\nThe filter keeps the points whose z coordinate lies between two quantiles of the z distribution:\n$$P_{\\text{keep}} = \\{p_i : Q_z(q_{\\min}) \\leq z_i \\leq Q_z(q_{\\max})\\}$$\nwhere $q_{\\min}, q_{\\max}$ are `min_depth` and `max_depth` as fractions (0-1). They are quantiles, not depths: the defaults (0.1, 0.9) keep about 80 % of the points whatever the geometry."
       }
     }
   },
@@ -59,7 +59,7 @@
           "default": 0.1,
           "min": 0.0,
           "max": 1.0,
-          "description": "Lower depth percentile (0-1 fraction)."
+          "description": "Lower quantile of z (fraction 0-1), not a depth."
         },
         {
           "name": "max_depth",
@@ -67,7 +67,7 @@
           "default": 0.9,
           "min": 0.0,
           "max": 1.0,
-          "description": "Upper depth percentile (0-1 fraction)."
+          "description": "Upper quantile of z (fraction 0-1), not a depth."
         }
       ]
     }

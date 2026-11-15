@@ -1,6 +1,7 @@
 """Threshold data by scalar range."""
 import argparse
 import sys
+import numpy as np
 import pyvista as pv
 from loguru import logger
 
@@ -13,9 +14,9 @@ def main():
     parser = argparse.ArgumentParser(description="Threshold by scalar range")
     parser.add_argument("--input", required=True)
     parser.add_argument("--output", required=True)
-    parser.add_argument("--lower", type=float, default=0.0)
-    parser.add_argument("--upper", type=float, default=1.0)
-    parser.add_argument("--scalars", type=str, default="")
+    parser.add_argument("--lower", type=float, default=None, help="Lower bound (required)")
+    parser.add_argument("--upper", type=float, default=None, help="Upper bound (required)")
+    parser.add_argument("--scalars", type=str, default="", help="Array to threshold (required)")
     # Advanced PyVista threshold() knobs (defaults == PyVista defaults -> no behavior change)
     parser.add_argument("--invert", type=_b, default=False)
     parser.add_argument("--continuous", type=_b, default=False)
@@ -39,11 +40,15 @@ def main():
                       scalars, list(ds.point_data.keys()) + list(ds.cell_data.keys()))
         sys.exit(1)
 
-    # If no scalars exist, add elevation as default
-    if not ds.point_data and not ds.cell_data:
-        logger.info("No scalar data found, computing implicit distance as default")
-        ds = ds.compute_implicit_distance(pv.Plane())
-        scalars = "implicit_distance"
+    available = list(ds.point_data.keys()) + list(ds.cell_data.keys())
+    if not scalars:
+        logger.error("--scalars is required (available arrays: {}); nothing is thresholded by default", available)
+        sys.exit(1)
+    if args.lower is None or args.upper is None:
+        arr = ds.point_data[scalars] if scalars in ds.point_data else ds.cell_data[scalars]
+        logger.error("--lower and --upper are required; '{}' ranges from {} to {}", scalars,
+                     float(np.min(arr)), float(np.max(arr)))
+        sys.exit(1)
 
     logger.info("Applying threshold filter with range [{}, {}]", args.lower, args.upper)
     result = ds.threshold(
@@ -62,6 +67,9 @@ def main():
         logger.info("Converting result to PolyData via extract_surface")
         result = result.extract_surface()
 
+    if result.n_points == 0:
+        logger.error("The threshold kept no point; '{}' range is not [{}, {}]", scalars, args.lower, args.upper)
+        sys.exit(1)
     result.save(args.output)
     logger.info("Threshold [{}, {}]: {} -> {} points", args.lower, args.upper, ds.n_points, result.n_points)
 

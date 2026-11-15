@@ -26,6 +26,9 @@ def main():
     if mesh.is_empty():
         logger.error("Mesh is empty")
         sys.exit(1)
+    if len(mesh.triangles) == 0:
+        logger.error("Input has no triangles: it is a point cloud, not a mesh")
+        sys.exit(1)
 
     n_vertices = len(mesh.vertices)
     n_triangles = len(mesh.triangles)

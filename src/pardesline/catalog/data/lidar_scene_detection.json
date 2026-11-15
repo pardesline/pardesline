@@ -87,6 +87,15 @@
           "advanced": true,
           "min": 100,
           "max": 10000
+        },
+        {
+          "name": "seed",
+          "type": "int",
+          "default": 0,
+          "min": 0,
+          "max": 2147483647,
+          "description": "Seed of Open3D's RANSAC plane fit (same seed, same plane).",
+          "advanced": true
         }
       ]
     },
@@ -143,6 +152,15 @@
           "type": "bool",
           "default": false,
           "description": "Print DBSCAN progress.",
+          "advanced": true
+        },
+        {
+          "name": "seed",
+          "type": "int",
+          "default": 0,
+          "min": 0,
+          "max": 2147483647,
+          "description": "Seed of Open3D's RANSAC plane fit (same seed, same plane).",
           "advanced": true
         }
       ]

@@ -64,7 +64,7 @@ A few parameters that come up constantly: `voxel_downsample(voxel_size)`,
 density_quantile, normal_radius)`, `pv_decimate(target_reduction)`,
 `pv_smooth_laplacian(n_iterations)`, `mesh_to_pcd_poisson_disk(num_points)`,
 `icp_refinement(voxel_size, max_iterations >= 100, icp_estimation_method)`,
-`ransac_icp_pipeline(voxel_size, rotation_degrees)`,
+`ransac_icp_pipeline(voxel_size, seed, restarts)`,
 `dbscan_clustering(eps, min_points)`, `rigid(num_iterations, metric,
 initializer=GEOMETRY|MOMENTS, sampling_percentage, shrink_factors="4,2,1")`,
 `manual_threshold(lower, upper)`, `connected_components(min_size)`.

@@ -4,16 +4,29 @@ ICP Registration — Open3D point-to-plane / point-to-point ICP.
 Conforms to the Open3D ICP tutorial pattern:
   http://www.open3d.org/docs/release/tutorial/pipelines/icp_registration.html
 
-Centers source onto target before ICP (translation init), then runs
-point-to-plane ICP. Falls back to point-to-point if point-to-plane fails.
+Steps: down-sample both clouds (voxel v) and estimate normals (2v); initial pose
+from a seeded FPFH + RANSAC pre-pass, or, when its fitness is not above
+--ransac_seed_fitness, a translation that aligns the centroids (the JSON says which);
+ICP on the down-sampled clouds at --icp_threshold_factor x v; normals re-estimated at
+full resolution; ICP on the full-resolution clouds at --refine_threshold_factor x v.
+Each ICP pass falls back to point-to-point (same criteria) when point-to-plane fails.
 
 ICP is a *local* optimizer — for large initial rotations (>~30 deg) use the
 RANSAC + ICP pipeline instead, which seeds ICP with a global FPFH match.
 
 CONTRACT:
   python icp_refinement.py --input <fixed.ply> --output <registered.ply> \
-      [--moving <moving.ply>] [--voxel_size F] [--max_iterations N]
+      --moving <moving.ply> [--voxel_size F] [--max_iterations N] [--seed N]
+
+The output is the moving cloud as read (colours, normals) transformed by T;
+the JSON sidecar holds T (p_fixed = T @ [p_moving, 1]) and the parameters used.
 """
+
+import os
+
+# Open3D draws RANSAC samples from one global generator in parallel threads: a seeded run
+# is reproducible only on one thread (audit 2026-11, X7). Must precede "import open3d".
+os.environ["OMP_NUM_THREADS"] = "1"
 
 import argparse
 import json
@@ -23,6 +36,8 @@ from pathlib import Path
 import numpy as np
 import open3d as o3d
 from loguru import logger
+
+from pardesline.ops.registration import _common as C
 
 
 def _b(v):
@@ -56,9 +71,9 @@ def main():
     parser = argparse.ArgumentParser(description="ICP Registration (Open3D)")
     parser.add_argument("--input", required=True, help="Fixed (target) point cloud file")
     parser.add_argument("--output", required=True, help="Output point cloud file")
-    parser.add_argument("--moving", default=None, help="Moving (source) point cloud to register to fixed")
+    parser.add_argument("--moving", required=True, help="Moving (source) point cloud to register to fixed")
     parser.add_argument("--voxel_size", type=float, default=0.0,
-                        help="Voxel size. 0 = auto (1.3%% of target bbox diagonal, matches Open3D tutorial).")
+                        help="Voxel size in file units, used as given. 0 = auto (1.3 percent of the fixed bbox diagonal).")
     parser.add_argument("--max_iterations", type=int, default=2000, help="Max ICP iterations")
     # Advanced knobs (SDK/API) — defaults reproduce the tutorial-strict pipeline.
     parser.add_argument("--icp_estimation_method", choices=["point_to_plane", "point_to_point"],
@@ -79,6 +94,7 @@ def main():
     parser.add_argument("--ransac_max_iteration", type=int, default=100000)
     parser.add_argument("--ransac_confidence", type=float, default=0.999)
     parser.add_argument("--ransac_seed_fitness", type=float, default=0.3)
+    parser.add_argument("--seed", type=int, default=0, help="Seed of the RANSAC pre-pass")
     args = parser.parse_args()
 
     logger.info("Loading fixed (target): {}", args.input)
@@ -87,36 +103,14 @@ def main():
         logger.error("Fixed point cloud is empty")
         sys.exit(1)
 
-    if args.moving:
-        logger.info("Loading moving (source): {}", args.moving)
-        source = o3d.io.read_point_cloud(args.moving)
-        if source.is_empty():
-            logger.error("Moving point cloud is empty")
-            sys.exit(1)
-        logger.info("Real registration: source={} pts, target={} pts",
-                    len(source.points), len(target.points))
-    else:
-        logger.info("No --moving — synthetic demo mode (small rotation)")
-        source = o3d.geometry.PointCloud(target)
-        R = source.get_rotation_matrix_from_xyz(
-            (np.radians(10), np.radians(15), np.radians(5))
-        )
-        source.rotate(R, center=(0, 0, 0))
-        source.translate(np.array([0.05, 0.03, 0.02]))
+    logger.info("Loading moving (source): {}", args.moving)
+    source = o3d.io.read_point_cloud(args.moving)
+    if source.is_empty():
+        logger.error("Moving point cloud is empty")
+        sys.exit(1)
+    logger.info("Source={} pts, target={} pts", len(source.points), len(target.points))
 
-    # Auto-detect voxel_size from target bbox diagonal when user-provided value
-    # is 0 (= auto) or out of the [0.5%, 5%] sweet spot of the diagonal.
-    # 1.3% matches the Open3D tutorial.
-    t_diag = bbox_diag(target)
-    user_vs = args.voxel_size
-    auto_vs = t_diag * 0.013
-    if user_vs <= 0 or user_vs < t_diag * 0.005 or user_vs > t_diag * 0.05:
-        logger.warning("voxel_size={} unsuitable for bbox diagonal {:.4f} (sweet spot: {:.4f}-{:.4f}); "
-                       "auto-setting to {:.6f} (1.3%% of diag, Open3D tutorial)",
-                       user_vs, t_diag, t_diag * 0.005, t_diag * 0.05, auto_vs)
-        args.voxel_size = auto_vs
-    logger.info("Parameters: voxel_size={:.6f} ({:.2f}% of bbox diag {:.4f}), max_iterations={}",
-                args.voxel_size, 100.0 * args.voxel_size / max(t_diag, 1e-9), t_diag, args.max_iterations)
+    args.voxel_size, voxel_auto = C.choose_voxel(target, args.voxel_size)
 
     # Tutorial-style preprocessing — downsample + normals for point-to-plane
     logger.info("Preprocessing source (voxel_size={})", args.voxel_size)
@@ -139,6 +133,7 @@ def main():
         target_down,
         o3d.geometry.KDTreeSearchParamHybrid(radius=args.voxel_size * args.fpfh_radius_factor, max_nn=args.fpfh_max_nn))
     ransac_thr = args.voxel_size * args.ransac_distance_factor
+    o3d.utility.random.seed(args.seed)
     ransac_result = o3d.pipelines.registration.registration_ransac_based_on_feature_matching(
         source_down, target_down, src_fpfh, tgt_fpfh,
         mutual_filter=args.mutual_filter,
@@ -156,12 +151,14 @@ def main():
 
     if ransac_result.fitness > args.ransac_seed_fitness:
         trans_init = ransac_result.transformation
+        init_stage = "RANSAC pre-pass"
         logger.info("Using RANSAC transform as init (fitness > {})", args.ransac_seed_fitness)
     else:
         src_center = source_down.get_center()
         tgt_center = target_down.get_center()
         trans_init = np.eye(4)
         trans_init[:3, 3] = tgt_center - src_center
+        init_stage = "centroid translation (RANSAC pre-pass fitness too low)"
         logger.info("RANSAC fitness too low — falling back to center-of-mass init "
                     "(translation only): {}", trans_init[:3, 3])
 
@@ -224,27 +221,16 @@ def main():
                        "Point-to-point (full-res)")
     if refined is not None and refined.fitness > 0.0:
         result = refined
+        result_stage, result_threshold = "full-resolution ICP", refine_threshold
     else:
         logger.warning("Full-res refinement unusable — keeping downsampled result")
+        result_stage, result_threshold = "down-sampled ICP (full-resolution pass found nothing)", threshold
 
     logger.info("Correspondence set size: {}", len(result.correspondence_set))
     logger.info("Final transformation:\n{}", result.transformation)
 
-    # Apply to the original (full-res) source and color yellow
-    source.transform(result.transformation)
-    source.paint_uniform_color([1.0, 0.85, 0.0])
-
-    # Re-estimate normals after transform so shading reflects the new pose
-    normal_radius = max(args.voxel_size * 2, 1e-4)
-    source.estimate_normals(
-        o3d.geometry.KDTreeSearchParamHybrid(radius=normal_radius, max_nn=30)
-    )
-    logger.info("Estimated output normals (radius={})", normal_radius)
-
-    logger.info("Transformed moving has {} points (yellow = registered to fixed)",
-                len(source.points))
-    o3d.io.write_point_cloud(args.output, source)
-    logger.info("Saved aligned cloud to: {}", args.output)
+    n = C.write_moving(args.moving, result.transformation, args.output)
+    logger.info("Saved the moving cloud ({} points, attributes as read) transformed to: {}", n, args.output)
 
     json_path = Path(args.output).with_suffix('.json')
     json_path.write_text(json.dumps({
@@ -253,6 +239,15 @@ def main():
         "inlier_rmse": float(result.inlier_rmse),
         "correspondence_count": len(result.correspondence_set),
         "method": "point-to-plane (with point-to-point fallback)",
+        "convention": "p_fixed = T @ [p_moving, 1]",
+        "threshold": result_threshold,
+        "result_stage": result_stage,
+        "init": init_stage,
+        "ransac_prepass_fitness": float(ransac_result.fitness),
+        "seed": args.seed,
+        "voxel_size": args.voxel_size,
+        "voxel_size_auto": voxel_auto,
+        "open3d_version": o3d.__version__,
     }, indent=2))
     logger.info("Transformation matrix saved: {}", json_path)
 

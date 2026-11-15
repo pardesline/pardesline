@@ -5,6 +5,10 @@ Creates a multi-resolution view by progressively downsampling and coloring each 
 
 CONTRACT:
   python multi_resolution.py --input <pcd_file> --output <pcd_file> [--levels N] [--base_voxel_size F]
+
+Output: a PREVIEW layout. The down-sampled copies (one per level) are placed side by
+side along +x (level k shifted by 1.2 x extent x k), so the coordinates of every level
+but the first differ from the input's.
 """
 
 import argparse

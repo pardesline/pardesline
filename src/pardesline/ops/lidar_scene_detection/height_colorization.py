@@ -18,7 +18,8 @@ def main():
     parser = argparse.ArgumentParser(description="Height-Based Colorization")
     parser.add_argument("--input", required=True, help="Input point cloud file")
     parser.add_argument("--output", required=True, help="Output point cloud file")
-    parser.add_argument("--colormap", type=int, default=0, help="Colormap: 0=height gradient, 1=viridis, 2=plasma, 3=turbo")
+    parser.add_argument("--colormap", type=int, default=0, choices=[0, 1, 2, 3],
+                        help="Colormap: 0=height gradient, 1=viridis, 2=plasma, 3=turbo")
     args = parser.parse_args()
 
     logger.info("Loading point cloud from {}", args.input)
