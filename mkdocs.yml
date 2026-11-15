@@ -254,4 +254,5 @@ nav:
   - Comparison: comparison.md
   - FAQ: faq.md
   - Changelog: changelog.md
+  - Correctness audit 2026-11: audit/2026-11-additional-findings.md
   - Contributing: contributing.md

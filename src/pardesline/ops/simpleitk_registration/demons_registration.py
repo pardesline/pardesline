@@ -3,10 +3,9 @@ Demons deformable registration using SimpleITK.
 
 CONTRACT:
     python demons_registration.py --input <fixed.vti> --output <registered.vti> \
-        [--moving <moving.vti>] [--num_iterations N] [--standard_deviations F]
+        --moving <moving.vti> [--num_iterations N] [--standard_deviations F]
 
-If --moving is provided, registers moving to fixed (real registration).
-If --moving is omitted, creates a synthetic moving for demo purposes.
+--moving is required: the moving volume is registered to the fixed one.
 """
 
 import argparse
@@ -19,26 +18,11 @@ import SimpleITK as sitk
 from loguru import logger
 
 
-def create_synthetic_moving(fixed: sitk.Image) -> sitk.Image:
-    """Create synthetic moving for demons (demo mode)."""
-    transform = sitk.Euler3DTransform()
-    center = fixed.TransformContinuousIndexToPhysicalPoint(
-        [(sz-1)/2.0 for sz in fixed.GetSize()]
-    )
-    transform.SetCenter(center)
-    transform.SetRotation(0.12, 0.08, -0.06)
-    transform.SetTranslation((12.0, -8.0, 10.0))
-
-    logger.info("Synthetic demons: rotation=(0.12, 0.08, -0.06), translation=(12.0, -8.0, 10.0)")
-    moving = sitk.Resample(fixed, fixed, transform, sitk.sitkLinear, 0.0, fixed.GetPixelID())
-    return moving
-
-
 def main():
     parser = argparse.ArgumentParser(description="Demons Deformable Registration")
     parser.add_argument("--input", required=True, help="Fixed volume (reference)")
     parser.add_argument("--output", required=True, help="Output registered volume")
-    parser.add_argument("--moving", default=None, help="Moving volume to register to fixed")
+    parser.add_argument("--moving", required=True, help="Moving volume to register to fixed")
     parser.add_argument("--num_iterations", type=int, default=20)
     parser.add_argument("--standard_deviations", type=float, default=2.0)
     parser.add_argument("--smooth_displacement_field", type=lambda v: str(v).strip().lower() in
@@ -51,13 +35,9 @@ def main():
     logger.info("Fixed size: {}, spacing: {}", fixed.GetSize(), fixed.GetSpacing())
 
     print("PROGRESS:15", flush=True)
-    if args.moving:
-        logger.info("Loading moving: {}", args.moving)
-        moving = load_volume(args.moving)
-        logger.info("Moving size: {}, spacing: {}", moving.GetSize(), moving.GetSpacing())
-    else:
-        logger.info("No --moving provided, creating synthetic moving (demo mode)")
-        moving = create_synthetic_moving(fixed)
+    logger.info("Loading moving: {}", args.moving)
+    moving = load_volume(args.moving)
+    logger.info("Moving size: {}, spacing: {}", moving.GetSize(), moving.GetSpacing())
 
     print("PROGRESS:20", flush=True)
     logger.info("Registering (num_iterations={}, standard_deviations={})", args.num_iterations, args.standard_deviations)

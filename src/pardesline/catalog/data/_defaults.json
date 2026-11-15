@@ -610,7 +610,8 @@
       "shrink_factors": "4,2,1: three resolution levels give the capture range to recover a 40 mm offset at the coarse level and sub-voxel precision at the fine one.",
       "smoothing_sigmas": "2,1,0 mm match the shrink factors so each level sees a properly band-limited image.",
       "smoothing_sigmas_in_physical_units": "On: sigmas in millimetres so anisotropic voxels (4 mm slices) are smoothed consistently.",
-      "optimizer_scales_from_physical_shift": "On: rotations in radians and translations in millimetres have different sensitivities; the physical-shift scales equalise them, which is the single setting that makes a fixed learning rate work across datasets."
+      "optimizer_scales_from_physical_shift": "On: rotations in radians and translations in millimetres have different sensitivities; the physical-shift scales equalise them, which is the single setting that makes a fixed learning rate work across datasets.",
+      "seed": "42, any fixed positive value: the random metric sampling draws the same voxels on every run, so the same inputs give the same transform (unseeded runs differed by up to 0.09 rad). 0 is refused: SimpleITK reads it as 'wall clock'. Reported in the JSON sidecar."
     }
   },
   "simpleitk_registration.advanced_rigid": {
@@ -629,7 +630,8 @@
       "shrink_factors": "4,2,1: three resolution levels give the capture range for large offsets at the coarse level and sub-voxel precision at the fine one.",
       "smoothing_sigmas": "2,1,0 mm match the shrink factors so each level sees a properly band-limited image.",
       "smoothing_sigmas_in_physical_units": "On: sigmas in millimetres so anisotropic voxels (4 mm slices) are smoothed consistently.",
-      "optimizer_scales_from_physical_shift": "On: rotations in radians and translations in millimetres have different sensitivities; physical-shift scales equalise them so one learning rate works across datasets."
+      "optimizer_scales_from_physical_shift": "On: rotations in radians and translations in millimetres have different sensitivities; physical-shift scales equalise them so one learning rate works across datasets.",
+      "seed": "42, any fixed positive value: the random metric sampling draws the same voxels on every run, so the same inputs give the same transform (unseeded runs differed by up to 0.09 rad). 0 is refused: SimpleITK reads it as 'wall clock'. Reported in the JSON sidecar."
     }
   },
   "simpleitk_registration.affine": {
@@ -648,22 +650,24 @@
       "shrink_factors": "4,2,1: three resolution levels give the capture range for large offsets at the coarse level and sub-voxel precision at the fine one.",
       "smoothing_sigmas": "2,1,0 mm match the shrink factors so each level sees a properly band-limited image.",
       "smoothing_sigmas_in_physical_units": "On: sigmas in millimetres so anisotropic voxels (4 mm slices) are smoothed consistently.",
-      "optimizer_scales_from_physical_shift": "On: the 12 affine parameters mix scale, shear and translation, so scale normalisation matters even more than for rigid."
+      "optimizer_scales_from_physical_shift": "On: the 12 affine parameters mix scale, shear and translation, so scale normalisation matters even more than for rigid.",
+      "seed": "42, any fixed positive value: the random metric sampling draws the same voxels on every run, so the same inputs give the same transform (unseeded runs differed by up to 0.09 rad). 0 is refused: SimpleITK reads it as 'wall clock'. Reported in the JSON sidecar."
     }
   },
   "simpleitk_registration.bspline": {
     "validated_on": "POPI 4D-CT breathing phases (medical-volumes skill); generated volumes in tests/test_ops_smoke.py",
     "params": {
-      "grid_spacing": "50 mm control-point spacing captures organ-scale motion (breathing, bowel) without fitting noise; 20-30 mm for finer local deformation.",
+      "grid_spacing": "50 mm control-point spacing captures organ-scale motion (breathing, bowel) without fitting noise; 20-30 mm for finer local deformation. Checked: 24 mm on a 96 mm volume gives a 4x4x4 mesh.",
       "num_iterations": "100 LBFGSB iterations: the deformable metric improves quickly then flattens.",
       "bspline_order": "3 (cubic) is the standard smooth basis.",
-      "mesh_coarsening_factor": "4 starts the multi-resolution schedule with a coarser control mesh so large motion is recovered first.",
+      "mesh_coarsening_factor": "4, used only with scale_factors: the mesh starts 4x coarser and is refined at each level so large motion is recovered first.",
       "sampling_percentage": "1 % of the voxels for the metric.",
       "interpolator": "LINEAR interpolation during optimisation is the standard trade-off between speed and smoothness of the metric.",
       "gradient_convergence_tolerance": "1e-5 is the LBFGSB default.",
       "max_number_of_corrections": "5 stored corrections is the LBFGSB default memory.",
       "cost_function_convergence_factor": "1e7 is the LBFGSB default (moderate accuracy).",
-      "scale_factors": "1,2,4 refine the control mesh across three levels."
+      "scale_factors": "Empty: LBFGSB optimises the grid of grid_spacing over a 4-2-1 pyramid. With a single level the old '1,2,4' default never refined, so the grid was 4x coarser than requested; refinement now switches to the line-search optimiser (LBFGSB rejects a parameter count that changes between levels).",
+      "seed": "42, any fixed positive value: the random metric sampling draws the same voxels on every run, so the same inputs give the same transform (unseeded runs differed by up to 0.09 rad). 0 is refused: SimpleITK reads it as 'wall clock'. Reported in the JSON sidecar."
     }
   },
   "simpleitk_registration.demons": {
@@ -678,7 +682,7 @@
     "validated_on": "generated volumes in tests/test_ops_smoke.py",
     "params": {
       "lower_threshold": "50 intensity units: below that, differences are noise and interpolation.",
-      "upper_threshold": "400: above that, differences are bone or air boundaries that any residual misalignment produces; the band in between highlights soft-tissue change."
+      "upper_threshold": "None: every difference above lower_threshold counts as misalignment. The old 400 bound left the largest differences out of high_diff_voxels, so a worse alignment could score better."
     }
   },
   "simpleitk_segmentation.otsu_threshold": {
@@ -703,7 +707,7 @@
     "params": {
       "threshold": "100 intensity units binarises before labelling; on a LabelMap input use 0.5.",
       "min_size": "15 voxels removes speckle components; raise to the hundreds or thousands to keep only organs.",
-      "upper_threshold": "255 is the upper bound for 8-bit inputs; raise it for HU.",
+      "upper_threshold": "Image maximum when not given: every voxel above the lower threshold is foreground. The old 255 default dropped bone and contrast (> 255 HU) from CT.",
       "fully_connected": "Off (6-connectivity): diagonal-only contacts do not join two structures, which keeps touching organs apart.",
       "inside_value": "1: foreground label.",
       "outside_value": "0 is the background label, so the result is a label map with a single foreground label."
@@ -713,13 +717,13 @@
     "validated_on": "generated volumes in tests/test_ops_smoke.py",
     "params": {
       "threshold": "100 intensity units for the initial binarisation.",
-      "seed_radius": "10 mm: markers are placed where the distance map exceeds this radius, so only objects at least 2 cm across become basins.",
-      "min_object_size": "15 voxels drops speckle basins.",
-      "upper_threshold": "255 for 8-bit inputs.",
+      "seed_radius": "10 mm: seeds are the parts of the mask deeper than 10 mm (physical distance, voxel spacing included), so only objects at least 2 cm across get a seed; lower it below the half-thickness of your objects, and above the depth of the necks that join touching objects.",
+      "min_object_size": "15 voxels drops speckle seeds; it filters the seeds, not the final objects.",
+      "upper_threshold": "Image maximum when not given: every voxel above the lower threshold is foreground. The old 255 default dropped bone and contrast (> 255 HU) from CT.",
       "opening_radius": "10,10,10 voxels of binary opening detach thin bridges between objects before the distance map.",
       "closing_radius": "10,10,10 voxels of closing fill small holes inside objects.",
-      "distance_inside_is_positive": "Off: SimpleITK's convention, inside is negative.",
-      "distance_squared": "Off: true Euclidean distance in mm.",
+      "distance_inside_is_positive": "Off, and true is refused: with inside positive the seed test selected the background.",
+      "distance_squared": "Off, and true is refused: a squared distance is not comparable with seed_radius in mm.",
       "mark_watershed_line": "On: dam lines between basins are drawn, which shows where touching objects were split.",
       "inside_value": "1: foreground label.",
       "outside_value": "0 is the background label, so the result is a label map with a single foreground label."

@@ -31,7 +31,7 @@
       },
       "bspline": {
         "title": "B-Spline Deformable Registration",
-        "content": "**1. Free-Form Deformation**\nThe displacement field is parameterized by a regular grid of $n_x \\times n_y \\times n_z$ control points $\\{\\phi_{i,j,k}\\}$. The deformation at any point $\\mathbf{x}$ is interpolated using cubic B-spline basis functions:\n$$T(\\mathbf{x}) = \\mathbf{x} + \\sum_{l=0}^{3} \\sum_{m=0}^{3} \\sum_{n=0}^{3} B_l(u) B_m(v) B_n(w) \\, \\phi_{i+l, j+m, k+n}$$\nwhere $(u, v, w)$ are the local coordinates within the control point cell.\n\n**2. Multi-Scale Refinement**\nRegistration proceeds from coarse grids (large `grid_spacing`) to fine grids, progressively capturing finer deformations. The LBFGSB optimizer handles the large number of parameters efficiently.\n\n**3. Regularization**\nThe bending energy of the B-spline ensures smooth deformations:\n$$\\mathcal{R}_{\\text{bend}} = \\int \\left\\| \\nabla^2 T(\\mathbf{x}) \\right\\|^2 d\\mathbf{x}$$"
+        "content": "**1. Free-Form Deformation**\nThe displacement field is parameterized by a regular grid of $n_x \\times n_y \\times n_z$ control points $\\{\\phi_{i,j,k}\\}$. The deformation at any point $\\mathbf{x}$ is interpolated using cubic B-spline basis functions:\n$$T(\\mathbf{x}) = \\mathbf{x} + \\sum_{l=0}^{3} \\sum_{m=0}^{3} \\sum_{n=0}^{3} B_l(u) B_m(v) B_n(w) \\, \\phi_{i+l, j+m, k+n}$$\nwhere $(u, v, w)$ are the local coordinates within the control point cell.\n\n**2. Grid and pyramid**\nThe mesh has round(extent / `grid_spacing`) cells per axis. After an affine pre-registration, LBFGSB optimises the control points over a three-level image pyramid (shrink 4, 2, 1; smoothing 2, 1, 0 mm). With `scale_factors` (e.g. 1,2,4) the mesh instead starts `mesh_coarsening_factor` times coarser and is refined at each level, with a line-search gradient optimiser.\n\n**3. Regularization**\nThere is no explicit penalty term: smoothness comes from the grid spacing, the pyramid and the number of iterations. Check the result for folding (Jacobian determinant of the transform on the whole grid).\n\n**4. Result**\nThe transform maps fixed points to moving points: $p \\mapsto A(B(p))$, the B-spline first, then the affine."
       },
       "demons": {
         "title": "Demons Deformable Registration",
@@ -39,7 +39,7 @@
       },
       "advanced_rigid": {
         "title": "Advanced Rigid Registration (Two-Stage)",
-        "content": "**1. Two-Stage Composite Approach**\nFrom the reference implementation (modulesReg.py::registration_advanced), this method uses a two-stage approach: first, a geometry-based initial transform centers the images, then a second optimized Euler3D transform is applied. The final result is a CompositeTransform combining both stages.\n\n**2. Conservative Parameters**\nCompared to basic rigid registration:\n- Learning rate: 0.2 (vs 1.0) for more stable convergence\n- Sampling: 15% (vs 1%) for better metric estimation\n- Iterations: 200 (vs 100) for thorough optimization\n\n**3. Advantages**\nThe two-stage approach prevents the optimizer from getting stuck in local minima near the initial position, and the higher sampling percentage produces smoother metric landscapes."
+        "content": "**1. Two-Stage Composite Approach**\nStage 1 is an exhaustive search over the three Euler angles (`exhaustive_steps_per_axis` steps of $\\pi$/steps on each axis, translations fixed) at a coarse level (shrink 8, smoothing 4 mm), starting from a moments (centre of mass) alignment, with the metric evaluated on every voxel of that level. Stage 2 optimises a second Euler3D transform $O$ with the first one $M$ as moving initial transform. The result is the CompositeTransform $p \\mapsto M(O(p))$, which maps fixed points to moving points.\n\n**2. Conservative Parameters**\nCompared to basic rigid registration:\n- Learning rate: 0.2 (vs 1.0) for more stable convergence\n- Sampling: 15% (vs 1%) for better metric estimation\n- Iterations: 200 (vs 100) for thorough optimization\n\n**3. Advantages**\nThe search recovers large rotations (up to 180 degrees) that gradient descent alone cannot, and the refinement removes the residual of the search grid."
       },
       "difference_analysis": {
         "title": "Difference Image Analysis",
@@ -182,6 +182,15 @@
           "default": true,
           "description": "Auto-estimate per-parameter optimizer scales.",
           "advanced": true
+        },
+        {
+          "name": "seed",
+          "type": "int",
+          "default": 42,
+          "min": 1,
+          "max": 2147483647,
+          "description": "Seed of the random metric sampling (positive integer): same seed, same transform.",
+          "advanced": true
         }
       ]
     },
@@ -314,6 +323,15 @@
           "type": "bool",
           "default": true,
           "description": "Auto-estimate per-parameter optimizer scales.",
+          "advanced": true
+        },
+        {
+          "name": "seed",
+          "type": "int",
+          "default": 42,
+          "min": 1,
+          "max": 2147483647,
+          "description": "Seed of the random metric sampling (positive integer): same seed, same transform.",
           "advanced": true
         }
       ]
@@ -450,6 +468,15 @@
           "default": true,
           "description": "Auto-estimate per-parameter optimizer scales.",
           "advanced": true
+        },
+        {
+          "name": "seed",
+          "type": "int",
+          "default": 42,
+          "min": 1,
+          "max": 2147483647,
+          "description": "Seed of the random metric sampling (positive integer): same seed, same transform.",
+          "advanced": true
         }
       ]
     },
@@ -465,7 +492,7 @@
           "default": 50.0,
           "min": 10.0,
           "max": 100.0,
-          "description": "Control point grid spacing in mm."
+          "description": "Control point grid spacing in mm: the optimised mesh has round(extent / grid_spacing) cells per axis."
         },
         {
           "name": "num_iterations",
@@ -488,7 +515,7 @@
           "name": "mesh_coarsening_factor",
           "type": "int",
           "default": 4,
-          "description": "Extra coarsening divisor applied to the control-point mesh.",
+          "description": "Divides the initial control mesh when scale_factors refines it; ignored without scale_factors.",
           "min": 1,
           "max": 8,
           "advanced": true
@@ -544,8 +571,17 @@
         {
           "name": "scale_factors",
           "type": "list",
-          "default": "1,2,4",
-          "description": "B-spline multi-resolution scale factors (comma-separated).",
+          "default": "",
+          "description": "Optional grid refinement per pyramid level, e.g. 1,2,4 (empty: optimise the grid of grid_spacing directly).",
+          "advanced": true
+        },
+        {
+          "name": "seed",
+          "type": "int",
+          "default": 42,
+          "min": 1,
+          "max": 2147483647,
+          "description": "Seed of the random metric sampling (positive integer): same seed, same transform.",
           "advanced": true
         }
       ]
@@ -598,10 +634,10 @@
         {
           "name": "upper_threshold",
           "type": "float",
-          "default": 400.0,
+          "default": null,
           "min": 100.0,
           "max": 3000.0,
-          "description": "Upper threshold for difference analysis."
+          "description": "Upper bound of the high-difference range (default: none, every difference above lower_threshold counts)."
         }
       ]
     }

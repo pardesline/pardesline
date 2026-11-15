@@ -110,13 +110,15 @@ are deformable (see the bottom of this page).
 | Drifts with iterations | learning rate too high | 0.2-0.5 with physical-shift scales; RegularStepGradientDescent with relaxation |
 | Good at centre, bad at edges | not rigid: scanner distortion, patient deformation | affine then B-spline (`grid_spacing` 30-50 mm) |
 | PET-CT off by a slice | different acquisition times / breathing | rigid on the torso mask only, then deformable |
-| Works on brain, fails on abdomen | organs move independently | mask the organ of interest; deformable (`demons` for same-modality, B-spline MI for multimodal) |
+| Works on brain, fails on abdomen | organs move independently | mask the organ of interest; deformable (`demons` or `bspline` for same-modality; both compare intensities directly) |
 
 ## Going deformable
 
 - `simpleitk_registration.bspline`: B-spline FFD on a control-point grid
-  (`grid_spacing` mm, multi-resolution `scale_factors`), LBFGSB, MI for
-  multimodal. Validate with the Jacobian determinant (no folding) and TRE.
+  (`grid_spacing` mm: the optimised grid; optional per-level refinement with
+  `scale_factors`), LBFGSB over a 4-2-1 pyramid, mean-squares metric (same
+  modality and intensity scale only: run it after a rigid MI registration, not
+  on raw CT-MR). Validate with the Jacobian determinant (no folding) and TRE.
 - `simpleitk_registration.demons`: diffeomorphic demons on **same-modality**
   images (intensities must match), `standard_deviations` smooth the update
   field; fast, dense, not for CT-MR.

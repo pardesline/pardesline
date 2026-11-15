@@ -3,10 +3,9 @@ Rigid registration using SimpleITK.
 
 CONTRACT:
     python rigid_registration.py --input <fixed.vti> --output <registered.vti> \
-        [--moving <moving.vti>] [--learning_rate F] [--num_iterations N]
+        --moving <moving.vti> [--learning_rate F] [--num_iterations N]
 
-If --moving is provided, registers moving to fixed (real registration).
-If --moving is omitted, creates a synthetic moving for demo purposes.
+--moving is required: the moving volume is registered to the fixed one.
 """
 
 import argparse
@@ -20,26 +19,11 @@ import SimpleITK as sitk
 from loguru import logger
 
 
-def create_synthetic_moving(fixed: sitk.Image) -> sitk.Image:
-    """Create synthetic moving image by applying known transform (demo mode)."""
-    transform = sitk.Euler3DTransform()
-    center = fixed.TransformContinuousIndexToPhysicalPoint(
-        [(sz-1)/2.0 for sz in fixed.GetSize()]
-    )
-    transform.SetCenter(center)
-    transform.SetRotation(0.1, 0.05, -0.08)
-    transform.SetTranslation((10.0, -5.0, 8.0))
-
-    logger.info("Synthetic transform: rotation=(0.1, 0.05, -0.08) rad, translation=(10.0, -5.0, 8.0) mm")
-    moving = sitk.Resample(fixed, fixed, transform, sitk.sitkLinear, 0.0, fixed.GetPixelID())
-    return moving
-
-
 def main():
     parser = argparse.ArgumentParser(description="Rigid Registration")
     parser.add_argument("--input", required=True, help="Fixed volume (reference)")
     parser.add_argument("--output", required=True, help="Output registered volume")
-    parser.add_argument("--moving", default=None, help="Moving volume to register to fixed")
+    parser.add_argument("--moving", required=True, help="Moving volume to register to fixed")
     parser.add_argument("--learning_rate", type=float, default=1.0)
     parser.add_argument("--num_iterations", type=int, default=100)
     parser.add_argument("--sampling_percentage", type=float, default=0.01)
@@ -52,13 +36,9 @@ def main():
     logger.info("Fixed size: {}, spacing: {}", fixed.GetSize(), fixed.GetSpacing())
 
     print("PROGRESS:15", flush=True)
-    if args.moving:
-        logger.info("Loading moving: {}", args.moving)
-        moving = load_volume(args.moving)
-        logger.info("Moving size: {}, spacing: {}", moving.GetSize(), moving.GetSpacing())
-    else:
-        logger.info("No --moving provided, creating synthetic moving (demo mode)")
-        moving = create_synthetic_moving(fixed)
+    logger.info("Loading moving: {}", args.moving)
+    moving = load_volume(args.moving)
+    logger.info("Moving size: {}, spacing: {}", moving.GetSize(), moving.GetSpacing())
 
     print("PROGRESS:20", flush=True)
     logger.info("Registering (lr={}, iter={}, sampling={}%)",
@@ -78,6 +58,7 @@ def main():
     out_path = Path(args.output)
     sidecar = {
         "transform_type": "rigid",
+        "seed": args.seed,
         "transform": transform_to_dict(transform),
         "spacing": list(registered.GetSpacing()),
         "origin": list(registered.GetOrigin()),

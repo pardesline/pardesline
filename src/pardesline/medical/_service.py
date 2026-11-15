@@ -22,25 +22,16 @@ logger = logging.getLogger(__name__)
 def load_volume(path: str | Path) -> sitk.Image:
     """Load volume from MHA, NRRD, NIFTI, VTI, etc.
 
-    For VTI files: prefers a sibling .mha file if it exists (saved by the
-    sample-use endpoint).  Loading .mha via sitk.ReadImage() is ~3x faster
-    and uses ~3x less memory than the PyVista→numpy→SimpleITK conversion
-    required for VTI.
+    VTI files are read through PyVista with their spacing, origin and direction
+    matrix. The file named is the file read: a sibling .mha is never substituted
+    (it may hold different data or geometry).
     """
     path = Path(path)
 
-    # VTI/VTU: check for a native .mha sibling first (much faster loading)
     if path.suffix.lower() in ('.vti', '.vtu'):
-        mha_sibling = path.with_suffix('.mha')
-        if mha_sibling.exists():
-            logger.info(f"Loading native .mha sibling instead of VTI: {mha_sibling}")
-            return sitk.ReadImage(str(mha_sibling), sitk.sitkFloat32)
-
-        # Fallback: load via PyVista (slow, 3 memory copies)
         import pyvista as pv
         from .pyvista_adapter import load_pyvista
 
-        logger.warning(f"No .mha sibling for {path.name}; falling back to PyVista loader")
         ds = load_pyvista(str(path))
         if not isinstance(ds, pv.ImageData):
             raise ValueError(f"VTI file is not ImageData: {type(ds).__name__}")
@@ -59,9 +50,11 @@ def load_volume(path: str | Path) -> sitk.Image:
         arr_sitk = np.transpose(arr_3d, (2, 1, 0))
         volume = sitk.GetImageFromArray(arr_sitk.astype(np.float32))
 
-        # Set spacing and origin
-        volume.SetSpacing(ds.spacing)
-        volume.SetOrigin(ds.origin)
+        # Geometry: spacing, origin and direction (VTK 9 / PyVista >= 0.45 store a direction)
+        volume.SetSpacing(tuple(float(v) for v in ds.spacing))
+        volume.SetOrigin(tuple(float(v) for v in ds.origin))
+        if hasattr(ds, "direction_matrix"):
+            volume.SetDirection(tuple(float(v) for v in np.asarray(ds.direction_matrix).ravel()))
 
         return volume
     else:
@@ -153,7 +146,38 @@ def load_dicom(folder: str | Path) -> sitk.Image:
         # Truly single-slice — return as-is
         return sitk.ReadImage(biggest_files[0], sitk.sitkFloat32)
 
+    # sitk.ReadImage(list) stacks files in list order: sort them by slice position,
+    # Image Position (Patient) projected on the slice normal from Image Orientation.
+    keys = [_slice_position(f) for f in biggest_files]
+    if all(k is not None for k in keys):
+        biggest_files = [f for _, f in sorted(zip(keys, biggest_files))]
+    else:
+        raise ValueError(
+            f"DICOM files in {folder} form no series and lack Image Position / Orientation "
+            "(0020,0032 / 0020,0037): slice order and spacing cannot be determined."
+        )
+
     return sitk.ReadImage(biggest_files, sitk.sitkFloat32)
+
+
+def _slice_position(path: str) -> float | None:
+    """Position of a DICOM slice along its normal (mm), or None without the tags."""
+    r = sitk.ImageFileReader()
+    r.SetFileName(path)
+    try:
+        r.ReadImageInformation()
+    except RuntimeError:
+        return None
+    if not (r.HasMetaDataKey("0020|0032") and r.HasMetaDataKey("0020|0037")):
+        return None
+    try:
+        o = np.array([float(v) for v in r.GetMetaData("0020|0037").split("\\")])
+        p = np.array([float(v) for v in r.GetMetaData("0020|0032").split("\\")])
+    except ValueError:
+        return None
+    if o.size != 6 or p.size != 3:
+        return None
+    return float(p @ np.cross(o[:3], o[3:]))
 
 
 def save_volume(volume: sitk.Image, path: str | Path) -> None:
@@ -162,8 +186,40 @@ def save_volume(volume: sitk.Image, path: str | Path) -> None:
 
 
 def save_transform(transform: sitk.Transform, path: str | Path) -> None:
-    """Save transform to .tfm file."""
+    """Save transform to .tfm / .h5 file (composites are flattened first: ITK's
+    writers refuse a composite nested in a composite)."""
+    if transform.GetName() == "CompositeTransform":
+        transform = sitk.CompositeTransform(transform)
+        transform.FlattenTransform()
     sitk.WriteTransform(transform, str(path))
+
+
+def _unwrap(transform: sitk.Transform) -> sitk.Transform:
+    """Execute(..., inPlace=False) returns a CompositeTransform holding the result: unwrap it."""
+    if transform.GetName() == "CompositeTransform":
+        comp = sitk.CompositeTransform(transform)
+        if comp.GetNumberOfTransforms() == 1:
+            return comp.GetNthTransform(0)
+    return transform
+
+
+def _flat_composite(transforms: list) -> sitk.CompositeTransform:
+    """CompositeTransform of ``transforms`` (the LAST one is applied first), flattened so
+    that it holds no nested composite and can be written to .h5 / .tfm."""
+    comp = sitk.CompositeTransform(list(transforms))
+    comp.FlattenTransform()
+    return comp
+
+
+DEFAULT_SEED = 42
+
+
+def _check_seed(seed) -> int:
+    seed = int(seed)
+    if seed < 1:
+        # SimpleITK reads seed 0 as sitkWallClock: the run would not be reproducible.
+        raise ValueError(f"seed must be a positive integer (got {seed}); 0 means 'wall clock' in SimpleITK")
+    return seed
 
 
 def transform_to_dict(transform: sitk.Transform) -> dict:
@@ -175,15 +231,17 @@ def transform_to_dict(transform: sitk.Transform) -> dict:
     # — serializing them would cause MemoryError. Store summary instead.
     if 'DisplacementField' in name:
         disp_field = transform.GetDisplacementField()
-        arr = sitk.GetArrayFromImage(disp_field)
+        # Statistics of the displacement LENGTH per voxel (mm); averaging the signed
+        # x, y, z components together would cancel opposite displacements.
+        mag = np.linalg.norm(sitk.GetArrayFromImage(disp_field), axis=-1)
         result = {
             "transform_name": name,
             "field_size": list(disp_field.GetSize()),
             "field_spacing": [round(s, 6) for s in disp_field.GetSpacing()],
             "field_origin": [round(o, 6) for o in disp_field.GetOrigin()],
-            "mean_displacement_mm": round(float(arr.mean()), 4),
-            "max_displacement_mm": round(float((arr**2).sum(axis=-1).max()**0.5), 4),
-            "std_displacement_mm": round(float(arr.std()), 4),
+            "mean_displacement_mm": round(float(mag.mean()), 4),
+            "max_displacement_mm": round(float(mag.max()), 4),
+            "std_displacement_mm": round(float(mag.std()), 4),
         }
         return result
 
@@ -265,14 +323,17 @@ def volume_to_vti(volume: sitk.Image, output_path: str | Path) -> None:
     """Convert SimpleITK to VTI for web viewer."""
     import pyvista as pv
 
-    arr = sitk.GetArrayFromImage(volume)
-    arr = np.transpose(arr, (2, 1, 0))
-
-    grid = pv.ImageData()
-    grid.dimensions = arr.shape
-    grid.spacing = volume.GetSpacing()
-    grid.origin = volume.GetOrigin()
-    grid.point_data["intensity"] = arr.flatten(order="F")
+    grid = pv.ImageData(dimensions=volume.GetSize(), spacing=volume.GetSpacing(), origin=volume.GetOrigin())
+    direction = np.array(volume.GetDirection(), dtype=float).reshape(3, 3)
+    if hasattr(grid, "direction_matrix"):
+        grid.direction_matrix = direction
+    elif not np.allclose(direction, np.eye(3)):
+        raise RuntimeError(
+            f"PyVista {pv.__version__} cannot store a direction matrix in .vti; this volume is oblique "
+            "and would be written axis-aligned. Install pyvista>=0.45 or save as .nrrd / .nii.gz / .mha."
+        )
+    # C order of the (z, y, x) array = x fastest, the VTK point order
+    grid.point_data["intensity"] = sitk.GetArrayFromImage(volume).reshape(-1)
 
     grid.save(str(output_path))
 
@@ -288,6 +349,9 @@ def get_initial_transform(fixed: sitk.Image, moving: sitk.Image,
     GEOMETRY aligns image geometric centers (default, matches ref_regi).
     MOMENTS aligns center of mass + principal axes.
     """
+    method = str(method).upper()
+    if method not in ("GEOMETRY", "MOMENTS"):
+        raise ValueError(f"initializer must be GEOMETRY or MOMENTS, got {method!r}")
     init_method = (sitk.CenteredTransformInitializerFilter.GEOMETRY
                   if method == "GEOMETRY" else
                   sitk.CenteredTransformInitializerFilter.MOMENTS)
@@ -326,22 +390,26 @@ def _configure_registration(reg, *, metric="mattes_mutual_information", number_o
                             sampling_strategy="RANDOM", sampling_percentage=0.01, interpolator="LINEAR",
                             learning_rate=1.0, num_iterations=100, convergence_minimum_value=1e-6,
                             convergence_window_size=10, shrink_factors="4,2,1", smoothing_sigmas="2,1,0",
-                            smoothing_sigmas_in_physical_units=True, optimizer_scales_from_physical_shift=True):
+                            smoothing_sigmas_in_physical_units=True, optimizer_scales_from_physical_shift=True,
+                            seed=DEFAULT_SEED):
     """Apply the shared metric / gradient-descent optimizer / multi-resolution
-    settings. Defaults reproduce the reference pipeline exactly (Mattes MI 50
-    bins, RANDOM sampling, linear interp, GD, shrink [4,2,1], sigmas [2,1,0] in
-    physical units) so callers that pass nothing are unchanged."""
+    settings (Mattes MI 50 bins, RANDOM sampling, linear interp, GD, shrink
+    [4,2,1], sigmas [2,1,0] in physical units). ``seed`` fixes the random metric
+    sampling so that two runs on the same input give the same transform."""
     if metric == "mean_squares":
         reg.SetMetricAsMeanSquares()
     elif metric == "correlation":
         reg.SetMetricAsCorrelation()
     elif metric == "joint_histogram_mi":
         reg.SetMetricAsJointHistogramMutualInformation()
-    else:
+    elif metric == "mattes_mutual_information":
         reg.SetMetricAsMattesMutualInformation(numberOfHistogramBins=int(number_of_histogram_bins))
+    else:
+        raise ValueError(f"unknown metric {metric!r}: mattes_mutual_information, mean_squares, "
+                         "correlation or joint_histogram_mi")
     strat = {"NONE": reg.NONE, "REGULAR": reg.REGULAR, "RANDOM": reg.RANDOM}[str(sampling_strategy).upper()]
     reg.SetMetricSamplingStrategy(strat)
-    reg.SetMetricSamplingPercentage(float(sampling_percentage))
+    reg.SetMetricSamplingPercentage(float(sampling_percentage), _check_seed(seed))
     reg.SetInterpolator(_SITK_INTERP[str(interpolator).upper()])
     reg.SetOptimizerAsGradientDescent(
         learningRate=float(learning_rate), numberOfIterations=int(num_iterations),
@@ -361,7 +429,7 @@ def _configure_registration(reg, *, metric="mattes_mutual_information", number_o
 _COMMON_REG_ARGS = ("metric", "number_of_histogram_bins", "sampling_strategy", "interpolator",
                     "convergence_minimum_value", "convergence_window_size", "shrink_factors",
                     "smoothing_sigmas", "smoothing_sigmas_in_physical_units",
-                    "optimizer_scales_from_physical_shift")
+                    "optimizer_scales_from_physical_shift", "seed")
 
 
 def add_common_reg_cli_args(parser, include_initializer: bool = True) -> None:
@@ -380,6 +448,13 @@ def add_common_reg_cli_args(parser, include_initializer: bool = True) -> None:
     parser.add_argument("--smoothing_sigmas", type=str, default="2,1,0")
     parser.add_argument("--smoothing_sigmas_in_physical_units", type=_sitk_bool, default=True)
     parser.add_argument("--optimizer_scales_from_physical_shift", type=_sitk_bool, default=True)
+    add_seed_cli_arg(parser)
+
+
+def add_seed_cli_arg(parser) -> None:
+    """``--seed`` of the random metric sampling (a positive integer; 0 would mean wall clock)."""
+    parser.add_argument("--seed", type=int, default=DEFAULT_SEED,
+                        help="Seed of the random metric sampling (positive integer); same seed, same result")
 
 
 def collect_common_reg_opts(args) -> dict:
@@ -394,13 +469,15 @@ def _find_best_rotation(fixed: sitk.Image, moving: sitk.Image,
     Critical for multi-modal (CT/MRI) registration where images may have
     large rotational offsets that gradient descent cannot recover from.
     Searches over all 3 rotation axes in ~15-degree steps.
+
+    The metric uses every voxel of the coarse level: at shrink 8 a random 5 %
+    sample is a few dozen voxels and made the search pick wrong poses.
     """
     import math
 
     reg = sitk.ImageRegistrationMethod()
     reg.SetMetricAsMattesMutualInformation(numberOfHistogramBins=50)
-    reg.SetMetricSamplingStrategy(reg.RANDOM)
-    reg.SetMetricSamplingPercentage(0.05)
+    reg.SetMetricSamplingStrategy(reg.NONE)
     reg.SetInterpolator(sitk.sitkLinear)
 
     # Search over all 3 rotation axes
@@ -421,7 +498,7 @@ def _find_best_rotation(fixed: sitk.Image, moving: sitk.Image,
     reg.SetSmoothingSigmasPerLevel([4])
     reg.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()
 
-    best_tx = reg.Execute(fixed, moving)
+    best_tx = _unwrap(reg.Execute(fixed, moving))
 
     params = best_tx.GetParameters()
     logger.info(f"Exhaustive rotation search: rotation=({math.degrees(params[0]):.0f}, "
@@ -510,10 +587,11 @@ def register_rigid_advanced(fixed: sitk.Image, moving: sitk.Image,
 
     registration_method.AddCommand(sitk.sitkIterationEvent, log_iteration)
 
-    final_optimized = registration_method.Execute(fixed, moving)
+    final_optimized = _unwrap(registration_method.Execute(fixed, moving))
 
-    # Compose transforms
-    final_transform = sitk.CompositeTransform([final_optimized, initial_transform])
+    # Compose: the refinement O was estimated under the moving initial transform M,
+    # so the full map is p -> M(O(p)). CompositeTransform applies the LAST listed first.
+    final_transform = _flat_composite([initial_transform, final_optimized])
 
     logger.info(f"Advanced registration metric: {registration_method.GetMetricValue():.6f}")
     logger.info(f"Stop condition: {registration_method.GetOptimizerStopConditionDescription()}")
@@ -568,37 +646,60 @@ def register_bspline(fixed: sitk.Image, moving: sitk.Image, grid_spacing: float 
                      gradient_convergence_tolerance: float = 1e-5,
                      max_number_of_corrections: int = 5,
                      cost_function_convergence_factor: float = 1e7,
-                     scale_factors: str = "1,2,4") -> tuple[sitk.Image, sitk.Transform]:
-    """B-spline FFD registration - from 06_advanced_registration.ipynb."""
+                     scale_factors: str = "",
+                     seed: int = DEFAULT_SEED) -> tuple[sitk.Image, sitk.Transform]:
+    """B-spline FFD registration - from 06_advanced_registration.ipynb.
+
+    Affine pre-registration, then a cubic B-spline whose control grid has
+    ``grid_spacing`` mm between nodes (mesh size = round(extent / grid_spacing)),
+    optimised with LBFGSB over a three-level pyramid (shrink 4, 2, 1; sigmas
+    2, 1, 0 mm). With ``scale_factors`` (e.g. "1,2,4") the mesh is first divided
+    by ``mesh_coarsening_factor`` and refined at each level instead; that path
+    uses the gradient-descent line-search optimiser, since LBFGSB does not
+    support a parameter count that changes between levels (SimpleITK 2.5).
+    The result maps fixed points to moving points: p -> affine(bspline(p)).
+    """
+    seed = _check_seed(seed)
     # Pre-register with affine
-    affine_img, affine_tx = register_affine(fixed, moving)
+    affine_img, affine_tx = register_affine(fixed, moving, seed=seed)
 
     # Compute mesh size from grid spacing
     image_size = [s*sp for s,sp in zip(fixed.GetSize(), fixed.GetSpacing())]
     mesh_size = [max(1, int(s/grid_spacing + 0.5)) for s in image_size]
-    mesh_size = [max(1, int(m/mesh_coarsening_factor + 0.5)) for m in mesh_size]  # Start coarse
+    refine = _num_list(scale_factors, [], int) if str(scale_factors or "").strip() else []
+    if refine:
+        mesh_size = [max(1, int(m/mesh_coarsening_factor + 0.5)) for m in mesh_size]  # refined per level
 
     initial_transform = sitk.BSplineTransformInitializer(fixed, mesh_size, order=int(bspline_order))
 
     registration_method = sitk.ImageRegistrationMethod()
     registration_method.SetMetricAsMeanSquares()
     registration_method.SetMetricSamplingStrategy(registration_method.RANDOM)
-    registration_method.SetMetricSamplingPercentage(float(sampling_percentage))
+    registration_method.SetMetricSamplingPercentage(float(sampling_percentage), seed)
     registration_method.SetInterpolator(_SITK_INTERP[str(interpolator).upper()])
-    registration_method.SetOptimizerAsLBFGSB(
-        gradientConvergenceTolerance=float(gradient_convergence_tolerance),
-        numberOfIterations=num_iterations,
-        maximumNumberOfCorrections=int(max_number_of_corrections),
-        maximumNumberOfFunctionEvaluations=num_iterations * 10,
-        costFunctionConvergenceFactor=float(cost_function_convergence_factor)
-    )
-    registration_method.SetInitialTransformAsBSpline(
-        initial_transform, inPlace=True, scaleFactors=_num_list(scale_factors, [1, 2, 4], int))
+    levels = len(refine) if refine else 3
+    registration_method.SetShrinkFactorsPerLevel([2 ** k for k in reversed(range(levels))])
+    registration_method.SetSmoothingSigmasPerLevel([float(k) for k in reversed(range(levels))])
+    registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()
+    if refine:
+        registration_method.SetOptimizerAsGradientDescentLineSearch(
+            5.0, int(num_iterations), convergenceMinimumValue=1e-4, convergenceWindowSize=5)
+        registration_method.SetOptimizerScalesFromPhysicalShift()
+        registration_method.SetInitialTransformAsBSpline(initial_transform, inPlace=True, scaleFactors=refine)
+    else:
+        registration_method.SetOptimizerAsLBFGSB(
+            gradientConvergenceTolerance=float(gradient_convergence_tolerance),
+            numberOfIterations=num_iterations,
+            maximumNumberOfCorrections=int(max_number_of_corrections),
+            maximumNumberOfFunctionEvaluations=num_iterations * 10,
+            costFunctionConvergenceFactor=float(cost_function_convergence_factor)
+        )
+        registration_method.SetInitialTransform(initial_transform, inPlace=True)
 
-    final_bspline = registration_method.Execute(fixed, affine_img)
+    final_bspline = _unwrap(registration_method.Execute(fixed, affine_img))
 
-    # Compose affine + bspline
-    composite = sitk.CompositeTransform([affine_tx, final_bspline])
+    # Compose: bspline first, then the affine (the LAST listed transform is applied first)
+    composite = _flat_composite([affine_tx, final_bspline])
     registered = sitk.Resample(moving, fixed, composite, sitk.sitkLinear, 0.0, moving.GetPixelID())
 
     return registered, composite
@@ -644,7 +745,9 @@ def threshold_otsu(volume: sitk.Image, number_of_histogram_bins: int = 128,
     otsu.Execute(volume)
     threshold_value = otsu.GetThreshold()
     logger.info(f"Otsu threshold: {threshold_value:.2f}")
-    return sitk.BinaryThreshold(volume, lowerThreshold=threshold_value,
+    # BinaryThreshold's default upper bound is 255: everything above the threshold is inside.
+    upper = max(float(threshold_value), float(sitk.GetArrayViewFromImage(volume).max()))
+    return sitk.BinaryThreshold(volume, lowerThreshold=threshold_value, upperThreshold=upper,
                                 insideValue=int(inside_value), outsideValue=int(outside_value))
 
 
@@ -668,29 +771,44 @@ def segment_watershed(binary_volume: sitk.Image, seed_radius: float = 10.0,
     """Watershed segmentation with automatic seed generation - from 08_segmentation_and_shape_analysis.ipynb.
 
     Steps:
-    1. Morphological cleanup
-    2. Distance map
-    3. Seed generation from distance peaks
-    4. Watershed
-    5. Boundary object removal
+    1. Morphological cleanup (opening / closing radii in voxels)
+    2. Signed distance map in mm, negative inside the object
+    3. Seeds: regions deeper than ``seed_radius`` mm, at least ``min_object_size`` voxels
+    4. Watershed from the seeds, restricted to the object
+    5. Objects cut by the image border are removed
     """
+    if _sitk_bool(distance_inside_is_positive) or _sitk_bool(distance_squared):
+        raise ValueError(
+            "distance_inside_is_positive and distance_squared must be false: the seeds are taken "
+            "where the distance (mm, negative inside) is below -seed_radius"
+        )
     # Cleanup
     cleaned = sitk.BinaryOpeningByReconstruction(binary_volume, _num_list(opening_radius, [10, 10, 10], int))
     cleaned = sitk.BinaryClosingByReconstruction(cleaned, _num_list(closing_radius, [10, 10, 10], int))
 
-    # Distance map and seeds
-    dist = sitk.SignedMaurerDistanceMap(cleaned, insideIsPositive=_sitk_bool(distance_inside_is_positive),
-                                        squaredDistance=_sitk_bool(distance_squared))
-    seeds = sitk.ConnectedComponent(dist < -seed_radius)
-    seeds = sitk.RelabelComponent(seeds, minimumObjectSize=min_object_size)
+    # Distance map (mm: useImageSpacing, whose default is False = voxels) and seeds
+    dist = sitk.SignedMaurerDistanceMap(cleaned, insideIsPositive=False, squaredDistance=False,
+                                        useImageSpacing=True)
+    seeds = sitk.ConnectedComponent(dist < -float(seed_radius))
+    seeds = sitk.RelabelComponent(seeds, minimumObjectSize=int(min_object_size))
 
-    # Watershed
+    # Watershed, labels kept only inside the object (the basins also cover the background)
     ws = sitk.MorphologicalWatershedFromMarkers(dist, seeds, markWatershedLine=_sitk_bool(mark_watershed_line))
-    result = sitk.Mask(ws, sitk.Cast(cleaned, sitk.sitkUInt8))
+    ws = sitk.Mask(ws, sitk.Cast(cleaned, sitk.sitkUInt8))
 
-    # Remove boundary objects
-    boundary = sitk.BinaryGrindPeak((ws != 0) | (binary_volume == 0))
-    final = sitk.Mask(ws, boundary == 0)
+    a = sitk.GetArrayFromImage(ws)
+    # A separate object with no seed of its own was reached through the background by a
+    # neighbour's basin and carried its label: such objects are left unlabelled.
+    parts = sitk.GetArrayFromImage(sitk.ConnectedComponent(cleaned, True))
+    seeded = np.unique(parts[sitk.GetArrayViewFromImage(seeds) > 0])
+    a[~np.isin(parts, seeded[seeded != 0])] = 0
+
+    # Remove objects cut by the image border
+    border = np.unique(np.concatenate([a[0].ravel(), a[-1].ravel(), a[:, 0].ravel(), a[:, -1].ravel(),
+                                       a[:, :, 0].ravel(), a[:, :, -1].ravel()]))
+    a[np.isin(a, border[border != 0])] = 0
+    final = sitk.GetImageFromArray(a)
+    final.CopyInformation(ws)
 
     return final
 
@@ -746,17 +864,21 @@ def compute_difference_image(fixed: sitk.Image, moving_registered: sitk.Image) -
 
 def compute_difference_thresholded(fixed: sitk.Image, registered: sitk.Image,
                                    lower_threshold: float = 50.0,
-                                   upper_threshold: float = 400.0) -> tuple[sitk.Image, dict]:
+                                   upper_threshold: float | None = None) -> tuple[sitk.Image, dict]:
     """Compute difference image and threshold high-intensity regions.
 
     From ref_regi/modulesReg.py::display_thresholded_image.
-    Returns the thresholded binary mask and statistics.
+    Returns the difference image and statistics; ``high_diff_voxels`` counts the
+    voxels with lower_threshold <= |fixed - registered| <= upper_threshold (no
+    upper bound by default: a larger difference is a worse alignment, never a better one).
     """
     diff = sitk.Abs(sitk.Subtract(sitk.Cast(fixed, sitk.sitkFloat32),
                                    sitk.Cast(registered, sitk.sitkFloat32)))
 
     stats = sitk.StatisticsImageFilter()
     stats.Execute(diff)
+    if upper_threshold is None:
+        upper_threshold = max(float(lower_threshold), float(stats.GetMaximum()))
 
     diff_arr = sitk.GetArrayFromImage(diff)
     total_voxels = diff_arr.size

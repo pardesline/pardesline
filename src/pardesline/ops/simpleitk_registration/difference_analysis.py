@@ -7,10 +7,9 @@ highlights regions with high misalignment.
 
 CONTRACT:
     python difference_analysis.py --input <fixed.vti> --output <difference.vti> \
-        [--moving <registered.vti>] [--lower_threshold F] [--upper_threshold F]
+        --moving <registered.vti> [--lower_threshold F] [--upper_threshold F]
 
-If --moving is provided, computes |fixed - moving|.
-If --moving is omitted, creates a synthetic shifted volume for demo.
+--moving (required) is the registered volume; computes |fixed - moving|.
 """
 
 import argparse
@@ -25,26 +24,14 @@ import SimpleITK as sitk
 from loguru import logger
 
 
-def create_synthetic_registered(fixed: sitk.Image) -> sitk.Image:
-    """Create a slightly misaligned version for demo (residual error)."""
-    transform = sitk.Euler3DTransform()
-    center = fixed.TransformContinuousIndexToPhysicalPoint(
-        [(sz-1)/2.0 for sz in fixed.GetSize()]
-    )
-    transform.SetCenter(center)
-    transform.SetRotation(0.01, 0.005, -0.008)
-    transform.SetTranslation((1.0, -0.5, 0.8))
-    logger.info("Synthetic residual: small misalignment for demo")
-    return sitk.Resample(fixed, fixed, transform, sitk.sitkLinear, 0.0, fixed.GetPixelID())
-
-
 def main():
     parser = argparse.ArgumentParser(description="Difference Image Analysis")
     parser.add_argument("--input", required=True, help="Fixed volume (reference)")
     parser.add_argument("--output", required=True, help="Output difference volume")
-    parser.add_argument("--moving", default=None, help="Registered/moving volume")
+    parser.add_argument("--moving", required=True, help="Registered/moving volume")
     parser.add_argument("--lower_threshold", type=float, default=50.0)
-    parser.add_argument("--upper_threshold", type=float, default=400.0)
+    parser.add_argument("--upper_threshold", type=float, default=None,
+                        help="Upper bound of the high-difference range (default: none, every larger difference counts)")
     args = parser.parse_args()
 
     print("PROGRESS:5", flush=True)
@@ -53,12 +40,8 @@ def main():
     logger.info("Fixed size: {}, spacing: {}", fixed.GetSize(), fixed.GetSpacing())
 
     print("PROGRESS:20", flush=True)
-    if args.moving:
-        logger.info("Loading registered/moving: {}", args.moving)
-        registered = load_volume(args.moving)
-    else:
-        logger.info("No --moving provided, creating synthetic misalignment (demo)")
-        registered = create_synthetic_registered(fixed)
+    logger.info("Loading registered/moving: {}", args.moving)
+    registered = load_volume(args.moving)
 
     print("PROGRESS:40", flush=True)
     logger.info("Computing difference (threshold=[{}, {}])",

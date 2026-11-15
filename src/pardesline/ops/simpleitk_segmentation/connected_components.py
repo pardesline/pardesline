@@ -21,7 +21,8 @@ def main():
     parser.add_argument("--output", required=True)
     parser.add_argument("--threshold", type=float, default=100.0)
     parser.add_argument("--min_size", type=int, default=15)
-    parser.add_argument("--upper_threshold", type=float, default=255.0, help="Upper bound for binarization")
+    parser.add_argument("--upper_threshold", type=float, default=None,
+                        help="Upper bound for binarization (default: the image maximum)")
     parser.add_argument("--inside_value", type=int, default=1)
     parser.add_argument("--outside_value", type=int, default=0)
     parser.add_argument("--fully_connected", type=lambda v: str(v).strip().lower() in
@@ -34,7 +35,9 @@ def main():
     logger.info("Volume size: {}, spacing: {}", volume.GetSize(), volume.GetSpacing())
 
     logger.info("Binary thresholding at {}", args.threshold)
-    binary = sitk.BinaryThreshold(volume, lowerThreshold=args.threshold, upperThreshold=args.upper_threshold,
+    upper = (args.upper_threshold if args.upper_threshold is not None
+             else max(args.threshold, float(sitk.GetArrayViewFromImage(volume).max())))
+    binary = sitk.BinaryThreshold(volume, lowerThreshold=args.threshold, upperThreshold=upper,
                                   insideValue=args.inside_value, outsideValue=args.outside_value)
 
     logger.info("Labeling connected components (min_size={})", args.min_size)

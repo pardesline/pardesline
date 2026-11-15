@@ -25,7 +25,8 @@ def main():
     parser.add_argument("--seed_radius", type=float, default=10.0)
     parser.add_argument("--min_object_size", type=int, default=15)
     _b = lambda v: str(v).strip().lower() in ("1", "true", "yes", "on", "y", "t")  # noqa: E731
-    parser.add_argument("--upper_threshold", type=float, default=255.0, help="Upper bound for initial binarization")
+    parser.add_argument("--upper_threshold", type=float, default=None,
+                        help="Upper bound for initial binarization (default: the image maximum)")
     parser.add_argument("--inside_value", type=int, default=1)
     parser.add_argument("--outside_value", type=int, default=0)
     parser.add_argument("--opening_radius", type=str, default="10,10,10", help="BinaryOpening radius per axis")
@@ -40,7 +41,9 @@ def main():
     logger.info("Volume size: {}, spacing: {}", volume.GetSize(), volume.GetSpacing())
 
     logger.info("Binary thresholding at {}", args.threshold)
-    binary = sitk.BinaryThreshold(volume, lowerThreshold=args.threshold, upperThreshold=args.upper_threshold,
+    upper = (args.upper_threshold if args.upper_threshold is not None
+             else max(args.threshold, float(sitk.GetArrayViewFromImage(volume).max())))
+    binary = sitk.BinaryThreshold(volume, lowerThreshold=args.threshold, upperThreshold=upper,
                                   insideValue=args.inside_value, outsideValue=args.outside_value)
 
     logger.info("Running watershed (seed_radius={}, min_object_size={})", args.seed_radius, args.min_object_size)

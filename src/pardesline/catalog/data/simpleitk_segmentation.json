@@ -38,7 +38,7 @@
       },
       "watershed": {
         "title": "Watershed Segmentation",
-        "content": "**1. Distance Transform**\nFrom a binary mask $B$, the Euclidean distance transform computes:\n$$D(\\mathbf{x}) = \\min_{\\mathbf{y} \\in \\partial B} \\|\\mathbf{x} - \\mathbf{y}\\|_2$$\nLocal maxima of $D$ serve as seed points for the watershed.\n\n**2. Watershed Algorithm**\nThe watershed treats $-D(\\mathbf{x})$ as a topographic surface. Starting from seed points (local minima of $-D$), regions are grown by immersion — flooding the surface from each seed and building dams where floods from different seeds meet.\n\n**3. Pipeline**\nThe full pipeline is:\n1. Binary threshold: $B = \\{\\mathbf{x} : I(\\mathbf{x}) > t\\}$\n2. Morphological opening: remove small noise\n3. Distance transform: $D(\\mathbf{x})$\n4. Seed generation: local maxima of $D$ with radius $r$\n5. Watershed: flood from seeds to produce labels"
+        "content": "**1. Distance Transform**\nFrom the cleaned binary mask $B$, the signed Euclidean distance map in mm (voxel spacing included) is negative inside the object:\n$$D(\\mathbf{x}) = -\\min_{\\mathbf{y} \\in \\partial B} \\|\\mathbf{x} - \\mathbf{y}\\|_2 \\quad (\\mathbf{x} \\in B)$$\n\n**2. Seeds**\nSeeds are the connected regions deeper than `seed_radius` mm ($D < -r$) with at least `min_object_size` voxels.\n\n**3. Watershed Algorithm**\n$D$ is flooded from the seeds; dams are built where floods from different seeds meet. Labels are kept inside the mask only; a separate object with no seed of its own stays unlabelled.\n\n**4. Pipeline**\n1. Binary threshold: $B = \\{\\mathbf{x} : t \\leq I(\\mathbf{x}) \\leq u\\}$ ($u$: image maximum by default)\n2. Opening and closing by reconstruction (radii in voxels)\n3. Distance map in mm\n4. Seeds deeper than $r$\n5. Watershed from the seeds\n6. Objects cut by the image border are removed"
       }
     }
   },
@@ -145,8 +145,8 @@
         {
           "name": "upper_threshold",
           "type": "float",
-          "default": 255.0,
-          "description": "Upper bound for binarization.",
+          "default": null,
+          "description": "Upper bound for binarization (default: the image maximum).",
           "min": -1000.0,
           "max": 3000.0,
           "advanced": true
@@ -198,7 +198,7 @@
           "default": 10.0,
           "min": 1.0,
           "max": 50.0,
-          "description": "Seed generation radius in mm."
+          "description": "Seed depth in mm: seeds are the regions farther than this from the object surface."
         },
         {
           "name": "min_object_size",
@@ -206,13 +206,13 @@
           "default": 15,
           "min": 1,
           "max": 1000,
-          "description": "Minimum object size after watershed."
+          "description": "Minimum seed size in voxels: seeds (regions deeper than seed_radius) smaller than this are discarded before flooding."
         },
         {
           "name": "upper_threshold",
           "type": "float",
-          "default": 255.0,
-          "description": "Upper bound for initial binarization.",
+          "default": null,
+          "description": "Upper bound for initial binarization (default: the image maximum).",
           "min": -1000.0,
           "max": 3000.0,
           "advanced": true
@@ -235,14 +235,14 @@
           "name": "distance_inside_is_positive",
           "type": "bool",
           "default": false,
-          "description": "SignedMaurerDistanceMap insideIsPositive.",
+          "description": "Must be false (kept for compatibility): the seeds use the distance in mm, negative inside.",
           "advanced": true
         },
         {
           "name": "distance_squared",
           "type": "bool",
           "default": false,
-          "description": "SignedMaurerDistanceMap squaredDistance.",
+          "description": "Must be false (kept for compatibility): seed_radius is compared with the true distance in mm.",
           "advanced": true
         },
         {

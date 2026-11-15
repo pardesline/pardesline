@@ -19,7 +19,7 @@ cat = load_catalog()
 def test_counts_match_the_platform():
     assert len(cat) == 19
     assert len(cat.methods) == 73
-    assert sum(len(m.parameters) for m in cat.methods) == 371
+    assert sum(len(m.parameters) for m in cat.methods) == 375  # 0.4.0: +4 seed (simpleitk_registration)
 
 
 def test_ids_are_unique_and_well_formed():
