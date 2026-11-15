@@ -38,7 +38,8 @@ sidecar). If the units are wrong (mm vs m) every radius is wrong: check
 `cloud.frame.describe()` first.
 
 RANSAC is random. Every registration script takes `seed` (default 0) and pins
-Open3D to one thread, so a run is reproducible; `ransac_global` and
+Open3D to one thread, so a run is reproducible on Linux and Windows (not on macOS, where
+Open3D's RANSAC varied between runs under the same seed in CI); `ransac_global` and
 `ransac_icp_pipeline` also run `restarts` seeds (default 8) and keep the pose
 with the best threshold-free score (mean of the 10-90 % quantiles of the
 moving-to-fixed distances). A single run is not trustworthy on near-symmetric

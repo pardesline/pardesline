@@ -70,6 +70,13 @@ calls now raise where they returned, which before 1.0 is a minor version.
   an archive whose size or ETag differs from its manifest pin is refused.
 - `resample(interpolator=...)` with an unknown name raises `ValueError`.
 
+### Known limitation
+- macOS: seeded Open3D RANSAC (`ransac_global`, the RANSAC stage of the pipeline and of
+  `icp_refinement`, RANSAC plane fits) is not repeatable run to run, although it is on Linux and
+  Windows: macOS CI of 0.4.0 gave different coarse poses for the same seed even with
+  OMP_NUM_THREADS=1. The pipeline's ICP refinement converged to the same pose there. Seeded
+  SimpleITK registrations agree to about 1e-4 mm on every platform (multithreaded sums).
+
 ### Also
 - Child processes of the runner get `stdin=DEVNULL` (they inherited the MCP server's protocol stream).
 - SDF, occupancy, erosion and collision warn when the input mesh is not watertight.

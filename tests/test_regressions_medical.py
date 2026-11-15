@@ -152,14 +152,22 @@ def test_p1_19_registration_is_reproducible_by_default(svc):
     """Random metric sampling used the wall clock: two identical runs gave different transforms."""
     fixed, _ = blob_volume(size=(40, 40, 32), spacing=(1.5, 1.5, 2.0))
     moving = moved_copy(fixed, sitk.Euler3DTransform((0, 0, 0), 0.05, -0.03, 0.08, (3.0, -2.0, 1.0)))
-    # Same seed, same samples: only multithreaded floating-point sums differ (~1e-15).
-    # Unseeded runs differed by up to 0.09 rad on this pair.
-    a = svc.register_rigid(fixed, moving, num_iterations=30)[1].GetParameters()
-    b = svc.register_rigid(fixed, moving, num_iterations=30)[1].GetParameters()
-    assert np.allclose(a, b, rtol=0, atol=1e-9)
-    c = svc.register_affine(fixed, moving, num_iterations=20)[1].GetParameters()
-    d = svc.register_affine(fixed, moving, num_iterations=20)[1].GetParameters()
-    assert np.allclose(c, d, rtol=0, atol=1e-9)
+    # Same seed, same samples: only ITK's multithreaded floating-point sums differ (1e-15 on
+    # Windows, about 1e-7 in the affine matrix on macOS CI, i.e. micrometres). Compared as the
+    # displacement of points of the volume. Unseeded runs differed by up to 0.09 rad on this pair.
+    probe = [fixed.TransformIndexToPhysicalPoint(ix) for ix in ((0, 0, 0), (39, 39, 31), (20, 5, 16))]
+
+    def max_shift(t1, t2):
+        return max(
+            float(np.linalg.norm(np.subtract(t1.TransformPoint(p), t2.TransformPoint(p)))) for p in probe
+        )
+
+    a = svc.register_rigid(fixed, moving, num_iterations=30)[1]
+    b = svc.register_rigid(fixed, moving, num_iterations=30)[1]
+    assert max_shift(a, b) < 1e-4  # mm
+    c = svc.register_affine(fixed, moving, num_iterations=20)[1]
+    d = svc.register_affine(fixed, moving, num_iterations=20)[1]
+    assert max_shift(c, d) < 1e-4  # mm
 
 
 REG_SCRIPTS = [
