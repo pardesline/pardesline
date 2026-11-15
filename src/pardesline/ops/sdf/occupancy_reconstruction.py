@@ -11,6 +11,8 @@ import numpy as np
 import open3d as o3d
 from loguru import logger
 
+from pardesline.ops._mesh_common import require_triangles, occupancy as ray_occupancy, orient_outward
+
 
 def main():
     parser = argparse.ArgumentParser(description="Occupancy-Based Reconstruction")
@@ -24,7 +26,10 @@ def main():
     parser.add_argument("--mc_method", choices=["lewiner", "lorensen"], default="lewiner")
     parser.add_argument("--mc_gradient_direction", choices=["descent", "ascent"], default="descent")
     parser.add_argument("--mc_allow_degenerate", type=lambda v: str(v).strip().lower() in
-                        ("1", "true", "yes", "on", "y", "t"), default=True)
+                        ("1", "true", "yes", "on", "y", "t"), default=False,
+                        help="Keep zero-area triangles (they become duplicate faces after welding)")
+    parser.add_argument("--sign_rays", type=int, default=3,
+                        help="Rays voting inside/outside per point (odd; 1 = Open3D default, can flip signs)")
     args = parser.parse_args()
 
     logger.info(f"Loading: {args.input}")
@@ -37,11 +42,7 @@ def main():
 
     logger.info(f"Mesh: {len(mesh.vertices)} vertices, {len(mesh.triangles)} triangles")
 
-    if len(mesh.triangles) == 0:
-        logger.info("No triangles -- building convex hull mesh")
-        pcd_tmp = o3d.geometry.PointCloud(mesh.vertices)
-        mesh, _ = pcd_tmp.compute_convex_hull()
-        logger.info(f"Hull: {len(mesh.vertices)} vertices, {len(mesh.triangles)} triangles")
+    require_triangles(mesh)
 
     logger.info("Computing vertex normals")
     mesh.compute_vertex_normals()
@@ -71,7 +72,7 @@ def main():
     # Compute occupancy
     logger.info("Computing occupancy field")
     query = o3d.core.Tensor(points.astype(np.float32), dtype=o3d.core.Dtype.Float32)
-    occupancy = scene.compute_occupancy(query).numpy()
+    occupancy = ray_occupancy(scene, query, args.sign_rays)
     occ_grid = occupancy.reshape(grid_shape)
 
     logger.info(f"Inside voxels: {np.sum(occupancy > 0)}")
@@ -86,6 +87,7 @@ def main():
         gradient_direction=args.mc_gradient_direction, allow_degenerate=args.mc_allow_degenerate
     )
     verts = verts[:, ::-1] + min_bound
+    faces = orient_outward(verts, faces)  # the axis swap above is a reflection
 
     mesh_out = o3d.geometry.TriangleMesh()
     mesh_out.vertices = o3d.utility.Vector3dVector(verts)

@@ -37,13 +37,13 @@
     { "id": "mesh_to_pcd_uniform", "name": "Uniform Sampling (Mesh to PCD)", "script": "mesh_to_pcd_uniform.py", "output_extension": ".ply", "parameters": [
       { "name": "num_points", "type": "int", "default": 5000, "min": 100, "max": 100000, "description": "Number of points to sample." },
       { "name": "use_triangle_normal", "type": "bool", "default": false, "description": "Assign each sampled point the normal of its source triangle instead of an interpolated vertex normal.", "advanced": true },
-      { "name": "seed", "type": "int", "default": -1, "min": -1, "max": 2147483647, "description": "Random seed for sampling (-1 = nondeterministic).", "advanced": true }
+      { "name": "seed", "type": "int", "default": 0, "min": -1, "max": 2147483647, "description": "Random seed for sampling (negative = unseeded).", "advanced": true }
     ]},
     { "id": "mesh_to_pcd_poisson_disk", "name": "Poisson-Disk Sampling", "script": "mesh_to_pcd_poisson_disk.py", "output_extension": ".ply", "parameters": [
       { "name": "num_points", "type": "int", "default": 5000, "min": 100, "max": 100000, "description": "Approximate number of points." },
       { "name": "init_factor", "type": "int", "default": 5, "min": 1, "max": 20, "description": "Initial uniform-sample oversampling factor before elimination.", "advanced": true },
       { "name": "use_triangle_normal", "type": "bool", "default": false, "description": "Assign each sampled point the normal of its source triangle instead of an interpolated vertex normal.", "advanced": true },
-      { "name": "seed", "type": "int", "default": -1, "min": -1, "max": 2147483647, "description": "Random seed for sampling (-1 = nondeterministic).", "advanced": true }
+      { "name": "seed", "type": "int", "default": 0, "min": -1, "max": 2147483647, "description": "Random seed for sampling (negative = unseeded).", "advanced": true }
     ]}
   ]
 }

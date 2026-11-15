@@ -19,8 +19,9 @@ cat = load_catalog()
 def test_counts_match_the_platform():
     assert len(cat) == 19
     assert len(cat.methods) == 73
-    # 0.4.0: +4 seed (simpleitk), +10 (registration), +3 seed (RANSAC plane fits)
-    assert sum(len(m.parameters) for m in cat.methods) == 388
+    # 0.4.0: +4 seed (simpleitk), +10 (registration), +3 seed (RANSAC plane fits),
+    # +6 sign_rays and +2 seed (distance fields, collision)
+    assert sum(len(m.parameters) for m in cat.methods) == 396
 
 
 def test_ids_are_unique_and_well_formed():

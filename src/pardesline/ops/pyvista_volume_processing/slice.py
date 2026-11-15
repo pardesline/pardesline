@@ -16,9 +16,9 @@ def main():
     parser.add_argument("--normal_x", type=float, default=1.0)
     parser.add_argument("--normal_y", type=float, default=0.0)
     parser.add_argument("--normal_z", type=float, default=0.0)
-    parser.add_argument("--origin_x", type=float, default=0.0)
-    parser.add_argument("--origin_y", type=float, default=0.0)
-    parser.add_argument("--origin_z", type=float, default=0.0)
+    parser.add_argument("--origin_x", type=float, default=None, help="Slice origin x (default: dataset centre)")
+    parser.add_argument("--origin_y", type=float, default=None, help="Slice origin y (default: dataset centre)")
+    parser.add_argument("--origin_z", type=float, default=None, help="Slice origin z (default: dataset centre)")
     parser.add_argument("--generate_triangles", type=_b, default=False,
                         help="Triangulate the slice output.")
     parser.add_argument("--contour", type=_b, default=False,
@@ -31,12 +31,10 @@ def main():
 
     normal = (args.normal_x, args.normal_y, args.normal_z)
 
-    # Use dataset center if origin is (0,0,0)
-    if args.origin_x == 0.0 and args.origin_y == 0.0 and args.origin_z == 0.0:
-        origin = ds.center
-        logger.info("Origin defaulted to dataset center: ({:.3f}, {:.3f}, {:.3f})", origin[0], origin[1], origin[2])
-    else:
-        origin = (args.origin_x, args.origin_y, args.origin_z)
+    # A coordinate not given defaults to the dataset centre; 0 is a coordinate like any other
+    # (it used to mean "centre", so a slice through the physical origin was moved).
+    origin = tuple(ds.center[i] if v is None else v
+                   for i, v in enumerate((args.origin_x, args.origin_y, args.origin_z)))
 
     logger.info("Slice parameters: normal={}, origin={}", normal, origin)
 

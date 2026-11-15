@@ -131,7 +131,9 @@ import pardesline as pl
 mask = pl.load("msd_task02_heart").filter(split="Tr")[0].mask  # LabelMap, LPS mm
 surface = mask.to_mesh(label=1)  # exact boundary
 points = surface.to_points(num_points=4096)  # for a point network
-sdf = surface.run("sdf.compute_sdf", voxel_size=1.0)  # implicit field + marching cubes
+sdf = surface.run("sdf.compute_sdf", voxel_size=1.0)  # implicit field + marching cubes, faces outward
+# The input must be a mesh (a point cloud is refused, not replaced by its convex hull); inside/outside
+# is the majority of sign_rays=3 rays (one ray can flip a sign at a grazing edge).
 surface.provenance[-1]["exact"], points.frame.describe()  # True, "LPS, mm (file)"
 ```
 

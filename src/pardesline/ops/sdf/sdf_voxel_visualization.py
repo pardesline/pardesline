@@ -18,6 +18,8 @@ import open3d as o3d
 import matplotlib
 from loguru import logger
 
+from pardesline.ops._mesh_common import require_triangles, signed_distance
+
 
 def main():
     parser = argparse.ArgumentParser(description="SDF Voxel Visualization")
@@ -34,6 +36,8 @@ def main():
                         help="Bbox padding as a fraction of the max extent")
     parser.add_argument("--colormap", type=str, default="coolwarm",
                         help="Matplotlib diverging colormap (e.g. coolwarm, bwr, seismic, RdBu)")
+    parser.add_argument("--sign_rays", type=int, default=3,
+                        help="Rays voting inside/outside per point (odd; 1 = Open3D default, can flip signs)")
     args = parser.parse_args()
 
     logger.info(f"Loading: {args.input}")
@@ -47,11 +51,7 @@ def main():
     logger.info(f"Mesh: {len(mesh.vertices)} vertices, {len(mesh.triangles)} triangles")
 
     # Build convex hull if no triangles (e.g. point cloud input)
-    if len(mesh.triangles) == 0:
-        logger.info("No triangles - building convex hull")
-        pcd_tmp = o3d.geometry.PointCloud(mesh.vertices)
-        mesh, _ = pcd_tmp.compute_convex_hull()
-        logger.info(f"Hull: {len(mesh.vertices)} vertices, {len(mesh.triangles)} triangles")
+    require_triangles(mesh)
 
     logger.info("Computing vertex normals")
     mesh.compute_vertex_normals()
@@ -87,7 +87,7 @@ def main():
     # Compute signed distances
     logger.info("Computing signed distance field")
     query = o3d.core.Tensor(points.astype(np.float32), dtype=o3d.core.Dtype.Float32)
-    sdf_values = scene.compute_signed_distance(query).numpy()
+    sdf_values = signed_distance(scene, query, args.sign_rays)
 
     logger.info(f"SDF range: [{sdf_values.min():.6f}, {sdf_values.max():.6f}]")
 

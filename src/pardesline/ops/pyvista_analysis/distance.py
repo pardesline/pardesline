@@ -1,4 +1,6 @@
-"""Compute implicit distance (signed distance from center) and color the mesh."""
+"""Radial distance: the UNSIGNED distance of each point to the centre of the bounding box
+(not the centre of mass, not a signed or surface-to-surface distance), stored as the point
+array ``distance_from_center``."""
 import argparse
 import sys
 import numpy as np
@@ -24,9 +26,9 @@ def main():
         logger.error("Input has no points")
         sys.exit(1)
 
-    # Compute distance from center of mass
+    # Unsigned distance to the bounding-box centre (mesh.center is the bounding-box centre)
     center = mesh.center
-    logger.info("Computing distances from center of mass ({:.3f}, {:.3f}, {:.3f})",
+    logger.info("Computing distances from the bounding-box centre ({:.3f}, {:.3f}, {:.3f})",
                  center[0], center[1], center[2])
     distances = np.linalg.norm(mesh.points - np.array(center), axis=1)
     mesh["distance_from_center"] = distances

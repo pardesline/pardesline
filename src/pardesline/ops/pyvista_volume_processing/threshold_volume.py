@@ -51,6 +51,10 @@ def main():
         all_scalars=args.all_scalars,
     )
 
+    if result.n_cells == 0:
+        logger.error("The threshold [{}, {}] kept no cell", args.lower, args.upper)
+        sys.exit(1)
+
     # Save as VTU to preserve volumetric structure
     if isinstance(result, pv.UnstructuredGrid):
         logger.info("Result is UnstructuredGrid, saving directly")

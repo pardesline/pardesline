@@ -41,7 +41,7 @@
     "params": {
       "num_points": "5 000 points keep registration and clustering fast while covering a surface; the examples use 20 000-50 000 for visual density.",
       "use_triangle_normal": "Off: interpolated vertex normals are smoother on organic surfaces; turn on for CAD meshes with flat faces.",
-      "seed": "-1 (non-deterministic) is Open3D's default; set a seed when a result must be reproducible, as the examples do."
+      "seed": "0: Open3D 0.19's samplers take no seed argument, so the global generator is seeded; the old -1 default and the old seed path were both unseeded."
     }
   },
   "mesh_processing.mesh_to_pcd_poisson_disk": {
@@ -50,7 +50,7 @@
       "num_points": "5 000 is the approximate count after elimination: Poisson-disk sampling gives evenly spaced points, which is what registration features and PointNet training want.",
       "init_factor": "5x oversampling before elimination is Open3D's recommendation: enough candidates for an even blue-noise distribution without a long elimination pass.",
       "use_triangle_normal": "Off: interpolated normals; on for flat-faced CAD meshes.",
-      "seed": "-1 is non-deterministic; the examples pass seed=1 for reproducible figures."
+      "seed": "0: Open3D 0.19's samplers take no seed argument, so the global generator is seeded; the old -1 default and the old seed path were both unseeded."
     }
   },
   "voxel_to_mesh.voxelization": {
@@ -66,7 +66,8 @@
       "erosion_iterations": "1 iteration removes one voxel layer: the thinnest shell, which is what you want to strip surface noise without eating thin parts.",
       "erosion_connectivity": "1 (faces only) is the most conservative structuring element: each iteration removes the least material.",
       "iso_level": "0.5 is the half-occupancy surface of a binary grid: the boundary between inside and outside voxels.",
-      "padding_voxels": "5 voxels of margin keep marching cubes from clipping the surface at the grid border."
+      "padding_voxels": "5 voxels of margin keep marching cubes from clipping the surface at the grid border.",
+      "sign_rays": "3: the sign is the majority of three rays. With one ray (Open3D's default) a ray grazing an edge counted a point 6.8 mm outside a sphere as inside and set the reported maximum depth to 6.83 instead of 2.0."
     }
   },
   "sdf.compute_sdf": {
@@ -78,7 +79,8 @@
       "mc_step_size": "1 samples every voxel; a larger step is a quick coarse preview.",
       "mc_method": "Lewiner marching cubes resolves the ambiguous cases that the original Lorensen tables get wrong on thin structures.",
       "mc_gradient_direction": "descent orients normals so that the inside is negative distance, which is the convention of the SDF grid.",
-      "mc_allow_degenerate": "On, matching scikit-image: degenerate triangles are removed later by the mesh cleaning step rather than by rejecting the surface."
+      "mc_allow_degenerate": "Off: zero-area triangles (where the field is exactly 0 at a node) become duplicate faces after welding; on a sphere of radius 10 the default 'on' gave 48 degenerate and 18 duplicate faces.",
+      "sign_rays": "3: the sign is the majority of three rays. With one ray (Open3D's default) a ray grazing an edge counted a point 6.8 mm outside a sphere as inside and set the reported maximum depth to 6.83 instead of 2.0."
     }
   },
   "sdf.occupancy_reconstruction": {
@@ -90,7 +92,8 @@
       "mc_step_size": "1 samples every voxel.",
       "mc_method": "Lewiner resolves ambiguous cube cases.",
       "mc_gradient_direction": "descent keeps normals pointing outward for occupancy grids.",
-      "mc_allow_degenerate": "On, matching scikit-image."
+      "mc_allow_degenerate": "Off: zero-area triangles (where the field is exactly 0 at a node) become duplicate faces after welding; on a sphere of radius 10 the default 'on' gave 48 degenerate and 18 duplicate faces.",
+      "sign_rays": "3: the sign is the majority of three rays. With one ray (Open3D's default) a ray grazing an edge counted a point 6.8 mm outside a sphere as inside and set the reported maximum depth to 6.83 instead of 2.0."
     }
   },
   "sdf.sdf_voxel_visualization": {
@@ -100,7 +103,8 @@
       "min_clamp": "-0.1 clamps the interior so colours stay readable near the surface instead of saturating at the object centre.",
       "max_clamp": "0.1 clamps the exterior for the same reason.",
       "padding_factor": "15 % of the extent as margin shows the field decaying outside the object.",
-      "colormap": "coolwarm is diverging around zero, which is what a signed field needs: blue inside, red outside."
+      "colormap": "coolwarm is diverging around zero, which is what a signed field needs: blue inside, red outside.",
+      "sign_rays": "3: the sign is the majority of three rays. With one ray (Open3D's default) a ray grazing an edge counted a point 6.8 mm outside a sphere as inside and set the reported maximum depth to 6.83 instead of 2.0."
     }
   },
   "point_cloud_reconstruction.poisson": {
@@ -112,7 +116,7 @@
       "linear_fit": "Off: the default iso-vertex placement is smoother; linear fit is faster and slightly blockier.",
       "n_threads": "-1 uses every core.",
       "density_quantile": "0.01 removes the 1 % of vertices with the least sample support: that is where Poisson balloons over holes and partial views, so the output is a clean, density-trimmed surface rather than a bubble; raise to 0.05-0.1 on very partial scans.",
-      "normal_radius": "0.1 in file units for normal estimation when the cloud has none; about 5-10x the point spacing on metre-scale data, scale it for millimetre scans.",
+      "normal_radius": "0 = 3 x the mean nearest-neighbour spacing. The old absolute 0.1 left most neighbourhoods with fewer than 3 points on data in mm: 86 % of the normals were off by more than 30 degrees and Poisson returned an inside-out, open surface.",
       "normal_max_nn": "30 neighbours is enough for a stable covariance; more smooths sharp edges.",
       "normal_orient_k": "15 neighbours for consistent orientation: Poisson needs normals pointing the same way, and a small k keeps the propagation local on thin parts."
     }
@@ -134,7 +138,7 @@
     "params": {
       "radius_factor": "2x the average point spacing is the smallest ball that rolls over a sampled surface without falling through; the multi-scale set (1x, 2x, 4x) then fills the larger gaps.",
       "radii_multipliers": "1,2,4 is the classic multi-scale schedule: small balls first for detail, larger ones to bridge sparse regions.",
-      "normal_radius": "0.1 in file units for normal estimation when the cloud has none.",
+      "normal_radius": "0 = 3 x the mean nearest-neighbour spacing. The old absolute 0.1 left most neighbourhoods with fewer than 3 points on data in mm: 86 % of the normals were off by more than 30 degrees and Poisson returned an inside-out, open surface.",
       "normal_max_nn": "30 neighbours for a stable covariance.",
       "normal_orient_k": "15 for consistent orientation; ball pivoting needs oriented normals."
     }
@@ -348,7 +352,9 @@
       "num_samples": "50 000 surface samples give a dense signed-distance map on the part in under a second.",
       "obstacle_resolution": "50 tessellation steps make the sphere smooth enough that its SDF has no facet artefacts.",
       "obstacle_viz_points": "5 000 points draw the obstacle without hiding the part.",
-      "colormap": "coolwarm is diverging around zero distance: red inside the obstacle, blue outside."
+      "colormap": "coolwarm is diverging around zero distance: red inside the obstacle, blue outside.",
+      "sign_rays": "3: the sign is the majority of three rays. With one ray (Open3D's default) a ray grazing an edge counted a point 6.8 mm outside a sphere as inside and set the reported maximum depth to 6.83 instead of 2.0.",
+      "seed": "0: the input surface is sampled at random; a fixed seed makes the reported depths reproducible."
     }
   },
   "collision_detection.penetration_depth": {
@@ -358,7 +364,9 @@
       "overlap_distance": "0.15 in file units: the obstacle overlaps the part by 15 % of a unit object.",
       "num_samples": "50 000 surface samples.",
       "obstacle_resolution": "50 tessellation steps make the sphere smooth enough that its SDF has no facet artefacts.",
-      "colormap": "hot maps zero depth to black and the deepest penetration to white."
+      "colormap": "hot maps zero depth to black and the deepest penetration to white.",
+      "sign_rays": "3: the sign is the majority of three rays. With one ray (Open3D's default) a ray grazing an edge counted a point 6.8 mm outside a sphere as inside and set the reported maximum depth to 6.83 instead of 2.0.",
+      "seed": "0: the input surface is sampled at random; a fixed seed makes the reported depths reproducible."
     }
   },
   "pyvista_mesh_processing.pv_decimate": {
@@ -511,7 +519,7 @@
       "compute_normals": "Off: normals are recomputed later by the mesh steps that need them.",
       "compute_gradients": "Off: not needed for a surface.",
       "compute_scalars": "On: the contoured value is kept on the surface for colouring.",
-      "method": "contour is VTK's generic filter; marching_cubes and flying_edges are faster on image data and give the same surface.",
+      "method": "auto = flying_edges on ImageData: vtkContourFilter ignored the direction matrix (a 25-degree oblique ball came out 12.4 mm off); marching_cubes and flying_edges are exact.",
       "preference": "point: image intensities are point data."
     }
   },
@@ -521,9 +529,9 @@
       "normal_x": "1: an x-normal (sagittal in LPS) slice by default.",
       "normal_y": "0, see normal_x.",
       "normal_z": "0, see normal_x.",
-      "origin_x": "0 means the volume centre.",
-      "origin_y": "0 means the centre.",
-      "origin_z": "0 means the centre.",
+      "origin_x": "Dataset centre when not given. 0 used to mean 'centre', so a slice at the physical origin was moved.",
+      "origin_y": "Dataset centre when not given. 0 used to mean 'centre', so a slice at the physical origin was moved.",
+      "origin_z": "Dataset centre when not given. 0 used to mean 'centre', so a slice at the physical origin was moved.",
       "generate_triangles": "Off: the slice stays a polygon mesh of quads.",
       "contour": "Off: no contour edges."
     }
@@ -531,9 +539,9 @@
   "pyvista_volume_processing.pv_slice_orthogonal": {
     "validated_on": "MSD hippocampus MRI (examples/hippocampus_mask_to_mesh); generated grids in tests/test_ops_smoke.py",
     "params": {
-      "x": "0 means the centre of the volume.",
-      "y": "0 means the centre.",
-      "z": "0 means the centre.",
+      "x": "Dataset centre when not given. 0 used to mean 'centre', so a slice at 0 was moved.",
+      "y": "Dataset centre when not given. 0 used to mean 'centre', so a slice at 0 was moved.",
+      "z": "Dataset centre when not given. 0 used to mean 'centre', so a slice at 0 was moved.",
       "generate_triangles": "Off: the slice stays a polygon mesh of quads, which renders and saves smaller.",
       "contour": "Off: no contour edges are generated on the slice."
     }

@@ -24,9 +24,17 @@ def main():
     # Find scalar array
     scalars_name = args.scalars if args.scalars else None
     if not scalars_name:
-        if mesh.point_data:
-            scalars_name = list(mesh.point_data.keys())[0]
-            logger.info("No scalars specified, using first available: '{}'", scalars_name)
+        scalar_arrays = [k for k in mesh.point_data.keys() if np.asarray(mesh.point_data[k]).ndim == 1]
+        if len(scalar_arrays) == 1:
+            scalars_name = scalar_arrays[0]
+            logger.info("No scalars specified, using the only one-component array: '{}'", scalars_name)
+        elif len(scalar_arrays) > 1:
+            logger.error("Several scalar arrays: choose one with --scalars: {}", scalar_arrays)
+            sys.exit(1)
+        elif mesh.point_data:
+            logger.error("No one-component point array to describe (vector arrays: {}); pass --scalars",
+                         list(mesh.point_data.keys()))
+            sys.exit(1)
         elif mesh.n_points > 0:
             # Use Z-coordinate as default scalar
             logger.info("No point data available, using Z-coordinate as 'elevation'")
@@ -41,6 +49,10 @@ def main():
         sys.exit(1)
 
     arr = mesh.point_data[scalars_name]
+    if np.asarray(arr).ndim != 1:
+        logger.error("'{}' has {} components: statistics need a one-component array (a vector array was "
+                     "flattened before)", scalars_name, np.asarray(arr).shape[1])
+        sys.exit(1)
     logger.info("Computing statistics for '{}' ({} values)", scalars_name, len(arr))
 
     vmin = float(np.nanmin(arr))

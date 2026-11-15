@@ -22,9 +22,10 @@ def main():
                         help="Compute gradients at the isosurface.")
     parser.add_argument("--compute_scalars", type=_b, default=True,
                         help="Preserve the contoured scalar on the output.")
-    parser.add_argument("--method", type=str, default="contour",
-                        choices=["contour", "marching_cubes", "flying_edges"],
-                        help="Contouring algorithm.")
+    parser.add_argument("--method", type=str, default="auto",
+                        choices=["auto", "contour", "marching_cubes", "flying_edges"],
+                        help="Contouring algorithm (auto: flying_edges on image data, contour otherwise; "
+                             "'contour' ignores the direction matrix of image data)")
     parser.add_argument("--preference", type=str, default="point",
                         choices=["point", "cell"],
                         help="Prefer point or cell scalars.")
@@ -74,13 +75,23 @@ def main():
     logger.info("Computing {} isosurfaces at values: {}", len(isosurfaces),
                  [f"{v:.3f}" for v in isosurfaces])
 
+    method = args.method
+    oblique = isinstance(ds, pv.ImageData) and hasattr(ds, "direction_matrix") and not np.allclose(
+        np.asarray(ds.direction_matrix), np.eye(3))
+    if method == "auto":
+        method = "flying_edges" if isinstance(ds, pv.ImageData) else "contour"
+    elif method == "contour" and oblique:
+        logger.error("method 'contour' ignores the direction matrix of this oblique volume (the surface would "
+                     "be written at the unrotated position); use auto, flying_edges or marching_cubes")
+        sys.exit(1)
+    logger.info("Contouring method: {}", method)
     result = ds.contour(
         isosurfaces=isosurfaces,
         scalars=scalars,
         compute_normals=args.compute_normals,
         compute_gradients=args.compute_gradients,
         compute_scalars=args.compute_scalars,
-        method=args.method,
+        method=method,
         preference=args.preference,
     )
 
@@ -88,6 +99,9 @@ def main():
         logger.info("Converting result to PolyData via extract_surface")
         result = result.extract_surface()
 
+    if result.n_points == 0:
+        logger.error("No isosurface found in the scalar range [{}, {}]", vmin, vmax)
+        sys.exit(1)
     result.save(args.output)
     logger.info("Contour: {} isosurfaces in [{:.3f}, {:.3f}], {} points, {} cells",
                  args.n_contours, vmin, vmax, result.n_points, result.n_cells)

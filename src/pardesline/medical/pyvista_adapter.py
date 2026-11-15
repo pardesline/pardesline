@@ -35,22 +35,46 @@ def load_pyvista(filepath: str) -> pv.DataSet:
 
 
 def _load_pcd(filepath: str) -> pv.PolyData:
-    """Load a .pcd file into PyVista PolyData (points only)."""
+    """Load an ASCII .pcd file into PyVista PolyData (points only).
+
+    The x, y, z columns are located through the FIELDS and COUNT lines of the header
+    (the first three columns are not necessarily x, y, z); binary and
+    binary_compressed data are refused with an explicit error.
+    """
     import numpy as np
     points = []
+    fields: list[str] = []
+    counts: list[int] = []
+    cols = None
     reading_data = False
     with open(filepath, "r", errors="replace") as f:
         for line in f:
-            if line.startswith("DATA"):
-                reading_data = True
+            if not reading_data:
+                head = line.strip().split()
+                if not head:
+                    continue
+                if head[0] == "FIELDS":
+                    fields = head[1:]
+                elif head[0] == "COUNT":
+                    counts = [int(c) for c in head[1:]]
+                elif head[0] == "DATA":
+                    if len(head) < 2 or head[1].lower() != "ascii":
+                        raise ValueError(f"{filepath}: PCD 'DATA {head[1] if len(head) > 1 else ''}' is not "
+                                         "supported by this reader (ASCII only); read it with Open3D")
+                    if not counts:
+                        counts = [1] * len(fields)
+                    if not {"x", "y", "z"} <= set(fields) or len(counts) != len(fields):
+                        raise ValueError(f"{filepath}: PCD header has no x, y, z FIELDS ({fields})")
+                    offsets = np.cumsum([0] + counts[:-1])
+                    cols = [int(offsets[fields.index(k)]) for k in ("x", "y", "z")]
+                    reading_data = True
                 continue
-            if reading_data:
-                parts = line.strip().split()
-                if len(parts) >= 3:
-                    try:
-                        points.append([float(parts[0]), float(parts[1]), float(parts[2])])
-                    except ValueError:
-                        continue
+            parts = line.strip().split()
+            if len(parts) > max(cols):
+                try:
+                    points.append([float(parts[c]) for c in cols])
+                except ValueError:
+                    continue
     if not points:
         raise ValueError(f"No points found in PCD file: {filepath}")
     return pv.PolyData(np.array(points, dtype=np.float64))
@@ -107,7 +131,11 @@ def detect_geometry_type(dataset: pv.DataSet) -> str:
     """Classify a PyVista dataset into a geometry type string.
 
     Returns one of:
-      'mesh', 'pointcloud', 'volume', 'structured_grid', 'unstructured_grid'
+      'mesh', 'pointcloud', 'lines', 'volume', 'structured_grid', 'unstructured_grid'
+
+    A PolyData is a point cloud when it has no cells or only vertex cells, 'lines' when
+    it has line cells and no faces, a mesh when it has faces (equal numbers of points and
+    cells say nothing: a closed tetrahedron has 4 of each).
     """
     if isinstance(dataset, pv.ImageData):
         return "volume"
@@ -116,8 +144,10 @@ def detect_geometry_type(dataset: pv.DataSet) -> str:
     if isinstance(dataset, pv.UnstructuredGrid):
         return "unstructured_grid"
     if isinstance(dataset, pv.PolyData):
-        if dataset.n_cells == 0 or dataset.n_cells == dataset.n_points:
+        if dataset.n_cells == 0 or dataset.n_cells == dataset.n_verts:
             return "pointcloud"
+        if len(dataset.faces) == 0 and len(getattr(dataset, "strips", [])) == 0:
+            return "lines" if dataset.n_lines else "pointcloud"
         return "mesh"
     return "mesh"
 
@@ -149,6 +179,7 @@ def recommended_visualization(dataset: pv.DataSet) -> str:
     return {
         "mesh": "surface",
         "pointcloud": "points",
+        "lines": "wireframe",
         "volume": "volume",
         "structured_grid": "surface",
         "unstructured_grid": "surface",

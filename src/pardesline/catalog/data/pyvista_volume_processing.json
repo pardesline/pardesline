@@ -39,7 +39,7 @@
         { "name": "compute_normals", "type": "bool", "default": false, "description": "Compute point normals on the output surface.", "advanced": true },
         { "name": "compute_gradients", "type": "bool", "default": false, "description": "Compute gradients at the isosurface.", "advanced": true },
         { "name": "compute_scalars", "type": "bool", "default": true, "description": "Preserve the contoured scalar on the output.", "advanced": true },
-        { "name": "method", "type": "enum", "default": "contour", "options": ["contour", "marching_cubes", "flying_edges"], "description": "Contouring algorithm.", "advanced": true },
+        { "name": "method", "type": "enum", "default": "auto", "options": ["auto", "contour", "marching_cubes", "flying_edges"], "description": "Contouring algorithm (auto: flying_edges on image data; 'contour' ignores the direction matrix and is refused on oblique volumes).", "advanced": true },
         { "name": "preference", "type": "enum", "default": "point", "options": ["point", "cell"], "description": "Prefer point or cell scalars.", "advanced": true }
       ]
     },
@@ -52,9 +52,9 @@
         { "name": "normal_x", "type": "float", "default": 1.0, "min": -1.0, "max": 1.0, "description": "Slice normal X." },
         { "name": "normal_y", "type": "float", "default": 0.0, "min": -1.0, "max": 1.0, "description": "Slice normal Y." },
         { "name": "normal_z", "type": "float", "default": 0.0, "min": -1.0, "max": 1.0, "description": "Slice normal Z." },
-        { "name": "origin_x", "type": "float", "default": 0.0, "min": -1e10, "max": 1e10, "description": "Slice origin X (0 = center)." },
-        { "name": "origin_y", "type": "float", "default": 0.0, "min": -1e10, "max": 1e10, "description": "Slice origin Y (0 = center)." },
-        { "name": "origin_z", "type": "float", "default": 0.0, "min": -1e10, "max": 1e10, "description": "Slice origin Z (0 = center)." },
+        { "name": "origin_x", "type": "float", "default": null, "min": -10000000000.0, "max": 10000000000.0, "description": "Slice origin X (default: dataset centre)." },
+        { "name": "origin_y", "type": "float", "default": null, "min": -10000000000.0, "max": 10000000000.0, "description": "Slice origin Y (default: dataset centre)." },
+        { "name": "origin_z", "type": "float", "default": null, "min": -10000000000.0, "max": 10000000000.0, "description": "Slice origin Z (default: dataset centre)." },
         { "name": "generate_triangles", "type": "bool", "default": false, "description": "Triangulate the slice output.", "advanced": true },
         { "name": "contour", "type": "bool", "default": false, "description": "Generate contour edges of the slice.", "advanced": true }
       ]
@@ -65,9 +65,9 @@
       "script": "slice_orthogonal.py",
       "output_extension": ".ply",
       "parameters": [
-        { "name": "x", "type": "float", "default": 0.0, "min": -1e10, "max": 1e10, "description": "X position for YZ slice (0 = center)." },
-        { "name": "y", "type": "float", "default": 0.0, "min": -1e10, "max": 1e10, "description": "Y position for XZ slice (0 = center)." },
-        { "name": "z", "type": "float", "default": 0.0, "min": -1e10, "max": 1e10, "description": "Z position for XY slice (0 = center)." },
+        { "name": "x", "type": "float", "default": null, "min": -10000000000.0, "max": 10000000000.0, "description": "X position of the slice (default: dataset centre)." },
+        { "name": "y", "type": "float", "default": null, "min": -10000000000.0, "max": 10000000000.0, "description": "Y position of the slice (default: dataset centre)." },
+        { "name": "z", "type": "float", "default": null, "min": -10000000000.0, "max": 10000000000.0, "description": "Z position of the slice (default: dataset centre)." },
         { "name": "generate_triangles", "type": "bool", "default": false, "description": "Triangulate the slice output.", "advanced": true },
         { "name": "contour", "type": "bool", "default": false, "description": "Generate contour edges of the slices.", "advanced": true }
       ]

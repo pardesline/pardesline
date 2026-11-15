@@ -13,9 +13,9 @@ def main():
     parser = argparse.ArgumentParser(description="Orthogonal slices")
     parser.add_argument("--input", required=True)
     parser.add_argument("--output", required=True)
-    parser.add_argument("--x", type=float, default=0.0, help="X position for YZ slice")
-    parser.add_argument("--y", type=float, default=0.0, help="Y position for XZ slice")
-    parser.add_argument("--z", type=float, default=0.0, help="Z position for XY slice")
+    parser.add_argument("--x", type=float, default=None, help="X position for YZ slice (default: dataset centre)")
+    parser.add_argument("--y", type=float, default=None, help="Y position for XZ slice (default: dataset centre)")
+    parser.add_argument("--z", type=float, default=None, help="Z position for XY slice (default: dataset centre)")
     parser.add_argument("--generate_triangles", type=_b, default=False,
                         help="Triangulate the slice output.")
     parser.add_argument("--contour", type=_b, default=False,
@@ -29,10 +29,10 @@ def main():
     center = ds.center
     logger.info("Dataset center: ({:.3f}, {:.3f}, {:.3f})", center[0], center[1], center[2])
 
-    # Use center if position is 0
-    x = args.x if args.x != 0.0 else center[0]
-    y = args.y if args.y != 0.0 else center[1]
-    z = args.z if args.z != 0.0 else center[2]
+    # Not given -> centre; 0 is a coordinate like any other (it used to mean "centre")
+    x = center[0] if args.x is None else args.x
+    y = center[1] if args.y is None else args.y
+    z = center[2] if args.z is None else args.z
     logger.info("Slice positions: x={:.3f}, y={:.3f}, z={:.3f}", x, y, z)
 
     logger.info("Computing orthogonal slices")

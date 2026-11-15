@@ -14,11 +14,11 @@
     "methods": {
       "sdf_collision": {
         "title": "SDF-Based Collision Detection",
-        "content": "Samples points uniformly on the input mesh surface, then creates a synthetic obstacle (sphere) and computes the SDF of the input points against the obstacle.\n\nPenetrating points satisfy $\\text{SDF}(p) < 0$. The collision region is visualized by coloring points by their signed distance: red (deep penetration) to blue (no contact)."
+        "content": "Samples points uniformly on the input mesh surface (seeded), places a synthetic obstacle sphere along +x so that it overlaps the surface met by a ray from the bounding-box centre by `penetration_ratio` x its radius, and computes the SDF of the input points against the obstacle (sign by a majority of `sign_rays` rays).\n\nPenetrating points satisfy $\\text{SDF}(p) < 0$. Points are coloured by signed distance normalised by the obstacle radius: penetrating points at the red end of the colormap, safe points at the blue end."
       },
       "penetration_depth": {
         "title": "Penetration Depth Measurement",
-        "content": "Computes the maximum penetration depth between the input geometry and a synthetic obstacle:\n\n$$\\delta = |\\min_i \\text{SDF}(p_i)|$$\n\nAlso computes the bounding box of the collision region and outputs a combined point cloud showing the penetration zone with color-coded depth."
+        "content": "Places a synthetic obstacle sphere along +x so that it overlaps the surface met by a ray from the bounding-box centre by `overlap_distance`, samples the input surface (seeded) and computes the maximum penetration depth:\n\n$$\\delta = |\\min_i \\text{SDF}(p_i)|$$\n\n(sign by a majority of `sign_rays` rays). Also computes the bounding box of the collision region and outputs a combined point cloud showing the penetration zone with colour-coded depth."
       }
     }
   },
@@ -55,7 +55,9 @@
         },
         { "name": "obstacle_resolution", "type": "int", "default": 50, "min": 4, "max": 200, "description": "Sphere tessellation resolution for the synthetic obstacle mesh.", "advanced": true },
         { "name": "obstacle_viz_points", "type": "int", "default": 5000, "min": 100, "max": 100000, "description": "Points sampled on the obstacle for visualization.", "advanced": true },
-        { "name": "colormap", "type": "string", "default": "coolwarm", "description": "Matplotlib colormap used to color points by signed distance.", "advanced": true }
+        { "name": "colormap", "type": "string", "default": "coolwarm", "description": "Matplotlib colormap used to color points by signed distance.", "advanced": true },
+        { "name": "sign_rays", "type": "int", "default": 3, "min": 1, "max": 15, "description": "Rays voting inside/outside per point (odd); 1 is Open3D's default and can flip a sign.", "advanced": true },
+        { "name": "seed", "type": "int", "default": 0, "min": 0, "max": 2147483647, "description": "Seed of the surface sampling (same seed, same reported depths).", "advanced": true }
       ]
     },
     {
@@ -82,7 +84,9 @@
         },
         { "name": "num_samples", "type": "int", "default": 50000, "min": 5000, "max": 200000, "description": "Number of surface sample points for SDF evaluation.", "advanced": true },
         { "name": "obstacle_resolution", "type": "int", "default": 50, "min": 4, "max": 200, "description": "Sphere tessellation resolution for the synthetic obstacle mesh.", "advanced": true },
-        { "name": "colormap", "type": "string", "default": "hot", "description": "Matplotlib colormap used to color penetrating points by depth.", "advanced": true }
+        { "name": "colormap", "type": "string", "default": "hot", "description": "Matplotlib colormap used to color penetrating points by depth.", "advanced": true },
+        { "name": "sign_rays", "type": "int", "default": 3, "min": 1, "max": 15, "description": "Rays voting inside/outside per point (odd); 1 is Open3D's default and can flip a sign.", "advanced": true },
+        { "name": "seed", "type": "int", "default": 0, "min": 0, "max": 2147483647, "description": "Seed of the surface sampling (same seed, same reported depths).", "advanced": true }
       ]
     }
   ]

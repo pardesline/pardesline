@@ -104,8 +104,17 @@
         {
           "name": "mc_allow_degenerate",
           "type": "bool",
-          "default": true,
+          "default": false,
           "description": "Allow degenerate output triangles.",
+          "advanced": true
+        },
+        {
+          "name": "sign_rays",
+          "type": "int",
+          "default": 3,
+          "min": 1,
+          "max": 15,
+          "description": "Rays voting inside/outside per point (odd); 1 is Open3D's default and can flip a sign.",
           "advanced": true
         }
       ]
@@ -175,8 +184,17 @@
         {
           "name": "mc_allow_degenerate",
           "type": "bool",
-          "default": true,
+          "default": false,
           "description": "Allow degenerate output triangles.",
+          "advanced": true
+        },
+        {
+          "name": "sign_rays",
+          "type": "int",
+          "default": 3,
+          "min": 1,
+          "max": 15,
+          "description": "Rays voting inside/outside per point (odd); 1 is Open3D's default and can flip a sign.",
           "advanced": true
         }
       ]
@@ -225,6 +243,15 @@
           "type": "string",
           "default": "coolwarm",
           "description": "Matplotlib diverging colormap (coolwarm, bwr, seismic, RdBu).",
+          "advanced": true
+        },
+        {
+          "name": "sign_rays",
+          "type": "int",
+          "default": 3,
+          "min": 1,
+          "max": 15,
+          "description": "Rays voting inside/outside per point (odd); 1 is Open3D's default and can flip a sign.",
           "advanced": true
         }
       ]

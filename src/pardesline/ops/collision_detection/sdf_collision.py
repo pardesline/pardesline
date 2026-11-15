@@ -14,6 +14,8 @@ import numpy as np
 import open3d as o3d
 from loguru import logger
 
+from pardesline.ops._mesh_common import require_triangles, signed_distance
+
 
 def main():
     parser = argparse.ArgumentParser(description="SDF-Based Collision Detection")
@@ -25,6 +27,9 @@ def main():
     parser.add_argument("--obstacle_resolution", type=int, default=50, help="Sphere tessellation resolution for the obstacle mesh")
     parser.add_argument("--obstacle_viz_points", type=int, default=5000, help="Points sampled on the obstacle for visualization")
     parser.add_argument("--colormap", type=str, default="coolwarm", help="Matplotlib colormap for SDF coloring")
+    parser.add_argument("--sign_rays", type=int, default=3,
+                        help="Rays voting inside/outside per point (odd; 1 = Open3D default, can flip signs)")
+    parser.add_argument("--seed", type=int, default=0, help="Seed of the surface sampling")
     args = parser.parse_args()
 
     logger.info("Loading mesh from {}", args.input)
@@ -35,10 +40,7 @@ def main():
         sys.exit(1)
 
     # If point cloud, build convex hull
-    if len(mesh.triangles) == 0:
-        logger.info("No triangles found, building convex hull mesh from {} vertices", len(mesh.vertices))
-        pcd_tmp = o3d.geometry.PointCloud(mesh.vertices)
-        mesh, _ = pcd_tmp.compute_convex_hull()
+    require_triangles(mesh)
 
     mesh.compute_vertex_normals()
     logger.info("Mesh: {} vertices, {} triangles", len(mesh.vertices), len(mesh.triangles))
@@ -48,14 +50,21 @@ def main():
     # Compute bounding info — use actual max distance from center
     bbox = mesh.get_axis_aligned_bounding_box()
     center = bbox.get_center()
-    mesh_radius = np.max(np.linalg.norm(np.asarray(mesh.vertices) - center, axis=1))
-    logger.info("Mesh bounding radius: {:.4f}, center: [{:.4f}, {:.4f}, {:.4f}]",
-                mesh_radius, center[0], center[1], center[2])
+    # Surface along the placement direction (+x) from the bounding-box centre: the largest
+    # vertex distance (a corner) placed the obstacle beyond the surface of non-spherical parts.
+    scene_in = o3d.t.geometry.RaycastingScene()
+    scene_in.add_triangles(o3d.t.geometry.TriangleMesh.from_legacy(mesh))
+    ray = o3d.core.Tensor([[*center, 1.0, 0.0, 0.0]], dtype=o3d.core.Dtype.Float32)
+    t_hit = float(scene_in.cast_rays(ray)["t_hit"].numpy()[0])
+    if not np.isfinite(t_hit):
+        logger.error("No surface along +x from the bounding-box centre {}: cannot place the obstacle", center)
+        sys.exit(1)
+    logger.info("Surface along +x at {:.4f} from the centre", t_hit)
 
     # Place obstacle sphere overlapping the input
     R_obs = args.obstacle_radius
     penetration = args.penetration_ratio * R_obs
-    obstacle_center = center + np.array([mesh_radius + R_obs - penetration, 0, 0])
+    obstacle_center = center + np.array([t_hit + R_obs - penetration, 0, 0])
 
     logger.info("Obstacle sphere: R={}, center=[{:.4f}, {:.4f}, {:.4f}], penetration={:.4f}",
                 R_obs, obstacle_center[0], obstacle_center[1], obstacle_center[2], penetration)
@@ -67,6 +76,7 @@ def main():
 
     # Sample points on input mesh
     logger.info("Sampling {} points on input mesh surface", args.num_samples)
+    o3d.utility.random.seed(args.seed)
     pcd_input = mesh.sample_points_uniformly(number_of_points=args.num_samples)
     input_points = np.asarray(pcd_input.points)
 
@@ -77,7 +87,7 @@ def main():
     scene.add_triangles(obstacle_t)
 
     query = o3d.core.Tensor(input_points.astype(np.float32), dtype=o3d.core.Dtype.Float32)
-    sdf_values = scene.compute_signed_distance(query).numpy()
+    sdf_values = signed_distance(scene, query, args.sign_rays)
 
     # Find penetrating points (inside obstacle = negative SDF)
     penetrating_mask = sdf_values < 0
@@ -86,11 +96,13 @@ def main():
                 100.0 * n_penetrating / len(input_points))
     logger.info("SDF range: [{:.6f}, {:.6f}]", sdf_values.min(), sdf_values.max())
 
-    # Color all points by SDF: red=inside, blue=outside
+    # Color all points by SDF: penetrating (negative) at the high (red) end of the colormap,
+    # safe at the low (blue) end, normalised by a fixed limit, the obstacle radius (not the
+    # farthest point, which made the colours of the penetration depend on the far side).
     import matplotlib
-    sdf_norm = np.clip(sdf_values / (np.abs(sdf_values).max() + 1e-12), -1, 1)
-    # Map [-1, 1] to [0, 1] for colormap (red=penetrating, blue=safe)
-    color_val = (sdf_norm + 1) / 2
+    sdf_norm = np.clip(sdf_values / R_obs, -1, 1)
+    color_val = (1.0 - sdf_norm) / 2
+    logger.info("Colour scale: signed distance -{0} (red end) .. +{0} (blue end)", R_obs)
     cmap = matplotlib.colormaps[args.colormap]
     colors = cmap(color_val)[:, :3]
 

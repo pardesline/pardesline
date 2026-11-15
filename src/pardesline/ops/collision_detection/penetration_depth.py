@@ -14,6 +14,8 @@ import numpy as np
 import open3d as o3d
 from loguru import logger
 
+from pardesline.ops._mesh_common import require_triangles, signed_distance
+
 
 def main():
     parser = argparse.ArgumentParser(description="Penetration Depth Measurement")
@@ -24,6 +26,9 @@ def main():
     parser.add_argument("--num_samples", type=int, default=50000, help="Number of surface sample points for SDF evaluation")
     parser.add_argument("--obstacle_resolution", type=int, default=50, help="Sphere tessellation resolution for the obstacle mesh")
     parser.add_argument("--colormap", type=str, default="hot", help="Matplotlib colormap for penetration-depth coloring")
+    parser.add_argument("--sign_rays", type=int, default=3,
+                        help="Rays voting inside/outside per point (odd; 1 = Open3D default, can flip signs)")
+    parser.add_argument("--seed", type=int, default=0, help="Seed of the surface sampling")
     args = parser.parse_args()
 
     logger.info("Loading mesh from {}", args.input)
@@ -34,10 +39,7 @@ def main():
         sys.exit(1)
 
     # If point cloud, build convex hull
-    if len(mesh.triangles) == 0:
-        logger.info("No triangles found, building convex hull mesh from {} vertices", len(mesh.vertices))
-        pcd_tmp = o3d.geometry.PointCloud(mesh.vertices)
-        mesh, _ = pcd_tmp.compute_convex_hull()
+    require_triangles(mesh)
 
     mesh.compute_vertex_normals()
     logger.info("Mesh: {} vertices, {} triangles", len(mesh.vertices), len(mesh.triangles))
@@ -46,12 +48,20 @@ def main():
     # Compute bounding info — use actual max distance from center
     bbox = mesh.get_axis_aligned_bounding_box()
     center = bbox.get_center()
-    mesh_radius = np.max(np.linalg.norm(np.asarray(mesh.vertices) - center, axis=1))
-    logger.info("Mesh bounding radius: {:.4f}", mesh_radius)
+    # Surface along the placement direction (+x) from the bounding-box centre: the largest
+    # vertex distance (a corner) placed the obstacle beyond the surface of non-spherical parts.
+    scene_in = o3d.t.geometry.RaycastingScene()
+    scene_in.add_triangles(o3d.t.geometry.TriangleMesh.from_legacy(mesh))
+    ray = o3d.core.Tensor([[*center, 1.0, 0.0, 0.0]], dtype=o3d.core.Dtype.Float32)
+    t_hit = float(scene_in.cast_rays(ray)["t_hit"].numpy()[0])
+    if not np.isfinite(t_hit):
+        logger.error("No surface along +x from the bounding-box centre {}: cannot place the obstacle", center)
+        sys.exit(1)
+    logger.info("Surface along +x at {:.4f} from the centre", t_hit)
 
     # Place obstacle overlapping the input
     R_obs = args.obstacle_radius
-    obstacle_center = center + np.array([mesh_radius + R_obs - args.overlap_distance, 0, 0])
+    obstacle_center = center + np.array([t_hit + R_obs - args.overlap_distance, 0, 0])
 
     logger.info("Obstacle: R={}, overlap={}, center=[{:.4f}, {:.4f}, {:.4f}]",
                 R_obs, args.overlap_distance, obstacle_center[0], obstacle_center[1], obstacle_center[2])
@@ -63,6 +73,7 @@ def main():
 
     # Sample points on input mesh
     logger.info(f"Sampling {args.num_samples} points on input mesh surface")
+    o3d.utility.random.seed(args.seed)
     pcd_input = mesh.sample_points_uniformly(number_of_points=args.num_samples)
     input_points = np.asarray(pcd_input.points)
 
@@ -73,7 +84,7 @@ def main():
     scene.add_triangles(obstacle_t)
 
     query = o3d.core.Tensor(input_points.astype(np.float32), dtype=o3d.core.Dtype.Float32)
-    sdf_values = scene.compute_signed_distance(query).numpy()
+    sdf_values = signed_distance(scene, query, args.sign_rays)
 
     # Extract penetrating points only
     penetrating_mask = sdf_values < 0

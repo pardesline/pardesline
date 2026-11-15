@@ -34,7 +34,7 @@ Your own scan: `pl.load("scan.ply").clean().to_mesh()`. The output is a clean, d
 
 - `depth` (Poisson): 9 gives 512 cells across the bounding cube; 8 is Open3D's default and blurs small features; 10–11 need hundreds of thousands of points. [Benchmark](../benchmarks.md).
 - `density_quantile`: 0.01 by default; 0.05–0.1 on very partial scans.
-- Normals: estimated at `normal_radius=0.1` file units with `normal_orient_k=15` when the cloud has none. Scans in millimetres need `normal_radius` scaled (about 5–10× the point spacing).
+- Normals: estimated when the cloud has none, with `normal_radius` = 3× the mean point spacing by default (`normal_radius=0`; give a value in file units to override) and `normal_orient_k=15`. The log reports the signed volume of the result: a negative value means inward-facing triangles.
 
 ## Check the result
 

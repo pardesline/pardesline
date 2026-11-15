@@ -33,7 +33,8 @@ def main():
     parser.add_argument("--linear_fit", type=_b, default=False, help="Use linear interpolation to estimate iso-surface positions")
     parser.add_argument("--n_threads", type=int, default=-1, help="Number of threads (-1 = all available)")
     parser.add_argument("--density_quantile", type=float, default=0.01, help="Density quantile below which vertices are removed as noise")
-    parser.add_argument("--normal_radius", type=float, default=0.1, help="Normal estimation search radius (when normals absent)")
+    parser.add_argument("--normal_radius", type=float, default=0.0,
+                        help="Normal estimation search radius in file units, when normals are absent (0 = 3 x mean point spacing)")
     parser.add_argument("--normal_max_nn", type=int, default=30, help="Normal estimation max neighbours (when normals absent)")
     parser.add_argument("--normal_orient_k", type=int, default=15, help="k for consistent tangent-plane normal orientation")
     args = parser.parse_args()
@@ -50,9 +51,15 @@ def main():
 
     # Estimate normals if not present
     if not pcd.has_normals():
-        logger.info(f"Estimating normals (radius={args.normal_radius}, max_nn={args.normal_max_nn})")
+        normal_radius = args.normal_radius
+        if normal_radius <= 0:
+            # An absolute default (0.1) left most neighbourhoods with < 3 points on data in mm.
+            spacing = float(np.mean(np.asarray(pcd.compute_nearest_neighbor_distance())))
+            normal_radius = 3.0 * spacing
+            logger.info(f"normal_radius auto: 3 x mean point spacing {spacing:.6g} = {normal_radius:.6g}")
+        logger.info(f"Estimating normals (radius={normal_radius}, max_nn={args.normal_max_nn})")
         pcd.estimate_normals(
-            search_param=o3d.geometry.KDTreeSearchParamHybrid(radius=args.normal_radius, max_nn=args.normal_max_nn)
+            search_param=o3d.geometry.KDTreeSearchParamHybrid(radius=normal_radius, max_nn=args.normal_max_nn)
         )
         logger.info(f"Orienting normals with consistent tangent plane (k={args.normal_orient_k})")
         pcd.orient_normals_consistent_tangent_plane(k=args.normal_orient_k)
@@ -76,6 +83,9 @@ def main():
     logger.info(f"Mesh: {len(mesh.vertices)} vertices, {len(mesh.triangles)} faces")
 
     # Save
+    from pardesline.ops._mesh_common import signed_volume
+    vol = signed_volume(np.asarray(mesh.vertices), np.asarray(mesh.triangles))
+    logger.info(f"Signed volume {vol:.6g} (negative = faces oriented inward; meaningful for closed surfaces)")
     o3d.io.write_triangle_mesh(args.output, mesh)
     logger.info(f"Saved to: {args.output}")
 

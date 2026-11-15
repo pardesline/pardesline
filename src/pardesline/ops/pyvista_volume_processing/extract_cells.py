@@ -48,9 +48,9 @@ def main():
     indices = mask.nonzero()[0].tolist()
 
     if not indices:
-        logger.warning("No {} cells found. Saving empty dataset.", args.cell_type)
-        pv.UnstructuredGrid().save(args.output)
-        return
+        logger.error("No {} cells in the input (cell types present: {})", args.cell_type,
+                     sorted(set(cell_types.tolist())))
+        sys.exit(1)
 
     logger.info("Found {} matching cells out of {} total", len(indices), ds.n_cells)
     logger.info("Extracting cells")

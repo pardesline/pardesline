@@ -60,7 +60,7 @@
         { "name": "linear_fit", "type": "bool", "default": false, "description": "Use linear interpolation to estimate iso-vertex positions.", "advanced": true },
         { "name": "n_threads", "type": "int", "default": -1, "min": -1, "max": 64, "description": "Number of threads (-1 = all available).", "advanced": true },
         { "name": "density_quantile", "type": "float", "default": 0.01, "min": 0.0, "max": 1.0, "description": "Density quantile below which low-support vertices are removed as noise.", "advanced": true },
-        { "name": "normal_radius", "type": "float", "default": 0.1, "min": 0.001, "max": 10.0, "description": "Search radius for normal estimation when the cloud has no normals.", "advanced": true },
+        { "name": "normal_radius", "type": "float", "default": 0.0, "min": 0.0, "max": 1000000.0, "description": "Normal estimation radius in file units when the cloud has no normals (0 = 3 x mean point spacing).", "advanced": true },
         { "name": "normal_max_nn", "type": "int", "default": 30, "min": 1, "max": 200, "description": "Max neighbours for normal estimation when the cloud has no normals.", "advanced": true },
         { "name": "normal_orient_k", "type": "int", "default": 15, "min": 1, "max": 200, "description": "k for consistent tangent-plane normal orientation.", "advanced": true }
       ]
@@ -105,7 +105,7 @@
           "description": "Ball radius as factor of average point spacing. Uses multiple radii (1x, 2x, 4x)."
         },
         { "name": "radii_multipliers", "type": "list", "default": "1,2,4", "description": "CSV of base-radius multipliers defining the multi-scale ball set.", "advanced": true },
-        { "name": "normal_radius", "type": "float", "default": 0.1, "min": 0.001, "max": 10.0, "description": "Search radius for normal estimation when the cloud has no normals.", "advanced": true },
+        { "name": "normal_radius", "type": "float", "default": 0.0, "min": 0.0, "max": 1000000.0, "description": "Normal estimation radius in file units when the cloud has no normals (0 = 3 x mean point spacing).", "advanced": true },
         { "name": "normal_max_nn", "type": "int", "default": 30, "min": 1, "max": 200, "description": "Max neighbours for normal estimation when the cloud has no normals.", "advanced": true },
         { "name": "normal_orient_k", "type": "int", "default": 15, "min": 1, "max": 200, "description": "k for consistent tangent-plane normal orientation.", "advanced": true }
       ]

@@ -193,3 +193,28 @@ Two passes (1.5 v then 0.4 v) are a large improvement but not a complete fix on 
 parts: from 20 starts off by 5 degrees and N(0, 2v), one pass at 0.4 v ended above 0.1 mm in 18,
 two passes in 1 (box-like part with small features). The remaining case is what the pipeline's
 restarts with a threshold-free score and the symmetry probe are for.
+
+## Meshes and surfaces
+
+No additional bug was found in this area. Checked against known answers: PyVista mean and Gaussian
+curvature of a sphere of radius 10 (median 0.1 and 0.01), decimation (`target_reduction 0.75`
+keeps 25 % of the faces), Open3D quadric simplification (500 faces asked, 500 obtained), midpoint
+subdivision (x4 faces), Laplacian and Taubin smoothing (volume change -0.05 % and +0.001 %), vector
+magnitude ((3, 4, 0) -> 5), feature edges of a cube (12), convex hull of a sphere (volume equal), and,
+after the fixes, the SDF, occupancy, erosion, Poisson and ball-pivoting outputs (outward, volume
+within 1-2 %).
+
+### Suspicion not reproduced: Poisson / ball pivoting with inward normals
+
+`poisson.py` and `ball_pivoting.py` orient estimated normals with
+`orient_normals_consistent_tangent_plane`, which makes them consistent but leaves the global sign
+undetermined; an inward orientation would give an inside-out surface. Not reproduced: with the
+normal radius fixed (audit entry P3-A4), 12 runs (sphere and torus clouds, three samplings, both
+methods) all gave a positive signed volume within 1 % of the exact one. Not fixed; the scripts now
+log the signed volume so that the case would be visible.
+
+### Note on audit entry P3-A9
+
+`method="marching_cubes"` honours the direction matrix as `flying_edges` does (centroid error 0 on
+the 25-degree oblique ball); only `contour` ignores it. The new `auto` default picks `flying_edges`
+on image data, and an explicit `contour` on an oblique volume exits with an error.

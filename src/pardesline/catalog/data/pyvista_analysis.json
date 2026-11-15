@@ -20,7 +20,7 @@
     "overview": "PyVista analysis tools compute derived geometric quantities:\n\n**Curvature** estimates surface curvature (mean, Gaussian, min, max) at each vertex.\n**Distance** computes point-to-surface distances between two meshes.\n**Glyphs** visualize vector fields by placing oriented symbols at data points.\n**Vector Magnitude** computes $\\|\\mathbf{v}\\|$ for each vector in a field.\n**Scalar Statistics** provides summary statistics of scalar arrays.",
     "methods": {
       "pv_curvature": { "title": "Surface Curvature", "content": "Curvature types: mean $H = \\frac{\\kappa_1 + \\kappa_2}{2}$, Gaussian $K = \\kappa_1 \\kappa_2$, maximum $\\kappa_1$, minimum $\\kappa_2$." },
-      "pv_distance": { "title": "Point-to-Surface Distance", "content": "Computes the closest-point distance from each vertex to a reference surface using a KD-tree." },
+      "pv_distance": { "title": "Point-to-Surface Distance", "content": "Radial distance: the unsigned Euclidean distance of each point to the centre of the bounding box (not the centre of mass, not signed, not a distance to another surface), stored as `distance_from_center`." },
       "pv_glyph": { "title": "Glyph Generation", "content": "Creates oriented arrow glyphs at each point, scaled by a factor and oriented along a vector field." },
       "pv_vector_magnitude": { "title": "Vector Magnitude", "content": "Computes $\\|\\mathbf{v}_i\\| = \\sqrt{v_{ix}^2 + v_{iy}^2 + v_{iz}^2}$ for each vector and stores as a scalar." },
       "pv_scalar_stats": { "title": "Scalar Statistics", "content": "Computes min, max, mean, median, std, and stores a normalized version of the scalar array." },
@@ -39,7 +39,7 @@
     },
     {
       "id": "pv_distance",
-      "name": "Compute Distance",
+      "name": "Radial Distance to the Bounding-Box Centre",
       "script": "distance.py",
       "output_extension": ".ply",
       "parameters": []
@@ -73,7 +73,7 @@
       "script": "scalar_stats.py",
       "output_extension": ".ply",
       "parameters": [
-        { "name": "scalars", "type": "string", "default": "", "description": "Scalar array name (empty = first available)." }
+        { "name": "scalars", "type": "string", "default": "", "description": "One-component point array to describe (required when there are several; vector arrays are refused)." }
       ]
     },
     {
