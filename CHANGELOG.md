@@ -4,6 +4,167 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.4.0](https://github.com/pardesline/pardesline/compare/v0.3.1...v0.4.0) — 2026-11-15
+
+The correctness release. A correctness audit of 2026-11-15 ran the algorithm scripts unchanged on
+synthetic data with known answers and found results that were wrong without any error. This
+release fixes the 48 bugs it listed that exist in this package, and 10 more found while fixing them
+([additional findings](https://pardesline.github.io/pardesline/latest/audit/2026-11-additional-findings/)).
+Every fix has a regression test that fails on 0.3.1 (`tests/test_regressions_*.py`, synthetic data,
+fixed seeds, no download). **Numerical results change** for the algorithms listed below, and several
+calls that used to "succeed" on meaningless defaults now stop with an error: read the three lists
+after the fixes before upgrading a pipeline.
+
+### Fixed: results that change
+
+Medical registration (`simpleitk_registration`, `pardesline.medical`)
+- `advanced_rigid`: the search and refinement transforms were composed in the wrong order
+  (O(M(p)) instead of M(O(p))); the rotation search sampled 5 % of the voxels at random at shrink 8
+  and picked wrong poses in 3 runs out of 4: it now uses every voxel of the coarse level.
+- `bspline`: the optimised control grid is the one `grid_spacing` asks for. It was about 4 times
+  coarser (the multi-level refinement never ran); the method now uses a 4-2-1 image pyramid.
+- `rigid`, `affine`, `advanced_rigid`, `bspline`: the random metric sampling is seeded; two runs on
+  the same input give the same transform (they differed by up to 0.09 rad).
+- Registration results are flat composite transforms: `save_transform(t, "x.h5")` works for every
+  method (it raised for advanced rigid and B-spline).
+- `demons` (JSON sidecar): `mean_displacement_mm` and `std_displacement_mm` are statistics of the
+  displacement length (the mean averaged signed x, y, z components and could be 0 for a 4 mm field).
+- `difference_analysis`: `high_diff_voxels` counts every difference above `lower_threshold`
+  (differences above 400 were left out).
+
+Medical segmentation (`simpleitk_segmentation`)
+- `otsu_threshold`, `connected_components`, `watershed`: voxels brighter than 255 are no longer
+  dropped (bone and contrast in CT).
+- `watershed`: returns the objects (it returned an empty label map); `seed_radius` is in mm as
+  documented (it was in voxels); objects cut by the image border are removed; a separate object too
+  thin for its own seed stays unlabelled instead of taking a neighbour's label.
+
+Volume input and output
+- `.vti` files are written and read with their direction matrix (oblique volumes were saved
+  axis-aligned: 11.9 mm off at 30 degrees).
+- `load_volume("x.vti")` reads `x.vti`; a sibling `x.mha` is no longer substituted.
+- DICOM folders whose files form no series are stacked by slice position (Image Position Patient
+  along the slice normal), not by file name.
+
+Point-cloud registration (`registration`)
+- `ransac_global`, `icp_refinement`, `ransac_icp_pipeline`: a `voxel_size` you give is used as given
+  (values outside 0.5-5 % of the diagonal were replaced by 1.3 %).
+- RANSAC is seeded and reproducible (Open3D's RANSAC threads share one random generator, so the
+  scripts run Open3D on one thread). `ransac_global` and the pipeline run 8 seeds and keep the pose
+  with the best threshold-free distance score; the pipeline also tests the 90/180/270-degree
+  symmetric poses and reports an ambiguous result. On a near-symmetric part, one seed was 91 to 180
+  degrees off in 3 to 6 runs out of 6; the pipeline now lands within 0.3 degree.
+- The pipeline refines in two ICP passes (1.5 then 0.4 voxel) with 100 iterations; one pass at 0.4
+  voxel stalled from RANSAC-sized errors in 18 of 20 starts.
+- The point-to-point fallback uses your convergence settings; when ICP finds nothing the RANSAC pose
+  is kept and labelled as such.
+- Outputs are the moving cloud as read (colours, normals, point order) transformed by T; they were
+  painted yellow with re-estimated normals.
+
+Deformable point clouds (`deformable_registration`)
+- `cpd_deformable`: `tolerance` reaches pycpd (it was passed under a name pycpd ignores); the
+  normalisation scale no longer grows with the point count; `beta` defaults to 2 (with 100 the
+  registration was worse than none: 1.11 -> 1.34 mm; now about 0.2 mm on the same case).
+- `gaussian_deformation`: the field falls continuously to 0 at the radius (it jumped from 13.5 % of
+  the displacement to 0 there).
+
+Point-cloud processing
+- `ransac_plane`: the output keeps the input point order (inliers were moved first); plane equation
+  and inlier indices are written to the JSON sidecar; the plane fit is seeded. `ground_removal` and
+  `object_clustering` seed their plane fit too.
+- `pv_random_sample`: seeded by default; with `replace=true` the duplicates are written (the output
+  had fewer points than reported).
+
+Meshes, distance fields and collision
+- `compute_sdf` (and `occupancy_reconstruction`, `binary_erosion`): output faces point outward (the
+  SDF mesh was inside-out); no zero-area or duplicate faces by default.
+- Signed distances and occupancy decide inside / outside by a majority of 3 rays (`sign_rays`); one
+  ray counted a point 6.8 mm outside a sphere as inside.
+- `penetration_depth`, `sdf_collision`: the obstacle is placed against the surface actually met along
+  +x (it missed every non-spherical part, e.g. a cube); surface sampling is seeded; in
+  `sdf_collision` penetrating points are at the red end of the colormap (they were blue).
+- `poisson`, `ball_pivoting`: normals of a cloud without normals use a radius of 3 x the point spacing
+  (an absolute 0.1 gave inside-out, open surfaces on data in mm); the signed volume is logged.
+- `mesh_to_pcd_uniform`, `mesh_to_pcd_poisson_disk`: the seed is honoured (it was silently dropped).
+- `pv_contour`: surfaces of oblique volumes are in the right place (12.4 mm off at 25 degrees).
+- `pv_slice`, `pv_slice_orthogonal`: a coordinate of 0 is 0 (it meant "centre").
+- `detect_geometry_type`: a closed tetrahedron is a mesh; PolyData with only lines is `lines`.
+- The `.pcd` reader of `pardesline.medical.pyvista_adapter` finds x, y, z through the FIELDS header.
+- Raw arrays materialised as PLY: integer colours are written as given (0/1 values were scaled to 255).
+
+Skill scripts
+- `pointnet-segmentation/scripts/pointnet_seg.py`: `--seed` (default 0) on every command; `eval`
+  reports the same mIoU and `infer` the same labels on every run (both changed between runs).
+
+### Changed defaults
+- `simpleitk_segmentation.connected_components` / `watershed` `upper_threshold`: 255 -> image maximum.
+- `simpleitk_registration.difference_analysis` `upper_threshold`: 400 -> none.
+- `simpleitk_registration.bspline` `scale_factors`: `"1,2,4"` -> `""` (the requested grid, LBFGSB);
+  `mesh_coarsening_factor` now applies only with `scale_factors`.
+- `registration.ransac_icp_pipeline` `icp_max_iteration`: 30 -> 100. Catalog `voxel_size` default
+  0.5 -> 0 (auto), as the scripts already did; its catalog maximum 0.9 is lifted.
+- `deformable_registration.cpd_deformable` `beta`: 100 -> 2.
+- `pyvista_pointcloud_processing.pv_random_sample` `seed`: -1 -> 0; `pv_clip_plane` origin: (0, 0, 0)
+  -> dataset centre.
+- `mesh_processing.mesh_to_pcd_uniform` / `mesh_to_pcd_poisson_disk` `seed`: -1 -> 0.
+- `point_cloud_reconstruction.poisson` / `ball_pivoting` `normal_radius`: 0.1 -> 0 (3 x point spacing).
+- `sdf.compute_sdf` / `occupancy_reconstruction` `mc_allow_degenerate`: true -> false.
+- `pyvista_volume_processing.pv_contour` `method`: `contour` -> `auto`; `pv_slice` origin and
+  `pv_slice_orthogonal` x, y, z: 0 -> dataset centre when not given.
+
+### New parameters
+- `seed` on `simpleitk_registration` rigid, affine, advanced_rigid, bspline (42; 0 is refused, it means
+  "wall clock" in SimpleITK), on `registration` ransac_global, icp_refinement, ransac_icp_pipeline,
+  on `point_cloud_segmentation.ransac_plane`, `lidar_scene_detection` ground_removal and
+  object_clustering, and on `collision_detection` sdf_collision and penetration_depth (0). The seed is
+  written to the JSON sidecars of the registration methods.
+- `registration.ransac_global` / `ransac_icp_pipeline`: `restarts` (8); the pipeline also
+  `icp_coarse_threshold_factor` (1.5), `symmetry_probe` (true), `score_upper_quantile` (0.9),
+  `ambiguity_margin` (0.10), `on_ambiguous` (`error` | `warn`).
+- `sign_rays` (3) on `sdf` compute_sdf, occupancy_reconstruction, sdf_voxel_visualization,
+  `voxel_to_mesh.binary_erosion` and both `collision_detection` methods.
+- `register_bspline(..., seed=)` and `seed` in `pardesline.medical` registration options.
+- Registration JSON sidecars now carry `voxel_size`, `seed`, `status`, `result_stage`, `threshold`,
+  every candidate pose and the Open3D version.
+
+### Silent behaviours that are now errors
+- The six `simpleitk_registration` scripts, the three `registration` scripts and `cpd_deformable`
+  require `--moving` (without it they registered the input with a moved copy of itself).
+- `ransac_icp_pipeline` exits with code 3 when another pose scores within 10 % of the winner
+  (`status: "ambiguous"` in the JSON; the output is still written). Pass `on_ambiguous="warn"` to keep
+  the old behaviour of always returning the winner.
+- Inputs without triangles are refused by `mesh_to_pointcloud`, the two mesh samplers, the three
+  `sdf` methods, `binary_erosion` and both collision methods (a point cloud used to be replaced by its
+  convex hull, an invented surface).
+- Empty results exit with code 1: `object_clustering` with no non-ground point (it wrote its input),
+  `gaussian_deformation` reaching no point (it wrote its input), `pv_clip_box`, `pv_clip_plane`,
+  `pv_threshold`, `pv_extract_points`, `pv_extract_cells`, `pv_threshold_volume`, `pv_contour`.
+- Required instead of unit-scale defaults: `gaussian_deformation` `radius` and `displacement`,
+  `pv_clip_box` bounds, `pv_threshold` / `pv_extract_points` `scalars`, `lower`, `upper`
+  (`pv_threshold` used to threshold the distance to an arbitrary plane), `ransac_plane`
+  `distance_threshold`.
+- `cpd_deformable --low_rank true` is refused (pycpd 2 ignored it); `--num_eig` is ignored with a warning.
+- `watershed` refuses `distance_inside_is_positive=true` and `distance_squared=true` (both broke the
+  seed test).
+- `pv_scalar_stats` refuses a vector array and asks for `scalars` when several arrays qualify.
+- `pv_contour` refuses `method="contour"` on an oblique volume.
+- Unknown colormap numbers are refused by `intensity_colorization`, `depth_colorization` and
+  `height_colorization` (they fell back to another colormap).
+- `pardesline.medical`: an unknown metric or initializer name raises `ValueError` (they fell back to
+  Mattes MI and MOMENTS); DICOM files without position tags that form no series raise; writing an
+  oblique volume to `.vti` with PyVista < 0.45 raises instead of dropping the direction.
+- `ransac_icp_pipeline --rotation_degrees` is accepted and ignored with a warning (it only drove the
+  removed demo mode).
+
+### Documentation
+- Help texts, catalog descriptions and theory now say what the code does: `intensity_colorization`
+  colours by distance from the origin (no intensity is read), `depth_colorization` by z,
+  `depth_filter` keeps quantiles of z, `roi_extraction` is centred on the median point,
+  `multi_resolution` is a side-by-side preview, `pv_distance` is the unsigned distance to the
+  bounding-box centre, `pv_clip_plane` keeps the side opposite to the normal by default, the B-spline
+  method has no bending-energy term, watershed seeds are depth thresholds.
+- `docs/audit/2026-11-additional-findings.md`: the 10 additional bugs, in the audit's format.
+
 ## [0.3.1](https://github.com/pardesline/pardesline/compare/v0.3.0...v0.3.1) (2026-11-03)
 
 
