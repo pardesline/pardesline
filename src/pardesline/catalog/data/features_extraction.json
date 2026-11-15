@@ -44,8 +44,8 @@
           "name": "radius",
           "type": "float",
           "default": 0.05,
-          "min": 0.005,
-          "max": 0.5,
+          "min": 1e-09,
+          "max": 1000000000.0,
           "description": "Search radius for normal estimation."
         },
         {
@@ -84,8 +84,8 @@
           "name": "voxel_size",
           "type": "float",
           "default": 0.005,
-          "min": 0.001,
-          "max": 0.05,
+          "min": 1e-09,
+          "max": 1000000000.0,
           "description": "Voxel size for downsampling before feature computation."
         },
         {
@@ -136,8 +136,8 @@
           "name": "radius",
           "type": "float",
           "default": 0.05,
-          "min": 0.005,
-          "max": 0.5,
+          "min": 1e-09,
+          "max": 1000000000.0,
           "description": "Search radius for curvature computation."
         },
         {

@@ -87,8 +87,8 @@
           "name": "eps",
           "type": "float",
           "default": 0.02,
-          "min": 0.001,
-          "max": 0.5,
+          "min": 1e-09,
+          "max": 1000000000.0,
           "description": "Maximum distance between two points in same cluster."
         },
         {

@@ -84,8 +84,8 @@
           "name": "alpha",
           "type": "float",
           "default": 0.03,
-          "min": 0.005,
-          "max": 0.5,
+          "min": 1e-09,
+          "max": 1000000000.0,
           "description": "Alpha parameter. Smaller = tighter fit (more detail). Larger = smoother."
         }
       ]

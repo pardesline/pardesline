@@ -36,8 +36,8 @@
           "name": "voxel_size",
           "type": "float",
           "default": 0.01,
-          "min": 0.002,
-          "max": 0.05,
+          "min": 1e-09,
+          "max": 1000000000.0,
           "description": "Size of each voxel cube. Smaller = more detail."
         }
       ]
@@ -52,8 +52,8 @@
           "name": "voxel_size",
           "type": "float",
           "default": 0.01,
-          "min": 0.002,
-          "max": 0.05,
+          "min": 1e-09,
+          "max": 1000000000.0,
           "description": "Voxel size for the occupancy grid."
         },
         {

@@ -275,3 +275,34 @@ def test_x11_non_commercial_survives_a_save(tmp_path):
     out = pl.load(src).save(tmp_path / "copy.ply")
     back = pl.load(out)
     assert back.license.commercial is False and back.license.spdx == "CC-BY-NC-4.0"
+
+
+FILE_UNIT_LENGTHS = [
+    ("point_cloud_processing.voxel_downsample", "voxel_size", 2.0),
+    ("point_cloud_processing.radius_outlier_removal", "radius", 5.0),
+    ("voxel_to_mesh.voxelization", "voxel_size", 0.5),
+    ("voxel_to_mesh.binary_erosion", "voxel_size", 0.5),
+    ("sdf.compute_sdf", "voxel_size", 0.5),
+    ("sdf.occupancy_reconstruction", "voxel_size", 0.5),
+    ("sdf.sdf_voxel_visualization", "max_clamp", 5.0),
+    ("sdf.sdf_voxel_visualization", "min_clamp", -5.0),
+    ("point_cloud_reconstruction.alpha_shape", "alpha", 3.0),
+    ("point_cloud_segmentation.dbscan_clustering", "eps", 4.0),
+    ("lidar_scene_detection.ground_removal", "distance_threshold", 30.0),
+    ("lidar_scene_detection.object_clustering", "ground_threshold", 30.0),
+    ("lidar_scene_detection.object_clustering", "cluster_eps", 50.0),
+    ("lidar_camera_fusion.multi_resolution", "base_voxel_size", 2.0),
+    ("features_extraction.normal_estimation", "radius", 3.0),
+    ("features_extraction.fpfh_features", "voxel_size", 1.0),
+    ("features_extraction.curvature_estimation", "radius", 3.0),
+    ("collision_detection.sdf_collision", "obstacle_radius", 20.0),
+    ("collision_detection.penetration_depth", "obstacle_radius", 20.0),
+    ("collision_detection.penetration_depth", "overlap_distance", 4.0),
+]
+
+
+@pytest.mark.parametrize("qualname,param,value", FILE_UNIT_LENGTHS)
+def test_x12_lengths_in_file_units_accept_millimetre_values(qualname, param, value):
+    """Catalog bounds sized for unit-scale data (voxel_size <= 0.05, eps <= 0.5...) made pl.run refuse
+    every sensible value for data in millimetres."""
+    pl.catalog().method(qualname).validate({param: value})

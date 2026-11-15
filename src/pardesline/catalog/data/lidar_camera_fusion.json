@@ -106,8 +106,8 @@
           "name": "base_voxel_size",
           "type": "float",
           "default": 0.01,
-          "min": 0.001,
-          "max": 0.5,
+          "min": 1e-09,
+          "max": 1000000000.0,
           "description": "Finest voxel size (level 0)."
         },
         {

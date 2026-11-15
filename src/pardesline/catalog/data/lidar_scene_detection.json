@@ -66,8 +66,8 @@
           "name": "distance_threshold",
           "type": "float",
           "default": 0.3,
-          "min": 0.01,
-          "max": 2.0,
+          "min": 1e-09,
+          "max": 1000000000.0,
           "description": "Distance threshold for ground plane inliers."
         },
         {
@@ -109,16 +109,16 @@
           "name": "ground_threshold",
           "type": "float",
           "default": 0.3,
-          "min": 0.01,
-          "max": 2.0,
+          "min": 1e-09,
+          "max": 1000000000.0,
           "description": "Distance threshold for ground removal before clustering."
         },
         {
           "name": "cluster_eps",
           "type": "float",
           "default": 0.5,
-          "min": 0.1,
-          "max": 5.0,
+          "min": 1e-09,
+          "max": 1000000000.0,
           "description": "DBSCAN epsilon for object clustering."
         },
         {
