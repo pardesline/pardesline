@@ -96,6 +96,15 @@
           "advanced": true,
           "min": 10,
           "max": 500
+        },
+        {
+          "name": "min_fitness",
+          "type": "float",
+          "default": 0.5,
+          "min": 0.0,
+          "max": 1.0,
+          "advanced": true,
+          "description": "Quality floor: fail (exit code 4, output and JSON still written) when fewer than this fraction of deformed moving points lie within 3 x the fixed point spacing of the fixed cloud."
         }
       ]
     },

@@ -115,7 +115,18 @@ class License:
         return self.spdx is not None
 
     def to_dict(self) -> dict[str, Any]:
-        return {k: v for k, v in asdict(self).items() if v not in (None, "unknown", False)}
+        # commercial=False is a restriction and must survive a save: only values that state
+        # nothing (None, redistribution "unknown", requires_agreement False) are left out.
+        out: dict[str, Any] = {}
+        for k, v in asdict(self).items():
+            if (
+                v is None
+                or (k == "redistribution" and v == "unknown")
+                or (k == "requires_agreement" and not v)
+            ):
+                continue
+            out[k] = v
+        return out
 
     @classmethod
     def from_dict(cls, d: dict[str, Any] | str | None) -> License:
@@ -148,3 +159,89 @@ class License:
 
 
 License.UNKNOWN = License()  # type: ignore[attr-defined]
+
+
+# Restrictiveness of the licences the package knows, by SPDX id: a higher rank allows less.
+# This table is the only place licences are compared. A licence it does not list is treated
+# as unknown, and an unknown licence is never upgraded to a known one.
+#   0 public domain      no condition
+#   1 attribution        credit the source; commercial use and derivatives allowed
+#   2 share-alike        derivatives under the same terms
+#   3 non-commercial     no commercial use
+#   4 non-commercial, share-alike
+#   5 no derivatives
+#   6 non-commercial, no derivatives
+LICENSE_ORDER: dict[str, int] = {
+    "CC0-1.0": 0,
+    "PDDL-1.0": 0,
+    "Unlicense": 0,
+    "CC-BY-3.0": 1,
+    "CC-BY-4.0": 1,
+    "ODC-By-1.0": 1,
+    "MIT": 1,
+    "BSD-2-Clause": 1,
+    "BSD-3-Clause": 1,
+    "Apache-2.0": 1,
+    "ISC": 1,
+    "CC-BY-SA-3.0": 2,
+    "CC-BY-SA-4.0": 2,
+    "ODbL-1.0": 2,
+    "MPL-2.0": 2,
+    "LGPL-3.0-only": 2,
+    "GPL-3.0-only": 2,
+    "GPL-3.0-or-later": 2,
+    "CC-BY-NC-3.0": 3,
+    "CC-BY-NC-4.0": 3,
+    "CC-BY-NC-SA-2.0": 4,
+    "CC-BY-NC-SA-3.0": 4,
+    "CC-BY-NC-SA-4.0": 4,
+    "CC-BY-ND-4.0": 5,
+    "CC-BY-NC-ND-3.0": 6,
+    "CC-BY-NC-ND-4.0": 6,
+}
+
+_REDISTRIBUTION_ORDER = {"allowed": 0, "unknown": 1, "forbidden": 2}
+
+
+def combine_licenses(licenses: list[License], names: list[str] | None = None) -> License:
+    """The licence of a result made from several inputs: the most restrictive wins.
+
+    - any input whose licence is unknown, or not listed in :data:`LICENSE_ORDER`, makes the
+      result unknown (``spdx=None``, ``commercial=None``);
+    - otherwise ``spdx`` is the input of highest rank in :data:`LICENSE_ORDER`;
+    - ``commercial`` is False if any input forbids it, True only if every input allows it,
+      None otherwise; ``redistribution`` is the most restrictive of allowed < unknown <
+      forbidden; ``requires_agreement`` is true if any input requires it;
+    - ``note`` names every input licence, so the conditions of the others stay visible.
+    """
+    lics = list(licenses)
+    if not lics:
+        return License()
+    if len(lics) == 1:
+        return lics[0]
+    labels = names or [f"input {i + 1}" for i in range(len(lics))]
+    parts = [f"{n}: {lic.spdx or 'unknown'}" for n, lic in zip(labels, lics, strict=False)]
+    note = "combined from " + "; ".join(parts) + " (most restrictive kept)"
+    agreement = any(lic.requires_agreement for lic in lics)
+    redistribution = max(
+        (lic.redistribution or "unknown" for lic in lics), key=lambda r: _REDISTRIBUTION_ORDER.get(r, 1)
+    )
+    if redistribution not in _REDISTRIBUTION_ORDER:
+        redistribution = "unknown"
+    if any(lic.spdx is None or lic.spdx not in LICENSE_ORDER for lic in lics):
+        return License(
+            note=note + "; at least one is unknown, so the result is unknown",
+            requires_agreement=agreement,
+            redistribution=redistribution,
+        )
+    flags = [lic.commercial for lic in lics]
+    commercial = False if False in flags else (True if all(f is True for f in flags) else None)
+    top = max(lics, key=lambda lic: LICENSE_ORDER[lic.spdx])  # type: ignore[index]
+    return License(
+        spdx=top.spdx,
+        commercial=commercial,
+        source_url=top.source_url,
+        note=note,
+        requires_agreement=agreement,
+        redistribution=redistribution,
+    )

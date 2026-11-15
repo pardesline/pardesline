@@ -163,6 +163,15 @@
           "max": 100,
           "advanced": true,
           "description": "Number of RANSAC runs; the pose with the best threshold-free distance score wins."
+        },
+        {
+          "name": "min_fitness",
+          "type": "float",
+          "default": 0.5,
+          "min": 0.0,
+          "max": 1.0,
+          "advanced": true,
+          "description": "Quality floor: fail (exit code 4, output and JSON still written) when fewer than this fraction of moving points lie within 1.5 x voxel of the fixed cloud after registration."
         }
       ]
     },
@@ -347,6 +356,15 @@
           "max": 2147483647,
           "advanced": true,
           "description": "Seed of the RANSAC pre-pass that gives ICP its starting pose."
+        },
+        {
+          "name": "min_fitness",
+          "type": "float",
+          "default": 0.5,
+          "min": 0.0,
+          "max": 1.0,
+          "advanced": true,
+          "description": "Quality floor: fail (exit code 4, output and JSON still written) when fewer than this fraction of moving points lie within 1.5 x voxel of the fixed cloud after registration."
         }
       ]
     },
@@ -574,6 +592,15 @@
           "options": ["error", "warn"],
           "description": "error: exit code 3 when the result is ambiguous (output and JSON still written); warn: log and exit 0.",
           "advanced": true
+        },
+        {
+          "name": "min_fitness",
+          "type": "float",
+          "default": 0.5,
+          "min": 0.0,
+          "max": 1.0,
+          "advanced": true,
+          "description": "Quality floor: fail (exit code 4, output and JSON still written) when fewer than this fraction of moving points lie within 1.5 x voxel of the fixed cloud after registration."
         }
       ]
     }

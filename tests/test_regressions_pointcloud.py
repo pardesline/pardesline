@@ -214,6 +214,9 @@ def test_p2_a19_pipeline_keeps_and_labels_the_ransac_pose_when_icp_finds_nothing
             0,
             "--icp_threshold_factor",
             1e-9,
+            # this test checks the labelling of a RANSAC-only result, not its quality (0.5.0 floor)
+            "--min_fitness",
+            0,
         ],
     )
     sc = sidecar(out)

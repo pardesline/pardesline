@@ -158,6 +158,50 @@ def symmetry_probes(moving, transform, centre):
             yield f"probe: winner turned {deg} deg about principal axis {k}", np.asarray(transform) @ from_c @ rot @ to_c
 
 
+DEFAULT_MIN_FITNESS = 0.5
+QUALITY_THRESHOLD_FACTOR = 1.5  # fitness is measured at 1.5 x voxel for every method
+
+
+def quality_block(moving, fixed, transform, threshold: float, *, min_fitness: float | None,
+                  stop_condition: str, iterations, final_metric=None, metric_name: str = "") -> dict:
+    """Method-independent quality of a point-cloud registration.
+
+    ``fitness``: fraction of the moving points within ``threshold`` of a fixed point after
+    the transform (0.80-0.96 for correct poses of the synthetic pairs measured, 0.17-0.41 for
+    unrelated shapes or disjoint parts); ``inlier_rmse`` over those points; ``status`` is
+    ``below_floor`` when fitness < ``min_fitness``. Fitness is relative to the MOVING cloud: if
+    the moving cloud extends beyond the fixed one, lower the floor to the expected overlap.
+    """
+    d = np.asarray(o3d.geometry.PointCloud(moving).transform(np.asarray(transform))
+                   .compute_point_cloud_distance(fixed))
+    inl = d <= threshold
+    fitness = float(inl.mean()) if d.size else 0.0
+    q = {
+        "fitness": round(fitness, 6),
+        "inlier_rmse": round(float(np.sqrt((d[inl] ** 2).mean())), 6) if inl.any() else None,
+        "fitness_threshold": float(threshold),
+        "final_metric": None if final_metric is None else float(final_metric),
+        "metric_name": metric_name,
+        "stop_condition": stop_condition,
+        "iterations": iterations,
+        "floors": {"min_fitness": min_fitness},
+        "status": "ok",
+    }
+    if min_fitness is not None and fitness < min_fitness:
+        q["status"] = "below_floor"
+        q["failed"] = [f"fitness {fitness:.4f} < {min_fitness}"]
+    return q
+
+
+def exit_if_below_floor(q: dict, json_path) -> None:
+    if q["status"] == "below_floor":
+        logger.error("Registration quality below the floor: {} (output and {} written for inspection)",
+                     "; ".join(q["failed"]), json_path)
+        import sys
+
+        sys.exit(4)
+
+
 def write_moving(moving_path: str, transform, output: str) -> int:
     """Write the moving cloud AS READ (colours, normals) transformed by ``transform``."""
     out = o3d.io.read_point_cloud(moving_path)

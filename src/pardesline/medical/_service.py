@@ -19,12 +19,16 @@ logger = logging.getLogger(__name__)
 # VOLUME I/O
 # ============================================================================
 
-def load_volume(path: str | Path) -> sitk.Image:
+def load_volume(path: str | Path, pixel_type=sitk.sitkFloat32) -> sitk.Image:
     """Load volume from MHA, NRRD, NIFTI, VTI, etc.
 
     VTI files are read through PyVista with their spacing, origin and direction
     matrix. The file named is the file read: a sibling .mha is never substituted
     (it may hold different data or geometry).
+
+    ``pixel_type`` is the type the voxels are cast to (float32 by default, what the
+    registration and filtering code expects); ``None`` keeps the stored type, which a
+    label map needs: float32 represents integers exactly only up to 2**24.
     """
     path = Path(path)
 
@@ -48,7 +52,9 @@ def load_volume(path: str | Path) -> sitk.Image:
         # Convert to SimpleITK (uses C order)
         # Transpose from XYZ (PyVista) to ZYX (SimpleITK)
         arr_sitk = np.transpose(arr_3d, (2, 1, 0))
-        volume = sitk.GetImageFromArray(arr_sitk.astype(np.float32))
+        volume = sitk.GetImageFromArray(arr_sitk if pixel_type is None else arr_sitk.astype(np.float32))
+        if pixel_type is not None and pixel_type != sitk.sitkFloat32:
+            volume = sitk.Cast(volume, pixel_type)
 
         # Geometry: spacing, origin and direction (VTK 9 / PyVista >= 0.45 store a direction)
         volume.SetSpacing(tuple(float(v) for v in ds.spacing))
@@ -59,7 +65,9 @@ def load_volume(path: str | Path) -> sitk.Image:
         return volume
     else:
         # MHA, NRRD, NIFTI can be loaded directly by SimpleITK
-        return sitk.ReadImage(str(path), sitk.sitkFloat32)
+        if pixel_type is None:
+            return sitk.ReadImage(str(path))
+        return sitk.ReadImage(str(path), pixel_type)
 
 
 def load_dicom(folder: str | Path) -> sitk.Image:
@@ -391,7 +399,7 @@ def _configure_registration(reg, *, metric="mattes_mutual_information", number_o
                             learning_rate=1.0, num_iterations=100, convergence_minimum_value=1e-6,
                             convergence_window_size=10, shrink_factors="4,2,1", smoothing_sigmas="2,1,0",
                             smoothing_sigmas_in_physical_units=True, optimizer_scales_from_physical_shift=True,
-                            seed=DEFAULT_SEED):
+                            seed=DEFAULT_SEED, optimizer="regular_step"):
     """Apply the shared metric / gradient-descent optimizer / multi-resolution
     settings (Mattes MI 50 bins, RANDOM sampling, linear interp, GD, shrink
     [4,2,1], sigmas [2,1,0] in physical units). ``seed`` fixes the random metric
@@ -411,11 +419,19 @@ def _configure_registration(reg, *, metric="mattes_mutual_information", number_o
     reg.SetMetricSamplingStrategy(strat)
     reg.SetMetricSamplingPercentage(float(sampling_percentage), _check_seed(seed))
     reg.SetInterpolator(_SITK_INTERP[str(interpolator).upper()])
-    reg.SetOptimizerAsGradientDescent(
-        learningRate=float(learning_rate), numberOfIterations=int(num_iterations),
-        convergenceMinimumValue=float(convergence_minimum_value),
-        convergenceWindowSize=int(convergence_window_size),
-    )
+    if optimizer == "regular_step":
+        reg.SetOptimizerAsRegularStepGradientDescent(
+            learningRate=float(learning_rate), minStep=1e-4, numberOfIterations=int(num_iterations),
+            relaxationFactor=0.5, gradientMagnitudeTolerance=1e-8,
+        )
+    elif optimizer == "gradient_descent":
+        reg.SetOptimizerAsGradientDescent(
+            learningRate=float(learning_rate), numberOfIterations=int(num_iterations),
+            convergenceMinimumValue=float(convergence_minimum_value),
+            convergenceWindowSize=int(convergence_window_size),
+        )
+    else:
+        raise ValueError(f"optimizer must be regular_step or gradient_descent, got {optimizer!r}")
     if _sitk_bool(optimizer_scales_from_physical_shift):
         reg.SetOptimizerScalesFromPhysicalShift()
     reg.SetShrinkFactorsPerLevel(_num_list(shrink_factors, [4, 2, 1], int))
@@ -429,7 +445,7 @@ def _configure_registration(reg, *, metric="mattes_mutual_information", number_o
 _COMMON_REG_ARGS = ("metric", "number_of_histogram_bins", "sampling_strategy", "interpolator",
                     "convergence_minimum_value", "convergence_window_size", "shrink_factors",
                     "smoothing_sigmas", "smoothing_sigmas_in_physical_units",
-                    "optimizer_scales_from_physical_shift", "seed")
+                    "optimizer_scales_from_physical_shift", "seed", "optimizer")
 
 
 def add_common_reg_cli_args(parser, include_initializer: bool = True) -> None:
@@ -448,6 +464,9 @@ def add_common_reg_cli_args(parser, include_initializer: bool = True) -> None:
     parser.add_argument("--smoothing_sigmas", type=str, default="2,1,0")
     parser.add_argument("--smoothing_sigmas_in_physical_units", type=_sitk_bool, default=True)
     parser.add_argument("--optimizer_scales_from_physical_shift", type=_sitk_bool, default=True)
+    parser.add_argument("--optimizer", choices=["regular_step", "gradient_descent"], default="regular_step",
+                        help="regular_step: step halved on each direction change (converges); gradient_descent: "
+                             "fixed learning rate (the pre-0.5 default, stopped early or diverged on simple cases)")
     add_seed_cli_arg(parser)
 
 
@@ -508,9 +527,74 @@ def _find_best_rotation(fixed: sitk.Image, moving: sitk.Image,
     return best_tx
 
 
+DEFAULT_MIN_OVERLAP = 0.25
+DEFAULT_MIN_SIMILARITY = 0.05
+
+
+class RegistrationQualityError(RuntimeError):
+    """A registration whose quality is below the floor the caller set."""
+
+
+def _fill_quality(quality: dict | None, reg, iterations: int) -> None:
+    """The optimiser's own report: final metric value, stop condition, iterations."""
+    if quality is None:
+        return
+    quality.update({
+        "final_metric": float(reg.GetMetricValue()),
+        "metric_name": "image metric of the registration (lower is better; not comparable across pairs)",
+        "stop_condition": reg.GetOptimizerStopConditionDescription(),
+        "iterations": int(iterations),
+    })
+
+
+def registration_quality(fixed: sitk.Image, moving: sitk.Image, transform: sitk.Transform,
+                         bins: int = 32) -> dict:
+    """Quality of a volume registration that does not depend on the method.
+
+    ``overlap``: fraction of the fixed grid whose mapped position falls inside the moving image.
+    ``similarity``: normalised mutual information minus 1 on the overlap
+    ((H(F) + H(M)) / H(F, M) - 1; 0 for statistically unrelated images, about 0.66-0.77 for an
+    exact alignment of the synthetic pairs of tests/test_regressions_core.py, 0.14-0.21 for a
+    related but imprecise one, below 0.01 for unrelated content). Valid across modalities.
+    """
+    reg = sitk.Resample(sitk.Cast(moving, sitk.sitkFloat32), fixed, transform, sitk.sitkLinear,
+                        float("nan"), sitk.sitkFloat32)
+    a = sitk.GetArrayFromImage(sitk.Cast(fixed, sitk.sitkFloat32)).ravel()
+    b = sitk.GetArrayFromImage(reg).ravel()
+    inside = np.isfinite(b)
+    overlap = float(inside.mean()) if inside.size else 0.0
+    similarity = 0.0
+    if inside.sum() > 1:
+        h, _, _ = np.histogram2d(a[inside], b[inside], bins=int(bins))
+        pj = h / h.sum()
+
+        def _entropy(q):
+            q = q[q > 0]
+            return float(-(q * np.log(q)).sum())
+
+        joint = _entropy(pj.ravel())
+        if joint > 0:
+            similarity = (_entropy(pj.sum(axis=1)) + _entropy(pj.sum(axis=0))) / joint - 1.0
+    return {"overlap": round(overlap, 6), "similarity": round(float(similarity), 6)}
+
+
+def check_registration_quality(quality: dict, min_overlap: float | None = DEFAULT_MIN_OVERLAP,
+                               min_similarity: float | None = DEFAULT_MIN_SIMILARITY) -> dict:
+    """Set ``quality["status"]`` (``ok`` / ``below_floor``) and ``quality["floors"]``; return it."""
+    floors = {"min_overlap": min_overlap, "min_similarity": min_similarity}
+    failed = [f"{k[4:]} {quality.get(k[4:])} < {v}" for k, v in floors.items()
+              if v is not None and quality.get(k[4:]) is not None and quality[k[4:]] < v]
+    quality["floors"] = floors
+    quality["status"] = "below_floor" if failed else "ok"
+    if failed:
+        quality["failed"] = failed
+    return quality
+
+
 def register_rigid(fixed: sitk.Image, moving: sitk.Image,
-                   learning_rate: float = 1.0, num_iterations: int = 100,
-                   sampling_percentage: float = 0.01, initializer: str = "GEOMETRY",
+                   learning_rate: float = 1.0, num_iterations: int = 300,
+                   sampling_percentage: float = 0.1, initializer: str = "GEOMETRY",
+                   quality: dict | None = None,
                    **reg_opts) -> tuple[sitk.Image, sitk.Transform]:
     """Rigid registration - exact copy of ref_regi/modulesReg.py::register_images.
 
@@ -545,6 +629,7 @@ def register_rigid(fixed: sitk.Image, moving: sitk.Image,
     logger.info(f"Total iterations: {iteration_count[0]}")
 
     registered = sitk.Resample(moving, fixed, final_transform, sitk.sitkLinear, 0.0, moving.GetPixelID())
+    _fill_quality(quality, registration_method, iteration_count[0])
 
     return registered, final_transform
 
@@ -553,6 +638,7 @@ def register_rigid_advanced(fixed: sitk.Image, moving: sitk.Image,
                             learning_rate: float = 0.2, num_iterations: int = 200,
                             sampling_percentage: float = 0.15,
                             exhaustive_steps_per_axis: int = 12,
+                            quality: dict | None = None,
                             **reg_opts) -> tuple[sitk.Image, sitk.Transform]:
     """Advanced rigid registration - from ref_regi/modulesReg.py::registration_advanced.
 
@@ -598,12 +684,14 @@ def register_rigid_advanced(fixed: sitk.Image, moving: sitk.Image,
     logger.info(f"Total iterations: {len(iteration_data)}")
 
     registered = sitk.Resample(moving, fixed, final_transform, sitk.sitkLinear, 0.0, moving.GetPixelID())
+    _fill_quality(quality, registration_method, len(iteration_data))
     return registered, final_transform
 
 
 def register_affine(fixed: sitk.Image, moving: sitk.Image,
-                    learning_rate: float = 1.0, num_iterations: int = 100,
-                    sampling_percentage: float = 0.01, initializer: str = "GEOMETRY",
+                    learning_rate: float = 1.0, num_iterations: int = 300,
+                    sampling_percentage: float = 0.1, initializer: str = "GEOMETRY",
+                    quality: dict | None = None,
                     **reg_opts) -> tuple[sitk.Image, sitk.Transform]:
     """Affine registration - GEOMETRY initialization like ref_regi."""
     init_filter = (sitk.CenteredTransformInitializerFilter.GEOMETRY
@@ -635,6 +723,7 @@ def register_affine(fixed: sitk.Image, moving: sitk.Image,
     logger.info(f"Total iterations: {iteration_count[0]}")
 
     registered = sitk.Resample(moving, fixed, final_transform, sitk.sitkLinear, 0.0, moving.GetPixelID())
+    _fill_quality(quality, registration_method, iteration_count[0])
 
     return registered, final_transform
 
@@ -647,7 +736,8 @@ def register_bspline(fixed: sitk.Image, moving: sitk.Image, grid_spacing: float 
                      max_number_of_corrections: int = 5,
                      cost_function_convergence_factor: float = 1e7,
                      scale_factors: str = "",
-                     seed: int = DEFAULT_SEED) -> tuple[sitk.Image, sitk.Transform]:
+                     seed: int = DEFAULT_SEED,
+                     quality: dict | None = None) -> tuple[sitk.Image, sitk.Transform]:
     """B-spline FFD registration - from 06_advanced_registration.ipynb.
 
     Affine pre-registration, then a cubic B-spline whose control grid has
@@ -701,13 +791,15 @@ def register_bspline(fixed: sitk.Image, moving: sitk.Image, grid_spacing: float 
     # Compose: bspline first, then the affine (the LAST listed transform is applied first)
     composite = _flat_composite([affine_tx, final_bspline])
     registered = sitk.Resample(moving, fixed, composite, sitk.sitkLinear, 0.0, moving.GetPixelID())
+    _fill_quality(quality, registration_method, registration_method.GetOptimizerIteration())
 
     return registered, composite
 
 
 def register_demons(fixed: sitk.Image, moving: sitk.Image, num_iterations: int = 20,
                    standard_deviations: float = 2.0,
-                   smooth_displacement_field: bool = True) -> tuple[sitk.Image, sitk.Transform]:
+                   smooth_displacement_field: bool = True,
+                   quality: dict | None = None) -> tuple[sitk.Image, sitk.Transform]:
     """Demons deformable registration - from 06_advanced_registration.ipynb."""
     demons_filter = sitk.FastSymmetricForcesDemonsRegistrationFilter()
     demons_filter.SetNumberOfIterations(num_iterations)
@@ -729,6 +821,13 @@ def register_demons(fixed: sitk.Image, moving: sitk.Image, num_iterations: int =
 
     transform = sitk.DisplacementFieldTransform(displacement_field)
     registered = sitk.Resample(moving, fixed, transform, sitk.sitkLinear, 0.0, moving.GetPixelID())
+    if quality is not None:
+        quality.update({
+            "final_metric": float(demons_filter.GetMetric()),
+            "metric_name": "demons mean squared difference",
+            "stop_condition": f"{demons_filter.GetElapsedIterations()} of {num_iterations} iterations",
+            "iterations": int(demons_filter.GetElapsedIterations()),
+        })
 
     return registered, transform
 
@@ -825,8 +924,15 @@ def connected_components(binary_volume: sitk.Image, min_size: int = 15,
 # ============================================================================
 
 def resample(volume: sitk.Image, new_spacing: tuple[float, float, float] | None = None,
-            new_size: tuple[int, int, int] | None = None) -> sitk.Image:
-    """Resample to new spacing or size."""
+            new_size: tuple[int, int, int] | None = None, interpolator: str = "linear") -> sitk.Image:
+    """Resample to new spacing or size, same origin and direction, same pixel type.
+
+    ``interpolator``: ``linear`` (default), ``nearest`` (label maps: no new label value is
+    invented) or ``bspline``.
+    """
+    key = str(interpolator).upper()
+    if key not in _SITK_INTERP:
+        raise ValueError(f"interpolator must be one of {sorted(k.lower() for k in _SITK_INTERP)}, got {interpolator!r}")
     original_spacing = volume.GetSpacing()
     original_size = volume.GetSize()
 
@@ -847,7 +953,7 @@ def resample(volume: sitk.Image, new_spacing: tuple[float, float, float] | None 
     resampler.SetOutputOrigin(volume.GetOrigin())
     resampler.SetTransform(sitk.Transform())
     resampler.SetDefaultPixelValue(0)
-    resampler.SetInterpolator(sitk.sitkLinear)
+    resampler.SetInterpolator(_SITK_INTERP[key])
 
     return resampler.Execute(volume)
 

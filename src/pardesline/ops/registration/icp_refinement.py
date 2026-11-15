@@ -95,6 +95,8 @@ def main():
     parser.add_argument("--ransac_confidence", type=float, default=0.999)
     parser.add_argument("--ransac_seed_fitness", type=float, default=0.3)
     parser.add_argument("--seed", type=int, default=0, help="Seed of the RANSAC pre-pass")
+    parser.add_argument("--min_fitness", type=float, default=C.DEFAULT_MIN_FITNESS,
+                        help="Fail (exit 4) when fewer than this fraction of moving points lie within 1.5 x voxel of the fixed cloud after registration")
     args = parser.parse_args()
 
     logger.info("Loading fixed (target): {}", args.input)
@@ -233,7 +235,15 @@ def main():
     logger.info("Saved the moving cloud ({} points, attributes as read) transformed to: {}", n, args.output)
 
     json_path = Path(args.output).with_suffix('.json')
+    quality = C.quality_block(
+        source, target, result.transformation, C.QUALITY_THRESHOLD_FACTOR * args.voxel_size,
+        min_fitness=args.min_fitness,
+        stop_condition=f"{result_stage}; max_iterations {args.max_iterations} (Open3D does not report whether "
+                       "ICP converged or hit the limit)",
+        iterations=None, final_metric=float(result.inlier_rmse),
+        metric_name="ICP inlier RMSE at the final threshold")
     json_path.write_text(json.dumps({
+        "quality": quality,
         "transformation_matrix": result.transformation.tolist(),
         "fitness": float(result.fitness),
         "inlier_rmse": float(result.inlier_rmse),
@@ -250,6 +260,7 @@ def main():
         "open3d_version": o3d.__version__,
     }, indent=2))
     logger.info("Transformation matrix saved: {}", json_path)
+    C.exit_if_below_floor(quality, json_path)
 
 
 if __name__ == "__main__":
