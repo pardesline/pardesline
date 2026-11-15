@@ -91,6 +91,7 @@ def open_source(spec: SourceSpec, manifest: Manifest, *, manifest_dir: Path | No
             prefix=spec.prefix,
             sha512=spec.sha512,
             md5=spec.md5,
+            pins={u: p.model_dump() for u, p in (spec.pins or {}).items()} or None,
         )
     if spec.scheme == "s3":
         from .s3 import S3Source

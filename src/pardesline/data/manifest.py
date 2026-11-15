@@ -75,6 +75,16 @@ class FileSpec(_Model):
         return self
 
 
+class ArchivePin(_Model):
+    """What an archive URL served when the manifest was written: its size (and ETag when the
+    server sends one) and the date they were read. A remote archive read by HTTP Range cannot
+    be checksummed without a full download; size and ETag detect a replaced file."""
+
+    size_bytes: int = Field(ge=1)
+    etag: str | None = None
+    checked: str | None = None  # YYYY-MM-DD
+
+
 class SourceSpec(_Model):
     """Where the files come from.
 
@@ -117,6 +127,7 @@ class SourceSpec(_Model):
     prefix: str | None = None
     sha512: str | None = Field(default=None, min_length=128, max_length=128, pattern=r"^[0-9a-f]+$")
     md5: str | None = Field(default=None, min_length=32, max_length=32, pattern=r"^[0-9a-f]+$")
+    pins: dict[str, ArchivePin] | None = None  # per archive URL; checked when the archive is opened
     # s3 (public bucket)
     bucket: str | None = None
     endpoint: str = "https://s3.amazonaws.com"
