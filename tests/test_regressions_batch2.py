@@ -166,21 +166,21 @@ def test_p3_b03_alpha_shape_does_not_change_alpha_silently(sphere_cloud, tmp_pat
 
 @pytest.mark.local
 @pytest.mark.slow
-def test_p3_b04_poisson_default_keeps_the_surface_closed(sphere_cloud, tmp_path, monkeypatch):
-    o3d = pytest.importorskip("open3d")
+def test_p3_b04_poisson_default_keeps_the_surface_closed(sphere_cloud, tmp_path):
     """The default 0.01 density trimming removed vertices and opened a closed sphere; the default
-    is now no trimming (Open3D's own surface is kept as reconstructed)."""
+    is now no trimming (Open3D's own surface is kept as reconstructed).
+
+    Run in subprocesses, as the runner does: two Open3D Poisson runs inside the pytest process
+    aborted the whole process on macOS CI (2026-11-16)."""
+    o3d = pytest.importorskip("open3d")
     default, trimmed = tmp_path / "p.ply", tmp_path / "t.ply"
-    _run(
-        monkeypatch,
-        "pardesline.ops.point_cloud_reconstruction.poisson",
-        ["--input", sphere_cloud, "--output", default, "--depth", 7],
+    module = "pardesline.ops.point_cloud_reconstruction.poisson"
+    proc = _cli(module, ["--input", sphere_cloud, "--output", default, "--depth", 7])
+    assert proc.returncode == 0, proc.stderr[-2000:]
+    proc = _cli(
+        module, ["--input", sphere_cloud, "--output", trimmed, "--depth", 7, "--density_quantile", 0.01]
     )
-    _run(
-        monkeypatch,
-        "pardesline.ops.point_cloud_reconstruction.poisson",
-        ["--input", sphere_cloud, "--output", trimmed, "--depth", 7, "--density_quantile", 0.01],
-    )
+    assert proc.returncode == 0, proc.stderr[-2000:]
     n_default = len(o3d.io.read_triangle_mesh(str(default)).vertices)
     n_trimmed = len(o3d.io.read_triangle_mesh(str(trimmed)).vertices)
     assert n_default > n_trimmed
