@@ -5533,6 +5533,14 @@ T^* = \arg\min_{\mathbf{R}, \mathbf{t}} \sum_{i=1}^{N} \|\mathbf{R} p_i + \mathb
 <td>Number of RANSAC runs; the pose with the best threshold-free distance score wins.</td>
 <td>8 runs: one unseeded run landed 92 degrees off in 1 of 3 tries on a 120-degree pair; the best of 8 by distance score is robust and costs 8 RANSAC runs.</td>
 </tr>
+<tr>
+<td><code>min_fitness</code> <em>(advanced)</em></td>
+<td>float</td>
+<td><code>0.5</code></td>
+<td>0.0 to 1.0</td>
+<td>Quality floor: fail (exit code 4, output and JSON still written) when fewer than this fraction of moving points lie within 1.5 x voxel of the fixed cloud after registration.</td>
+<td>0.5: on synthetic pairs, correct poses scored 0.80-0.96 (including 1.5 mm noise and 40 % overlap) and unrelated shapes or disjoint parts 0.17-0.41. Fitness is relative to the moving cloud: lower the floor when only part of the moving cloud is expected to overlap the fixed one. 0 disables the check.</td>
+</tr>
 </tbody>
 </table>
 <h3 id="icp_refinement">icp_refinement<a class="headerlink" href="#icp_refinement" title="Permanent link">&para;</a></h3>
@@ -5717,6 +5725,14 @@ T^* = \arg\min_{\mathbf{R}, \mathbf{t}} \sum_{i=1}^{N} \|\mathbf{R} p_i + \mathb
 <td>0 to 2147483647</td>
 <td>Seed of the RANSAC pre-pass that gives ICP its starting pose.</td>
 <td>0: makes the RANSAC pre-pass, hence the ICP start and result, reproducible. Recorded in the JSON.</td>
+</tr>
+<tr>
+<td><code>min_fitness</code> <em>(advanced)</em></td>
+<td>float</td>
+<td><code>0.5</code></td>
+<td>0.0 to 1.0</td>
+<td>Quality floor: fail (exit code 4, output and JSON still written) when fewer than this fraction of moving points lie within 1.5 x voxel of the fixed cloud after registration.</td>
+<td>0.5: on synthetic pairs, correct poses scored 0.80-0.96 (including 1.5 mm noise and 40 % overlap) and unrelated shapes or disjoint parts 0.17-0.41. Fitness is relative to the moving cloud: lower the floor when only part of the moving cloud is expected to overlap the fixed one. 0 disables the check.</td>
 </tr>
 </tbody>
 </table>
@@ -5942,6 +5958,14 @@ T^* = \arg\min_{\mathbf{R}, \mathbf{t}} \sum_{i=1}^{N} \|\mathbf{R} p_i + \mathb
 <td><code>error</code>, <code>warn</code></td>
 <td>error: exit code 3 when the result is ambiguous (output and JSON still written); warn: log and exit 0.</td>
 <td>error: an ambiguous pose is a measurement nobody should use without looking; warn keeps the winner.</td>
+</tr>
+<tr>
+<td><code>min_fitness</code> <em>(advanced)</em></td>
+<td>float</td>
+<td><code>0.5</code></td>
+<td>0.0 to 1.0</td>
+<td>Quality floor: fail (exit code 4, output and JSON still written) when fewer than this fraction of moving points lie within 1.5 x voxel of the fixed cloud after registration.</td>
+<td>0.5: on synthetic pairs, correct poses scored 0.80-0.96 (including 1.5 mm noise and 40 % overlap) and unrelated shapes or disjoint parts 0.17-0.41. Fitness is relative to the moving cloud: lower the floor when only part of the moving cloud is expected to overlap the fixed one. 0 disables the check.</td>
 </tr>
 </tbody>
 </table>

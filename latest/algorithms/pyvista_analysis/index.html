@@ -5525,10 +5525,10 @@
 <tr>
 <td><code>scale_factor</code></td>
 <td>float</td>
-<td><code>0.01</code></td>
-<td>0.0001 to 1.0</td>
-<td>Scale factor for glyph size.</td>
-<td>0.01 in file units draws normal arrows of 1 % of a unit object, visible without hiding the surface.</td>
+<td><code>0.0</code></td>
+<td>0.0 to 1000000000.0</td>
+<td>Glyph scale in file units (0 = 5 percent of the largest extent).</td>
+<td>0 = 5 % of the largest extent: the old 0.01 drew arrows 0.02 long on a sphere of radius 10.</td>
 </tr>
 <tr>
 <td><code>vector_name</code></td>

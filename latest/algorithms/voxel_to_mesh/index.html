@@ -5392,7 +5392,7 @@
 <td><code>voxel_size</code></td>
 <td>float</td>
 <td><code>0.01</code></td>
-<td>0.002 to 0.05</td>
+<td>1e-09 to 1000000000.0</td>
 <td>Size of each voxel cube. Smaller = more detail.</td>
 <td>0.01 in file units gives a 100-voxel grid across a unit-sized object: coarse enough to run in a second, fine enough to see shape; the range (0.002-0.05) assumes objects around a metre, so scale it for millimetre data.</td>
 </tr>
@@ -5426,7 +5426,7 @@ The eroded volume is then reconstructed back to a mesh using marching cubes at i
 <td><code>voxel_size</code></td>
 <td>float</td>
 <td><code>0.01</code></td>
-<td>0.002 to 0.05</td>
+<td>1e-09 to 1000000000.0</td>
 <td>Voxel size for the occupancy grid.</td>
 <td>Same grid as voxelization so the two can be compared on the same object.</td>
 </tr>

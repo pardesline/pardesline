@@ -5491,10 +5491,10 @@ The iso-surface is extracted at an appropriate level of <span class="arithmatex"
 <tr>
 <td><code>density_quantile</code> <em>(advanced)</em></td>
 <td>float</td>
-<td><code>0.01</code></td>
+<td><code>0.0</code></td>
 <td>0.0 to 1.0</td>
 <td>Density quantile below which low-support vertices are removed as noise.</td>
-<td>0.01 removes the 1 % of vertices with the least sample support: that is where Poisson balloons over holes and partial views, so the output is a clean, density-trimmed surface rather than a bubble; raise to 0.05-0.1 on very partial scans.</td>
+<td>0: no trimming, the Poisson surface stays closed (sphere: watertight, volume 4187.7 for an exact 4188.8). 0.01 opened it (not watertight, 4099.3); raise it only to cut extrapolated sheets.</td>
 </tr>
 <tr>
 <td><code>normal_radius</code> <em>(advanced)</em></td>
@@ -5593,9 +5593,17 @@ Alpha shapes can produce surfaces with holes, disconnected components, and non-m
 <td><code>alpha</code></td>
 <td>float</td>
 <td><code>0.03</code></td>
-<td>0.005 to 0.5</td>
+<td>1e-09 to 1000000000.0</td>
 <td>Alpha parameter. Smaller = tighter fit (more detail). Larger = smoother.</td>
 <td>0.03 in file units is a tight fit on metre-scale objects with centimetre point spacing; alpha must be larger than the largest gap you want bridged and smaller than the smallest concavity you want kept.</td>
+</tr>
+<tr>
+<td><code>auto_retry</code> <em>(advanced)</em></td>
+<td>bool</td>
+<td><code>false</code></td>
+<td></td>
+<td>When the alpha gives an empty mesh, retry with 0.1-1 x the bounding-box diagonal (alpha used written to the JSON); otherwise an empty mesh is an error.</td>
+<td>Off: a retried alpha of 30 on a torus filled the hole (genus 0 blob); the alpha actually used was only in the log. On: the retry happens and is recorded.</td>
 </tr>
 </tbody>
 </table>

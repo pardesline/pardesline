@@ -5196,7 +5196,9 @@ which is why the package states LPS/mm for these files. Index to world is
 <code>sampling_strategy</code>, <code>interpolator</code>, <code>shrink_factors="4,2,1"</code>,
 <code>smoothing_sigmas="2,1,0"</code>, <code>number_of_histogram_bins</code>, <code>seed</code> (42; the
 random metric sampling is seeded, so a rerun gives the same transform; the seed
-is written to the JSON sidecar). Use GEOMETRY (aligns
+is written to the JSON sidecar), <code>optimizer</code> (<code>regular_step</code> by default since
+0.5.0; plain <code>gradient_descent</code> stopped early or diverged on simple cases).
+Use GEOMETRY (aligns
 image centres); MOMENTS (mass centres) can fail on partial fields of view.
 Mutual information for multimodal pairs (CT/MR), mean squares for same
 modality. Deformable: <code>bspline(grid_spacing)</code> (the control grid is the one
@@ -5206,6 +5208,19 @@ standard_deviations)</code>. Rigid first, then affine, then B-spline. Results ar
 flattened composites, writable to <code>.h5</code> / <code>.tfm</code> with <code>save_transform</code>.</p>
 <p>Passing <code>moving</code> is mandatory: every registration script, and
 <code>difference_analysis</code>, exits with a usage error without <code>--moving</code>.</p>
+<p>Every registration writes a <code>quality</code> block in its JSON sidecar (<code>reg.quality</code>):
+<code>overlap</code> (share of the fixed grid that maps inside the moving image),
+<code>similarity</code> (normalised mutual information minus 1: 0 for unrelated images,
+valid across modalities), <code>final_metric</code>, <code>stop_condition</code>, <code>iterations</code>,
+<code>floors</code>, <code>status</code>. Below <code>min_overlap</code> (0.25) or <code>min_similarity</code> (0.05) the
+script still writes its output and JSON, then exits with code 4 and the call
+raises <code>RunError</code>. The floors catch failed or meaningless registrations, not
+millimetre errors: validate with landmarks (TRE) when precision matters.
+<code>bspline_metric</code> chooses the deformable stage's metric (<code>mean_squares</code> for the
+same modality, <code>mattes_mutual_information</code> across modalities).</p>
+<p>Label maps keep their stored pixel type (<code>LabelMap.to_sitk()</code>), and
+<code>volume.resample(spacing=...)</code> uses nearest-neighbour interpolation for a label
+map (recorded in the provenance step).</p>
 <h2 id="segmentation">Segmentation<a class="headerlink" href="#segmentation" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="n">mask</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">segment</span><span class="p">()</span>  <span class="c1"># Otsu -&gt; LabelMap {1: "foreground"}</span>
 <span class="n">mask</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">segment</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>  <span class="c1"># manual_threshold in intensity units (HU for CT)</span>
