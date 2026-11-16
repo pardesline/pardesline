@@ -75,7 +75,9 @@ def test_p2_a02_voxel_size_is_used_as_given(script, near_symmetric_pair, tmp_pat
     """5.0 lies outside 0.5-5 % of the 74 mm diagonal: it was replaced by 1.3 % without a trace."""
     d, *_ = near_symmetric_pair
     out = tmp_path / "o.ply"
-    extra = ["--restarts", 1] if script == "ransac_global" else []
+    # these tests check attributes / the recorded voxel, not quality: a single RANSAC run on this
+    # near-symmetric part can land below the 0.5.0 quality floor (fitness 0.31-0.44 on Linux CI)
+    extra = [*(["--restarts", 1] if script == "ransac_global" else []), "--min_fitness", 0]
     run_script(
         monkeypatch,
         f"pardesline.ops.registration.{script}",
@@ -247,7 +249,9 @@ def test_p2_a14_other_registration_outputs_keep_attributes(
 ):
     d, _t, colors, _ = near_symmetric_pair
     out = tmp_path / "o.ply"
-    extra = ["--restarts", 1] if script == "ransac_global" else []
+    # these tests check attributes / the recorded voxel, not quality: a single RANSAC run on this
+    # near-symmetric part can land below the 0.5.0 quality floor (fitness 0.31-0.44 on Linux CI)
+    extra = [*(["--restarts", 1] if script == "ransac_global" else []), "--min_fitness", 0]
     run_script(
         monkeypatch,
         f"pardesline.ops.registration.{script}",
