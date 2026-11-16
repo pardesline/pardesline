@@ -31,8 +31,11 @@ on:
 permissions:
   contents: write
 
+# One queue per target: GitHub keeps a single pending run per group, so a release deploy that shared
+# the main queue was dropped when a later push to main queued behind it (v0.5.0, 2026-11-16).
+# Release / dispatched-tag deploys get their own group; the deploy steps retry if both push at once.
 concurrency:
-  group: docs-${{ github.ref }}
+  group: docs-${{ inputs.tag || github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -83,10 +86,20 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # retry CMD...: run, and on failure (gh-pages moved under us) resync gh-pages and run again
+          cat > "$RUNNER_TEMP/retry.sh" <<'SH'
+          for attempt in 1 2 3; do
+            "$@" && exit 0
+            echo "attempt $attempt failed; resyncing gh-pages" >&2
+            sleep $((attempt * 15))
+            git fetch origin gh-pages && git branch -f gh-pages origin/gh-pages
+          done
+          exit 1
+          SH
       # main is "dev"; "latest" stays on the last release (moved only by the step below)
       - name: Deploy dev docs (push to main)
         if: github.event_name != 'release' && (inputs.tag || '') == ''
-        run: mike deploy --push --alias-type copy dev
+        run: bash "$RUNNER_TEMP/retry.sh" mike deploy --push --alias-type copy dev
         env:
           DOCS_SOCIAL: "true"
       - name: Deploy versioned docs (release or dispatched tag)
@@ -97,8 +110,8 @@ jobs:
         run: |
           VERSION="${TAG#v}"
           MINOR="${VERSION%.*}"
-          mike deploy --push --update-aliases --alias-type copy "$MINOR" latest
-          mike set-default --push latest
+          bash "$RUNNER_TEMP/retry.sh" mike deploy --push --update-aliases --alias-type copy "$MINOR" latest
+          bash "$RUNNER_TEMP/retry.sh" mike set-default --push latest
       # Unversioned links (/pardesline/datasets/x/) land on the same page under /latest/
       - name: Root 404 page
         run: |
@@ -108,5 +121,5 @@ jobs:
           git add 404.html
           if ! git diff --cached --quiet; then
             git commit -m "Root 404 page: send unversioned links to latest"
-            git push origin gh-pages
+            git pull --rebase origin gh-pages && git push origin gh-pages
           fi
