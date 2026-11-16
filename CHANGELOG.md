@@ -4,6 +4,31 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.5.0](https://github.com/pardesline/pardesline/compare/v0.4.0...v0.5.0) (2026-11-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* threshold_volume needs --lower/--upper; alpha_shape and scalar_stats exit 1 where they substituted a value; large SDF grids refused; Poisson no longer trims by default; glyph and SDF band defaults follow the data.
+* **core:** registrations below the quality floor exit 4 (RunError); saving to an extension without a writer raises ValueError; .glb is not a save target; default rigid/affine optimiser and iteration/sampling defaults changed.
+
+### Added
+
+* **data:** manifests state whether they pin their data; archive size/ETag pins enforced (item 8, offline part) ([dada5a1](https://github.com/pardesline/pardesline/commit/dada5a1b67ff7eea401a6443d4b5df6689744fad))
+
+
+### Fixed
+
+* **catalog:** lengths in file units accept millimetre values (X12) ([6a9a38c](https://github.com/pardesline/pardesline/commit/6a9a38cc12d28dc0cc148129e72ad5991f30e300))
+* **core:** honest saves, frames, licences, label volumes and registration quality ([f3d70ee](https://github.com/pardesline/pardesline/commit/f3d70ee1b6a10f8eaeec27ca18500a2f62ea8f99))
+* **data:** pin the hub and archive manifests; AMOS22 licence sources recorded (items 8, 9) ([f8fe5c6](https://github.com/pardesline/pardesline/commit/f8fe5c6fb552e7354a782d06ed357c5c0701fffa))
+* **runner:** type the exit-code lookup for mypy ([ab093b5](https://github.com/pardesline/pardesline/commit/ab093b54e936af1970b6c18fd67e0973994a32d3))
+
+
+### Changed
+
+* audit second batch - data-relative defaults, recorded choices, honest texts (P1-22, P2-B1, P3-B1..B4, B8, B10..B13, B15, X13) ([a5389f1](https://github.com/pardesline/pardesline/commit/a5389f1d88d1a29cb71c995e62cf9930319be666))
+
 ## [0.5.0] — unreleased
 
 The core release: what `save` writes, what a registration tells its caller, which licence a result
