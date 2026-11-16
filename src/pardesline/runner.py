@@ -261,7 +261,7 @@ def run(
         reason = {
             3: "the registration is ambiguous: another pose scores almost as well",
             4: "the registration quality is below the floor (min_fitness / min_overlap / min_similarity)",
-        }.get(returncode)
+        }.get(returncode if returncode is not None else -1)
         detail = (
             f" {reason}; the output and {output_path.with_suffix('.json').name} were written for inspection."
             if reason
