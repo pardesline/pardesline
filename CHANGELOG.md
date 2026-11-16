@@ -4,11 +4,11 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## [0.5.0] — unreleased
+## [0.5.0](https://github.com/pardesline/pardesline/compare/v0.4.0...v0.5.0) (2026-11-16)
 
 The core release: what `save` writes, what a registration tells its caller, which licence a result
 carries and how label volumes are read, fixed after a downstream review of 0.3.1, plus the second
-batch of the 2026-11-15 audit. 0.4.0 was already published, so these changes open 0.5.0: several
+batch of the 2026-11-15 audit. 0.4.0 was already published, so these changes form 0.5.0: several
 calls now raise where they returned, which before 1.0 is a minor version.
 
 ### Fixed: results that change
@@ -89,6 +89,7 @@ calls now raise where they returned, which before 1.0 is a minor version.
   the more restrictive, CC-BY-SA-4.0, stays recorded, with both statements and the date read.
 - Texts: voxelization outputs surface voxels; Taubin smoothing is low-shrinkage, not
   volume-preserving; a false comment on multi-scale ICP is gone.
+- The runner's exit-code lookup is typed (the mypy job of CI failed after the merge).
 
 ## [0.4.0](https://github.com/pardesline/pardesline/compare/v0.3.1...v0.4.0) — 2026-11-15
 
