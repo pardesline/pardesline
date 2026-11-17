@@ -4,6 +4,28 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.6.0](https://github.com/pardesline/pardesline/compare/v0.5.0...v0.6.0) (2026-11-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* code that used pardesline.cloud, pl.login, pl.upload, pl.share or the cloud CLI commands must pin pardesline<0.6.
+
+### Added
+
+* MCP tool metadata, glama.json and the Claude plugin directory edition ([2f2825a](https://github.com/pardesline/pardesline/commit/2f2825a9a28d45746ddb31fe9f98f181c6d66e9e))
+* **mcp:** tool titles, annotations and parameter descriptions; serverInfo reports the package version ([62ae7fc](https://github.com/pardesline/pardesline/commit/62ae7fc1e9180a5f3c879fadddc4cb3924d3b40a))
+* **plugin:** Claude plugin directory edition in plugins/pardesline ([cb1cb42](https://github.com/pardesline/pardesline/commit/cb1cb425485d642f07dfb0ed71d4f0bbbe148b16))
+* the open-source package is independent of the PardesLine platform ([4fe5667](https://github.com/pardesline/pardesline/commit/4fe566718ddf82e9e9db488a6dcaf251b71367b0))
+
+
+### Fixed
+
+* **plugin:** directory edition - quoted frontmatter, no cloud client ([26a1d17](https://github.com/pardesline/pardesline/commit/26a1d17cc969981ed9ee805dfbeafadb5c1495c3))
+* **plugin:** double-quoted skill frontmatter in the directory edition ([5b2410d](https://github.com/pardesline/pardesline/commit/5b2410dd6581798d007314299d16f08045b55bbf))
+* **plugin:** leave the cloud client out of the directory edition ([827406d](https://github.com/pardesline/pardesline/commit/827406dd5ab651fbc9228c16b5b908f38d83a92b))
+* **privacy:** pl.o3d / pl.pv / pl.sitk never call the platform for a user who is not signed in ([074657a](https://github.com/pardesline/pardesline/commit/074657acf292874a1d617f18050eb8834b79507f))
+
 ## [0.5.0](https://github.com/pardesline/pardesline/compare/v0.4.0...v0.5.0) (2026-11-16)
 
 The core release: what `save` writes, what a registration tells its caller, which licence a result
