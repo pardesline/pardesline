@@ -1,4 +1,4 @@
-"""PardesLine — 3D vision and medical imaging, locally or in the cloud.
+"""PardesLine — 3D vision and medical imaging, on your machine.
 
     import pardesline as pl
 
@@ -15,9 +15,8 @@
     pl.run("simpleitk_registration", "rigid", "ct.mha", moving="mr.mha")
     pl.catalog().describe("point_cloud_reconstruction.poisson")
 
-Everything under ``pl.run`` / ``pl.load`` executes on this machine. The cloud
-client (``pl.login``, ``pl.upload``, ``pl.share``, hosted compute, viewers)
-lives in ``pardesline.cloud`` and stays reachable from the top level.
+Everything executes on this machine. The package talks to no PardesLine service;
+the only network traffic is the public dataset downloads you ask for.
 """
 
 from __future__ import annotations
@@ -73,7 +72,6 @@ __all__ = [
     "__version__",
     "cache_dir",
     "catalog",
-    "cloud",
     "datasets",
     "describe",
     "load",
@@ -104,11 +102,11 @@ def describe(what: str) -> str:
     return load_catalog().describe(what)
 
 
-# ---- cloud client, lazily -----------------------------------------------
-# 0.1.x exposed the cloud helpers at the top level. They still work, without
-# importing the HTTP client until first use.
-_CLOUD_NAMES = frozenset(
+# Names of the 0.1-0.5 platform client, removed in 0.6: the open-source package does not talk to
+# any PardesLine service. Kept only to explain the AttributeError.
+_REMOVED_PLATFORM_NAMES = frozenset(
     {
+        "cloud",
         "Client",
         "RemoteObject",
         "AuthError",
@@ -140,31 +138,50 @@ _CLOUD_NAMES = frozenset(
     }
 )
 
-# pl.o3d / pl.pv / pl.sitk / pl.np: the real library when it is installed,
-# otherwise the cloud-executed mirror from 0.1.x.
+# pl.o3d / pl.pv / pl.sitk / pl.np: the real library when it is installed.
 _LIB_NAMES = {"o3d": "open3d", "pv": "pyvista", "sitk": "SimpleITK", "np": "numpy"}
+_LIB_EXTRAS = {"o3d": "local", "pv": "local", "sitk": "medical", "np": "all"}
+
+
+class _MissingLibrary:
+    """Stands for a library that is not installed.
+
+    Any use raises MissingDependency; attribute probes (hasattr, dir, introspection) still work, which
+    an exception raised from the module ``__getattr__`` would break."""
+
+    def __init__(self, name: str):
+        self._name = name
+
+    def _error(self) -> MissingDependency:
+        return MissingDependency(_LIB_NAMES[self._name], _LIB_EXTRAS[self._name])
+
+    def __getattr__(self, attr: str) -> Any:
+        if attr.startswith("__"):
+            raise AttributeError(attr)
+        raise self._error()
+
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        raise self._error()
+
+    def __repr__(self) -> str:
+        return f"<pl.{self._name}: {self._error()}>"
 
 
 def __getattr__(name: str) -> Any:
-    if name == "cloud":
-        from . import cloud
-
-        return cloud
-    if name in _CLOUD_NAMES:
-        from . import cloud
-
-        return getattr(cloud, name)
     if name in _LIB_NAMES:
         import importlib
 
         try:
             return importlib.import_module(_LIB_NAMES[name])
         except ImportError:
-            from . import cloud
-
-            return getattr(cloud, name)
+            return _MissingLibrary(name)
+    if name in _REMOVED_PLATFORM_NAMES:
+        raise AttributeError(
+            f"pl.{name} belonged to the PardesLine platform client, removed in pardesline 0.6: the "
+            "open-source package runs entirely on your machine and talks to no PardesLine service."
+        )
     raise AttributeError(f"module 'pardesline' has no attribute {name!r}")
 
 
 def __dir__() -> list[str]:
-    return sorted(set(__all__) | _CLOUD_NAMES | set(_LIB_NAMES))
+    return sorted(set(__all__) | set(_LIB_NAMES))

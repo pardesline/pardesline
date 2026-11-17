@@ -1,12 +1,31 @@
-"""Exceptions raised by the local package.
+"""Exceptions raised by the package.
 
-Everything derives from :class:`PardesLineError`, which is shared with the
-cloud client so one ``except pl.PardesLineError`` covers both.
+Everything derives from :class:`PardesLineError`, so one ``except pl.PardesLineError``
+covers every failure the package reports on purpose.
 """
 
 from __future__ import annotations
 
-from .cloud.errors import PardesLineError
+from typing import Any
+
+
+class PardesLineError(Exception):
+    """Base class for every pardesline error; ``code`` is a stable identifier to branch on."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        code: str | None = None,
+        status: int | None = None,
+        detail: dict[str, Any] | None = None,
+    ):
+        super().__init__(message)
+        self.message = message
+        self.code = code
+        self.status = status
+        self.detail = detail or {}
+
 
 __all__ = [
     "CatalogError",

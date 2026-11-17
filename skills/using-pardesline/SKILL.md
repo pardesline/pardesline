@@ -5,19 +5,18 @@ description: >-
   and medical imaging on the user's own machine. One typed object for point clouds,
   meshes, volumes and label maps (frame, units, labels, licence, provenance), 73
   catalogued algorithms run locally with validated parameters, datasets loaded by
-  manifest (`pl.load("rire_brain")`, `pl.load("hf://...")`, `pl.load("/my/folder")`),
-  and an optional cloud client. Load this first whenever the user wants to process,
+  manifest (`pl.load("rire_brain")`, `pl.load("hf://...")`, `pl.load("/my/folder")`). Load this first whenever the user wants to process,
   convert, register, segment or load 3D data in Python with pardesline, then route to
   the other pardesline skills (catalog-and-run, object-model, datasets-and-manifests,
-  scanning-private-folders, medical-volumes, cloud-client, mcp-server, contributing-algorithms).
+  scanning-private-folders, medical-volumes, mcp-server, contributing-algorithms).
 ---
 
 # Using pardesline
 
 `pardesline` (import as `pl`) is one Python package for point clouds, meshes,
 medical volumes and label maps. Everything under `pl.load` / `pl.run` executes
-on the machine that runs Python; nothing leaves it. The cloud client is
-optional and separate (`pardesline.cloud`).
+on the machine that runs Python; nothing leaves it.
+The package talks to no PardesLine service.
 
 ## Install (tell the user exactly this)
 
@@ -26,7 +25,7 @@ pip install "pardesline[all]"       # Open3D + PyVista + SimpleITK + huggingface
 pip install "pardesline[local]"     # point clouds, meshes, SDF, LiDAR (Open3D, PyVista)
 pip install "pardesline[medical]"   # volumes, DICOM, registration, segmentation (SimpleITK + PyVista)
 pip install "pardesline[hf]"        # pl.load("hf://...")
-pip install pardesline              # catalog + object model + cloud client only, no native libs
+pip install pardesline              # catalog + object model only, no native libs
 ```
 
 Python 3.10 to 3.12 for `[local]` (Open3D 0.19 has no 3.13 wheels). A missing
@@ -51,7 +50,6 @@ ds = pl.load("rire_brain")  # Dataset: samples with typed roles, fetched on acce
 | load a public dataset, a Hugging Face repo, a bucket, a TCIA collection or your own folder | `pl.load("msd_task02_heart")`, `pl.load("hf://org/name/sub")`, `pl.load("tcia://Pancreas-CT")`, `pl.load("s3://openneuro.org/ds000001")`, `pl.load("/data/study")` | datasets-and-manifests, scanning-private-folders |
 | read a raw `.npy` / `.bin` array, standardise a dataset | `pl.load("sweep.bin", layout={...})`, `ds.export(folder)`, `pardesline export` | object-model, datasets-and-manifests |
 | write a manifest, answer the scan's questions | `pl.scan(folder)`, `pl.load(folder, license=..., units=..., labels=...)` | scanning-private-folders |
-| share a result, run on the hosted GPU, open a browser viewer | `pl.login()`, `pl.upload`, `pl.share`, `pardesline.cloud` | cloud-client |
 | give an AI agent (Claude, Gemini, Cursor, Codex) the datasets and algorithms through MCP | `pardesline mcp`, `.mcp.json`, tools `load_sample`, `scan_dataset`, `run_method` | mcp-server |
 | choose a 3D representation, convert between them | conversion matrix, memory, pitfalls | 3d-representations |
 | align two clouds or an atlas and judge the result | RANSAC + FPFH + ICP parameters, metrics, CPD | point-cloud-registration, atlas-label-transfer |
@@ -112,4 +110,4 @@ over https, Hugging Face, remote archives by HTTP Range, S3, TCIA and URL
 indexes), outputs default to `pl.output_dir()` (system temp,
 change with `pl.set_output_dir`), downloads cache in `~/.cache/pardesline`
 (`PARDESLINE_CACHE`). `pl.o3d`, `pl.pv`, `pl.sitk`, `pl.np` are the real
-libraries when installed, the cloud-executed mirrors otherwise.
+libraries when installed; without them, any use raises `MissingDependency`.

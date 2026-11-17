@@ -8,8 +8,9 @@ description: "Medical volumes with pardesline on the user's machine (needs the [
 # Medical volumes
 
 Requires `pip install "pardesline[medical]"` (SimpleITK + PyVista). `.vti`
-outputs are written by every SimpleITK op and read back through the PyVista
-adapter; a sibling `.mha` next to a `.vti` is preferred when present (3x faster).
+outputs are written by every SimpleITK op, with spacing, origin and direction
+matrix, and read back through the PyVista adapter. The file named is the file
+read: a sibling `.mha` is never substituted for a `.vti`.
 
 ## Load
 
@@ -48,14 +49,36 @@ Shared registration parameters (print with `pl.describe("simpleitk_registration.
 (`mattes_mutual_information` | `mean_squares` | `correlation` |
 `joint_histogram_mi`), `initializer` (`GEOMETRY` | `MOMENTS`),
 `sampling_strategy`, `interpolator`, `shrink_factors="4,2,1"`,
-`smoothing_sigmas="2,1,0"`, `number_of_histogram_bins`. Use GEOMETRY (aligns
+`smoothing_sigmas="2,1,0"`, `number_of_histogram_bins`, `seed` (42; the
+random metric sampling is seeded, so a rerun gives the same transform; the seed
+is written to the JSON sidecar), `optimizer` (`regular_step` by default since
+0.5.0; plain `gradient_descent` stopped early or diverged on simple cases).
+Use GEOMETRY (aligns
 image centres); MOMENTS (mass centres) can fail on partial fields of view.
 Mutual information for multimodal pairs (CT/MR), mean squares for same
-modality. Deformable: `bspline(grid_spacing)`, `demons(num_iterations,
-standard_deviations)`. Rigid first, then affine, then B-spline.
+modality. Deformable: `bspline(grid_spacing)` (the control grid is the one
+requested: round(extent / grid_spacing) cells per axis; `scale_factors="1,2,4"`
+refines a coarser grid per level instead), `demons(num_iterations,
+standard_deviations)`. Rigid first, then affine, then B-spline. Results are
+flattened composites, writable to `.h5` / `.tfm` with `save_transform`.
 
-Passing `moving` is mandatory; the scripts' self-alignment demo mode is not
-reachable through the package.
+Passing `moving` is mandatory: every registration script, and
+`difference_analysis`, exits with a usage error without `--moving`.
+
+Every registration writes a `quality` block in its JSON sidecar (`reg.quality`):
+`overlap` (share of the fixed grid that maps inside the moving image),
+`similarity` (normalised mutual information minus 1: 0 for unrelated images,
+valid across modalities), `final_metric`, `stop_condition`, `iterations`,
+`floors`, `status`. Below `min_overlap` (0.25) or `min_similarity` (0.05) the
+script still writes its output and JSON, then exits with code 4 and the call
+raises `RunError`. The floors catch failed or meaningless registrations, not
+millimetre errors: validate with landmarks (TRE) when precision matters.
+`bspline_metric` chooses the deformable stage's metric (`mean_squares` for the
+same modality, `mattes_mutual_information` across modalities).
+
+Label maps keep their stored pixel type (`LabelMap.to_sitk()`), and
+`volume.resample(spacing=...)` uses nearest-neighbour interpolation for a label
+map (recorded in the provenance step).
 
 ## Segmentation
 
@@ -63,9 +86,15 @@ reachable through the package.
 mask = ct.segment()  # Otsu -> LabelMap {1: "foreground"}
 mask = ct.segment(lower=200, upper=600)  # manual_threshold in intensity units (HU for CT)
 mask = mask.run("simpleitk_segmentation.connected_components", min_size=500)  # keep components >= 500 voxels
-ws = mask.run("simpleitk_segmentation.watershed", seed_radius=10.0)
+ws = mask.run("simpleitk_segmentation.watershed", seed_radius=10.0)  # seeds: deeper than 10 mm
 mask = mask.with_labels({1: "bone"})  # name the label
 ```
+
+`connected_components` and `watershed` binarise between `threshold` and
+`upper_threshold` (default: the image maximum, so bone and contrast stay in).
+Watershed seeds are the regions deeper than `seed_radius` **mm** inside the
+mask; objects cut by the image border are dropped, and a separate object too thin
+for a seed of its own stays unlabelled.
 
 `Volume.segment` always returns a `LabelMap`. Other outputs are Volumes:
 declare them with `as_labels({...})` when they are label maps.
@@ -110,4 +139,4 @@ These are the exact functions the hosted registration studio runs.
 - Datasets: `rire_brain` (CT/MR pair), `popi_lung_4dct` (6 phases + mask),
   `liver_tumor_patient01` (CT + 3 observer masks), `visible_human_head_mri`.
 
-<sub>Source: `skills/medical-volumes/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-10.</sub>
+<sub>Source: `skills/medical-volumes/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-11-15.</sub>

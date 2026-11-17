@@ -43,7 +43,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed",
 ]
-# Core: catalog, object model, runner and the cloud client. No native libraries.
+# Core: catalog, object model, runner and dataset sources. No native libraries.
 dependencies = [
     "httpx>=0.27,<1",
     "pydantic>=2,<3",
@@ -93,7 +93,6 @@ Issues = "https://github.com/pardesline/pardesline/issues"
 Discussions = "https://github.com/pardesline/pardesline/discussions"
 Showcase = "https://github.com/pardesline/pardesline/blob/main/docs/showcase/README.md"
 Company = "https://pardesline.com"
-Platform = "https://appbeta.pardesline.com"
 
 [project.scripts]
 pardesline = "pardesline.cli:main"
@@ -144,15 +143,12 @@ markers = [
 [tool.ruff]
 line-length = 110
 target-version = "py310"
-# Migrated code is kept byte-identical to its source of truth (the platform's
-# modules/ scripts and the 0.1.0 client) until the platform depends on this
-# package. Lint and format apply to the new code only.
+# The algorithm scripts (ops/) and the SimpleITK service keep the style they were written in;
+# lint and format apply to the rest of the package.
 exclude = [
     "src/pardesline/ops",
-    "src/pardesline/cloud",
     "src/pardesline/medical/_service.py",
     "src/pardesline/medical/pyvista_adapter.py",
-    "tests/cloud",
     # Generated documentation pages (docs/_gen/*.py rewrites them at build time).
     "docs/datasets",
     "docs/algorithms",
@@ -184,17 +180,17 @@ python_version = "3.10"
 ignore_missing_imports = true
 warn_unused_ignores = false
 check_untyped_defs = false
-# Migrated platform code and the 0.1 client are kept byte-identical and are not typed.
-exclude = 'src/pardesline/(ops|cloud|medical/_service\.py|medical/pyvista_adapter\.py)'
+# The algorithm scripts and the SimpleITK service are not typed.
+exclude = 'src/pardesline/(ops|medical/_service\.py|medical/pyvista_adapter\.py)'
 
 [[tool.mypy.overrides]]
-module = ["pardesline.ops.*", "pardesline.cloud.*", "pardesline.medical._service", "pardesline.medical.pyvista_adapter"]
+module = ["pardesline.ops.*", "pardesline.medical._service", "pardesline.medical.pyvista_adapter"]
 follow_imports = "skip"
 ignore_errors = true
 
 [tool.coverage.run]
 source = ["pardesline"]
-omit = ["*/ops/*", "*/cloud/*", "*/medical/_service.py", "*/medical/pyvista_adapter.py"]
+omit = ["*/ops/*", "*/medical/_service.py", "*/medical/pyvista_adapter.py"]
 
 [tool.coverage.report]
 skip_covered = false

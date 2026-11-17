@@ -49,7 +49,7 @@ Output: `.ply`. Script: `python -m pardesline.ops.registration.ransac_global --i
 
 | Parameter | Type | Default | Range | What it does | Why this default, when to change it |
 |---|---|---|---|---|---|
-| `voxel_size` | float | `0.5` | 0 to 0.9 | Voxel size for downsampling. 0 = auto-detect (1.3% of bbox diagonal, matches Open3D tutorial). | 0.5 is a placeholder for the platform UI; 0 (auto) is what the one-call API passes: 1.3 % of the bounding-box diagonal, so the feature scale follows the object instead of a fixed number that is wrong for both a 15 cm part and a 15 m facade. |
+| `voxel_size` | float | `0.5` | 0 to 0.9 | Voxel size for downsampling. 0 = auto-detect (1.3% of bbox diagonal, matches Open3D tutorial). | 0.5 is the catalog default; 0 (auto) is what the one-call API passes: 1.3 % of the bounding-box diagonal, so the feature scale follows the object instead of a fixed number that is wrong for both a 15 cm part and a 15 m facade. |
 | `normal_radius_factor` *(advanced)* | float | `2.0` | 1.0 to 5.0 | Normal-estimation radius as a multiple of voxel_size. | 2x the voxel: normals need a neighbourhood a little larger than the downsampling cell to be stable but local. |
 | `normal_max_nn` *(advanced)* | int | `30` | 10 to 100 | Max neighbors for normal estimation. | 30 neighbours cap the normal estimation cost on dense clouds. |
 | `fpfh_radius_factor` *(advanced)* | float | `5.0` | 2.0 to 10.0 | FPFH feature radius as a multiple of voxel_size. | 5x the voxel is the Open3D-recommended FPFH support: large enough for a descriptive 33-bin histogram, small enough to stay local on partial scans. |

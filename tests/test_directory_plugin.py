@@ -50,11 +50,11 @@ def test_directory_plugin_declares_only_a_remote_server():
         assert "command" not in server, name
         assert server["type"] == "http" and server["url"].startswith("https://"), name
     skills = {p.parent.name for p in (PLUGIN / "skills").glob("*/SKILL.md")}
-    assert skills == {p.parent.name for p in (ROOT / "skills").glob("*/SKILL.md")} - {"cloud-client"}
+    assert skills == {p.parent.name for p in (ROOT / "skills").glob("*/SKILL.md")}
 
 
 def test_directory_edition_does_not_route_to_the_cloud_client():
-    """The cloud client sends files to the PardesLine platform, which is not a declared connector."""
+    """The edition sends nothing to a service other than its declared, read-only connector."""
     cloud = re.compile(
         r"cloud-client|pardesline\.cloud|appbeta|pl\.(login|upload|send|share|inbox)\b|cloud client"
     )

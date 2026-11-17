@@ -25,8 +25,30 @@ downsample (voxel v)  ->  normals (r_n = 2v)  ->  FPFH (r_f = 5v)
 Everything scales with **one number, the voxel size `v`**, which should be
 2-5 times the point spacing and about 1 % of the object's bounding-box
 diagonal (pardesline's `voxel_size=0` picks 1.3 % of the diagonal, the Open3D
-tutorial setting). If the units are wrong (mm vs m) every radius is wrong:
-check `cloud.frame.describe()` first.
+tutorial setting; a value you give is used as given and written to the JSON
+sidecar). If the units are wrong (mm vs m) every radius is wrong: check
+`cloud.frame.describe()` first.
+
+RANSAC is random. Every registration script takes `seed` (default 0) and pins
+Open3D to one thread, so a run is reproducible on Linux and Windows (not on macOS, where
+Open3D's RANSAC varied between runs under the same seed in CI); `ransac_global` and
+`ransac_icp_pipeline` also run `restarts` seeds (default 8) and keep the pose
+with the best threshold-free score (mean of the 10-90 % quantiles of the
+moving-to-fixed distances). A single run is not trustworthy on near-symmetric
+parts: in tests one seed ended 90 or 180 degrees off in 3 to 6 runs out of 6.
+The pipeline also refines the winner turned by 90/180/270 degrees about each
+principal axis; when a different pose scores within `ambiguity_margin` (10 %)
+it reports `status: "ambiguous"` and exits with code 3 (`on_ambiguous="warn"`
+to only log it). Outputs are the moving cloud as read (colours, normals,
+point order) transformed by T.
+
+Every registration (`ransac_global`, `icp_refinement`, `ransac_icp_pipeline`,
+`cpd_deformable`) writes a `quality` block: `fitness` (share of the moving
+points within 1.5 voxel of the fixed cloud after the transform), `inlier_rmse`,
+`final_metric`, `stop_condition`, `floors`, `status`. Below `min_fitness` (0.5)
+the output and JSON are written and the script exits with code 4. On synthetic
+pairs correct poses scored 0.80-0.96 and unrelated shapes 0.17-0.41; lower the
+floor when only part of the moving cloud overlaps the fixed one.
 
 ### FPFH in two sentences
 For each point, the Simplified Point Feature Histogram encodes the angles
@@ -77,13 +99,16 @@ aligned = fixed.run(
     edge_length_threshold=0.9,
     ransac_max_iteration=100000,
     ransac_confidence=0.999,
-    icp_threshold_factor=0.4,
+    icp_coarse_threshold_factor=1.5,  # first ICP pass at 1.5 v ...
+    icp_threshold_factor=0.4,  # ... then 0.4 v (one pass at 0.4 v stalls from RANSAC-sized errors)
     icp_estimation_method="point_to_plane",
-    icp_max_iteration=30,
+    icp_max_iteration=100,
+    seed=0,
+    restarts=8,
     icp_relative_fitness=1e-6,
     icp_relative_rmse=1e-6,
 )
-aligned.transform  # {'fitness', 'inlier_rmse', 'transformation_matrix', ...} from <output>.json
+aligned.transform  # {'transformation_matrix', 'status', 'voxel_size', 'seed', 'candidates', ...} from <output>.json
 ```
 
 Two-stage control: `registration.ransac_global` alone (coarse pose, to inspect
@@ -130,8 +155,10 @@ CPD treats the moving cloud as Gaussian mixture centroids and the fixed cloud
 as samples; EM alternates responsibilities and a displacement field that is
 regularised to be smooth (`beta` = kernel width, `lambda_val` = regularisation
 weight, `w` = outlier fraction). `deformable_registration.cpd_deformable`
-exposes them; `low_rank=True` with `num_eig` makes it tractable above ~10 k
-points. Use it after a rigid alignment, for organ motion, breathing, or
+exposes them; both clouds are normalised by their joint RMS radius, so the
+default `beta=2` means the same at any scale and point count. pycpd 2 has no
+low-rank mode: `low_rank=True` is refused (it used to be accepted and ignored),
+so keep CPD to a few thousand points (down-sample first). Use it after a rigid alignment, for organ motion, breathing, or
 atlas-to-patient shape adaptation; never as a first stage. Validate with
 Jacobian-determinant positivity of the displacement (no folding) and TRE.
 
@@ -161,4 +188,4 @@ moved = pair.target.align(pair.source, voxel_size=0.05)  # metres
 print(moved.transform["fitness"], moved.transform["inlier_rmse"])
 ```
 
-<sub>Source: `skills/point-cloud-registration/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-14.</sub>
+<sub>Source: `skills/point-cloud-registration/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-11-15.</sub>

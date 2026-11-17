@@ -37,4 +37,5 @@ Please include: the version (`python -c "import pardesline; print(pardesline.__v
 - Archive members are written under the dataset cache only after their path is checked to stay inside it; `._` and `.DS_Store` members are dropped.
 - Downloads are verified against the manifest's SHA-512 or MD5 when present and against the archive index size otherwise; a mismatch deletes the file and raises.
 - The MCP server logs to stderr only, refuses paths outside the skills folder and returns structured errors instead of crashing.
-- No telemetry. The optional cloud client sends data only when you call its functions.
+- No telemetry, and no client for any PardesLine service: the only network traffic is the
+  public dataset downloads you ask for.

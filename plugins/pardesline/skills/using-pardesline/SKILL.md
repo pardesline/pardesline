@@ -8,6 +8,7 @@ description: "START HERE for the open-source `pardesline` Python package (Apache
 `pardesline` (import as `pl`) is one Python package for point clouds, meshes,
 medical volumes and label maps. Everything under `pl.load` / `pl.run` executes
 on the machine that runs Python; nothing leaves it.
+The package talks to no PardesLine service.
 
 ## Install (tell the user exactly this)
 
@@ -101,4 +102,4 @@ over https, Hugging Face, remote archives by HTTP Range, S3, TCIA and URL
 indexes), outputs default to `pl.output_dir()` (system temp,
 change with `pl.set_output_dir`), downloads cache in `~/.cache/pardesline`
 (`PARDESLINE_CACHE`). `pl.o3d`, `pl.pv`, `pl.sitk`, `pl.np` are the real
-libraries; install them with the `local` and `medical` extras.
+libraries when installed; without them, any use raises `MissingDependency`.

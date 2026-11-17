@@ -11,8 +11,7 @@
     pardesline mcp [--transport streamable-http --port 8765]
     pardesline version
 
-Cloud commands (login, upload, send, inbox, ls, download, share, whoami,
-logout) are forwarded to the cloud client.
+Everything runs on this machine.
 """
 
 from __future__ import annotations
@@ -24,8 +23,6 @@ from ._version import __version__
 from .catalog import load_catalog
 from .data import Dataset
 from .errors import PardesLineError
-
-CLOUD_COMMANDS = ("login", "logout", "whoami", "upload", "send", "inbox", "ls", "download", "share")
 
 
 def _parse_params(tokens: list[str]) -> dict[str, str]:
@@ -140,7 +137,7 @@ def main(argv: list[str] | None = None) -> int:
     """Entry point of the ``pardesline`` command line.
 
     Dispatches to ``list``, ``describe``, ``datasets``, ``fetch``, ``export``, ``run``,
-    ``mcp`` and ``version``; the cloud commands are forwarded to the optional client.
+    ``mcp`` and ``version``.
     Returns the process exit code (0 on success).
 
     Examples:
@@ -150,10 +147,6 @@ def main(argv: list[str] | None = None) -> int:
     """
 
     argv = list(sys.argv[1:] if argv is None else argv)
-    if argv and argv[0] in CLOUD_COMMANDS:
-        from .cloud.cli import main as cloud_main
-
-        return cloud_main(argv)
     if argv and argv[0] == "mcp":
         from .mcp_server import main as mcp_main
 
@@ -162,7 +155,6 @@ def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(
         prog="pardesline",
         description="Run 3D vision and medical imaging algorithms locally.",
-        epilog="Cloud commands: " + ", ".join(CLOUD_COMMANDS) + ".",
     )
     p.add_argument("--version", action="version", version=f"pardesline {__version__}")
     sub = p.add_subparsers(dest="cmd", required=True)

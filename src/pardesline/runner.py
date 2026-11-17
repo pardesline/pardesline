@@ -2,7 +2,7 @@
 
 Each op is an argparse script (``python -m pardesline.ops.<module>.<script>
 --input ... --output ... [--flag value ...]``). Running it in a child process keeps
-the exact contract the platform uses and isolates native-library crashes
+one command-line contract for every algorithm and isolates native-library crashes
 from the caller.
 """
 

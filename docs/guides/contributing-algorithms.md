@@ -12,26 +12,23 @@ description: "How the pardesline repository is organised and how to extend it wi
 ```
 src/pardesline/
   _version.py            single version source (hatchling reads it)
-  __init__.py            public API; cloud helpers and pl.o3d/pv/sitk/np resolved lazily
-  errors.py              PardesLineError (shared with cloud) + Catalog/Parameter/Run/Manifest/Fetch/NeedsConfirmation
+  __init__.py            public API; pl.o3d/pv/sitk/np resolved lazily (a placeholder raising MissingDependency when absent)
+  errors.py              PardesLineError + Catalog/Parameter/Run/Manifest/Fetch/NeedsConfirmation
   catalog/               Catalog, Module, Method, Parameter + data/<module>.json (19 files, the 73 methods)
   runner.py              pl.run: validation, subprocess, log/progress capture, RunResult
   object/                Object classes, frame.py (Frame, License, format defaults), convert.py (in-process conversions)
   data/                  manifest.py (pydantic schema incl. Layout), dataset.py (+ export), scan.py (folders and listings), cache.py, sources/{local,https,hf,archive,s3,tcia,urllist,open3d}.py, manifests/*.json
   object/arrays.py       raw .npy/.npz/.bin decoding through a layout; pure-NumPy PLY writer; grid -> MetaImage
-  ops/<module>/*.py      the 73 scripts, byte-identical to the hosted platform's modules/*/scripts
-  medical/               _service.py + pyvista_adapter.py (the platform's SimpleITK service), public re-exports
-  cloud/                 the 0.1.0 cloud client, verbatim
+  ops/<module>/*.py      the 73 algorithm scripts (argparse, one command-line contract)
+  medical/               _service.py (SimpleITK service) + pyvista_adapter.py, public re-exports
 tests/                   fast tests + ops smoke tests + 73 --help checks + network tests
 skills/                  these skills (installable as a Claude Code plugin)
 ```
 
-The hosted platform's `modules/` folder and services are the **source of
-truth** for `ops/`, `catalog/data/` and `medical/` until the platform
-depends on this package; those files are excluded from ruff and must stay
-byte-identical (only the ten SimpleITK scripts have their import rewired to
-`pardesline.medical._service`). Edit algorithms upstream, or deliberately
-fork here and document it in CHANGELOG.
+This repository is the **source of truth** for `ops/`, `catalog/data/` and
+`medical/`: the package depends on no PardesLine service. The scripts keep the
+style they were written in (excluded from ruff); change them here, with a test
+that fails before the fix and a CHANGELOG entry.
 
 ## Adding an algorithm
 
@@ -83,7 +80,7 @@ fork here and document it in CHANGELOG.
 ## Tests
 
 ```bash
-pytest -q -m "not slow"                      # ~1 min: catalog, params, runner, object, manifests, scan, https (local server), cloud unit
+pytest -q -m "not slow"                      # ~1 min: catalog, params, runner, object, manifests, scan, https (local server)
 pytest -q                                    # + ops smoke (real Open3D/PyVista/SimpleITK runs) + 73 --help checks (~6 min)
 PARDESLINE_NETWORK_TESTS=1 pytest tests/test_network.py   # real downloads (RIRE 19 MB, liver, Open3D bunny)
 ruff check . && ruff format --check .

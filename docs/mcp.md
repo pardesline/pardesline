@@ -46,7 +46,7 @@ The `skills/` folder holds twenty skills, grounded in the code and checked
 by the test suite (every module, method, parameter and dataset they mention
 must exist). Nine teach the package: `using-pardesline` (start here),
 `catalog-and-run`, `object-model`, `datasets-and-manifests`,
-`scanning-private-folders`, `medical-volumes`, `cloud-client`, `mcp-server`,
+`scanning-private-folders`, `medical-volumes`, `mcp-server`,
 `contributing-algorithms`. Eleven are **expert guides with reference scripts**
 for the domains the package serves, written for engineers who build the
 pipelines, and served to any MCP client through `list_skills` / `get_skill`:

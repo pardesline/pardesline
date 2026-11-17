@@ -1,7 +1,6 @@
 """The typed catalog of modules, methods and parameters.
 
-The catalog is generated from the same manifests that drive the PardesLine
-platform (``catalog/data/<module>.json``). It is the single source of truth
+The catalog is read from ``catalog/data/<module>.json``. It is the single source of truth
 for what an algorithm is called, which file types it accepts, which flags it
 takes, their defaults and their ranges. Nothing here imports a native library.
 
@@ -257,7 +256,7 @@ class Module:
 
 
 class Catalog:
-    """All modules, ordered as on the platform."""
+    """All modules, in catalog order."""
 
     def __init__(self, modules: list[Module]):
         self._modules: dict[str, Module] = {m.id: m for m in sorted(modules, key=lambda m: (m.order, m.id))}

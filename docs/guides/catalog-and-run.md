@@ -58,7 +58,7 @@ A few parameters that come up constantly: `voxel_downsample(voxel_size)`,
 density_quantile, normal_radius)`, `pv_decimate(target_reduction)`,
 `pv_smooth_laplacian(n_iterations)`, `mesh_to_pcd_poisson_disk(num_points)`,
 `icp_refinement(voxel_size, max_iterations >= 100, icp_estimation_method)`,
-`ransac_icp_pipeline(voxel_size, rotation_degrees)`,
+`ransac_icp_pipeline(voxel_size, seed, restarts)`,
 `dbscan_clustering(eps, min_points)`, `rigid(num_iterations, metric,
 initializer=GEOMETRY|MOMENTS, sampling_percentage, shrink_factors="4,2,1")`,
 `manual_threshold(lower, upper)`, `connected_components(min_size)`.
@@ -109,11 +109,9 @@ pardesline version
 Parameters after the input are `--name value` (booleans `--flag true`). The
 run prints the output path (and the sidecar path) on stdout and echoes the
 script log on stderr unless `-q`. Exit code 1 with `error: ...` on any
-`PardesLineError` or missing file. The cloud commands (`login`, `upload`,
-`send`, `inbox`, `ls`, `download`, `share`, `whoami`, `logout`) are forwarded
-to the cloud client.
+`PardesLineError` or missing file.
 
-## Running a script directly (same contract as the hosted platform)
+## Running a script directly (the same command-line contract)
 
 ```bash
 python -m pardesline.ops.simpleitk_segmentation.otsu_threshold --input ct.mha --output mask.vti
@@ -123,4 +121,4 @@ python -m pardesline.ops.registration.icp_refinement --input fixed.ply --output 
 Exit 0 means the output was written. Prefer `pl.run` from Python: it
 validates, names the output and captures the log.
 
-<sub>Source: `skills/catalog-and-run/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-10-10.</sub>
+<sub>Source: `skills/catalog-and-run/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-11-15.</sub>
