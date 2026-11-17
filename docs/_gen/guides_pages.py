@@ -38,6 +38,7 @@ def _source_date(rel: str) -> str:
 
 ROOT = Path(__file__).resolve().parents[2]
 SKILLS = ROOT / "skills"
+SKILL_COUNT = len(list(SKILLS.glob("*/SKILL.md")))
 DOCS = ROOT / "docs"
 SITE = "https://pardesline.github.io/pardesline/latest"
 
@@ -176,7 +177,7 @@ def guide_page(skill: str, title: str) -> str:
     L += [
         rest.strip(),
         "",
-        f"<sub>Source: `skills/{skill}/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on {_source_date(f'skills/{skill}/SKILL.md')}.</sub>",
+        f"<sub>Source: `skills/{skill}/SKILL.md`, one of the {SKILL_COUNT} skills served by `pardesline mcp`; published on {_source_date(f'skills/{skill}/SKILL.md')}.</sub>",
         "",
     ]
     return "\n".join(L)
@@ -219,7 +220,7 @@ def guides_index() -> str:
     L = [
         "---",
         "title: Expert guides",
-        "description: The twenty skills shipped with pardesline, as web pages: registration, medical volumes, representations, splats, the object model, datasets, the MCP server.",
+        f"description: The {SKILL_COUNT} skills shipped with pardesline, as web pages: registration, medical volumes, representations, splats, the object model, datasets, the MCP server.",
         "---",
         "",
         "# Expert guides",

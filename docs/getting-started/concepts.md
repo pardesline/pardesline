@@ -69,4 +69,4 @@ What it does not do: resample to a common spacing, reorient to a canonical axis 
 
 ## MCP
 
-`pardesline mcp` serves the same datasets, objects and catalog as tools for AI agents, plus the twenty expert guides. See [MCP server](../agents/mcp.md).
+`pardesline mcp` serves the same datasets, objects and catalog as tools for AI agents, plus the 19 expert guides. See [MCP server](../agents/mcp.md).

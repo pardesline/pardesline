@@ -42,7 +42,7 @@ docker build -t pardesline-mcp https://github.com/pardesline/pardesline.git
 
 **Registries.** Every release is published to the official [MCP Registry](https://registry.modelcontextprotocol.io/) as `io.github.pardesline/pardesline`, from [`server.json`](https://github.com/pardesline/pardesline/blob/main/server.json) at the repository root.
 
-The `skills/` folder holds twenty skills, grounded in the code and checked
+The `skills/` folder holds 19 skills, grounded in the code and checked
 by the test suite (every module, method, parameter and dataset they mention
 must exist). Nine teach the package: `using-pardesline` (start here),
 `catalog-and-run`, `object-model`, `datasets-and-manifests`,

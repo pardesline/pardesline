@@ -1,6 +1,6 @@
 ---
 title: Expert guides
-description: The twenty skills shipped with pardesline, as web pages: registration, medical volumes, representations, splats, the object model, datasets, the MCP server.
+description: The 19 skills shipped with pardesline, as web pages: registration, medical volumes, representations, splats, the object model, datasets, the MCP server.
 ---
 
 # Expert guides

@@ -128,4 +128,4 @@ series as input), `hf_openmind` (T1 vs T2).
 the registration directly with SimpleITK to expose every setting, exports the
 checkerboard, and reports the metric trace and the transform.
 
-<sub>Source: `skills/multimodal-rigid-registration/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-11-15.</sub>
+<sub>Source: `skills/multimodal-rigid-registration/SKILL.md`, one of the 19 skills served by `pardesline mcp`; published on 2026-11-15.</sub>
