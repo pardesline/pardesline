@@ -115,11 +115,9 @@ pardesline version
 Parameters after the input are `--name value` (booleans `--flag true`). The
 run prints the output path (and the sidecar path) on stdout and echoes the
 script log on stderr unless `-q`. Exit code 1 with `error: ...` on any
-`PardesLineError` or missing file. The cloud commands (`login`, `upload`,
-`send`, `inbox`, `ls`, `download`, `share`, `whoami`, `logout`) are forwarded
-to the cloud client.
+`PardesLineError` or missing file.
 
-## Running a script directly (same contract as the hosted platform)
+## Running a script directly (the same command-line contract)
 
 ```bash
 python -m pardesline.ops.simpleitk_segmentation.otsu_threshold --input ct.mha --output mask.vti

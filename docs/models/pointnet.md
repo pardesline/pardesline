@@ -87,7 +87,10 @@ label points by tooth from an existing annotation.
 
 [`scripts/pointnet_seg.py`](https://github.com/pardesline/pardesline/blob/main/skills/pointnet-segmentation/scripts/pointnet_seg.py) is a complete PyTorch reference (model, dataset
 loader for the `.npz` contract, training loop, evaluation, inference that
-writes a labelled PLY readable by pardesline). It needs `torch`.
+writes a labelled PLY readable by pardesline). It needs `torch`. Every
+command takes `--seed` (default 0): point subsampling, augmentation and weight
+initialisation are seeded, so `eval` reports the same mIoU and `infer` the same
+labels on every run (before 0.4.0 both changed from run to run).
 
 ## Evaluation
 
@@ -125,4 +128,4 @@ Datasets: `msd_task04_hippocampus`, `amos22`, `totalsegmentator_ct`,
 `verse19_spine`, `medshapenet`, `hf_kitti360_gs_subset` (`points` +
 `point_segments` for scene segmentation), `kitti_raw_2011_09_26_drive_0001`.
 
-<sub>Source: `skills/pointnet-segmentation/SKILL.md`, published on 2026-10-14.</sub>
+<sub>Source: `skills/pointnet-segmentation/SKILL.md`, published on 2026-11-15.</sub>

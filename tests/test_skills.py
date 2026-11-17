@@ -22,7 +22,6 @@ EXPECTED = {
     "datasets-and-manifests",
     "scanning-private-folders",
     "medical-volumes",
-    "cloud-client",
     "contributing-algorithms",
     "mcp-server",
     # expert skills: theory, parameters, pitfalls and reference scripts per domain

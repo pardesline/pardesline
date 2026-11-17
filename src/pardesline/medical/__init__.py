@@ -1,7 +1,6 @@
 """Medical volumes with SimpleITK: I/O, DICOM series, registration, segmentation.
 
-Requires the ``[medical]`` extra. The functions are the ones the platform's
-registration studio runs; see :mod:`pardesline.medical._service` for the
+Requires the ``[medical]`` extra; see :mod:`pardesline.medical._service` for the
 implementation.
 """
 

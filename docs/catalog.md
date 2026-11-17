@@ -45,9 +45,8 @@ The theory behind each module (with the formulas) is in the catalog too:
 | **`obj.to_open3d()` / `to_pyvista()` / `to_sitk()` / `to_numpy()`** | Hand the result to the library you already use. `pl.o3d`, `pl.pv`, `pl.sitk` are the real libraries when installed. |
 | **`pardesline` CLI** | `pardesline list`, `pardesline describe ...`, `pardesline run module.method in.ply -o out.ply --voxel_size 0.02`, `pardesline datasets`, `pardesline fetch amos22 --take 2`, `pardesline export msd_task02_heart ./heart --take 2`. |
 | **`pardesline.medical`** | Volume I/O (NIfTI, NRRD, MHA, VTI, DICOM series), rigid / affine / B-spline / demons registration, thresholding, watershed, connected components. |
-| **`pardesline.cloud`** | The hosted platform: upload, share in one line, run on GPU, open the browser viewers. Optional, needs an account. |
 
-Every algorithm is also a plain command with the same contract the platform uses:
+Every algorithm is also a plain command with one command-line contract:
 
 ```bash
 python -m pardesline.ops.point_cloud_processing.voxel_downsample --input scan.ply --output small.ply --voxel_size 0.02
