@@ -1,16 +1,6 @@
 ---
-name: contributing-algorithms
-description: >-
-  How the pardesline repository is organised and how to extend it without breaking
-  the contracts: adding an algorithm (script under `src/pardesline/ops/<module>/`
-  following the argparse `--input/--output[/--moving]` contract, its entry in
-  `src/pardesline/catalog/data/<module>.json` with typed parameters, a smoke test),
-  adding a bundled dataset manifest (`src/pardesline/data/manifests/`, SHA-512, licence
-  tiers), the test layers (fast / local / medical / slow / network markers, the 73
-  `--help` checks, catalog-script consistency), ruff rules and which migrated code is
-  exempt, CI matrix and PyPI Trusted Publishing, the source-of-truth relationship with
-  the hosted platform, and the gotchas already hit (hatchling honours .gitignore,
-  positional-only run args, VTI needs PyVista). Use for any change to the package itself.
+name: "contributing-algorithms"
+description: "How the pardesline repository is organised and how to extend it without breaking the contracts: adding an algorithm (script under `src/pardesline/ops/<module>/` following the argparse `--input/--output[/--moving]` contract, its entry in `src/pardesline/catalog/data/<module>.json` with typed parameters, a smoke test), adding a bundled dataset manifest (`src/pardesline/data/manifests/`, SHA-512, licence tiers), the test layers (fast / local / medical / slow / network markers, the 73 `--help` checks, catalog-script consistency), ruff rules and which migrated code is exempt, CI matrix and PyPI Trusted Publishing, the source-of-truth relationship with the hosted platform, and the gotchas already hit (hatchling honours .gitignore, positional-only run args, VTI needs PyVista). Use for any change to the package itself."
 ---
 
 # Contributing to the package

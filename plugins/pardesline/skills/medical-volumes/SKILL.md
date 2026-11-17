@@ -1,16 +1,6 @@
 ---
-name: medical-volumes
-description: >-
-  Medical volumes with pardesline on the user's machine (needs the [medical] extra):
-  load NIfTI / NRRD / MHA / MHD / VTI / DICOM folders as `Volume` with LPS mm frames,
-  rigid / advanced_rigid / affine / bspline / demons registration and the
-  difference_analysis QC (two inputs, GEOMETRY init, transform JSON sidecar),
-  threshold / Otsu / watershed / connected-components segmentation to a `LabelMap`,
-  exact label-to-surface extraction in world coordinates, the `pardesline.medical`
-  function library (SimpleITK service: load_volume, load_dicom, register_*,
-  threshold_*, resample, apply_transform, transform_to_dict), the (z,y,x) numpy
-  convention and the VTI / .mha gotchas. Use for CT, MR, DICOM, "register these
-  scans", "segment this volume", "check the deformation", "export a surface".
+name: "medical-volumes"
+description: "Medical volumes with pardesline on the user's machine (needs the [medical] extra): load NIfTI / NRRD / MHA / MHD / VTI / DICOM folders as `Volume` with LPS mm frames, rigid / advanced_rigid / affine / bspline / demons registration and the difference_analysis QC (two inputs, GEOMETRY init, transform JSON sidecar), threshold / Otsu / watershed / connected-components segmentation to a `LabelMap`, exact label-to-surface extraction in world coordinates, the `pardesline.medical` function library (SimpleITK service: load_volume, load_dicom, register_*, threshold_*, resample, apply_transform, transform_to_dict), the (z,y,x) numpy convention and the VTI / .mha gotchas. Use for CT, MR, DICOM, \"register these scans\", \"segment this volume\", \"check the deformation\", \"export a surface\"."
 ---
 
 # Medical volumes

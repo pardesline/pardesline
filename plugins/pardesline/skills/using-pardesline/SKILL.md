@@ -1,15 +1,6 @@
 ---
-name: using-pardesline
-description: >-
-  START HERE for the open-source `pardesline` Python package (Apache-2.0): 3D vision
-  and medical imaging on the user's own machine. One typed object for point clouds,
-  meshes, volumes and label maps (frame, units, labels, licence, provenance), 73
-  catalogued algorithms run locally with validated parameters, datasets loaded by
-  manifest (`pl.load("rire_brain")`, `pl.load("hf://...")`, `pl.load("/my/folder")`),
-  and an optional cloud client. Load this first whenever the user wants to process,
-  convert, register, segment or load 3D data in Python with pardesline, then route to
-  the other pardesline skills (catalog-and-run, object-model, datasets-and-manifests,
-  scanning-private-folders, medical-volumes, cloud-client, mcp-server, contributing-algorithms).
+name: "using-pardesline"
+description: "START HERE for the open-source `pardesline` Python package (Apache-2.0): 3D vision and medical imaging on the user's own machine. One typed object for point clouds, meshes, volumes and label maps (frame, units, labels, licence, provenance), 73 catalogued algorithms run locally with validated parameters, datasets loaded by manifest (`pl.load(\"rire_brain\")`, `pl.load(\"hf://...\")`, `pl.load(\"/my/folder\")`), and an optional cloud client. Load this first whenever the user wants to process, convert, register, segment or load 3D data in Python with pardesline, then route to the other pardesline skills (catalog-and-run, object-model, datasets-and-manifests, scanning-private-folders, medical-volumes, cloud-client, mcp-server, contributing-algorithms)."
 ---
 
 # Using pardesline

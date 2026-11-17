@@ -1,18 +1,6 @@
 ---
-name: point-cloud-registration
-description: >-
-  Expert guide to rigid and non-rigid point-cloud registration as used in robotics,
-  SLAM, LiDAR mapping and medical 3D (atlas-to-scan, scan-to-scan): the RANSAC +
-  FPFH global stage, ICP refinement (point-to-point vs point-to-plane, generalised
-  ICP, robust kernels), how every parameter derives from one voxel size (normal
-  radius 2x, FPFH radius 5x, RANSAC distance 1.5x, ICP distance 0.4x), the metrics
-  that mean something (fitness, inlier RMSE, pose error against a known transform,
-  TRE on landmarks) and the ones that lie, failure modes (symmetric shapes, partial
-  overlap, scale mismatch, wrong units), CPD for deformable cases, and the pardesline
-  calls (registration.ransac_global, registration.icp_refinement,
-  registration.ransac_icp_pipeline, deformable_registration.cpd_deformable,
-  PointCloud.align) with a runnable evaluation script. Use when aligning two clouds,
-  tuning RANSAC/ICP, or judging whether a registration succeeded.
+name: "point-cloud-registration"
+description: "Expert guide to rigid and non-rigid point-cloud registration as used in robotics, SLAM, LiDAR mapping and medical 3D (atlas-to-scan, scan-to-scan): the RANSAC + FPFH global stage, ICP refinement (point-to-point vs point-to-plane, generalised ICP, robust kernels), how every parameter derives from one voxel size (normal radius 2x, FPFH radius 5x, RANSAC distance 1.5x, ICP distance 0.4x), the metrics that mean something (fitness, inlier RMSE, pose error against a known transform, TRE on landmarks) and the ones that lie, failure modes (symmetric shapes, partial overlap, scale mismatch, wrong units), CPD for deformable cases, and the pardesline calls (registration.ransac_global, registration.icp_refinement, registration.ransac_icp_pipeline, deformable_registration.cpd_deformable, PointCloud.align) with a runnable evaluation script. Use when aligning two clouds, tuning RANSAC/ICP, or judging whether a registration succeeded."
 ---
 
 # Point-cloud registration: RANSAC + FPFH + ICP, done properly

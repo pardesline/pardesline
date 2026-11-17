@@ -1,15 +1,6 @@
 ---
-name: cloud-client
-description: >-
-  The optional hosted side of pardesline (`pardesline.cloud`, also reachable as
-  `pl.login`, `pl.upload`, `pl.share`...): sign in with email + one-time code or a
-  `pl_` key, upload local files or Objects, share with another account in one line,
-  run the same 73 methods on the platform (`remote.run(module, method, **params)`),
-  GPU methods (image to 3D with Trellis, 2D image AI), browser viewers and public
-  share links, projects and saved workflows, the `pl.o3d / pl.pv / pl.sitk / pl.np`
-  server-side mirrors when the libraries are not installed locally, quotas and typed
-  errors. Use when the user wants to share a result, needs a GPU, has no native
-  libraries installed, or mentions appbeta.pardesline.com, an API key or a quota.
+name: "cloud-client"
+description: "The optional hosted side of pardesline (`pardesline.cloud`, also reachable as `pl.login`, `pl.upload`, `pl.share`...): sign in with email + one-time code or a `pl_` key, upload local files or Objects, share with another account in one line, run the same 73 methods on the platform (`remote.run(module, method, **params)`), GPU methods (image to 3D with Trellis, 2D image AI), browser viewers and public share links, projects and saved workflows, the `pl.o3d / pl.pv / pl.sitk / pl.np` server-side mirrors when the libraries are not installed locally, quotas and typed errors. Use when the user wants to share a result, needs a GPU, has no native libraries installed, or mentions appbeta.pardesline.com, an API key or a quota."
 ---
 
 # The cloud client

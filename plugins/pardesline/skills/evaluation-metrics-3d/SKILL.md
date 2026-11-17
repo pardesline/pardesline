@@ -1,18 +1,6 @@
 ---
-name: evaluation-metrics-3d
-description: >-
-  The metrics that decide whether a 3D or medical-imaging result is good, with their
-  definitions, units, pitfalls and a NumPy / SimpleITK implementation: segmentation
-  (Dice, IoU, Hausdorff and HD95, average surface distance, normalised surface
-  Dice at a tolerance, volume error), surfaces and point clouds (chamfer distance,
-  F-score at a threshold, point-to-mesh distance, Hausdorff), registration (rotation
-  and translation error, target registration error on held-out landmarks, Jacobian
-  determinant folding for deformable fields), detection (IoU, AP at IoU 0.5 and
-  0.5:0.95), anomaly detection (image and pixel AUROC, AUPRC, threshold by FPR),
-  reconstruction / rendering (PSNR, SSIM, LPIPS), and the statistics that make a
-  number credible (per-case distributions, confidence intervals, paired tests, split by
-  patient). Use when reporting results, choosing a metric for a task, writing an
-  evaluation script, or reviewing a claim such as "100 % accuracy".
+name: "evaluation-metrics-3d"
+description: "The metrics that decide whether a 3D or medical-imaging result is good, with their definitions, units, pitfalls and a NumPy / SimpleITK implementation: segmentation (Dice, IoU, Hausdorff and HD95, average surface distance, normalised surface Dice at a tolerance, volume error), surfaces and point clouds (chamfer distance, F-score at a threshold, point-to-mesh distance, Hausdorff), registration (rotation and translation error, target registration error on held-out landmarks, Jacobian determinant folding for deformable fields), detection (IoU, AP at IoU 0.5 and 0.5:0.95), anomaly detection (image and pixel AUROC, AUPRC, threshold by FPR), reconstruction / rendering (PSNR, SSIM, LPIPS), and the statistics that make a number credible (per-case distributions, confidence intervals, paired tests, split by patient). Use when reporting results, choosing a metric for a task, writing an evaluation script, or reviewing a claim such as \"100 % accuracy\"."
 ---
 
 # Evaluation metrics for 3D vision and medical imaging

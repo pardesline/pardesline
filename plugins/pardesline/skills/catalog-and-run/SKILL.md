@@ -1,14 +1,6 @@
 ---
-name: catalog-and-run
-description: >-
-  Run any of pardesline's 73 catalogued algorithms locally with `pl.run(module,
-  method, input, **params)` or the `pardesline run` CLI, and read the typed catalog
-  (`pl.catalog()`, `pl.describe("module.method")`): the 19 module ids and their method
-  ids, how parameters are validated and coerced (float/int/bool/enum/list/string,
-  ranges, choices), dual-input registration (`moving=`), RunResult fields (output,
-  sidecar JSON, log, duration), timeouts, progress and log callbacks, output folder,
-  and the exact command-line contract every script follows. Use when the user names
-  an algorithm, asks "what parameters does X take", or wants a batch/CLI run.
+name: "catalog-and-run"
+description: "Run any of pardesline's 73 catalogued algorithms locally with `pl.run(module, method, input, **params)` or the `pardesline run` CLI, and read the typed catalog (`pl.catalog()`, `pl.describe(\"module.method\")`): the 19 module ids and their method ids, how parameters are validated and coerced (float/int/bool/enum/list/string, ranges, choices), dual-input registration (`moving=`), RunResult fields (output, sidecar JSON, log, duration), timeouts, progress and log callbacks, output folder, and the exact command-line contract every script follows. Use when the user names an algorithm, asks \"what parameters does X take\", or wants a batch/CLI run."
 ---
 
 # The catalog and `pl.run`

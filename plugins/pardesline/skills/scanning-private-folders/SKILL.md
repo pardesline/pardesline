@@ -1,19 +1,6 @@
 ---
-name: scanning-private-folders
-description: >-
-  Load a user's own folder of 3D / medical data with pardesline: `pl.scan(folder)`
-  drafts a manifest (samples grouped by sub-folder, name prefix or file; roles named
-  after folders or types; label maps detected by name hints; volume headers read) and
-  lists the questions it will not answer by guessing (licence, units and frame of
-  formats that carry none, label meanings, uncertain pairing). Covers the four
-  answering modes of `pl.load(folder, ...)`: strict `NeedsConfirmation` with a saved
-  draft `pardesline.manifest.json`, answers as keyword arguments (`license=`, `units=`,
-  `frame=`, `labels=`, `pairing=`), `interactive=True`, `assume=True`; and how an AI
-  agent should relay the questions to the human; the same flow for a Hugging Face repo
-  without a bundled manifest (`pl.load("hf://org/name/sub")`, `pl.scan("hf://...")`),
-  including the `types=` / `layout=` answers that raw `.npy` `.npz` `.bin` arrays need.
-  Use whenever `pl.load` is given a directory or an un-manifested hub repo, or the user
-  says "my data", "my folder", "our study".
+name: "scanning-private-folders"
+description: "Load a user's own folder of 3D / medical data with pardesline: `pl.scan(folder)` drafts a manifest (samples grouped by sub-folder, name prefix or file; roles named after folders or types; label maps detected by name hints; volume headers read) and lists the questions it will not answer by guessing (licence, units and frame of formats that carry none, label meanings, uncertain pairing). Covers the four answering modes of `pl.load(folder, ...)`: strict `NeedsConfirmation` with a saved draft `pardesline.manifest.json`, answers as keyword arguments (`license=`, `units=`, `frame=`, `labels=`, `pairing=`), `interactive=True`, `assume=True`; and how an AI agent should relay the questions to the human; the same flow for a Hugging Face repo without a bundled manifest (`pl.load(\"hf://org/name/sub\")`, `pl.scan(\"hf://...\")`), including the `types=` / `layout=` answers that raw `.npy` `.npz` `.bin` arrays need. Use whenever `pl.load` is given a directory or an un-manifested hub repo, or the user says \"my data\", \"my folder\", \"our study\"."
 ---
 
 # Scanning a private folder

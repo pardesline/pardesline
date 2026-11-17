@@ -1,18 +1,6 @@
 ---
-name: gaussian-splatting
-description: >-
-  Expert guide to 3D Gaussian Splatting for engineers coming from point clouds and
-  medical 3D: what a Gaussian primitive stores (mean, scale, quaternion, opacity,
-  spherical-harmonic colour, ~59 floats), the per-point initialisation from a cloud
-  (k-NN scale, identity rotation, logit opacity, SH degree-0 colour, Sigma = R S S^T R^T),
-  the standard PLY field layout (x y z, nx ny nz, f_dc_*, f_rest_*, opacity, scale_*,
-  rot_*), the tile-based differentiable rasteriser, the training loop (L1 + D-SSIM,
-  densify / prune / reset), evaluation (PSNR, SSIM, LPIPS on held-out views), memory
-  and real-time trade-offs versus NeRF and meshes, medical and endoscopy uses (C3VD,
-  surgical scene replay), conversions to and from points and meshes, and the pardesline
-  datasets and script that write a splat PLY from any cloud. Use when converting
-  points to splats, reading or writing 3DGS files, planning a splat reconstruction,
-  or deciding splats versus meshes.
+name: "gaussian-splatting"
+description: "Expert guide to 3D Gaussian Splatting for engineers coming from point clouds and medical 3D: what a Gaussian primitive stores (mean, scale, quaternion, opacity, spherical-harmonic colour, ~59 floats), the per-point initialisation from a cloud (k-NN scale, identity rotation, logit opacity, SH degree-0 colour, Sigma = R S S^T R^T), the standard PLY field layout (x y z, nx ny nz, f_dc_*, f_rest_*, opacity, scale_*, rot_*), the tile-based differentiable rasteriser, the training loop (L1 + D-SSIM, densify / prune / reset), evaluation (PSNR, SSIM, LPIPS on held-out views), memory and real-time trade-offs versus NeRF and meshes, medical and endoscopy uses (C3VD, surgical scene replay), conversions to and from points and meshes, and the pardesline datasets and script that write a splat PLY from any cloud. Use when converting points to splats, reading or writing 3DGS files, planning a splat reconstruction, or deciding splats versus meshes."
 ---
 
 # 3D Gaussian Splatting
