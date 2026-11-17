@@ -108,10 +108,12 @@ p.delete()
 ## Library mirrors when nothing is installed locally
 
 `pl.o3d`, `pl.pv`, `pl.sitk`, `pl.np` are the real libraries when importable.
-Without them they become lazy, server-executed mirrors (an op-graph sent in one
+Without them, and only for a user signed in (`pl.login()` or `PARDESLINE_API_KEY`;
+a warning is logged), they become lazy, server-executed mirrors (an op-graph sent in one
 request): `pcd = pl.o3d.io.read_point_cloud(remote); pl.o3d.geometry.PointCloud.voxel_down_sample(pcd, 0.02)`.
 Only whitelisted library roots and public attribute names are reachable;
-results come back as values or as RemoteObjects.
+results come back as values or as RemoteObjects. Not signed in, any use raises
+`MissingDependency` and nothing is sent.
 
 ## Errors (`pardesline.cloud.errors`, all `PardesLineError` with `.code`, `.status`, `.detail`)
 

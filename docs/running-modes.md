@@ -45,7 +45,8 @@ pl.o3d, pl.pv, pl.sitk, pl.np  # the real libraries, when they are installed
 The hosted platform adds sharing, GPU methods (image → 3D, 2D AI), browser
 viewers and a node editor. The 0.1.x client is unchanged, under `pardesline.cloud`
 and at the top level; `pl.o3d` / `pl.pv` / `pl.sitk` become its server-side
-mirrors when the libraries are not installed locally (see
+mirrors when the libraries are not installed locally and you are signed in
+(without a sign-in, any use raises `MissingDependency` and nothing is sent) (see
 [One package, three ways to run the same code](#one-package-three-ways-to-run-the-same-code)):
 
 ```python

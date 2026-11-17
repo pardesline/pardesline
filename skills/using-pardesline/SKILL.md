@@ -112,4 +112,5 @@ over https, Hugging Face, remote archives by HTTP Range, S3, TCIA and URL
 indexes), outputs default to `pl.output_dir()` (system temp,
 change with `pl.set_output_dir`), downloads cache in `~/.cache/pardesline`
 (`PARDESLINE_CACHE`). `pl.o3d`, `pl.pv`, `pl.sitk`, `pl.np` are the real
-libraries when installed, the cloud-executed mirrors otherwise.
+libraries when installed; without them, any use raises `MissingDependency`
+(the cloud-executed mirrors only after `pl.login()`).

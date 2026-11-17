@@ -140,9 +140,35 @@ _CLOUD_NAMES = frozenset(
     }
 )
 
-# pl.o3d / pl.pv / pl.sitk / pl.np: the real library when it is installed,
-# otherwise the cloud-executed mirror from 0.1.x.
+# pl.o3d / pl.pv / pl.sitk / pl.np: the real library when it is installed. Without it, the
+# cloud-executed mirror from 0.1.x only for a user signed in to the platform (pl.login() or
+# PARDESLINE_API_KEY): calls never leave the machine on their own.
 _LIB_NAMES = {"o3d": "open3d", "pv": "pyvista", "sitk": "SimpleITK", "np": "numpy"}
+_LIB_EXTRAS = {"o3d": "local", "pv": "local", "sitk": "medical", "np": "all"}
+
+
+class _MissingLibrary:
+    """Stands for a library that is not installed, for a user who is not signed in to the platform.
+
+    Any use raises MissingDependency; attribute probes (hasattr, dir, introspection) still work, which
+    an exception raised from the module ``__getattr__`` would break."""
+
+    def __init__(self, name: str):
+        self._name = name
+
+    def _error(self) -> MissingDependency:
+        return MissingDependency(_LIB_NAMES[self._name], _LIB_EXTRAS[self._name])
+
+    def __getattr__(self, attr: str) -> Any:
+        if attr.startswith("__"):
+            raise AttributeError(attr)
+        raise self._error()
+
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        raise self._error()
+
+    def __repr__(self) -> str:
+        return f"<pl.{self._name}: {self._error()}>"
 
 
 def __getattr__(name: str) -> Any:
@@ -160,8 +186,19 @@ def __getattr__(name: str) -> Any:
         try:
             return importlib.import_module(_LIB_NAMES[name])
         except ImportError:
+            from .cloud import _auth
+
+            if _auth.resolve_token() is None:
+                return _MissingLibrary(name)
+            from loguru import logger
+
             from . import cloud
 
+            logger.warning(
+                "{} is not installed: pl.{} runs on the PardesLine platform with your account",
+                _LIB_NAMES[name],
+                name,
+            )
             return getattr(cloud, name)
     raise AttributeError(f"module 'pardesline' has no attribute {name!r}")
 

@@ -102,7 +102,8 @@ EDITS: dict[str, list[tuple[str, str]]] = {
             "",
         ),
         (
-            "are the real\nlibraries when installed, the cloud-executed mirrors otherwise.",
+            "are the real\nlibraries when installed; without them, any use raises `MissingDependency`\n"
+            "(the cloud-executed mirrors only after `pl.login()`).",
             "are the real\nlibraries; install them with the `local` and `medical` extras.",
         ),
     ],

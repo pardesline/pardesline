@@ -25,11 +25,15 @@ the open-source package.
 
 ## What the package sends
 
-Nothing, except the dataset downloads above and, when the user installs the
-optional `[cloud]` extra and calls the PardesLine platform client with their
-own API key, the requests they make to that platform. The platform's own
-privacy terms apply to that use; the local package, the skills and the MCP
-server do not use it.
+Nothing, except the dataset downloads above and, when the user signs in to
+the PardesLine platform (`pl.login()` or `PARDESLINE_API_KEY`), the requests
+they make to it: the platform client (`pl.upload`, `pl.share`, `pl.send`...,
+to https://appbeta.pardesline.com) and, when Open3D, PyVista or SimpleITK is
+not installed, the `pl.o3d` / `pl.pv` / `pl.sitk` calls, which then run on the
+platform (a warning says so). A user who is not signed in gets a
+`MissingDependency` error for those names, and no request is made. The
+platform's own privacy terms apply to that use. The MCP server never calls the
+platform.
 
 ## The hosted, read-only MCP server (Hugging Face Space)
 
