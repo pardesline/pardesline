@@ -1,20 +1,6 @@
 ---
-name: medical-segmentation-models
-description: >-
-  Expert guide to learned 3D medical image segmentation on CT, MRI and PET volumes:
-  the model families that actually win (nnU-Net and its self-configuring rules,
-  3D U-Net / V-Net, Swin-UNETR and UNETR transformers, TotalSegmentator as a
-  ready-made 117-structure model, MedSAM / SAM-Med3D interactive models, MONAI
-  bundles), how to turn pardesline datasets (MSD, AMOS, TotalSegmentator, KiTS23,
-  BiomedSegFM, TCIA DICOM) into training data with patient-level splits, the
-  preprocessing that matters (isotropic resampling, intensity normalisation per
-  modality, patch sampling with foreground oversampling, label-safe resampling),
-  losses (Dice + cross-entropy, deep supervision), augmentation, training budgets,
-  inference (sliding window with Gaussian weighting, test-time flips, connected
-  components), evaluation (Dice, HD95, NSD, per-case), bringing predictions back
-  into pardesline as LabelMap objects and surfaces, and the licence constraints of
-  pretrained weights. Use for any organ, tumour or structure segmentation project
-  on volumes.
+name: "medical-segmentation-models"
+description: "Expert guide to learned 3D medical image segmentation on CT, MRI and PET volumes: the model families that actually win (nnU-Net and its self-configuring rules, 3D U-Net / V-Net, Swin-UNETR and UNETR transformers, TotalSegmentator as a ready-made 117-structure model, MedSAM / SAM-Med3D interactive models, MONAI bundles), how to turn pardesline datasets (MSD, AMOS, TotalSegmentator, KiTS23, BiomedSegFM, TCIA DICOM) into training data with patient-level splits, the preprocessing that matters (isotropic resampling, intensity normalisation per modality, patch sampling with foreground oversampling, label-safe resampling), losses (Dice + cross-entropy, deep supervision), augmentation, training budgets, inference (sliding window with Gaussian weighting, test-time flips, connected components), evaluation (Dice, HD95, NSD, per-case), bringing predictions back into pardesline as LabelMap objects and surfaces, and the licence constraints of pretrained weights. Use for any organ, tumour or structure segmentation project on volumes."
 ---
 
 # Learned segmentation of medical volumes

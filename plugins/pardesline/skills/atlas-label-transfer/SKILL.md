@@ -1,18 +1,6 @@
 ---
-name: atlas-label-transfer
-description: >-
-  Expert recipe for labelling an unlabelled 3D reconstruction (ultrasound, CBCT,
-  surface scan, LiDAR object) from a labelled atlas: rigid RANSAC + ICP registration
-  of the atlas onto the scan (the scan stays fixed), nearest-structure label transfer
-  with a KD-tree (per-structure distances, not a single nearest point), per-label
-  Poisson surfaces with closed-surface volumes in mL, and the evaluation that makes
-  the result credible (pose error, label agreement against the true transform,
-  per-structure Dice on surfaces, volume versus atlas), plus when to add a
-  non-rigid CPD step, how to build an atlas from TotalSegmentator or MSD label maps
-  with pardesline, and the pitfalls (units, point order, nested chambers, outliers,
-  partial scans). Use for atlas-based segmentation of point clouds, label
-  propagation between scans, or turning a registered atlas into surfaces and
-  volumes.
+name: "atlas-label-transfer"
+description: "Expert recipe for labelling an unlabelled 3D reconstruction (ultrasound, CBCT, surface scan, LiDAR object) from a labelled atlas: rigid RANSAC + ICP registration of the atlas onto the scan (the scan stays fixed), nearest-structure label transfer with a KD-tree (per-structure distances, not a single nearest point), per-label Poisson surfaces with closed-surface volumes in mL, and the evaluation that makes the result credible (pose error, label agreement against the true transform, per-structure Dice on surfaces, volume versus atlas), plus when to add a non-rigid CPD step, how to build an atlas from TotalSegmentator or MSD label maps with pardesline, and the pitfalls (units, point order, nested chambers, outliers, partial scans). Use for atlas-based segmentation of point clouds, label propagation between scans, or turning a registered atlas into surfaces and volumes."
 ---
 
 # Atlas label transfer: from a labelled atlas to a segmented scan

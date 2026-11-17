@@ -1,21 +1,6 @@
 ---
-name: dinov3-dense-features
-description: >-
-  Expert guide to DINOv3 (and DINOv2) frozen vision backbones as the feature
-  primitive for medical and 3D pipelines: why scaling self-supervised ViTs degraded
-  dense (patch-level) features after ~200k iterations while global tasks kept
-  improving, the Gram-anchoring loss L_Gram = ||X_S X_S^T - X_G X_G^T||_F^2 that
-  constrains patch-to-patch similarities against an early teacher and fixed it
-  (ViT-7B on 1.7B curated images, 63.0 mIoU ADE20K and 66.1 mAP COCO with a frozen
-  backbone), how to extract patch tokens at high resolution (patch 16, PCA
-  visualisation, feature upsampling), build heads on frozen features (linear probe,
-  Faster R-CNN with a ViTDet simple feature pyramid, segmentation decoders), the
-  frozen DINOv3 + Faster R-CNN recipe for pericardial effusion on echocardiography,
-  where the natural-image to medical gap holds (ultrasound, X-ray, endoscopy) and
-  where it breaks (3D volumes, histology stains), dense correspondence and
-  multi-view matching for 3D, distillation to ConvNeXt for deployment, licences and
-  gated weights, and runnable feature-extraction and detection scripts. Use when a
-  user wants to use foundation-model features instead of training a backbone.
+name: "dinov3-dense-features"
+description: "Expert guide to DINOv3 (and DINOv2) frozen vision backbones as the feature primitive for medical and 3D pipelines: why scaling self-supervised ViTs degraded dense (patch-level) features after ~200k iterations while global tasks kept improving, the Gram-anchoring loss L_Gram = ||X_S X_S^T - X_G X_G^T||_F^2 that constrains patch-to-patch similarities against an early teacher and fixed it (ViT-7B on 1.7B curated images, 63.0 mIoU ADE20K and 66.1 mAP COCO with a frozen backbone), how to extract patch tokens at high resolution (patch 16, PCA visualisation, feature upsampling), build heads on frozen features (linear probe, Faster R-CNN with a ViTDet simple feature pyramid, segmentation decoders), the frozen DINOv3 + Faster R-CNN recipe for pericardial effusion on echocardiography, where the natural-image to medical gap holds (ultrasound, X-ray, endoscopy) and where it breaks (3D volumes, histology stains), dense correspondence and multi-view matching for 3D, distillation to ConvNeXt for deployment, licences and gated weights, and runnable feature-extraction and detection scripts. Use when a user wants to use foundation-model features instead of training a backbone."
 ---
 
 # DINOv3 dense features for medical and 3D work

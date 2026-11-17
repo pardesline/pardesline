@@ -1,20 +1,6 @@
 ---
-name: datasets-and-manifests
-description: >-
-  Load datasets with pardesline by manifest instead of per-dataset code: the 43
-  bundled datasets (35 medical: the ten MSD tasks, AMOS, TotalSegmentator CT/MRI,
-  LUNA16, IXI, VerSe, SPIDER, CHAOS DICOM, TCIA collections, OpenNeuro, KiTS23,
-  AbdomenAtlas, CT-RATE, BiomedSegFM, MedShapeNet meshes, C3VD splats; plus KITTI,
-  KITTI-360, UniOcc, Objaverse, 3D Arena, Open3D demos), `pl.load("hf://org/name/sub")`,
-  `pl.load("s3://bucket/prefix")`, `pl.load("tcia://Collection/CT")` for any Hub repo,
-  public bucket or TCIA collection (bundled manifest or a drafted one with questions),
-  the Dataset / Sample API (roles as attributes, lazy fetch, `take`, `sample`, `filter`,
-  leakage-free `split`, `fetch_all`, `export`), the manifest schema (sources local /
-  https / hf with scoped `paths` / archive(s) read by HTTP Range / s3 / tcia / urllist /
-  open3d; licence tiers; roles with frame, units, labels and the `layout` of raw arrays;
-  DICOM series as folder entries), the cache, and the `pardesline datasets|fetch|export`
-  commands. Use when the user asks for sample data, a public or medical dataset, a
-  Hugging Face 3D dataset, or how to write a manifest for one.
+name: "datasets-and-manifests"
+description: "Load datasets with pardesline by manifest instead of per-dataset code: the 43 bundled datasets (35 medical: the ten MSD tasks, AMOS, TotalSegmentator CT/MRI, LUNA16, IXI, VerSe, SPIDER, CHAOS DICOM, TCIA collections, OpenNeuro, KiTS23, AbdomenAtlas, CT-RATE, BiomedSegFM, MedShapeNet meshes, C3VD splats; plus KITTI, KITTI-360, UniOcc, Objaverse, 3D Arena, Open3D demos), `pl.load(\"hf://org/name/sub\")`, `pl.load(\"s3://bucket/prefix\")`, `pl.load(\"tcia://Collection/CT\")` for any Hub repo, public bucket or TCIA collection (bundled manifest or a drafted one with questions), the Dataset / Sample API (roles as attributes, lazy fetch, `take`, `sample`, `filter`, leakage-free `split`, `fetch_all`, `export`), the manifest schema (sources local / https / hf with scoped `paths` / archive(s) read by HTTP Range / s3 / tcia / urllist / open3d; licence tiers; roles with frame, units, labels and the `layout` of raw arrays; DICOM series as folder entries), the cache, and the `pardesline datasets|fetch|export` commands. Use when the user asks for sample data, a public or medical dataset, a Hugging Face 3D dataset, or how to write a manifest for one."
 ---
 
 # Datasets and manifests

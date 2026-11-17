@@ -1,20 +1,6 @@
 ---
-name: pointnet-segmentation
-description: >-
-  Expert guide to PointNet and PointNet++ for per-point semantic segmentation of
-  medical and industrial point clouds (CBCT teeth, bones, organs sampled from label
-  maps, scanner meshes, LiDAR): the architecture step by step (input T-Net 3x3,
-  shared MLP 64-64, feature T-Net 64x64 with orthogonality regulariser, shared MLP
-  64-128-1024, max-pool global feature, concatenation to 1088-d per-point features,
-  segmentation head to K classes), why each piece matters (permutation invariance,
-  canonical alignment, global context), PointNet++ set abstraction (FPS + ball
-  query + multi-scale grouping) for local structure, the data contract (N x 3 or
-  N x 6, unit-sphere normalisation, 2048-4096 points, per-point labels), building
-  labelled clouds from pardesline datasets (label maps to surfaces to points, meshes
-  with face labels), training recipe (Adam 1e-3, step decay, class-weighted
-  cross-entropy or Dice, augmentations), evaluation (per-class IoU, mIoU, boundary
-  errors), inference back to a labelled PointCloud, and the known failure modes.
-  Use for any point-wise classification or segmentation project on 3D points.
+name: "pointnet-segmentation"
+description: "Expert guide to PointNet and PointNet++ for per-point semantic segmentation of medical and industrial point clouds (CBCT teeth, bones, organs sampled from label maps, scanner meshes, LiDAR): the architecture step by step (input T-Net 3x3, shared MLP 64-64, feature T-Net 64x64 with orthogonality regulariser, shared MLP 64-128-1024, max-pool global feature, concatenation to 1088-d per-point features, segmentation head to K classes), why each piece matters (permutation invariance, canonical alignment, global context), PointNet++ set abstraction (FPS + ball query + multi-scale grouping) for local structure, the data contract (N x 3 or N x 6, unit-sphere normalisation, 2048-4096 points, per-point labels), building labelled clouds from pardesline datasets (label maps to surfaces to points, meshes with face labels), training recipe (Adam 1e-3, step decay, class-weighted cross-entropy or Dice, augmentations), evaluation (per-class IoU, mIoU, boundary errors), inference back to a labelled PointCloud, and the known failure modes. Use for any point-wise classification or segmentation project on 3D points."
 ---
 
 # PointNet / PointNet++ segmentation

@@ -1,18 +1,6 @@
 ---
-name: mcp-server
-description: >-
-  Run and use pardesline as a local MCP server (`pardesline mcp`, `pip install
-  "pardesline[mcp]"`): the stdio / streamable-http transports, the configuration
-  snippets for Claude Desktop, Claude Code, Cursor, Gemini CLI, Codex and generic
-  clients, the fourteen tools (list_datasets, describe_dataset, list_samples,
-  load_sample, scan_dataset, confirm_dataset, export_dataset, list_methods,
-  describe_method, run_method, describe_object, to_mesh, list_skills, get_skill),
-  the resources (`pardesline://datasets`, `pardesline://manifest/{name}`,
-  `pardesline://catalog`, `pardesline://skills`, `pardesline://skill/{name}`),
-  the `start_here` prompt, how questions come back as JSON for the agent to relay
-  (never answered by guessing), and the error contract. Use when the user wants an AI
-  agent to access the 43 datasets or the 73 algorithms through MCP, asks how to connect
-  a client, or debugs the server.
+name: "mcp-server"
+description: "Run and use pardesline as a local MCP server (`pardesline mcp`, `pip install \"pardesline[mcp]\"`): the stdio / streamable-http transports, the configuration snippets for Claude Desktop, Claude Code, Cursor, Gemini CLI, Codex and generic clients, the fourteen tools (list_datasets, describe_dataset, list_samples, load_sample, scan_dataset, confirm_dataset, export_dataset, list_methods, describe_method, run_method, describe_object, to_mesh, list_skills, get_skill), the resources (`pardesline://datasets`, `pardesline://manifest/{name}`, `pardesline://catalog`, `pardesline://skills`, `pardesline://skill/{name}`), the `start_here` prompt, how questions come back as JSON for the agent to relay (never answered by guessing), and the error contract. Use when the user wants an AI agent to access the 43 datasets or the 73 algorithms through MCP, asks how to connect a client, or debugs the server."
 ---
 
 # The pardesline MCP server

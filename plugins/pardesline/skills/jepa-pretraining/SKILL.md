@@ -1,21 +1,6 @@
 ---
-name: jepa-pretraining
-description: >-
-  Expert guide to Joint-Embedding Predictive Architectures (I-JEPA, V-JEPA, their
-  3D and signal variants) for self-supervised pretraining on medical volumes (cardiac
-  CT/MRI, CBCT), 3D ultrasound sequences and physiological signals (ECG): the
-  three-network design (context encoder, EMA target encoder with stop-gradient,
-  predictor with positional queries), the latent-space loss
-  L = ||q(s_theta(x_ctx), pos) - sg(s_bar(x_tgt))||^2 and why it beats pixel
-  reconstruction (MAE, autoencoders) on data full of unpredictable detail (noise,
-  breathing, contrast), the masking strategy (multi-block targets, large context
-  block, 3D tubelets), collapse prevention (EMA schedule, predictor depth, no
-  decoder), tokenisation of volumes (3D ViT patch 8x16x16 or 16^3, spacing-aware
-  positions) and of ECG (1-D patches), compute budgets, evaluation (linear probe,
-  k-NN, fine-tuned segmentation / classification Dice and AUROC versus
-  from-scratch), the datasets to pretrain on through pardesline (OpenMind, CT-RATE,
-  TotalSegmentator, AMOS, IXI) and a runnable 3D-JEPA reference trainer. Use when a
-  user wants representations from unlabelled medical 3D data or signals.
+name: "jepa-pretraining"
+description: "Expert guide to Joint-Embedding Predictive Architectures (I-JEPA, V-JEPA, their 3D and signal variants) for self-supervised pretraining on medical volumes (cardiac CT/MRI, CBCT), 3D ultrasound sequences and physiological signals (ECG): the three-network design (context encoder, EMA target encoder with stop-gradient, predictor with positional queries), the latent-space loss L = ||q(s_theta(x_ctx), pos) - sg(s_bar(x_tgt))||^2 and why it beats pixel reconstruction (MAE, autoencoders) on data full of unpredictable detail (noise, breathing, contrast), the masking strategy (multi-block targets, large context block, 3D tubelets), collapse prevention (EMA schedule, predictor depth, no decoder), tokenisation of volumes (3D ViT patch 8x16x16 or 16^3, spacing-aware positions) and of ECG (1-D patches), compute budgets, evaluation (linear probe, k-NN, fine-tuned segmentation / classification Dice and AUROC versus from-scratch), the datasets to pretrain on through pardesline (OpenMind, CT-RATE, TotalSegmentator, AMOS, IXI) and a runnable 3D-JEPA reference trainer. Use when a user wants representations from unlabelled medical 3D data or signals."
 ---
 
 # JEPA: predicting in latent space instead of reconstructing pixels

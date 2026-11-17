@@ -1,17 +1,6 @@
 ---
-name: 3d-representations
-description: >-
-  Expert guide to choosing and converting between the four 3D representations
-  deep-learning pipelines run on - point clouds, meshes, voxel grids / SDFs and 3D
-  Gaussian splats: what each stores, memory cost (O(N), O(V+F), O(n^3), ~50 floats per
-  Gaussian), which architectures consume it (PointNet/PointNet++/DGCNN/Point Transformer,
-  MeshCNN/GNN, 3D CNN/MinkowskiNet/octrees, differentiable rasterisation), which domain
-  it fits (LiDAR, cardiac meshes, CT/MRI volumes, novel-view synthesis), the exact /
-  lossy / best-effort conversion matrix with the pardesline calls that implement each
-  arrow, and the frame, unit and label pitfalls that silently break a pipeline. Use when
-  a user asks which representation to use, how to convert one into another, why a model
-  behaves badly on converted data, or how to prepare medical volumes for point or mesh
-  networks.
+name: "3d-representations"
+description: "Expert guide to choosing and converting between the four 3D representations deep-learning pipelines run on - point clouds, meshes, voxel grids / SDFs and 3D Gaussian splats: what each stores, memory cost (O(N), O(V+F), O(n^3), ~50 floats per Gaussian), which architectures consume it (PointNet/PointNet++/DGCNN/Point Transformer, MeshCNN/GNN, 3D CNN/MinkowskiNet/octrees, differentiable rasterisation), which domain it fits (LiDAR, cardiac meshes, CT/MRI volumes, novel-view synthesis), the exact / lossy / best-effort conversion matrix with the pardesline calls that implement each arrow, and the frame, unit and label pitfalls that silently break a pipeline. Use when a user asks which representation to use, how to convert one into another, why a model behaves badly on converted data, or how to prepare medical volumes for point or mesh networks."
 ---
 
 # 3D representations for deep learning

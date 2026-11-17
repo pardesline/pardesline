@@ -50,4 +50,29 @@ def test_directory_plugin_declares_only_a_remote_server():
         assert "command" not in server, name
         assert server["type"] == "http" and server["url"].startswith("https://"), name
     skills = {p.parent.name for p in (PLUGIN / "skills").glob("*/SKILL.md")}
-    assert skills == {p.parent.name for p in (ROOT / "skills").glob("*/SKILL.md")}
+    assert skills == {p.parent.name for p in (ROOT / "skills").glob("*/SKILL.md")} - {"cloud-client"}
+
+
+def test_directory_edition_does_not_route_to_the_cloud_client():
+    """The cloud client sends files to the PardesLine platform, which is not a declared connector."""
+    cloud = re.compile(
+        r"cloud-client|pardesline\.cloud|appbeta|pl\.(login|upload|send|share|inbox)\b|cloud client"
+    )
+    for md in PLUGIN.rglob("*.md"):
+        for line in md.read_text(encoding="utf-8").splitlines():
+            assert not cloud.search(line), f"{md.relative_to(PLUGIN)}: {line[:80]}"
+    assert (
+        str(len(list((PLUGIN / "skills").glob("*/SKILL.md"))))
+        in json.loads((PLUGIN / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))["description"]
+    )
+
+
+def test_directory_skill_frontmatter_values_are_double_quoted():
+    """The directory's YAML lint asks for text values in double quotes (no folded blocks)."""
+    for skill_md in (PLUGIN / "skills").glob("*/SKILL.md"):
+        frontmatter = skill_md.read_text(encoding="utf-8").split("---\n")[1]
+        for line in frontmatter.strip().splitlines():
+            key, _, value = line.partition(": ")
+            assert key in {"name", "description"}, f"{skill_md}: {line[:60]}"
+            assert value.startswith('"') and value.endswith('"'), f"{skill_md}: {line[:60]}"
+            assert json.loads(value), f"{skill_md}: {key}"

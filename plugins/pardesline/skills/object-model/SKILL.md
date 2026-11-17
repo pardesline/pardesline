@@ -1,15 +1,6 @@
 ---
-name: object-model
-description: >-
-  `pl.Object` and its subclasses (PointCloud, Mesh, Volume, LabelMap, Transform,
-  Image, RawArray for .npy/.npz/.bin read through a declared layout): what a loaded 3D file knows about itself (kind by extension, `frame` with
-  axes/units/affine and who stated it, `labels`, `license`, `provenance`, header
-  `info()`), the rules for what is read from a file versus declared (`with_frame`,
-  `with_labels`, `with_license`), the `.pardesline.json` sidecar written by `save()`,
-  chaining algorithms with `obj.run` and the friendly aliases, the conversions named
-  after the job (`segment`, `to_mesh`, `to_points`, `align`, `clean`) and which are
-  exact or lossy, and the hand-offs `to_open3d` / `to_pyvista` / `to_sitk` / `to_numpy`.
-  Use when writing pipelines on local files or explaining frames, units and provenance.
+name: "object-model"
+description: "`pl.Object` and its subclasses (PointCloud, Mesh, Volume, LabelMap, Transform, Image, RawArray for .npy/.npz/.bin read through a declared layout): what a loaded 3D file knows about itself (kind by extension, `frame` with axes/units/affine and who stated it, `labels`, `license`, `provenance`, header `info()`), the rules for what is read from a file versus declared (`with_frame`, `with_labels`, `with_license`), the `.pardesline.json` sidecar written by `save()`, chaining algorithms with `obj.run` and the friendly aliases, the conversions named after the job (`segment`, `to_mesh`, `to_points`, `align`, `clean`) and which are exact or lossy, and the hand-offs `to_open3d` / `to_pyvista` / `to_sitk` / `to_numpy`. Use when writing pipelines on local files or explaining frames, units and provenance."
 ---
 
 # The object model

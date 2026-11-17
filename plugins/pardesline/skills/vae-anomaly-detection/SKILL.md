@@ -1,20 +1,6 @@
 ---
-name: vae-anomaly-detection
-description: >-
-  Expert guide to unsupervised anomaly detection by reconstruction with variational
-  autoencoders on medical images and volumes (dental X-ray caries, chest X-ray,
-  brain MRI lesions, CT nodules): the model learns only healthy anatomy, fails to
-  reconstruct what it never saw, and the input-minus-reconstruction map exposes the
-  anomaly. Covers the VAE objective (reconstruction + KL with beta weighting), the
-  encoder / decoder design for 256 px images and 3D patches, latent size, posterior
-  collapse and blurry reconstructions, perceptual and SSIM losses, residual maps
-  and their post-processing (smoothing, percentile thresholds, morphology),
-  image- and pixel-level evaluation (AUROC, AUPRC, Dice of thresholded maps),
-  threshold selection on validation data, the honest limits (subtle anomalies,
-  domain shift, "reconstructs the anomaly too"), the alternatives (feature-space
-  k-NN with DINOv3 features, JEPA latents, diffusion-based restoration), building
-  "normal only" training sets from pardesline datasets, and a runnable PyTorch
-  reference. Use when labels of the abnormal class are missing or scarce.
+name: "vae-anomaly-detection"
+description: "Expert guide to unsupervised anomaly detection by reconstruction with variational autoencoders on medical images and volumes (dental X-ray caries, chest X-ray, brain MRI lesions, CT nodules): the model learns only healthy anatomy, fails to reconstruct what it never saw, and the input-minus-reconstruction map exposes the anomaly. Covers the VAE objective (reconstruction + KL with beta weighting), the encoder / decoder design for 256 px images and 3D patches, latent size, posterior collapse and blurry reconstructions, perceptual and SSIM losses, residual maps and their post-processing (smoothing, percentile thresholds, morphology), image- and pixel-level evaluation (AUROC, AUPRC, Dice of thresholded maps), threshold selection on validation data, the honest limits (subtle anomalies, domain shift, \"reconstructs the anomaly too\"), the alternatives (feature-space k-NN with DINOv3 features, JEPA latents, diffusion-based restoration), building \"normal only\" training sets from pardesline datasets, and a runnable PyTorch reference. Use when labels of the abnormal class are missing or scarce."
 ---
 
 # Reconstruction-based anomaly detection with a VAE

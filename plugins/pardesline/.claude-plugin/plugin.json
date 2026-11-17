@@ -1,7 +1,7 @@
 {
   "name": "pardesline",
   "version": "0.5.0",
-  "description": "3D vision and medical imaging for Claude: twenty expert skills (3D representations, point-cloud and CT/MR registration, atlas label transfer, PointNet, DINOv3, JEPA, VAE anomaly detection, Gaussian splatting, medical segmentation models, 3D metrics, datasets by manifest, the object model, the 73-algorithm catalog) and a read-only MCP server that browses 43 public datasets with their licences, the algorithms and the guides. Loading data and running algorithms happen on your machine with the open-source pardesline package (Apache-2.0).",
+  "description": "3D vision and medical imaging for Claude: 19 skills (3D representations, point-cloud and CT/MR registration, atlas label transfer, PointNet, DINOv3, JEPA, VAE anomaly detection, Gaussian splatting, medical segmentation models, 3D metrics, datasets by manifest, the object model, the 73-algorithm catalog) and a read-only MCP server that browses 43 public datasets with their licences, the algorithms and the guides. Loading data and running algorithms happen on your machine with the open-source pardesline package (Apache-2.0).",
   "author": {
     "name": "PardesLine",
     "url": "https://github.com/pardesline/pardesline"

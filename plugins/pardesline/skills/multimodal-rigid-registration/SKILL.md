@@ -1,19 +1,6 @@
 ---
-name: multimodal-rigid-registration
-description: >-
-  Expert guide to intensity-based rigid and affine registration of CT, MRI, PET and
-  CBCT volumes with SimpleITK (and pardesline's simpleitk_registration module): why
-  CT Hounsfield units and MRI intensities need an information-theoretic metric
-  (Mattes mutual information, joint histogram MI) instead of mean squares, the
-  Euler3DTransform with centred initialisation (GEOMETRY vs MOMENTS), optimizer choice
-  and scales (gradient descent with physical-shift scales, exhaustive rotation search
-  for large misalignments), the multi-resolution pyramid (shrink factors, smoothing
-  sigmas in mm), sampling percentage and histogram bins, convergence diagnostics,
-  resampling the moving image into the fixed grid (interpolators, label maps),
-  validation by target registration error on landmarks and checkerboards, the
-  DICOM / NIfTI frame rules (LPS, direction cosines), when to go affine, B-spline or
-  demons, and a runnable CT/MR script on the bundled RIRE brain pair. Use for any
-  CT-MR, PET-CT, pre/post-operative or atlas-to-patient volume alignment.
+name: "multimodal-rigid-registration"
+description: "Expert guide to intensity-based rigid and affine registration of CT, MRI, PET and CBCT volumes with SimpleITK (and pardesline's simpleitk_registration module): why CT Hounsfield units and MRI intensities need an information-theoretic metric (Mattes mutual information, joint histogram MI) instead of mean squares, the Euler3DTransform with centred initialisation (GEOMETRY vs MOMENTS), optimizer choice and scales (gradient descent with physical-shift scales, exhaustive rotation search for large misalignments), the multi-resolution pyramid (shrink factors, smoothing sigmas in mm), sampling percentage and histogram bins, convergence diagnostics, resampling the moving image into the fixed grid (interpolators, label maps), validation by target registration error on landmarks and checkerboards, the DICOM / NIfTI frame rules (LPS, direction cosines), when to go affine, B-spline or demons, and a runnable CT/MR script on the bundled RIRE brain pair. Use for any CT-MR, PET-CT, pre/post-operative or atlas-to-patient volume alignment."
 ---
 
 # Multimodal rigid registration with SimpleITK
