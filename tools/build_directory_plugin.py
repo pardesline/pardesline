@@ -39,13 +39,17 @@ def _version() -> str:
     return match.group(1)
 
 
+def _skill_count() -> int:
+    return sum(1 for p in (ROOT / "skills").glob("*/SKILL.md") if p.parent.name not in EXCLUDED_SKILLS)
+
+
 def _plugin_json() -> dict:
     root = json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
     return {
         "name": "pardesline",
         "version": _version(),
         "description": (
-            "3D vision and medical imaging for Claude: twenty expert skills (3D representations, "
+            f"3D vision and medical imaging for Claude: {_skill_count()} skills (3D representations, "
             "point-cloud and CT/MR registration, atlas label transfer, PointNet, DINOv3, JEPA, VAE "
             "anomaly detection, Gaussian splatting, medical segmentation models, 3D metrics, datasets "
             "by manifest, the object model, the 73-algorithm catalog) and a read-only MCP server that "
@@ -62,6 +66,58 @@ def _plugin_json() -> dict:
         "privacyPolicyUrl": f"{REPO}/blob/main/PRIVACY.md",
         "icon": ".claude-plugin/icon.png",
     }
+
+
+# Left out of the directory edition: the cloud client sends the user's files to the PardesLine
+# platform, a service that is not one of the plugin's declared connectors.
+EXCLUDED_SKILLS = {"cloud-client"}
+
+# Passages of the other skills that route to the cloud client, removed or reworded in this edition.
+# Each must match the source exactly once, so a reworded skill fails the build instead of leaking.
+EDITS: dict[str, list[tuple[str, str]]] = {
+    "catalog-and-run": [
+        (
+            " The cloud commands (`login`, `upload`,\n`send`, `inbox`, `ls`, `download`, `share`, `whoami`, "
+            "`logout`) are forwarded\nto the cloud client.",
+            "",
+        ),
+    ],
+    "using-pardesline": [
+        ("),\n  and an optional cloud client. Load this", "). Load this"),
+        (
+            "scanning-private-folders, medical-volumes, cloud-client, mcp-server,",
+            "scanning-private-folders, medical-volumes, mcp-server,",
+        ),
+        (
+            " nothing leaves it. The cloud client is\noptional and separate (`pardesline.cloud`).",
+            " nothing leaves it.",
+        ),
+        (
+            "# catalog + object model + cloud client only, no native libs",
+            "# catalog + object model only, no native libs",
+        ),
+        (
+            "| share a result, run on the hosted GPU, open a browser viewer | `pl.login()`, `pl.upload`, "
+            "`pl.share`, `pardesline.cloud` | cloud-client |\n",
+            "",
+        ),
+        (
+            "are the real\nlibraries when installed, the cloud-executed mirrors otherwise.",
+            "are the real\nlibraries; install them with the `local` and `medical` extras.",
+        ),
+    ],
+    "contributing-algorithms": [
+        ("the 0.1.0 cloud client, verbatim", "the 0.1.0 platform client, verbatim (not in this edition)"),
+    ],
+}
+
+
+def _apply_edits(skill: str, text: str) -> str:
+    for old, new in EDITS.get(skill, []):
+        if text.count(old) != 1:
+            raise SystemExit(f"skills/{skill}/SKILL.md: expected one {old[:60]!r}; update EDITS")
+        text = text.replace(old, new)
+    return text
 
 
 def _scripts_note(skill: str, scripts: list[str]) -> str:
@@ -131,6 +187,8 @@ def build(out: Path) -> None:
     (out / "README.md").write_text(README, encoding="utf-8", newline="\n")
     for skill_md in sorted((ROOT / "skills").glob("*/SKILL.md")):
         src = skill_md.parent
+        if src.name in EXCLUDED_SKILLS:
+            continue
         dst = out / "skills" / src.name
         scripts = sorted(p.name for p in (src / "scripts").glob("*.py")) if (src / "scripts").is_dir() else []
         for md in sorted(src.rglob("*.md")):
@@ -141,7 +199,7 @@ def build(out: Path) -> None:
             target.parent.mkdir(parents=True, exist_ok=True)
             text = md.read_text(encoding="utf-8").replace("\r\n", "\n")
             if rel == Path("SKILL.md"):
-                text = _quoted_frontmatter(text)
+                text = _quoted_frontmatter(_apply_edits(src.name, text))
                 if scripts:
                     text = text.rstrip("\n") + _scripts_note(src.name, scripts)
             target.write_text(text, encoding="utf-8", newline="\n")

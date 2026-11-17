@@ -19,7 +19,7 @@ src/pardesline/
   object/arrays.py       raw .npy/.npz/.bin decoding through a layout; pure-NumPy PLY writer; grid -> MetaImage
   ops/<module>/*.py      the 73 scripts, byte-identical to the hosted platform's modules/*/scripts
   medical/               _service.py + pyvista_adapter.py (the platform's SimpleITK service), public re-exports
-  cloud/                 the 0.1.0 cloud client, verbatim
+  cloud/                 the 0.1.0 platform client, verbatim (not in this edition)
 tests/                   fast tests + ops smoke tests + 73 --help checks + network tests
 skills/                  these skills (installable as a Claude Code plugin)
 ```
