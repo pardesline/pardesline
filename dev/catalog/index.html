@@ -5330,13 +5330,9 @@ The theory behind each module (with the formulas) is in the catalog too:
 <td><strong><code>pardesline.medical</code></strong></td>
 <td>Volume I/O (NIfTI, NRRD, MHA, VTI, DICOM series), rigid / affine / B-spline / demons registration, thresholding, watershed, connected components.</td>
 </tr>
-<tr>
-<td><strong><code>pardesline.cloud</code></strong></td>
-<td>The hosted platform: upload, share in one line, run on GPU, open the browser viewers. Optional, needs an account.</td>
-</tr>
 </tbody>
 </table>
-<p>Every algorithm is also a plain command with the same contract the platform uses:</p>
+<p>Every algorithm is also a plain command with one command-line contract:</p>
 <div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>pardesline.ops.point_cloud_processing.voxel_downsample<span class="w"> </span>--input<span class="w"> </span>scan.ply<span class="w"> </span>--output<span class="w"> </span>small.ply<span class="w"> </span>--voxel_size<span class="w"> </span><span class="m">0</span>.02
 </code></pre></div>
 <p>Parameters are checked <strong>before</strong> anything runs — unknown names, wrong types,

@@ -5569,8 +5569,7 @@ description: pardesline.catalog: Catalog, Module, Method, Parameter with validat
     <div class="doc doc-contents first">
 
         <p>The typed catalog of modules, methods and parameters.</p>
-<p>The catalog is generated from the same manifests that drive the PardesLine
-platform (<code>catalog/data/&lt;module&gt;.json</code>). It is the single source of truth
+<p>The catalog is read from <code>catalog/data/&lt;module&gt;.json</code>. It is the single source of truth
 for what an algorithm is called, which file types it accepts, which flags it
 takes, their defaults and their ranges. Nothing here imports a native library.</p>
 <div class="highlight"><pre><span></span><code>&gt;&gt;&gt; import pardesline as pl
@@ -5615,7 +5614,7 @@ takes, their defaults and their ranges. Nothing here imports a native library.</
 
 
 
-        <p>All modules, ordered as on the platform.</p>
+        <p>All modules, in catalog order.</p>
 
 
 

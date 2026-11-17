@@ -5163,25 +5163,22 @@
 <h2 id="layout">Layout<a class="headerlink" href="#layout" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>src/pardesline/
   _version.py            single version source (hatchling reads it)
-  __init__.py            public API; cloud helpers and pl.o3d/pv/sitk/np resolved lazily
-  errors.py              PardesLineError (shared with cloud) + Catalog/Parameter/Run/Manifest/Fetch/NeedsConfirmation
+  __init__.py            public API; pl.o3d/pv/sitk/np resolved lazily (a placeholder raising MissingDependency when absent)
+  errors.py              PardesLineError + Catalog/Parameter/Run/Manifest/Fetch/NeedsConfirmation
   catalog/               Catalog, Module, Method, Parameter + data/&lt;module&gt;.json (19 files, the 73 methods)
   runner.py              pl.run: validation, subprocess, log/progress capture, RunResult
   object/                Object classes, frame.py (Frame, License, format defaults), convert.py (in-process conversions)
   data/                  manifest.py (pydantic schema incl. Layout), dataset.py (+ export), scan.py (folders and listings), cache.py, sources/{local,https,hf,archive,s3,tcia,urllist,open3d}.py, manifests/*.json
   object/arrays.py       raw .npy/.npz/.bin decoding through a layout; pure-NumPy PLY writer; grid -&gt; MetaImage
-  ops/&lt;module&gt;/*.py      the 73 scripts, byte-identical to the hosted platform's modules/*/scripts
-  medical/               _service.py + pyvista_adapter.py (the platform's SimpleITK service), public re-exports
-  cloud/                 the 0.1.0 cloud client, verbatim
+  ops/&lt;module&gt;/*.py      the 73 algorithm scripts (argparse, one command-line contract)
+  medical/               _service.py (SimpleITK service) + pyvista_adapter.py, public re-exports
 tests/                   fast tests + ops smoke tests + 73 --help checks + network tests
 skills/                  these skills (installable as a Claude Code plugin)
 </code></pre></div>
-<p>The hosted platform's <code>modules/</code> folder and services are the <strong>source of
-truth</strong> for <code>ops/</code>, <code>catalog/data/</code> and <code>medical/</code> until the platform
-depends on this package; those files are excluded from ruff and must stay
-byte-identical (only the ten SimpleITK scripts have their import rewired to
-<code>pardesline.medical._service</code>). Edit algorithms upstream, or deliberately
-fork here and document it in CHANGELOG.</p>
+<p>This repository is the <strong>source of truth</strong> for <code>ops/</code>, <code>catalog/data/</code> and
+<code>medical/</code>: the package depends on no PardesLine service. The scripts keep the
+style they were written in (excluded from ruff); change them here, with a test
+that fails before the fix and a CHANGELOG entry.</p>
 <h2 id="adding-an-algorithm">Adding an algorithm<a class="headerlink" href="#adding-an-algorithm" title="Permanent link">&para;</a></h2>
 <ol>
 <li><code>src/pardesline/ops/&lt;module&gt;/&lt;name&gt;.py</code>: argparse with <code>--input</code>,
@@ -5230,7 +5227,7 @@ fork here and document it in CHANGELOG.</p>
 <li>Mention it in README (Datasets), CHANGELOG and the datasets skill.</li>
 </ol>
 <h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>pytest<span class="w"> </span>-q<span class="w"> </span>-m<span class="w"> </span><span class="s2">"not slow"</span><span class="w">                      </span><span class="c1"># ~1 min: catalog, params, runner, object, manifests, scan, https (local server), cloud unit</span>
+<div class="highlight"><pre><span></span><code>pytest<span class="w"> </span>-q<span class="w"> </span>-m<span class="w"> </span><span class="s2">"not slow"</span><span class="w">                      </span><span class="c1"># ~1 min: catalog, params, runner, object, manifests, scan, https (local server)</span>
 pytest<span class="w"> </span>-q<span class="w">                                    </span><span class="c1"># + ops smoke (real Open3D/PyVista/SimpleITK runs) + 73 --help checks (~6 min)</span>
 <span class="nv">PARDESLINE_NETWORK_TESTS</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>pytest<span class="w"> </span>tests/test_network.py<span class="w">   </span><span class="c1"># real downloads (RIRE 19 MB, liver, Open3D bunny)</span>
 ruff<span class="w"> </span>check<span class="w"> </span>.<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>ruff<span class="w"> </span>format<span class="w"> </span>--check<span class="w"> </span>.
@@ -5264,7 +5261,7 @@ Bump <code>_version.py</code> and CHANGELOG, tag <code>vX.Y.Z</code>, create the
 <li><code>.txt</code> is an accepted point-cloud extension for ops but too ambiguous for
   <code>pl.scan</code>, which skips it.</li>
 </ul>
-<p><sub>Source: <code>skills/contributing-algorithms/SKILL.md</code>, one of the twenty skills served by <code>pardesline mcp</code>; published on 2026-10-14.</sub></p>
+<p><sub>Source: <code>skills/contributing-algorithms/SKILL.md</code>, one of the twenty skills served by <code>pardesline mcp</code>; published on 2026-11-17.</sub></p>
 
 
 

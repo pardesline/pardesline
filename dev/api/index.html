@@ -5300,7 +5300,7 @@ description: The public Python API of pardesline: load, scan, datasets, describe
 
     <div class="doc doc-contents first">
 
-        <p>PardesLine — 3D vision and medical imaging, locally or in the cloud.</p>
+        <p>PardesLine — 3D vision and medical imaging, on your machine.</p>
 <div class="highlight"><pre><span></span><code>import pardesline as pl
 
 scan = pl.load("scan.ply")                       # a local point cloud (Object)
@@ -5316,9 +5316,8 @@ ds = pl.load("/data/study_A", license="internal", units={"mesh": "mm"})   # your
 pl.run("simpleitk_registration", "rigid", "ct.mha", moving="mr.mha")
 pl.catalog().describe("point_cloud_reconstruction.poisson")
 </code></pre></div>
-<p>Everything under <code>pl.run</code> / <code>pl.load</code> executes on this machine. The cloud
-client (<code>pl.login</code>, <code>pl.upload</code>, <code>pl.share</code>, hosted compute, viewers)
-lives in <code>pardesline.cloud</code> and stays reachable from the top level.</p>
+<p>Everything executes on this machine. The package talks to no PardesLine service;
+the only network traffic is the public dataset downloads you ask for.</p>
 
 
 

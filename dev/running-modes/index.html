@@ -93,7 +93,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#one-package-three-ways-to-run-the-same-code" class="md-skip">
+        <a href="#running-pardesline-on-your-machine" class="md-skip">
           Skip to content
         </a>
       
@@ -817,10 +817,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#open3d-simpleitk-and-pyvista-direct-access-or-through-the-cloud" class="md-nav__link">
+  <a href="#open3d-simpleitk-and-pyvista-direct-access" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Open3D, SimpleITK and PyVista: direct access, or through the cloud
+        Open3D, SimpleITK and PyVista: direct access
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#from-05-and-earlier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        From 0.5 and earlier
       
     </span>
   </a>
@@ -5190,10 +5201,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#open3d-simpleitk-and-pyvista-direct-access-or-through-the-cloud" class="md-nav__link">
+  <a href="#open3d-simpleitk-and-pyvista-direct-access" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Open3D, SimpleITK and PyVista: direct access, or through the cloud
+        Open3D, SimpleITK and PyVista: direct access
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#from-05-and-earlier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        From 0.5 and earlier
       
     </span>
   </a>
@@ -5225,41 +5247,45 @@
   
 
 
-<h1 id="one-package-three-ways-to-run-the-same-code">One package, three ways to run the same code<a class="headerlink" href="#one-package-three-ways-to-run-the-same-code" title="Permanent link">&para;</a></h1>
+<h1 id="running-pardesline-on-your-machine">Running pardesline on your machine<a class="headerlink" href="#running-pardesline-on-your-machine" title="Permanent link">&para;</a></h1>
+<p>Everything runs locally: the 73 algorithms, the object model, the datasets and the MCP server.
+There is no account, no PardesLine service behind the package, and no network traffic except the
+public dataset downloads you ask for.</p>
 <table>
 <thead>
 <tr>
-<th>Mode</th>
-<th>What runs where</th>
-<th>Needs</th>
 <th>Install</th>
+<th>What you get</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Local</strong></td>
-<td>the 73 algorithms, the object model, the datasets and the MCP server on your machine; Open3D, SimpleITK and PyVista installed next to the package</td>
-<td>no account, no network except the dataset downloads you ask for</td>
 <td><code>pip install "pardesline[all]"</code></td>
+<td>everything below</td>
 </tr>
 <tr>
-<td><strong>Cloud</strong></td>
-<td>the same 73 algorithms on the hosted GPU platform, plus sharing, browser viewers, image-to-3D</td>
-<td>a PardesLine account (<code>pl.login()</code>)</td>
+<td><code>pip install "pardesline[local]"</code></td>
+<td>point clouds, meshes, SDF, LiDAR (Open3D, PyVista)</td>
+</tr>
+<tr>
+<td><code>pip install "pardesline[medical]"</code></td>
+<td>volumes, DICOM, registration, segmentation (SimpleITK, PyVista)</td>
+</tr>
+<tr>
+<td><code>pip install "pardesline[hf]"</code></td>
+<td><code>pl.load("hf://...")</code></td>
+</tr>
+<tr>
+<td><code>pip install "pardesline[mcp]"</code></td>
+<td>the MCP server (<code>pardesline mcp</code>)</td>
+</tr>
+<tr>
 <td><code>pip install pardesline</code></td>
-</tr>
-<tr>
-<td><strong>Mixed</strong></td>
-<td>your pipeline written once; each call runs locally when the library is installed, remotely otherwise</td>
-<td>both</td>
-<td>either</td>
+<td>catalog, object model, dataset manifests; no native library</td>
 </tr>
 </tbody>
 </table>
-<p>The algorithm names, the parameters and the object model are identical in
-the three modes: <code>scan.downsample(voxel_size=0.02)</code> is the same line on a
-laptop without a GPU and on the platform.</p>
-<h3 id="open3d-simpleitk-and-pyvista-direct-access-or-through-the-cloud">Open3D, SimpleITK and PyVista: direct access, or through the cloud<a class="headerlink" href="#open3d-simpleitk-and-pyvista-direct-access-or-through-the-cloud" title="Permanent link">&para;</a></h3>
+<h3 id="open3d-simpleitk-and-pyvista-direct-access">Open3D, SimpleITK and PyVista: direct access<a class="headerlink" href="#open3d-simpleitk-and-pyvista-direct-access" title="Permanent link">&para;</a></h3>
 <p>The native libraries are not hidden behind the package; they are part of it.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pardesline</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 
@@ -5269,34 +5295,23 @@ laptop without a GPU and on the platform.</p>
 <span class="n">img</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"ct.mha"</span><span class="p">)</span><span class="o">.</span><span class="n">to_sitk</span><span class="p">()</span>  <span class="c1"># SimpleITK.Image - DICOM folders accepted</span>
 <span class="n">arr</span> <span class="o">=</span> <span class="n">scan</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>  <span class="c1"># points (N, 3), vertices, or voxels (z, y, x)</span>
 
-<span class="n">pl</span><span class="o">.</span><span class="n">o3d</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">pv</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">sitk</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">np</span>  <span class="c1"># the real libraries, when they are installed</span>
+<span class="n">pl</span><span class="o">.</span><span class="n">o3d</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">pv</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">sitk</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">np</span>  <span class="c1"># the real libraries</span>
 </code></pre></div>
 <ul>
 <li>With <code>[local]</code> / <code>[medical]</code> installed, <code>pl.o3d</code> <strong>is</strong> <code>open3d</code>, <code>pl.sitk</code>
   <strong>is</strong> <code>SimpleITK</code>, <code>pl.pv</code> <strong>is</strong> <code>pyvista</code>: write ordinary Open3D or
   SimpleITK code on the objects pardesline loaded, and hand the results back
   (<code>os.fspath(obj)</code> is the file path, so every library reader accepts an Object).</li>
-<li>Without them, after <code>pl.login()</code>, the same four names become the <strong>cloud
-  mirrors</strong> of the 0.1 client: the call is recorded and executed on the
-  platform, the result comes back when you ask for it (<code>.numpy()</code>,
-  <code>.to_file()</code>). No Open3D, VTK or ITK to install, no 3D environment to set
-  up - the use case
-  <a href="https://github.com/1904jonathan/pardesline-use-cases">pardesline-use-cases/01</a>
-  runs a full registration + label transfer + Poisson pipeline that way.</li>
-<li>Either way the object keeps its frame, units, labels and licence, and
-  records every step it went through (<code>obj.provenance</code>).</li>
+<li>Without them, any use of those names raises <code>MissingDependency</code> with the extra to install.</li>
+<li>The object keeps its frame, units, labels and licence, and records every step it went
+  through (<code>obj.provenance</code>).</li>
 </ul>
-<h1 id="cloud-optional">Cloud (optional)<a class="headerlink" href="#cloud-optional" title="Permanent link">&para;</a></h1>
-<p>The hosted platform adds sharing, GPU methods (image → 3D, 2D AI), browser
-viewers and a node editor. The 0.1.x client is unchanged, under <code>pardesline.cloud</code>
-and at the top level; <code>pl.o3d</code> / <code>pl.pv</code> / <code>pl.sitk</code> become its server-side
-mirrors when the libraries are not installed locally (see
-<a href="#one-package-three-ways-to-run-the-same-code">One package, three ways to run the same code</a>):</p>
-<div class="highlight"><pre><span></span><code><span class="n">pl</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>  <span class="c1"># email + one-time code</span>
-<span class="n">remote</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">surface</span><span class="p">)</span>  <span class="c1"># an Object or a path</span>
-<span class="n">pl</span><span class="o">.</span><span class="n">share</span><span class="p">(</span><span class="n">remote</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="s2">"colleague@lab.org"</span><span class="p">)</span>
-<span class="n">remote</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>  <span class="c1"># link to the 3D viewer</span>
-</code></pre></div>
+<h3 id="from-05-and-earlier">From 0.5 and earlier<a class="headerlink" href="#from-05-and-earlier" title="Permanent link">&para;</a></h3>
+<p>Versions 0.1 to 0.5 also shipped an optional client for the hosted PardesLine platform
+(<code>pardesline.cloud</code>, <code>pl.login</code>, <code>pl.upload</code>, <code>pl.share</code>, the <code>login</code> / <code>upload</code> / <code>share</code>
+commands, and a remote fallback for <code>pl.o3d</code> / <code>pl.pv</code> / <code>pl.sitk</code>). It was removed in 0.6: the
+open-source package is independent of the platform. Code that used it can pin
+<code>pardesline&lt;0.6</code>.</p>
 
 
 

@@ -5331,16 +5331,14 @@ pardesline<span class="w"> </span>version
 <p>Parameters after the input are <code>--name value</code> (booleans <code>--flag true</code>). The
 run prints the output path (and the sidecar path) on stdout and echoes the
 script log on stderr unless <code>-q</code>. Exit code 1 with <code>error: ...</code> on any
-<code>PardesLineError</code> or missing file. The cloud commands (<code>login</code>, <code>upload</code>,
-<code>send</code>, <code>inbox</code>, <code>ls</code>, <code>download</code>, <code>share</code>, <code>whoami</code>, <code>logout</code>) are forwarded
-to the cloud client.</p>
-<h2 id="running-a-script-directly-same-contract-as-the-hosted-platform">Running a script directly (same contract as the hosted platform)<a class="headerlink" href="#running-a-script-directly-same-contract-as-the-hosted-platform" title="Permanent link">&para;</a></h2>
+<code>PardesLineError</code> or missing file.</p>
+<h2 id="running-a-script-directly-the-same-command-line-contract">Running a script directly (the same command-line contract)<a class="headerlink" href="#running-a-script-directly-the-same-command-line-contract" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>pardesline.ops.simpleitk_segmentation.otsu_threshold<span class="w"> </span>--input<span class="w"> </span>ct.mha<span class="w"> </span>--output<span class="w"> </span>mask.vti
 python<span class="w"> </span>-m<span class="w"> </span>pardesline.ops.registration.icp_refinement<span class="w"> </span>--input<span class="w"> </span>fixed.ply<span class="w"> </span>--output<span class="w"> </span>moved.ply<span class="w"> </span>--moving<span class="w"> </span>moving.ply<span class="w"> </span>--voxel_size<span class="w"> </span><span class="m">0</span>.05
 </code></pre></div>
 <p>Exit 0 means the output was written. Prefer <code>pl.run</code> from Python: it
 validates, names the output and captures the log.</p>
-<p><sub>Source: <code>skills/catalog-and-run/SKILL.md</code>, one of the twenty skills served by <code>pardesline mcp</code>; published on 2026-11-15.</sub></p>
+<p><sub>Source: <code>skills/catalog-and-run/SKILL.md</code>, one of the twenty skills served by <code>pardesline mcp</code>; published on 2026-11-17.</sub></p>
 
 
 

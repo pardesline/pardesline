@@ -5162,14 +5162,14 @@
 <h1 id="using-pardesline">Using pardesline<a class="headerlink" href="#using-pardesline" title="Permanent link">&para;</a></h1>
 <p><code>pardesline</code> (import as <code>pl</code>) is one Python package for point clouds, meshes,
 medical volumes and label maps. Everything under <code>pl.load</code> / <code>pl.run</code> executes
-on the machine that runs Python; nothing leaves it. The cloud client is
-optional and separate (<code>pardesline.cloud</code>).</p>
+on the machine that runs Python; nothing leaves it.
+The package talks to no PardesLine service.</p>
 <h2 id="install-tell-the-user-exactly-this">Install (tell the user exactly this)<a class="headerlink" href="#install-tell-the-user-exactly-this" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"pardesline[all]"</span><span class="w">       </span><span class="c1"># Open3D + PyVista + SimpleITK + huggingface_hub</span>
 pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"pardesline[local]"</span><span class="w">     </span><span class="c1"># point clouds, meshes, SDF, LiDAR (Open3D, PyVista)</span>
 pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"pardesline[medical]"</span><span class="w">   </span><span class="c1"># volumes, DICOM, registration, segmentation (SimpleITK + PyVista)</span>
 pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"pardesline[hf]"</span><span class="w">        </span><span class="c1"># pl.load("hf://...")</span>
-pip<span class="w"> </span>install<span class="w"> </span>pardesline<span class="w">              </span><span class="c1"># catalog + object model + cloud client only, no native libs</span>
+pip<span class="w"> </span>install<span class="w"> </span>pardesline<span class="w">              </span><span class="c1"># catalog + object model only, no native libs</span>
 </code></pre></div>
 <p>Python 3.10 to 3.12 for <code>[local]</code> (Open3D 0.19 has no 3.13 wheels). A missing
 library raises <code>pl.MissingDependency</code> whose message names the extra to install.</p>
@@ -5219,11 +5219,6 @@ library raises <code>pl.MissingDependency</code> whose message names the extra t
 <td>write a manifest, answer the scan's questions</td>
 <td><code>pl.scan(folder)</code>, <code>pl.load(folder, license=..., units=..., labels=...)</code></td>
 <td>scanning-private-folders</td>
-</tr>
-<tr>
-<td>share a result, run on the hosted GPU, open a browser viewer</td>
-<td><code>pl.login()</code>, <code>pl.upload</code>, <code>pl.share</code>, <code>pardesline.cloud</code></td>
-<td>cloud-client</td>
 </tr>
 <tr>
 <td>give an AI agent (Claude, Gemini, Cursor, Codex) the datasets and algorithms through MCP</td>
@@ -5318,8 +5313,8 @@ over https, Hugging Face, remote archives by HTTP Range, S3, TCIA and URL
 indexes), outputs default to <code>pl.output_dir()</code> (system temp,
 change with <code>pl.set_output_dir</code>), downloads cache in <code>~/.cache/pardesline</code>
 (<code>PARDESLINE_CACHE</code>). <code>pl.o3d</code>, <code>pl.pv</code>, <code>pl.sitk</code>, <code>pl.np</code> are the real
-libraries when installed, the cloud-executed mirrors otherwise.</p>
-<p><sub>Source: <code>skills/using-pardesline/SKILL.md</code>, one of the twenty skills served by <code>pardesline mcp</code>; published on 2026-11-03.</sub></p>
+libraries when installed; without them, any use raises <code>MissingDependency</code>.</p>
+<p><sub>Source: <code>skills/using-pardesline/SKILL.md</code>, one of the twenty skills served by <code>pardesline mcp</code>; published on 2026-11-17.</sub></p>
 
 
 
