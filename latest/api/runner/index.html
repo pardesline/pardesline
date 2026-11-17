@@ -5369,7 +5369,7 @@ description: pardesline.runner: run a catalog method as a subprocess with valida
         <p>Run one algorithm from the catalog as a subprocess, on this machine.</p>
 <p>Each op is an argparse script (<code>python -m pardesline.ops.&lt;module&gt;.&lt;script&gt;
 --input ... --output ... [--flag value ...]</code>). Running it in a child process keeps
-the exact contract the platform uses and isolates native-library crashes
+one command-line contract for every algorithm and isolates native-library crashes
 from the caller.</p>
 
 

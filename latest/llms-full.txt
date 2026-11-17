@@ -352,7 +352,7 @@ Release dates and wheel tags come from the PyPI JSON API on 2026-10-16.
 
 ---
 title: FAQ — pardesline
-description: Answers on supported datasets, licences, Python 3.13, Open3D wheels, GPU, pretrained models, the cloud client, DICOM de-identification, offline use and how to cite.
+description: Answers on supported datasets, licences, Python 3.13, Open3D wheels, GPU, pretrained models, independence from any hosted service, DICOM de-identification, offline use and how to cite.
 ---
 
 # FAQ
@@ -381,9 +381,9 @@ Nothing in the package needs one. The classical algorithms run on CPU through Op
 
 Not yet. Today the deep-learning content is expert guides with reference scripts (PointNet, DINOv3 features, 3D JEPA, VAE anomaly detection, nnU-Net preparation) that read any pardesline dataset. One-line pretrained model access through a model registry is the top roadmap item; the [Models](models/index.md) pages keep their URLs for it.
 
-## What is the cloud client?
+## Does pardesline talk to a PardesLine server?
 
-`pardesline.cloud` is the optional client of the hosted PardesLine platform (sharing, GPU jobs, viewers). It is in the package because the same object model is used on both sides, it is off unless you call its functions, and this documentation covers the local, Apache-2.0 part.
+No. The package runs entirely on your machine and contains no client for any hosted service; the only network traffic is the public dataset downloads you ask for. Versions 0.1 to 0.5 shipped an optional platform client (`pardesline.cloud`); it was removed in 0.6. Code that used it can pin `pardesline<0.6`.
 
 ## Can I use it offline?
 

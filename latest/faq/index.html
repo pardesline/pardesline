@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Answers on supported datasets, licences, Python 3.13, Open3D wheels, GPU, pretrained models, the cloud client, DICOM de-identification, offline use and how to cite.">
+        <meta name="description" content="Answers on supported datasets, licences, Python 3.13, Open3D wheels, GPU, pretrained models, independence from any hosted service, DICOM de-identification, offline use and how to cite.">
       
       
       
@@ -64,7 +64,7 @@
   
 <meta property="og:type" content="website" />
 <meta property="og:title" content="FAQ — pardesline - pardesline" />
-<meta property="og:description" content="Answers on supported datasets, licences, Python 3.13, Open3D wheels, GPU, pretrained models, the cloud client, DICOM de-identification, offline use and how to cite." />
+<meta property="og:description" content="Answers on supported datasets, licences, Python 3.13, Open3D wheels, GPU, pretrained models, independence from any hosted service, DICOM de-identification, offline use and how to cite." />
 <meta property="og:image" content="https://pardesline.github.io/pardesline/latest/assets/images/social/faq.png" />
 <meta property="og:image:type" content="image/png" />
 <meta property="og:image:width" content="1200" />
@@ -72,7 +72,7 @@
 <meta property="og:url" content="https://pardesline.github.io/pardesline/latest/faq/" />
 <meta property="twitter:card" content="summary_large_image" />
 <meta property="twitter:title" content="FAQ — pardesline - pardesline" />
-<meta property="twitter:description" content="Answers on supported datasets, licences, Python 3.13, Open3D wheels, GPU, pretrained models, the cloud client, DICOM de-identification, offline use and how to cite." />
+<meta property="twitter:description" content="Answers on supported datasets, licences, Python 3.13, Open3D wheels, GPU, pretrained models, independence from any hosted service, DICOM de-identification, offline use and how to cite." />
 <meta property="twitter:image" content="https://pardesline.github.io/pardesline/latest/assets/images/social/faq.png" />
 </head>
   
@@ -5125,10 +5125,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-is-the-cloud-client" class="md-nav__link">
+  <a href="#does-pardesline-talk-to-a-pardesline-server" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What is the cloud client?
+        Does pardesline talk to a PardesLine server?
       
     </span>
   </a>
@@ -5383,10 +5383,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-is-the-cloud-client" class="md-nav__link">
+  <a href="#does-pardesline-talk-to-a-pardesline-server" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What is the cloud client?
+        Does pardesline talk to a PardesLine server?
       
     </span>
   </a>
@@ -5497,8 +5497,8 @@
 <p>Nothing in the package needs one. The classical algorithms run on CPU through Open3D, VTK and SimpleITK. The PyTorch reference scripts use CUDA when available and run on CPU at the sizes the examples use.</p>
 <h2 id="does-it-ship-pretrained-models">Does it ship pretrained models?<a class="headerlink" href="#does-it-ship-pretrained-models" title="Permanent link">&para;</a></h2>
 <p>Not yet. Today the deep-learning content is expert guides with reference scripts (PointNet, DINOv3 features, 3D JEPA, VAE anomaly detection, nnU-Net preparation) that read any pardesline dataset. One-line pretrained model access through a model registry is the top roadmap item; the <a href="../models/">Models</a> pages keep their URLs for it.</p>
-<h2 id="what-is-the-cloud-client">What is the cloud client?<a class="headerlink" href="#what-is-the-cloud-client" title="Permanent link">&para;</a></h2>
-<p><code>pardesline.cloud</code> is the optional client of the hosted PardesLine platform (sharing, GPU jobs, viewers). It is in the package because the same object model is used on both sides, it is off unless you call its functions, and this documentation covers the local, Apache-2.0 part.</p>
+<h2 id="does-pardesline-talk-to-a-pardesline-server">Does pardesline talk to a PardesLine server?<a class="headerlink" href="#does-pardesline-talk-to-a-pardesline-server" title="Permanent link">&para;</a></h2>
+<p>No. The package runs entirely on your machine and contains no client for any hosted service; the only network traffic is the public dataset downloads you ask for. Versions 0.1 to 0.5 shipped an optional platform client (<code>pardesline.cloud</code>); it was removed in 0.6. Code that used it can pin <code>pardesline&lt;0.6</code>.</p>
 <h2 id="can-i-use-it-offline">Can I use it offline?<a class="headerlink" href="#can-i-use-it-offline" title="Permanent link">&para;</a></h2>
 <p>Yes, once the data is cached: <code>pl.load</code> reads the on-disk index and files; <code>pardesline fetch &lt;dataset&gt;</code> downloads a dataset ahead of time; <code>ds.export(folder)</code> writes standard files you can carry anywhere.</p>
 <h2 id="how-do-i-load-dicom-and-what-about-identifiers">How do I load DICOM, and what about identifiers?<a class="headerlink" href="#how-do-i-load-dicom-and-what-about-identifiers" title="Permanent link">&para;</a></h2>
