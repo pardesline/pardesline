@@ -188,4 +188,4 @@ moved = pair.target.align(pair.source, voxel_size=0.05)  # metres
 print(moved.transform["fitness"], moved.transform["inlier_rmse"])
 ```
 
-<sub>Source: `skills/point-cloud-registration/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-11-15.</sub>
+<sub>Source: `skills/point-cloud-registration/SKILL.md`, one of the 19 skills served by `pardesline mcp`; published on 2026-11-15.</sub>

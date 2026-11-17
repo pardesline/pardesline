@@ -37,7 +37,7 @@ pardesline is the dataset layer and the domain-vocabulary API **on top of** thes
 | Defaults tied to the data scale (voxel from the bounding box, thresholds as multiples) | yes, documented per parameter ([why](algorithms/why-our-defaults-work.md)) | fixed numbers in tutorials | VTK defaults | ITK defaults | n/a | per bundle | per transform | n/a |
 | Validated on real industrial / medical data | public stand-ins with committed numbers + `examples/real_cases/` mechanism | tutorials | gallery | notebooks | tests | Model Zoo benchmarks | papers | n/a |
 | One-line pretrained model access | **roadmap** (model registry; reference scripts today) | Open3D-ML weights (RandLA-Net, KPConv) [[doc]](https://github.com/isl-org/Open3D-ML) | no | no | no | Model Zoo bundles [[doc]](https://monai.io/model-zoo.html) | no | through `transformers` |
-| Local MCP server for AI agents | 14 tools, 20 skills | no | no | no | no | no | no | no |
+| Local MCP server for AI agents | 14 tools, 19 skills | no | no | no | no | no | no | no |
 | Licence | Apache-2.0 | MIT | MIT | Apache-2.0 | MIT | Apache-2.0 | Apache-2.0 | Apache-2.0 |
 | Latest release checked | 0.2.0 (2026-10-14) | 0.20.0 (2026-09-16), wheels for Python 3.10–3.14 | 0.49.1 (2026-10-11) | 2.5.6 (2026-07-30) | 5.1.1 (2026-10-02) | 1.6.1 (2026-09-27) | 1.2.1 (2026-06-02) | 5.1.0 (2026-10-05) |
 

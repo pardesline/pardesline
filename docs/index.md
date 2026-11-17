@@ -56,7 +56,7 @@ moved.to_pyvista().plot()  # or .to_sitk(), .to_open3d()
 
     ---
 
-    `pardesline mcp` exposes datasets, algorithms and twenty expert guides as MCP tools for Claude, Cursor, Gemini CLI and Codex.
+    `pardesline mcp` exposes datasets, algorithms and 19 expert guides as MCP tools for Claude, Cursor, Gemini CLI and Codex.
 
     [:octicons-arrow-right-24: MCP server](agents/mcp.md)
 

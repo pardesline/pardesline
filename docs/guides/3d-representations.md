@@ -130,4 +130,4 @@ surface.provenance[-1]["exact"], points.frame.describe()  # True, "LPS, mm (file
 
 See `references/conversion-matrix.md` for the formulas behind each arrow.
 
-<sub>Source: `skills/3d-representations/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-11-15.</sub>
+<sub>Source: `skills/3d-representations/SKILL.md`, one of the 19 skills served by `pardesline mcp`; published on 2026-11-15.</sub>

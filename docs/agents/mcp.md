@@ -1,11 +1,11 @@
 ---
 title: MCP server for computer vision and medical imaging — give 3D datasets and algorithms to Claude, Cursor, Gemini CLI and Codex
-description: pardesline mcp is a local Model Context Protocol server with 14 tools over 43 datasets, 73 algorithms and 20 expert guides. Setup in five lines for Claude Code, Claude Desktop, Cursor, Gemini CLI and Codex; what an agent can do with it.
+description: pardesline mcp is a local Model Context Protocol server with 14 tools over 43 datasets, 73 algorithms and 19 expert guides. Setup in five lines for Claude Code, Claude Desktop, Cursor, Gemini CLI and Codex; what an agent can do with it.
 ---
 
 # MCP server
 
-`pardesline mcp` turns the package into a local [Model Context Protocol](https://modelcontextprotocol.io/) server: an agent can list and describe datasets, fetch one sample, run any catalog method with validated parameters, convert objects, export standard files and read the twenty expert guides. Nothing leaves the machine; there is no account.
+`pardesline mcp` turns the package into a local [Model Context Protocol](https://modelcontextprotocol.io/) server: an agent can list and describe datasets, fetch one sample, run any catalog method with validated parameters, convert objects, export standard files and read the 19 expert guides. Nothing leaves the machine; there is no account.
 
 ## Setup
 
@@ -16,7 +16,7 @@ description: pardesline mcp is a local Model Context Protocol server with 14 too
     claude mcp add pardesline -- pardesline mcp
     ```
 
-    The repository also ships `.mcp.json` (picked up when you open the repo) and a Claude Code plugin manifest (`.claude-plugin/plugin.json`) that declares the server and the twenty skills.
+    The repository also ships `.mcp.json` (picked up when you open the repo) and a Claude Code plugin manifest (`.claude-plugin/plugin.json`) that declares the server and the 19 skills.
 
 === "Claude Desktop / Cursor"
 
@@ -66,7 +66,7 @@ When `pardesline` is not on `PATH`, use `python -m pardesline.mcp_server` as the
 | `run_method(method, input, moving, output, params)` | runs one method; returns the output path and the recorded step |
 | `describe_object(path)` | kind, frame, units, labels, sidecar of any file |
 | `to_mesh(path, label, isovalue)` | label map or volume to a surface |
-| `list_skills()`, `get_skill(name, file)` | the twenty expert guides and their scripts |
+| `list_skills()`, `get_skill(name, file)` | the 19 expert guides and their scripts |
 
 Resources: `pardesline://datasets`, `pardesline://manifest/{name}`, `pardesline://catalog`, `pardesline://skills`, `pardesline://skill/{name}`. Prompt: `start_here`.
 

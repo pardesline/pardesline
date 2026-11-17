@@ -272,7 +272,7 @@ pardesline is the dataset layer and the domain-level API on top of these librari
 | Validated on real industrial / medical data | public stand-ins + `examples/real_cases/` mechanism | tutorials | gallery | notebooks | tests | model zoo benchmarks | papers | n/a |
 | Classical 3D algorithms | 73 (through the libraries) | yes | yes | yes | yes | some (via ITK/MONAI transforms) | no | no |
 | One-line pretrained model access | **roadmap** (model registry) | Open3D-ML weights | no | no | no | Model Zoo bundles | no | via `transformers` |
-| Local MCP server for AI agents | 14 tools, 20 skills | no | no | no | no | no | no | no |
+| Local MCP server for AI agents | 14 tools, 19 skills | no | no | no | no | no | no | no |
 | Licence | Apache-2.0 | MIT | MIT | Apache-2.0 | MIT | Apache-2.0 | Apache-2.0 | Apache-2.0 |
 
 Full page with the sources of each cell: [docs comparison](https://pardesline.github.io/pardesline/latest/comparison/).
@@ -313,7 +313,7 @@ pip install "pardesline[mcp]"
 claude mcp add pardesline -- pardesline mcp        # Claude Code; Claude Desktop, Cursor, Gemini CLI, Codex: {"command": "pardesline", "args": ["mcp"]}
 ```
 
-The server exposes the datasets, the algorithms, the object model and the twenty skills as tools: `list_datasets`, `describe_dataset`, `list_samples`, `load_sample`, `scan_dataset`, `confirm_dataset`, `export_dataset`, `list_methods`, `describe_method`, `run_method`, `describe_object`, `to_mesh`, `list_skills`, `get_skill`. An agent can browse the catalog, fetch one sample, run a pipeline, read the expert guide for the method it is about to use, and export standard files. Questions the package will not guess (licence, units, array layout) come back as JSON for the agent to relay to the human. No account, nothing leaves the machine ([PRIVACY.md](PRIVACY.md)). Client configurations and the full contract: [docs/mcp.md](docs/mcp.md).
+The server exposes the datasets, the algorithms, the object model and the 19 skills as tools: `list_datasets`, `describe_dataset`, `list_samples`, `load_sample`, `scan_dataset`, `confirm_dataset`, `export_dataset`, `list_methods`, `describe_method`, `run_method`, `describe_object`, `to_mesh`, `list_skills`, `get_skill`. An agent can browse the catalog, fetch one sample, run a pipeline, read the expert guide for the method it is about to use, and export standard files. Questions the package will not guess (licence, units, array layout) come back as JSON for the agent to relay to the human. No account, nothing leaves the machine ([PRIVACY.md](PRIVACY.md)). Client configurations and the full contract: [docs/mcp.md](docs/mcp.md).
 
 ## Roadmap
 

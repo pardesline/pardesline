@@ -46,7 +46,7 @@ command (same arguments).
 | `run_method(method, input_path, moving_path?, params?, output_path?, timeout?)` | one algorithm on a local file, parameters validated first |
 | `describe_object(path, layout?, kind?)` | what a local 3D file knows about itself |
 | `to_mesh(path, label?, isovalue?, output_path?)` | exact surface of a label map, or an isosurface |
-| `list_skills()`, `get_skill(name, file?)` | the 20 expert guides and their reference scripts |
+| `list_skills()`, `get_skill(name, file?)` | the 19 expert guides and their reference scripts |
 
 Resources: `pardesline://datasets` (JSON list), `pardesline://manifest/{name}`
 (one manifest), `pardesline://catalog`, `pardesline://skills`,
@@ -81,4 +81,4 @@ and run in a worker thread; `build_server()` registers them. Tests:
 `tests/test_mcp_server.py` (in-process calls and a stdio round trip with the
 real client).
 
-<sub>Source: `skills/mcp-server/SKILL.md`, one of the twenty skills served by `pardesline mcp`; published on 2026-11-03.</sub>
+<sub>Source: `skills/mcp-server/SKILL.md`, one of the 19 skills served by `pardesline mcp`; published on 2026-11-03.</sub>
