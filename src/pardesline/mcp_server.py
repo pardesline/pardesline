@@ -27,12 +27,27 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 
 from loguru import logger
 
 from ._version import __version__
 from .errors import MissingDependency, NeedsConfirmation, PardesLineError
+
+try:  # pydantic comes with the mcp extra; the tool signatures below need Field in module globals
+    from pydantic import Field
+except ImportError:  # build_server raises MissingDependency("mcp") before Field is used
+    Field = None  # type: ignore[assignment,misc]
+
+# Tool signatures are evaluated against these module globals (``from __future__ import annotations``).
+_REF = (
+    "Dataset reference: a bundled name (msd_task02_heart), hf://org/name[/folder], "
+    "s3://bucket/prefix, tcia://Collection[/CT,MR] or a local folder."
+)
+_LAYOUT = (
+    'How to read a raw .npy/.npz/.bin array, never guessed: {"dtype": "float32", "shape": "(N,4)", '
+    '"columns": ["x", "y", "z", "reflectance"], "key": "<member of an .npz>"}.'
+)
 
 __all__ = ["build_server", "main"]
 
@@ -497,10 +512,26 @@ def build_server(name: str = "pardesline"):
     try:
         import anyio
         from mcp.server.fastmcp import FastMCP
+        from mcp.types import ToolAnnotations
     except ImportError:
         raise MissingDependency("mcp", "mcp") from None
 
     server = FastMCP(name, instructions=INSTRUCTIONS)
+    # FastMCP reports the mcp SDK's own version in serverInfo unless the low-level server has one.
+    if hasattr(server, "_mcp_server"):
+        server._mcp_server.version = __version__
+
+    # Hints for clients and directories (MCP 2025-06-18 tool annotations).
+    read_local = ToolAnnotations(readOnlyHint=True, idempotentHint=True, openWorldHint=False)
+    read_remote = ToolAnnotations(readOnlyHint=True, idempotentHint=True, openWorldHint=True)
+
+    def writes(*, destructive: bool = False, idempotent: bool = True, remote: bool = False):
+        return ToolAnnotations(
+            readOnlyHint=False,
+            destructiveHint=destructive,
+            idempotentHint=idempotent,
+            openWorldHint=remote,
+        )
 
     async def _call(fn, *args, **kwargs):
         try:
@@ -515,9 +546,19 @@ def build_server(name: str = "pardesline"):
             logger.exception("tool {} failed", getattr(fn, "__name__", fn))
             return {"error": type(exc).__name__, "message": str(exc)}
 
-    @server.tool()
+    @server.tool(title="List bundled datasets", annotations=read_local)
     async def list_datasets(
-        tag: str | None = None, scheme: str | None = None, medical_only: bool = False
+        tag: Annotated[
+            str | None,
+            Field(
+                description="Keep manifests with this tag: medical, ct, mri, dicom, mesh, lidar, points..."
+            ),
+        ] = None,
+        scheme: Annotated[
+            str | None,
+            Field(description="Keep one source scheme: archive, hf, s3, tcia, https, urllist or open3d."),
+        ] = None,
+        medical_only: Annotated[bool, Field(description="Only the medical imaging datasets.")] = False,
     ) -> dict:
         """List the bundled dataset manifests (name, source, licence, roles). Filter by tag
         (medical, ct, mri, dicom, mesh, lidar...) or scheme (archive, hf, s3, tcia, https, urllist,
@@ -525,39 +566,74 @@ def build_server(name: str = "pardesline"):
         tcia://Collection[/CT,MR] or a local folder to describe_dataset / scan_dataset."""
         return await _call(impl_list_datasets, tag, scheme, medical_only)
 
-    @server.tool()
-    async def describe_dataset(ref: str, count_samples: bool = False) -> dict:
+    @server.tool(title="Describe a dataset", annotations=read_remote)
+    async def describe_dataset(
+        ref: Annotated[str, Field(description=_REF)],
+        count_samples: Annotated[
+            bool, Field(description="List the source over the network and return the number of samples.")
+        ] = False,
+    ) -> dict:
         """Roles, licence, citation and layout of a dataset: a bundled name (msd_task02_heart),
         hf://org/name[/folder], s3://bucket/prefix, tcia://Collection or a local folder with a
         confirmed manifest. count_samples=True lists the source (network) and returns the count."""
         return await _call(impl_describe_dataset, ref, count_samples)
 
-    @server.tool()
+    @server.tool(title="List samples of a dataset", annotations=read_remote)
     async def list_samples(
-        ref: str, limit: int = 50, offset: int = 0, filters: dict[str, str] | None = None
+        ref: Annotated[str, Field(description=_REF)],
+        limit: Annotated[int, Field(description="Number of samples per page.", ge=1)] = 50,
+        offset: Annotated[int, Field(description="Index of the first sample of the page.", ge=0)] = 0,
+        filters: Annotated[
+            dict[str, str] | None,
+            Field(description='Sample fields to match exactly, e.g. {"split": "Tr"} or {"patient": "0001"}.'),
+        ] = None,
     ) -> dict:
         """Page through the samples of a dataset: ids, roles and fields (split, patient...). Nothing
         is downloaded. filters match sample fields, e.g. {"split": "Tr"}."""
         return await _call(impl_list_samples, ref, limit, offset, filters)
 
-    @server.tool()
-    async def load_sample(ref: str, sample: str, role: str, standard: bool = True) -> dict:
-        """Download ONE file (or DICOM series) of a dataset and return its local path with kind,
-        frame, units, labels, licence, provenance and the methods that accept it. sample is an id
-        or an index. standard=True also materialises raw arrays / DICOM folders as PLY / MetaImage
-        (standard_path) so run_method can take them."""
+    @server.tool(title="Download one sample", annotations=writes(remote=True))
+    async def load_sample(
+        ref: Annotated[str, Field(description=_REF)],
+        sample: Annotated[str, Field(description="Sample id from list_samples, or its index as a string.")],
+        role: Annotated[
+            str, Field(description="Which file of the sample: a role name such as image, label, mri.")
+        ],
+        standard: Annotated[
+            bool,
+            Field(
+                description="Also write a PLY / MetaImage copy of raw arrays and DICOM folders "
+                "(standard_path)."
+            ),
+        ] = True,
+    ) -> dict:
+        """Download ONE file (or DICOM series) of a dataset into the local cache and return its local
+        path with kind, frame, units, labels, licence, provenance and the methods that accept it.
+        sample is an id or an index. standard=True also materialises raw arrays / DICOM folders as
+        PLY / MetaImage (standard_path) so run_method can take them."""
         return await _call(impl_load_sample, ref, sample, role, standard)
 
-    @server.tool()
-    async def scan_dataset(ref: str) -> dict:
+    @server.tool(title="Scan an unknown dataset", annotations=read_remote)
+    async def scan_dataset(ref: Annotated[str, Field(description=_REF)]) -> dict:
         """Draft a manifest for a private folder, hf://, s3:// or tcia:// source and return the
         questions the package will not answer by guessing (licence, units, frame, label meanings,
         array layouts). Relay them to the human, then call confirm_dataset."""
         return await _call(impl_scan_dataset, ref)
 
-    @server.tool()
+    @server.tool(title="Confirm a scanned dataset", annotations=writes(remote=True))
     async def confirm_dataset(
-        ref: str, answers: dict[str, Any] | None = None, save_to: str | None = None
+        ref: Annotated[str, Field(description=_REF)],
+        answers: Annotated[
+            dict[str, Any] | None,
+            Field(
+                description="The human's answers to scan_dataset's questions: license, pairing, units, "
+                'frame, labels ({"1": "liver"} per role), types and layout per role.'
+            ),
+        ] = None,
+        save_to: Annotated[
+            str | None,
+            Field(description="Where to write the confirmed manifest (default: next to a local folder)."),
+        ] = None,
     ) -> dict:
         """Answer the scan's questions and load the dataset. answers keys: license (SPDX id or free
         text), pairing, units / frame (one value or per role), labels (per role {"1": "liver"}),
@@ -565,58 +641,113 @@ def build_server(name: str = "pardesline"):
         columns, key). The confirmed manifest is saved next to a local folder, or to save_to."""
         return await _call(impl_confirm_dataset, ref, answers, save_to)
 
-    @server.tool()
-    async def export_dataset(ref: str, folder: str, take: int | None = None, overwrite: bool = False) -> dict:
+    @server.tool(
+        title="Export a dataset as standard files", annotations=writes(destructive=True, remote=True)
+    )
+    async def export_dataset(
+        ref: Annotated[str, Field(description=_REF)],
+        folder: Annotated[str, Field(description="Local folder to write into.")],
+        take: Annotated[
+            int | None, Field(description="Export only the first N samples (default: all).", ge=1)
+        ] = None,
+        overwrite: Annotated[bool, Field(description="Replace files that already exist in folder.")] = False,
+    ) -> dict:
         """Write a standard copy of a dataset (or its first `take` samples): PLY / MetaImage / NIfTI
         files, a .pardesline.json sidecar each (frame, units, labels, licence, provenance) and a
-        local pardesline.manifest.json. Downloads everything it exports."""
+        local pardesline.manifest.json. Downloads everything it exports; existing files are only
+        replaced with overwrite=True."""
         return await _call(impl_export_dataset, ref, folder, take, overwrite)
 
-    @server.tool()
-    async def list_methods(extension: str | None = None, category: str | None = None) -> dict:
+    @server.tool(title="List algorithms", annotations=read_local)
+    async def list_methods(
+        extension: Annotated[
+            str | None,
+            Field(description="Keep methods that accept this input extension: .ply, .stl, .mha..."),
+        ] = None,
+        category: Annotated[
+            str | None, Field(description="Keep one category, e.g. registration, mesh, segmentation.")
+        ] = None,
+    ) -> dict:
         """The 73 catalog algorithms by module, with parameter names; filter by input extension
         (.ply, .mha...) or category. Aliases (downsample, poisson, segment...) are listed too."""
         return await _call(impl_list_methods, extension, category)
 
-    @server.tool()
-    async def describe_method(method: str) -> dict:
+    @server.tool(title="Describe an algorithm", annotations=read_local)
+    async def describe_method(
+        method: Annotated[
+            str,
+            Field(description='"module.method" (simpleitk_registration.rigid), an alias, or a module name.'),
+        ],
+    ) -> dict:
         """Every parameter of a method (type, default, range, choices, description):
         "module.method", e.g. simpleitk_registration.rigid, or a module name."""
         return await _call(impl_describe_method, method)
 
-    @server.tool()
+    @server.tool(title="Run an algorithm", annotations=writes(idempotent=False))
     async def run_method(
-        method: str,
-        input_path: str,
-        moving_path: str | None = None,
-        params: dict[str, Any] | None = None,
-        output_path: str | None = None,
-        timeout: float = 600,
+        method: Annotated[str, Field(description='"module.method" or an alias (downsample, poisson...).')],
+        input_path: Annotated[
+            str, Field(description="Local input file; the fixed image or cloud for registration methods.")
+        ],
+        moving_path: Annotated[
+            str | None, Field(description="Local moving file, for registration methods only.")
+        ] = None,
+        params: Annotated[
+            dict[str, Any] | None,
+            Field(
+                description="Method parameters by name (see describe_method); validated before anything runs."
+            ),
+        ] = None,
+        output_path: Annotated[
+            str | None,
+            Field(
+                description="Where to write the result (default: the system temp folder pardesline-outputs)."
+            ),
+        ] = None,
+        timeout: Annotated[float, Field(description="Seconds before the run is stopped.", gt=0)] = 600,
     ) -> dict:
         """Run one catalog algorithm on a local file ("module.method" or an alias). Registration
         methods take the fixed image as input_path and the moving one as moving_path. Parameters are
         validated against the catalog before anything runs. Returns the output path and the log tail."""
         return await _call(impl_run_method, method, input_path, moving_path, params, output_path, timeout)
 
-    @server.tool()
+    @server.tool(title="Describe a local 3D file", annotations=read_local)
     async def describe_object(
-        path: str, layout: dict[str, Any] | None = None, kind: str | None = None
+        path: Annotated[
+            str, Field(description="Local file: PLY, STL, OBJ, MHA, NIfTI, DICOM folder, raw array...")
+        ],
+        layout: Annotated[dict[str, Any] | None, Field(description=_LAYOUT)] = None,
+        kind: Annotated[str | None, Field(description="For raw arrays: points, volume or labels.")] = None,
     ) -> dict:
         """What a local 3D file knows about itself: kind, frame and units (from the header or
         unknown), labels, licence, header info, accepted methods. Raw .npy/.npz/.bin need a layout
         (dtype, shape, columns, key) and optionally a kind (points, volume, labels)."""
         return await _call(impl_describe_object, path, layout, kind)
 
-    @server.tool()
+    @server.tool(title="Volume to surface mesh", annotations=writes())
     async def to_mesh(
-        path: str, label: int | None = None, isovalue: float | None = None, output_path: str | None = None
+        path: Annotated[
+            str, Field(description="Local volume or label map (MHA, NRRD, NIfTI, DICOM folder).")
+        ],
+        label: Annotated[
+            int | None, Field(description="Label value whose exact boundary becomes the mesh.")
+        ] = None,
+        isovalue: Annotated[
+            float | None, Field(description="Grey level of the surface, for intensity volumes.")
+        ] = None,
+        output_path: Annotated[
+            str | None,
+            Field(
+                description="Where to write the mesh (default: the system temp folder pardesline-outputs)."
+            ),
+        ] = None,
     ) -> dict:
         """Surface from a volume in world coordinates: label=k for the exact boundary of a label
         map (LPS millimetres), isovalue=v for the level set of a grey-level volume. Exactly one of
         the two."""
         return await _call(impl_to_mesh, path, label, isovalue, output_path)
 
-    @server.tool()
+    @server.tool(title="List expert skills", annotations=read_local)
     async def list_skills() -> dict:
         """The expert skills shipped with pardesline (3D representations, point-cloud
         registration, multimodal rigid registration, atlas label transfer, PointNet
@@ -626,8 +757,14 @@ def build_server(name: str = "pardesline"):
         designing a pipeline in its domain."""
         return await _call(impl_list_skills)
 
-    @server.tool()
-    async def get_skill(name: str, file: str | None = None) -> dict:
+    @server.tool(title="Read an expert skill", annotations=read_local)
+    async def get_skill(
+        name: Annotated[str, Field(description="Skill name from list_skills.")],
+        file: Annotated[
+            str | None,
+            Field(description='A file inside the skill, e.g. "scripts/<name>.py" (default: SKILL.md).'),
+        ] = None,
+    ) -> dict:
         """Return a skill's SKILL.md (the expert guide: theory, parameters, pitfalls, pardesline
         calls) or one of its files (file="scripts/xxx.py"): the reference implementations are
         meant to be copied and adapted."""
