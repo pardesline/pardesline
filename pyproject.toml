@@ -72,7 +72,7 @@ hf = [
 ]
 # The local MCP server (`pardesline mcp`) for Claude, Gemini, Cursor, Codex and any MCP client.
 mcp = [
-    "mcp>=1.2,<2",
+    "mcp>=1.10,<2",
 ]
 all = ["pardesline[local,medical,hf,mcp]"]
 dev = [

@@ -57,6 +57,30 @@ def test_tools_and_resources_are_registered(server):
     assert "start_here" in prompts
 
 
+def test_tools_carry_titles_annotations_and_parameter_docs(server):
+    """What directories (Glama, the official registry, Docker) and clients read before calling."""
+    from pardesline._version import __version__
+
+    assert server._mcp_server.version == __version__  # not the mcp SDK's version
+    read_only = {
+        "list_datasets",
+        "describe_dataset",
+        "list_samples",
+        "scan_dataset",
+        "list_methods",
+        "describe_method",
+        "describe_object",
+        "list_skills",
+        "get_skill",
+    }
+    for t in asyncio.run(server.list_tools()):
+        assert t.title, t.name
+        assert t.annotations is not None, t.name
+        assert t.annotations.readOnlyHint is (t.name in read_only), t.name
+        for param, schema in t.inputSchema.get("properties", {}).items():
+            assert len(schema.get("description", "")) > 10, f"{t.name}.{param}"
+
+
 def test_list_and_describe_datasets(server):
     out = call(server, "list_datasets", medical_only=True)
     assert out["count"] >= 30 and any(d["name"] == "msd_task02_heart" for d in out["datasets"])
@@ -155,10 +179,11 @@ def test_stdio_roundtrip_with_a_real_client(tmp_path):
             tools = await s.list_tools()
             res = await s.call_tool("describe_method", {"method": "point_cloud_processing.voxel_downsample"})
             prompt = await s.get_prompt("start_here")
-            return init.serverInfo.name, {t.name for t in tools.tools}, res, prompt
+            return init.serverInfo, {t.name for t in tools.tools}, res, prompt
 
-    name, tools, res, prompt = asyncio.run(session())
-    assert name == "pardesline" and "load_sample" in tools and "scan_dataset" in tools
+    info, tools, res, prompt = asyncio.run(session())
+    assert info.name == "pardesline" and info.version == pl.__version__
+    assert "load_sample" in tools and "scan_dataset" in tools
     payload = res.structuredContent or json.loads(res.content[0].text)
     text = json.dumps(payload)
     assert "voxel_size" in text

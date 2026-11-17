@@ -31,6 +31,18 @@ own API key, the requests they make to that platform. The platform's own
 privacy terms apply to that use; the local package, the skills and the MCP
 server do not use it.
 
+## The hosted, read-only MCP server (Hugging Face Space)
+
+The Claude plugin directory edition (`plugins/pardesline`) and the Space at
+https://huggingface.co/spaces/Jtabet/pardesline connect to a read-only MCP
+server hosted on Hugging Face: https://jtabet-pardesline.hf.space/gradio_api/mcp/.
+Its six tools list and describe the bundled datasets, the algorithms and the
+expert guides. They take a dataset, algorithm or guide name, or a filter, as
+arguments, and return public catalogue text. They accept no files, run no
+algorithm and download no dataset. PardesLine stores nothing from these calls.
+Hugging Face hosts the Space and its own privacy policy
+(https://huggingface.co/privacy) applies to the requests it receives.
+
 ## Personal data
 
 The package does not collect personal data. Medical files a user points it at
